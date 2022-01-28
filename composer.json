@@ -1,0 +1,29 @@
+{
+    "name": "ebenefuenf/chuck",
+    "description": "",
+    "version": "0.1.0",
+    "type": "project",
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require-dev": {
+        "psy/psysh": "*",
+        "phpunit/phpunit": "^9",
+        "nunomaduro/collision": "^5.0",
+        "pestphp/pest": "^1",
+        "vimeo/psalm": "^4.3",
+        "enlightn/security-checker": "^1.9"
+    },
+    "require": {
+        "tgalopin/html-sanitizer": "^1.4",
+        "monolog/monolog": "^2.1",
+        "league/plates": "^3.3",
+        "hashids/hashids": "^4.0",
+        "filp/whoops": "^2.7",
+    },
+    "autoload": {
+        "psr-4": {
+            "Chuck\\": "Chuck",
+        }
+    }
+}

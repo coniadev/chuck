@@ -1,0 +1,98 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Chuck\Model;
+
+class Folder
+{
+    protected $db;
+    protected $folder;
+
+    public function __construct(Database $db, string $folder)
+    {
+        $this->db = $db;
+        $this->folder = $folder;
+    }
+
+    protected function scriptPath(string $key, bool $isTemplate): bool|string
+    {
+        $ext = $isTemplate ? '.php' : '';
+
+        foreach ($this->db->getScriptPaths() as $path) {
+            $result = $path . DIRECTORY_SEPARATOR . $this->folder .
+                DIRECTORY_SEPARATOR . $key . '.sql' . $ext;
+
+            if (file_exists($result)) {
+                return $result;
+            }
+        }
+
+        return false;
+    }
+
+    protected function readScript(string $key): bool|string
+    {
+        $script = $this->scriptPath($key, false);
+
+        if ($script) {
+            try {
+                return file_get_contents($script);
+            } catch (\Throwable) {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    protected function fromCache(\Memcached $mc, string $key): string
+    {
+        $memKey = APP_VERSION . '/' . $this->folder . '/' . $key;
+        $stmt = $mc->get($memKey);
+
+        if (!$stmt) {
+            $stmt = file_get_contents($this->scriptPath($key, false));
+
+            if ($stmt) {
+                $mc->set(
+                    $memKey,
+                    $stmt,
+                    (int)($this->config->get('memcached')['expire'])
+                );
+            }
+        }
+
+        return $stmt;
+    }
+
+    public function __get(string $key): Script
+    {
+        $config = $this->db->config;
+
+        if ($config->get('devel')) {
+            $stmt = $this->readScript($key);
+        } else {
+            $mc = $this->db->getMemcached();
+            if ($mc) {
+                $stmt = $this->fromCache($mc, $key);
+            } else {
+                $stmt = $this->readScript($key);
+            }
+        }
+
+        if ($stmt) {
+            return new Script($this->db, $stmt, false);
+        }
+
+        // If $stmt is not truthy until now,
+        // assume the script is a dnyamic sql template
+        $script = $this->scriptPath($key, true);
+
+        if ($script) {
+            return new Script($this->db, $script, true);
+        }
+
+        throw new \ErrorException('SQL script does not exist');
+    }
+}
