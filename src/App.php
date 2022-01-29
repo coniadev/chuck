@@ -55,12 +55,28 @@ class App
         $error->register();
     }
 
-    public function addRoute(array $params): void
-    {
+    public function route(
+        string $name,
+        string $route,
+        string|callable $view,
+        array|string $method,
+        string $renderer = null,
+        string $permissions = null,
+    ): void {
         $this->router->add($params);
     }
 
-    public function addStaticRoute(
+    public function get(
+        string $name,
+        string $route,
+        string|callable $view,
+        string $renderer = null,
+        string $permissions = null,
+    ): void {
+        $this->route($name, $route, $view, 'GET', $renderer, $permission);
+    }
+
+    public function staticRoute(
         string $name,
         string $prefix,
         bool $cacheBusting = false
