@@ -9,7 +9,6 @@ use \PDO;
 use Chuck\ConfigInterface;
 use Chuck\Hash;
 use Chuck\RequestInterface;
-use Chuck\Plugin;
 
 class Database
 {
@@ -44,7 +43,8 @@ class Database
             $dirs = [$dirs];
         }
 
-        $this->scriptPaths = array_merge($dirs, Plugin::sqlDirs($this->config, $this->request));
+        // TODO: add additional paths
+        $this->scriptPaths = array_merge($dirs, []);
     }
 
     public function getScriptPaths(): array

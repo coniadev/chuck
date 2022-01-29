@@ -48,7 +48,6 @@ class Runner
 
     public static function run(
         \Chuck\ConfigInterface $config,
-        ?string $pluginPath
     ): void {
         $scriptDirs = [];
 
@@ -74,12 +73,6 @@ class Runner
 
                     if (file_exists($file)) {
                         $cmd = require $file;
-
-                        if ($pluginPath !== null) {
-                            $pluginName = basename($pluginPath);
-                            $plugin = new ("\\App\\Plugin\\$pluginName\\$pluginName")();
-                            $cmd->setPlugin($plugin);
-                        }
 
                         $cmd->run($config, ...array_slice($_SERVER['argv'], 2));
                         return;

@@ -33,7 +33,6 @@ class Config implements ConfigInterface
             'path' => [
                 'app' => $appDir,
                 'root' => $rootDir,
-                'plugins' => $rootDir . $ds . 'plugins',
                 'migrations' => $rootDir . $ds . 'db' . $ds . 'migrations',
                 'sql' => [$appDir . $ds . 'Model' . $ds . 'sql'],
                 'templates' => $appDir . $ds . 'Templates',

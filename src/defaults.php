@@ -1,26 +1,38 @@
 <?php
 
 return [
-    'appname' => null, // must be set in app config
-    'hostname' => null, // e. g. 'example.com'. Must be set in app config
-    'url' => null, // e. g. 'https://www.example.com'. Must be set in app config
+    // must be set in app config
+    'appname' => null,
+
+    // e. g. 'example.com'. Must be set in app config
+    'hostname' => null,
+
+    // e. g. 'https://www.example.com'. Must be set in app config
+    'url' => null,
     'namespace' => 'App',
     'devel' => false,
-    'print_sql' => false, // print interpolated sql to stdout
-    'devport' => 2323, // the develompent server port
-    'default_permission' => null, // the permission required for every request
+    // print interpolated sql to stdout
+    'print_sql' => false,
+
+    // the develompent server port
+    'devport' => 2323,
+
+    // the permission required for every request
+    'default_permission' => null,
     'default_locale' => null,
     'loglevel' => 'DEBUG',
-
-    'plugins' => [],
 
     // this value will be added to the current time()
     // as expiry date for sessions.
     'session' => [
         'expire' => 60 * 60 * 24 * 7,
-        'custom' => false, // indicates wether a custom session handler is used
-        'model' => null, // the custom handler.
+
+        // indicates wether a custom session handler is used
+        'custom' => false,
+
+        // the custom handler.
         // must implement \Chuck\Model\SessionInterface
+        'model' => null,
     ],
 
     // path values will be initialized with
@@ -32,8 +44,12 @@ return [
         'sql' => null,
         'templates' => null,
         'public' => null,
-        'log' => null,          // if set, file logging will be activated
-        'scripts' => null,      // additional custom `php run` scripts:
+
+        // if set, file logging will be activated
+        'log' => null,
+
+        // additional custom `php run` scripts:
+        'scripts' => null,
     ],
 
     // default classes
@@ -46,8 +62,9 @@ return [
         'Model' => '\Chuck\Model\Model',
         'Template' => '\Chuck\Template',
         'Log' => '\Chuck\Log',
-        'Auth' => null,         // set if you want to use authentication
+        // set if you want to use authentication
         // must implement \Chuck\Model\AuthInterface
+        'Auth' => null,
     ],
 
     'renderer' => [
@@ -57,7 +74,8 @@ return [
     ],
 
     // memcached configuration
-    'memcached' => null, // [
+    'memcached' => null,
+    //example: [
     //    'use' => false,
     //    'host' => 'localhost',
     //    'port' => 11211,
@@ -66,10 +84,13 @@ return [
 
     'sanitizer' => [
         'extensions' => [
-            'basic',     // a, b, br, blockquote, div, del, em, figcaption,
-            //              figure, h1, h2, h3, h4, h5, h6, i, p, q, small,
-            //              span, strong, sub, sup
-            'list',      // dd, dl, dt, li, ol, ul
+            // a, b, br, blockquote, div, del, em, figcaption,
+            // figure, h1, h2, h3, h4, h5, h6, i, p, q, small,
+            // span, strong, sub, sup
+            'basic',
+
+            // dd, dl, dt, li, ol, ul
+            'list',
 
             //'block',   // section, article, aside
             //'code',    // pre, code

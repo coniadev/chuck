@@ -4,19 +4,12 @@ declare(strict_types=1);
 
 namespace Chuck\Cli;
 
-use Chuck\Plugin;
 
 abstract class Command
 {
     public static string $group;
     public static string $title;
     public static string $desc;
-    protected ?Plugin $plugin = null;
-
-    public function setPlugin(Plugin $plugin)
-    {
-        $this->plugin = $plugin;
-    }
 
     protected function arg(int $index): ?string
     {
