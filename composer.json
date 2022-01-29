@@ -21,7 +21,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Chuck\\": "Chuck"
+            "Chuck\\": "src"
         }
     },
     "config": {

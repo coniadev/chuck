@@ -6,7 +6,7 @@ namespace Chuck;
 
 interface ConfigInterface
 {
-    public function __construct(string $configFile, array $custom = []);
+    public function __construct(array $config);
     public function get(string $key);
     public function getOr(string $key, $default);
     public function path(string $key);

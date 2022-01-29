@@ -30,6 +30,7 @@ return [
 
     // the permission required for every request
     'default_permission' => null,
+    'locales' => []
     'default_locale' => null,
     'loglevel' => 'DEBUG',
 
