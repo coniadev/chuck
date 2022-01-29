@@ -17,10 +17,9 @@ return [
 
     // e. g. 'example.com'. Must be set in app config
     'hostname' => null,
-
     // e. g. 'https://www.example.com'. Must be set in app config
     'url' => null,
-    'namespace' => 'App',
+
     'devel' => false,
     // print interpolated sql to stdout
     'print_sql' => false,

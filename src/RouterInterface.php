@@ -10,7 +10,6 @@ use Chuck\Exception\HttpBadRequest;
 
 interface RouterInterface
 {
-    public function __construct(string $namespace);
     public function getRoutes(): array;
     public function add(array $route);
     public function addStatic(

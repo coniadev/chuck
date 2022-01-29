@@ -10,7 +10,7 @@ class Superuser extends Chuck\Cli\Command
     public function run(Chuck\ConfigInterface $config, string ...$args): void
     {
         $class = $config->di('Router');
-        $router = new $class($config->get('namespace'));
+        $router = new $class();
         $class = $config->di('Request');
         $request = new $class($config, $router);
         $model = $config->di('Model');

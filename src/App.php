@@ -25,7 +25,7 @@ class App
         $this->loadSettings();
 
         $class = $this->config->di('Router');
-        $this->router = new $class($this->config->get('namespace'));
+        $this->router = new $class();
 
         $class = $this->config->di('Request');
         $this->request = new $class($this->config, $this->router);

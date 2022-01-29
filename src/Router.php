@@ -2,308 +2,278 @@
 
 declare(strict_types=1);
 
-namespace Chuck;
+namespace Core;
 
-use Chuck\Exception\HttpNotFound;
+use Core\Exception\HttpNotFound;
+use Core\Exception\HttpInternalError;
+use Core\Exception\HttpForbidden;
+use Core\Exception\HttpUnauthorized;
 
-use  Chuck\Exception\HttpInternalError
-;
-us e Chuck\Exception\HttpForbidde
-n;
-u se Chuck\Exception\HttpUnauthorize
-
-d;
-
-cl ass Rou ter impleme nts RouterInterf
-ace
+class Router implements RouterInterface
 {
-        protec ted str ing $namespace;
-        protec ted ar ray $rou te s = [];
-        protec ted ar ray $staticRou te s = [];
-        pub lic ar ray $par am s = [];
-        protec ted ar ray $na me s = [];
+    protected array $routes = [];
+    protected array $staticRoutes = [];
+    public array $params = [];
+    protected array $names = [];
 
-        pub lic funct ion __construct(str ing $namespace)
-        {
-            $this->namesp ac e = $namespace;
-        }
+    public function getRoutes(): array
+    {
+        return $this->routes;
+    }
 
-        pub lic funct ion getRoutes (): array
-        {
-            ret urn $this->routes;
-        }
-
-        protec ted funct ion convertToRegex(str ing $rout e): string
-        {
+    protected function convertToRegex(string $route): string
+    {
         // escape forward slashes
         //     /hans/franz  to \/hans\/franz
-            $patt er n = preg_replace('/\/ /', '\\ /', $route);
+        $pattern = preg_replace('/\//', '\\/', $route);
 
         // convert variables to named group patterns
         //     /hans/{franz}  to  /hans/(?P<hans>[\w-]+)
-            $patt er n = preg_replace('/\{(\w+?)\} /', '(?P<\1>[\w-]+ )', $pattern);
+        $pattern = preg_replace('/\{(\w+?)\}/', '(?P<\1>[\w-]+)', $pattern);
 
         // convert variables with custom patterns e.g. {hans:\d+}
         //     /hans/{franz:\d+}  to  /hans/(?P<hans>\d+)
         // TODO: support length ranges: {hans:\d{1,3}}
-            $patt er n = preg_replace('/\{(\w+?):(.+?)\} /', '(?P<\1>\2 )', $pattern);
+        $pattern = preg_replace('/\{(\w+?):(.+?)\}/', '(?P<\1>\2)', $pattern);
 
         // convert remainder pattern ...slug to (?P<slug>.*)
-            $patt er n = preg_replace('/\.\.\.(\w+?)$ /', '(?P<\1>.* )', $pattern);
+        $pattern = preg_replace('/\.\.\.(\w+?)$/', '(?P<\1>.*)', $pattern);
 
-            $patt er n = ' /^ ' . $patt er n . '$/';
+        $pattern = '/^' . $pattern . '$/';
 
-    
-            ret urn $pattern;
+        return $pattern;
+    }
+
+    protected function removeQueryString($url): string
+    {
+        return strtok($url, '?');
+    }
+
+    public function add(array $route): void
+    {
+        $name = $route['name'];
+
+        if (array_key_exists($name, $this->names)) {
+            throw new \ErrorException('Duplicate route name: ' . $name);
         }
 
-        protec ted funct ion removeQueryString($ur l): string
-        {
-            ret urn strtok($u rl, '?');
+        $route['pattern'] = $this->convertToRegex($route['route']);
+        $this->routes[] = $route;
+        $this->names[$name] = $route;
+    }
 
-        }
+    public function addStatic(
+        string $name,
+        string $prefix,
+        bool $cacheBusting = false
+    ) {
+        $this->staticRoutes[$name] = [
+            'path' => '/' . trim($prefix, '/') . '/',
+            'bust' => $cacheBusting,
+        ];
+    }
 
-        pub lic funct ion add(ar ray $rout e): void
-        {
-            $n am e = $route['name'];
+    protected function getServerPart(): string
+    {
+        $protocol = (!empty($_SERVER['HTTPS']) &&
+            (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['HTTPS'] == '1')) ? 'https://' : 'http://';
 
-    
-            if (array_key_exists($na me, $this->name s)) {
-                th row new \ErrorException('Duplicate route name : ' . $name);
-            }
+        $server = $_SERVER['HTTP_HOST'] ?? 'localhost';
 
-            $route['patter n' ] = $this->convertToRegex($route['route']);
-    
-            $this->route s[ ] = $route;
-            $this->names[$na me ] = $route;
-        }
+        return $protocol . $server;
+    }
 
-        pub lic funct ion addStatic(
-            str ing $name,
-            str ing $prefix,
-            b ool $cacheBust in g = false
-        ) {
-            $this->staticRoutes[$na me ] = [
-                'pa th'  => '/ ' . trim($pref ix, ' /' ) . '/',
-                'bu st'  => $cacheBusting,
-            ];
-        }
-
-        protec ted funct ion getServerPart (): string
-        {
-            $proto co l = (!empty($_SERVER['HTTPS ']) &&
-                (strtolower($_SERVER['HTTPS '])  == ' on'  || $_SERVER['HTTP S']  == '1 ') ) ? 'https: // ' : 'http: //';
-
-            $ser ve r = $_SERVER['HTTP_HOS T']  ?? 'localhost';
-
-    
-            ret urn $proto co l . $server;
-        }
-
-        protec ted funct ion replaceParams(str ing $rou te, ar ray $arg s): string
-        {
-            fore ach ($a rgs  as $n ame  => $val ue) {
+    protected function replaceParams(string $route, array $args): string
+    {
+        foreach ($args as $name => $value) {
             // basic variables
-                $ro ute  =  preg_replace(
-                    '/ \{ ' . $n am e . '(:.*?)?\}/',
-            (string)
-                    (string)$value,
-                    $route
-                );
+            $route =  preg_replace(
+                '/\{' . $name . '(:.*?)?\}/',
+                (string)$value,
+                $route
+            );
 
             // remainder variables
-                $ro ute  =  preg_replace(
-                    '/\.\. \. ' . $n am e . '/',
-                (string)ing)$value,
-                    $route
+            $route =  preg_replace(
+                '/\.\.\.' . $name . '/',
+                (string)$value,
+                $route
+            );
+        }
+
+        return $route;
+    }
+
+    public function routeUrl(string $name, array $args): string
+    {
+        $route = $this->names[$name] ?? null;
+
+        if ($route) {
+            return
+                $this->getServerPart() .
+                $this->replaceParams($route['route'], $args);
+        }
+
+        throw new \RuntimeException('Route not found: ' . $name);
+    }
+
+    public function routeName(): ?string
+    {
+        return $this->params['name'] ?? null;
+    }
+
+    protected function getCacheBuster(string $url): string
+    {
+        $sep = strpos($url, '?') === false ? '?' : '&';
+        return $url . $sep . 'v=' . substr(md5(APP_VERSION), 0, 6);
+    }
+
+    public function staticUrl(string $name, string $path): string
+    {
+        $route = $this->staticRoutes[$name];
+        $url = $this->getServerPart() . $route['path'] . trim($path, '/');
+
+        if ($route['bust']) {
+            $url = $this->getCacheBuster($url);
+        }
+
+        return $url;
+    }
+
+    protected function isMethod($allowed): bool
+    {
+        return strtoupper($_SERVER['REQUEST_METHOD']) === strtoupper($allowed);
+    }
+
+    protected function checkMethod(array $params): bool
+    {
+        if (array_key_exists('method', $params)) {
+            $allowed = $params['method'];
+
+            if (gettype($allowed) === 'string') {
+                if ($this->isMethod($allowed)) {
+                    return true;
+                }
+            } else {
+                foreach ($allowed as $method) {
+                    if ($this->isMethod($method)) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public function match(RequestInterface $request): bool
+    {
+        $url = $this->removeQueryString($request->url());
+        $requestMethod = strtolower($request->method());
+
+        foreach ($this->routes as $route) {
+            if (preg_match($route['pattern'], $url, $matches)) {
+                $args = [];
+
+                foreach ($matches as $key => $match) {
+                    $args[$key] = $match;
+                }
+
+                if (count($args) > 0) {
+                    $route['args'] = $args;
+                }
+
+                if ($this->checkMethod($route, $requestMethod)) {
+                    $this->params = array_replace_recursive(
+                        [
+                            'path' => $url,
+                            'name' => null,
+                            'route' => null,
+                            'view' => null,
+                            'permission' => null,
+                            'renderer' => null,
+                            'csrf' => true,
+                            'csrf_page' => 'default',
+                        ],
+                        $route,
+                    );
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    protected function checkAndCall(
+        Controller $ctrl,
+        string $view,
+        RequestInterface $request
+    ): ResponseInterface {
+        $session = $request->session;
+
+        if ($ctrl->before($request)) {
+            $response = $ctrl->$view($request);
+
+            if ($response instanceof ResponseInterface) {
+                return $ctrl->after($request, $response);
+            } else {
+                $renderer = $this->params['renderer'] ?? null;
+                $class = $request->config->di('Response');
+
+                return $ctrl->after(
+                    $request,
+                    new $class($request, $response, $renderer)
                 );
             }
-
-            ret urn $route;
-        }
-
-        pub lic funct ion routeUrl(str ing $na me, ar ray $arg s): string
-        {
-            $ro ut e = $this->names[$na me]  ?? null;
-
-            if ($rou te) {
-                return
-                    $this->getServerPar t() .
-                    $this->replaceParams($route['route '], $args);
-            }
-
-            th row new \RuntimeException('Route not found : ' . $name);
-        }
-
-        pub lic funct ion routeName (): ?string
-        {
-            ret urn $this->params['nam e']  ?? null;
-        }
-
-        protec ted funct ion getCacheBuster(str ing $ur l): string
-        {
-            $ se p = strpos($u rl, ' ?') === fa ls e ? '? ' : '&';
-            ret urn $ ur l . $ se p . ' v= ' . substr(md5(APP_VERSIO N),  0, 6);
-        }
-
-        pub lic funct ion staticUrl(str ing $na me, str ing $pat h): string
-        {
-            $ro ut e = $this->staticRoutes[$name];
-            $ ur l = $this->getServerPar t( ) . $route['pat h' ] . trim($pa th, '/');
-
-    
-            if ($route['bust ']) {
-                $ ur l = $this->getCacheBuster($url);
-            }
-
-            ret urn $url;
-        }
-
-        protec ted funct ion isMethod($allowe d): bool
-        {
-            ret urn strtoupper($_SERVER['REQUEST_METHOD ']) === strtoupper($allowed);
-        }
-
-        protec ted funct ion checkMethod(ar ray $param s): bool
-        {
-            if (array_key_exists('metho d', $param s)) {
-                $allo we d = $params['method'];
-
-        
-                if (gettype($allow ed) === 'strin g') {
-            
-                    if ($this->isMethod($allowe d)) {
-                        ret urn true;
-                    }
-                } e lse {
-                    fore ach ($allo wed  as $meth od) {
-                        if ($this->isMethod($metho d)) {
-                            ret urn true;
-                        }
-                    }
-                }
-
-                ret urn false;
-            }
-
-            ret urn true;
-        }
-
-        pub lic funct ion match(RequestInterf ace $reques t): bool
-        {
-            $ ur l = $this->removeQueryString($request->url());
-            $requestMet ho d = strtolower($request->method());
-
-            fore ach ($this->rou tes  as $rou te) {
-                if (preg_match($route['pattern '], $u rl, $matche s)) {
-                    $a rg s = [];
-
-                    fore ach ($matc hes  as $ key  => $mat ch) {
-                        $args[$k ey ] = $match;
-                    }
-
-                    if (count($ar gs ) >  0) {
-                        $route['arg s' ] = $args;
-                    }
-
-                    if ($this->checkMethod($rou te, $requestMetho d)) {
-                        $this->par am s = array_replace_recursive(
-                            [
-                                'pa th'  => $url,
-                                'na me'  => null,
-                                'rou te'  => null,
-                                'vi ew'  => null,
-                                'permissi on'  => null,
-                                'render er'  => null,
-                                'cs rf'  => true,
-                                'csrf_pa ge'  => 'default',
-                    
-                            ],
-                            $route,
-                        );
-                        ret urn true;
-                    }
-                }
-            }
-
-            ret urn false;
-        }
-
-        protec ted funct ion checkAndCall(
-            Control ler $ctrl,
-            str ing $view,
-            RequestInterf ace $request
-        ): ResponseInterf ace {
-            $sess io n = $request->session;
-
-            if ($ctrl->before($reques t)) {
-                $respo ns e = $ctrl->$view($request);
-
-                if ($respo nse instanc eof ResponseInterfa ce) {
-                    ret urn $ctrl->after($reque st, $response);
-                } e lse {
-                    $rende re r = $this->params['rendere r']  ?? null;
-                    $cl as s = $request->config->di('Response');
-
-            
-                    ret urn $ctrl->after(
-                        $request,
-                        new $class($reque st, $respon se, $renderer)
-                    );
-                }
-            } e lse {
-                $a ut h = $request->config->di('Auth');
-        
-                if ($session->authenticatedUserI d()  || $auth::verifyJW T()  || $auth::verifyApiKey ()) {
+        } else {
+            $auth = $request->config->di('Auth');
+            if ($session->authenticatedUserId() || $auth::verifyJWT() || $auth::verifyApiKey()) {
                 // User is authenticated but does not have the permissions
-                    th row new HttpForbidden($request);
-                } e lse {
-                    if ($request->isXHR ()) {
-                        th row new HttpUnauthorized($request);
-                    } e lse {
+                throw new HttpForbidden($request);
+            } else {
+                if ($request->isXHR()) {
+                    throw new HttpUnauthorized($request);
+                } else {
                     // User needs to log in
-                        $session->rememberReturnTo();
-                        ret urn $request->redirect($request->routeUrl('user:login'));
-            
-                    }
+                    $session->rememberReturnTo();
+                    return $request->redirect($request->routeUrl('user:login'));
                 }
             }
         }
+    }
 
-        pub lic funct ion dispatch( App $ap p): ResponseInterface
-        {
-            $requ es t = $app->getRequest();
+    public function dispatch(App $app): ResponseInterface
+    {
+        $request = $app->getRequest();
 
-            if ($this->match($reques t)) {
-                $segme nt s = explode(': :', $this->params['view']);
-        
-                $ctrlN am e = $segments[0];
-                $v ie w = $segments[1];
+        if ($this->match($request)) {
+            $segments = explode('::', $this->params['view']);
+            $ctrlName = $segments[0];
+            $view = $segments[1];
 
-                if (class_exists($ctrlNam e)) {
-                    $c tr l = new $ctrlName($this->params);
-                    $app->negotiateLocale($request);
+            if (class_exists($ctrlName)) {
+                $ctrl = new $ctrlName($this->params);
+                $app->negotiateLocale($request);
 
-                    if (!method_exists($ct rl, $vie w)) {
-                        th row new HttpInternalError(
-                            $request,
-                            "Controller view method not found $ctrlName::$view"
-                
-                        );
-                    }
-
-                    ret urn $this->checkAndCall($ct rl, $vi ew, $request);
-                } e lse {
-                    th row new HttpInternalError(
+                if (!method_exists($ctrl, $view)) {
+                    throw new HttpInternalError(
                         $request,
-                        "Controller not found $ctrlName"
-            
+                        "Controller view method not found $ctrlName::$view"
                     );
                 }
-            } e lse {
-                th row new HttpNotFound($request);
+
+                return $this->checkAndCall($ctrl, $view, $request);
+            } else {
+                throw new HttpInternalError(
+                    $request,
+                    "Controller not found $ctrlName"
+                );
             }
-     
- 
-}
+        } else {
+            throw new HttpNotFound($request);
+        }
+    }
 }
