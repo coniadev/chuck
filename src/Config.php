@@ -31,11 +31,9 @@ class Config implements ConfigInterface
 
         return [
             'path' => [
-                'app' => $appDir,
                 'root' => $rootDir,
                 'migrations' => $rootDir . $ds . 'db' . $ds . 'migrations',
                 'sql' => [$appDir . $ds . 'Model' . $ds . 'sql'],
-                'templates' => $appDir . $ds . 'Templates',
             ]
         ];
     }

@@ -1,5 +1,16 @@
 <?php
 
+namespace Chuck;
+
+use Request;
+use Response;
+use Router;
+use Error;
+use Model\Model;
+use Template;
+use Log;
+use Renderer\{StringRenderer, JsonRenderer, TemplateRenderer};
+
 return [
     // must be set in app config
     'appname' => null,
@@ -38,7 +49,6 @@ return [
     // path values will be initialized with
     // default values in Config::getPathDefaults
     'path' => [
-        'app' => null,
         'root' => null,
         'migrations' => null,
         'sql' => null,
@@ -57,23 +67,48 @@ return [
 
     // default classes
     'di' => [
-        'Request' => '\Chuck\Request',
-        'Response' => '\Chuck\Response',
-        'Router' => '\Chuck\Router',
-        'Error' => '\Chuck\Error',
-        'Session' => '\Chuck\Session',
-        'Model' => '\Chuck\Model\Model',
-        'Template' => '\Chuck\Template',
-        'Log' => '\Chuck\Log',
+        'Request' => Request::class,
+        'Response' => Response::class,
+        'Router' => Router::class,
+        'Error' => Error::class,
+        'Session' => Session::class,
+        'Model' => Model\Model::class,
+        'Template' => Template::class,
+        'Log' => Log::class,
+
         // set if you want to use authentication
         // must implement \Chuck\Model\AuthInterface
         'Auth' => null,
     ],
 
     'renderer' => [
-        'string' => '\Chuck\Renderer\StringRenderer',
-        'json' => '\Chuck\Renderer\JsonRenderer',
-        'template' => '\Chuck\Renderer\TemplateRenderer',
+        'string' => StringRenderer::class,
+        'json' => JsonRenderer::class,
+        'template' => TemplateRenderer::class,
+    ],
+
+    // database credentials
+    'db' => [
+        'dbms' => null,  // 'pgsql', 'sqlite', or 'mysql' etc.
+        'host' => null,  // 'localhost' '192.168.13.13'
+        'port' => null,  // PostgreSQL: 5432, MySQL 3306
+        'name' => null,  // the name of the database
+        'user' => null,  // the username
+        'pass' => null,  // tha password
+
+        // if `true` the values in the settings above
+        // are considered ENVIRONMENT_VARIABLES from
+        // which the actual values are read at runtime
+        'fromenv' => false
+        // Example:
+        // [
+        //     'fromenv' => true,
+        //     'user' => 'DB_USER',
+        //     'pass' => 'DB_PASS;
+        //     ...
+        // ]
+        // Chuck now tries to read the database user's name
+        // and password from the env vars DB_USER and DB_PASS
     ],
 
     // memcached configuration
