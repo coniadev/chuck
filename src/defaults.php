@@ -42,7 +42,6 @@ return [
         'root' => null,
         'migrations' => null,
         'sql' => null,
-        'templates' => null,
         'public' => null,
 
         // if set, file logging will be activated
@@ -50,6 +49,10 @@ return [
 
         // additional custom `php run` scripts:
         'scripts' => null,
+    ],
+
+    'templates' => [
+        // 'folder' => 'path',
     ],
 
     // default classes

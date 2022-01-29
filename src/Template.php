@@ -19,12 +19,13 @@ class Template implements TemplateInterface
     ) {
         $this->request = $request;
         $config = $request->config;
-        $this->path = $path ?: $config->path('templates');
         $this->defaults = $defaults;
 
-        $this->engine = new Engine($this->path);
+        $this->engine = new Engine();
 
-        // TODO: add additional folders
+        foreach ($config->templates() as $key => $dir) {
+            $this->engine->addFolder($key, $dir);
+        }
     }
 
     public function render(string $template, $context = []): string
