@@ -2,14 +2,6 @@
 
 namespace Chuck;
 
-use Request;
-use Response;
-use Router;
-use Error;
-use Model\Model;
-use Template;
-use Log;
-use Renderer\{StringRenderer, JsonRenderer, TemplateRenderer};
 
 return [
     // must be set in app config
@@ -25,7 +17,7 @@ return [
     'print_sql' => false,
 
     // the develompent server port
-    'devport' => 2323,
+    'devport' => 1983,
 
     // the permission required for every request
     'default_permission' => null,
@@ -82,9 +74,9 @@ return [
     ],
 
     'renderer' => [
-        'string' => StringRenderer::class,
-        'json' => JsonRenderer::class,
-        'template' => TemplateRenderer::class,
+        'string' => Renderer\StringRenderer::class,
+        'json' => Renderer\JsonRenderer::class,
+        'template' => Renderer\TemplateRenderer::class,
     ],
 
     // database credentials

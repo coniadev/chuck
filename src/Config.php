@@ -26,6 +26,10 @@ class Config implements ConfigInterface
             return $this->config[$key] ?? $default;
         }
 
+        if (!array_key_exists($key, $this->config)) {
+            throw new \InvalidArgumentException("Chuck Error: The configuration key '$key' does not exist");
+        }
+
         return $this->config[$key];
     }
 
