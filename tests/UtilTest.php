@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Chuck\Util\Arrays;
 use Chuck\Util\I18n;
+use Chuck\Util\Path;
 use Chuck\Util\Strings;
 
 const TIMESTAMP = 1643545993; // 2022-01-30 13:33:13
@@ -128,4 +129,27 @@ test('string entropy', function () {
 
     expect($lower)->toBe($upper);
     expect($lower)->toBeLessThan($mixed);
+});
+
+
+test('path realpath', function () {
+    expect(
+        Path::realpath('/perserverance/./of/././the/../time')
+    )->toBe('/perserverance/of/time');
+    expect(
+        Path::realpath('spiritual/../../../healing')
+    )->toBe('healing');
+});
+
+
+test('path is inside root dir', function () {
+    $root = dirname(__DIR__);
+    $request = $this->getRequest(['path' => ['root' => $root]]);
+    $pathUtil = new Path($request);
+
+    expect($pathUtil->insideRoot("$root/../leprosy"))->toBe(false);
+    expect($pathUtil->insideRoot("$root/symbolic"))->toBe(true);
+    expect($pathUtil->insideRoot("$root/././/./symbolic"))->toBe(true);
+    expect($pathUtil->insideRoot("$root/./..//./symbolic"))->toBe(false);
+    expect($pathUtil->insideRoot("/etc/apache"))->toBe(false);
 });
