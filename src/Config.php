@@ -8,7 +8,7 @@ class Config implements ConfigInterface
 {
     protected array $config;
 
-    public function __construct(array $config);
+    public function __construct(array $config)
     {
         $defaults = require 'defaults.php';
 
@@ -18,14 +18,13 @@ class Config implements ConfigInterface
         );
     }
 
-    public function get(string $key)
+    public function get(string $key, $default = null)
     {
-        return $this->config[$key];
-    }
+        if (func_num_args() > 1) {
+            return $this->config[$key] ?? $default;
+        }
 
-    public function getOr(string $key, $default)
-    {
-        return $this->config[$key] ?? $default;
+        return $this->config[$key];
     }
 
     public function path(string $key): string|array
