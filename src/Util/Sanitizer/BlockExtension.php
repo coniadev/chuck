@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Sanitizer;
+namespace Chuck\Util\Sanitizer;
 
 use HtmlSanitizer\Extension\ExtensionInterface;
 use HtmlSanitizer\Model\Cursor;

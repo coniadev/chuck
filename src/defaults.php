@@ -119,26 +119,4 @@ return [
     //    'port' => 11211,
     //    'expire' => 86400,  // 1 day
     //],
-
-    'sanitizer' => [
-        'extensions' => [
-            // a, b, br, blockquote, div, del, em, figcaption,
-            // figure, h1, h2, h3, h4, h5, h6, i, p, q, small,
-            // span, strong, sub, sup
-            'basic',
-
-            // dd, dl, dt, li, ol, ul
-            'list',
-
-            //'block',   // section, article, aside
-            //'code',    // pre, code
-            //'details', // allows the insertion of view/hide blocks: details, summary
-            //'extra',   // abbr, caption, hr, rp, rt, ruby
-            //'headfoot',// header, footer
-            //'iframe',  // iframe
-            //'image',   // img
-            //'nav',     // nav
-            //'table',   // table, thead, tbody, tfoot, tr, td, th
-        ],
-    ],
 ];
