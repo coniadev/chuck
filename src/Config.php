@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use Chuck\Util\Path;
+
 class Config implements ConfigInterface
 {
     protected array $config;
@@ -33,11 +35,11 @@ class Config implements ConfigInterface
 
         if (is_array($path)) {
             return array_map(function ($p) {
-                return Util::realpath($p);
+                return Path::realpath($p);
             }, $path);
         }
 
-        return Util::realpath($this->config['path'][$key]);
+        return Path::realpath($this->config['path'][$key]);
     }
 
     public function di(string $key): string

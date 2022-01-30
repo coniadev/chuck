@@ -1,9 +1,10 @@
-
 <?php
 
 declare(strict_types=1);
 
 namespace Chuck\Util;
+
+use Chuck\RequestInterface;
 
 class Path
 {
@@ -12,12 +13,12 @@ class Path
         $this->request = $request;
     }
 
-    public function isInsideRootDir(string $path): bool
+    public function insideRoot(string $path): bool
     {
         $config = $this->request->config;
         $root = $config->path('root');
 
-        return str_starts_with($path, $root);
+        return str_starts_with(self::realpath($path), $root);
     }
 
     public static function realpath(string $path): string
