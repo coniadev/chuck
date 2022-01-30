@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Chuck\Util\I18n;
 
-const TIMESTAMP = 1643545993; // 2022-01-30
+const TIMESTAMP = 1643545993; // 2022-01-30 13:33:13
 
 test('parse floats', function () {
     expect(I18n::parseFloat('13,23'))->toBe(13.23);
