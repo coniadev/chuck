@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Core;
+namespace Chuck;
 
-use Core\Exception\HttpNotFound;
-use Core\Exception\HttpInternalError;
-use Core\Exception\HttpForbidden;
-use Core\Exception\HttpUnauthorized;
+use Chuck\Exception\HttpNotFound;
+use Chuck\Exception\HttpInternalError;
+use Chuck\Exception\HttpForbidden;
+use Chuck\Exception\HttpUnauthorized;
 
 class Router implements RouterInterface
 {

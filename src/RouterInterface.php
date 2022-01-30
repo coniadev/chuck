@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use Chuck\Exception\HttpNotFound;
-use Chuck\Exception\HttpInternalError;
-use Chuck\Exception\HttpBadRequest;
-
 interface RouterInterface
 {
     public function getRoutes(): array;
