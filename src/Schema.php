@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use Chuck\Util;
+use Chuck\Util\Arrays;
+use Chuck\Util\Html;
 
 class Value
 {
@@ -205,13 +206,11 @@ abstract class Schema implements SchemaInterface
 
     protected function toHtml(mixed $pristine, array $args): Value
     {
-        $util = new Util();
-
         if (count($args) === 0) {
             $args = ['basic', 'list'];
         }
 
-        $value = trim($util->clean((string)$pristine, $args));
+        $value = trim(Html::clean((string)$pristine, $args));
 
         if (empty($value)) {
             $value = null;
@@ -238,7 +237,7 @@ abstract class Schema implements SchemaInterface
 
     protected function toList($pristine, $label): Value
     {
-        if (is_array($pristine) && !Util::isAssoc($pristine)) {
+        if (is_array($pristine) && !Arrays::isAssoc($pristine)) {
             return new Value($pristine, $pristine);
         }
 
@@ -522,7 +521,7 @@ abstract class Schema implements SchemaInterface
             return $aa > $bb ? 1 : -1;
         });
 
-        $groups = Util::groupBy(array_values($errors), 'title');
+        $groups = Arrays::groupBy(array_values($errors), 'title');
         $result = [];
 
         foreach ($sections as $section) {
