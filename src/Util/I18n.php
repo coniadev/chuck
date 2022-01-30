@@ -1,11 +1,10 @@
-
 <?php
 
 declare(strict_types=1);
 
 namespace Chuck\Util;
 
-class Strings
+class I18n
 {
     /**
      * Parses a string to a float
@@ -25,10 +24,10 @@ class Strings
             return floatval($value);
         }
 
-        throw new \Exception(_('This is not a valid number'));
+        throw new \ValueError(_('This is not a valid number'));
     }
 
-    public static function getLocalizedDate(int $timestamp, string $locale): string
+    public static function localizeDate(int $timestamp, string $locale): string
     {
         $formatter = new \IntlDateFormatter(
             $locale,
