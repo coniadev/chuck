@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Chuck\Util\I18n;
+use Chuck\Util\Arrays;
 
 const TIMESTAMP = 1643545993; // 2022-01-30 13:33:13
 
@@ -20,13 +21,16 @@ test('parse floats', function () {
     expect(I18n::parseFloat('.003'))->toBe(0.003);
 });
 
+
 test('parse invalid floats 1', function () {
     expect(I18n::parseFloat('13,00h'))->toBe(1.0);
 })->throws(\ValueError::class);
 
+
 test('parse invalid floats 2', function () {
     expect(I18n::parseFloat('h23.00'))->toBe(1.0);
 })->throws(\ValueError::class);
+
 
 test('localize date', function () {
     expect(I18n::localizeDate(TIMESTAMP, 'en'))->toBe('Jan 30, 2022');
@@ -52,6 +56,7 @@ test('localize date', function () {
     ))->toBe('30.01.2565 BE');
 });
 
+
 test('localize date and time', function () {
     expect(I18n::localizeDateTime(TIMESTAMP, 'en'))->toBe('Jan 30, 2022, 12:33:13 PM');
     expect(I18n::localizeDateTime(TIMESTAMP, 'de'))->toBe('30.01.2022, 12:33:13');
@@ -74,4 +79,41 @@ test('localize date and time', function () {
         tz: 'CET',
         calendar: \IntlDateFormatter::TRADITIONAL,
     ))->toBe('30.01.4 Reiwa, 13:33:13');
+});
+
+
+test('array group by', function () {
+    $data = [
+        ['key' => 'leprosy', 'value' => 13],
+        ['key' => 'symbolic', 'value' => 31],
+        ['key' => 'leprosy', 'value' => 17],
+        ['key' => 'leprosy', 'value' => 23],
+        ['key' => 'symbolic', 'value' => 37],
+        ['key' => 'symbolic', 'value' => 41],
+        ['key' => 'leprosy', 'value' => 29],
+    ];
+
+    expect(Arrays::groupBy($data, 'key'))->toBe(
+        [
+            'leprosy' => [
+                ['key' => 'leprosy', 'value' => 13],
+                ['key' => 'leprosy', 'value' => 17],
+                ['key' => 'leprosy', 'value' => 23],
+                ['key' => 'leprosy', 'value' => 29],
+            ],
+            'symbolic' => [
+                ['key' => 'symbolic', 'value' => 31],
+                ['key' => 'symbolic', 'value' => 37],
+                ['key' => 'symbolic', 'value' => 41],
+            ]
+        ]
+    );
+});
+
+
+test('array is assoc', function () {
+    expect(Arrays::isAssoc([]))->toBe(false);
+    expect(Arrays::isAssoc([1, 2, 3]))->toBe(false);
+    expect(Arrays::isAssoc(['leprosy' => 1, 'symbolic' => 2]))->toBe(true);
+    expect(Arrays::isAssoc([1 => 1, 2 => 2]))->toBe(true);
 });

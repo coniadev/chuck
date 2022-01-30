@@ -43,6 +43,7 @@ test('type int', function () {
     expect(13)->toBe($pristine['valid_int_2']);
 });
 
+
 test('type float', function () {
     $testData = [
         'valid_float_1' => '13',
@@ -73,6 +74,7 @@ test('type float', function () {
     expect(isset($errors['map']['valid_float_3']))->toBeFalse();
     expect(isset($errors['map']['valid_float_4']))->toBeFalse();
 });
+
 
 test('type boolean', function () {
     $testData = [
@@ -126,6 +128,7 @@ test('type boolean', function () {
     expect(13)->toBe($pristine['invalid_bool_2']);
 });
 
+
 test('type text', function () {
     $testData = [
         'valid_text_1' => 'Lorem ipsum',
@@ -160,6 +163,7 @@ test('type text', function () {
     expect(false)->toBe($pristine['valid_text_2']);
     expect(null)->toBe($pristine['valid_text_5']);
 });
+
 
 test('type html', function () {
     $html = '<a href="http://example.com/test">Test</a>' .
@@ -196,6 +200,7 @@ test('type html', function () {
     expect(null)->toBe($pristine['valid_html_4']);
 });
 
+
 test('type plain', function () {
     $testData = [
         'valid_plain_1' => '<a onclick="">Test</a><script></script>',
@@ -224,6 +229,7 @@ test('type plain', function () {
     expect(true)->toBe($pristine['valid_plain_2']);
     expect(null)->toBe($pristine['valid_plain_3']);
 });
+
 
 test('type list', function () {
     $testData = [
@@ -262,6 +268,7 @@ test('type list', function () {
     expect('invalid')->toBe($pristine['invalid_list_1']);
     expect(13)->toBe($pristine['invalid_list_2']);
 });
+
 
 test('unknown data', function () {
     $testData = [
@@ -319,6 +326,7 @@ test('unknown data', function () {
     expect('23')->toBe($pristine['unknown_4']);
 });
 
+
 test('required validator', function () {
     $testData = [
         'valid_1' => 'value',
@@ -352,6 +360,7 @@ test('required validator', function () {
     expect($errors['map']['invalid_3'][0])->toEqual('-schema-required-Required 3-');
 });
 
+
 test('email validator', function () {
     $testData = [
         'valid_email' => 'valid@email.com',
@@ -372,6 +381,7 @@ test('email validator', function () {
     expect($errors['errors'])->toHaveCount(1);
     expect($errors['map']['invalid_email'][0])->toEqual('-schema-invalid-email-Email-invalid@email-');
 });
+
 
 test('min value validator', function () {
     $testData = [
@@ -403,6 +413,7 @@ test('min value validator', function () {
     expect($errors['map']['invalid_2'][0])->toEqual('-schema-min-Min-7.13-10-');
 });
 
+
 test('max value validator', function () {
     $testData = [
         'valid_1' => 13,
@@ -433,6 +444,7 @@ test('max value validator', function () {
     expect($errors['map']['invalid_2'][0])->toEqual('-schema-max-Max-23.13-13-');
 });
 
+
 test('min length validator', function () {
     $testData = [
         'valid_1' => 'abcdefghijklm',
@@ -456,6 +468,7 @@ test('min length validator', function () {
     expect($errors['map']['invalid'][0])->toEqual('-schema-minlen-Minlen-10-');
 });
 
+
 test('max length validator', function () {
     $testData = [
         'valid_1' => 'abcdefghi',
@@ -478,6 +491,7 @@ test('max length validator', function () {
     expect($errors['errors'])->toHaveCount(1);
     expect($errors['map']['invalid'][0])->toEqual('-schema-maxlen-Maxlen-10-');
 });
+
 
 test('regex validator ', function () {
     $testData = [
@@ -504,6 +518,7 @@ test('regex validator ', function () {
     expect($errors['map']['invalid'][0])->toEqual("-schema-regex-Regex-abcdefghiklm-");
 });
 
+
 test('in validator ', function () {
     $testData = [
         'valid1' => 'valid',
@@ -527,6 +542,7 @@ test('in validator ', function () {
     expect($errors['map']['invalid'][0])->toEqual('-schema-in-In-valid,alsovalid-');
 });
 
+
 class SubSchema extends Schema
 {
     public function rules(): void
@@ -535,6 +551,7 @@ class SubSchema extends Schema
         $this->add('inner_email', 'Email', 'text', 'required', 'email');
     }
 }
+
 
 test('sub schema', function () {
     $testData = [
@@ -558,6 +575,7 @@ test('sub schema', function () {
 
     expect($schema->validate($testData))->toBeTrue();
 });
+
 
 test('invalid sub schema', function () {
     $testData = [
@@ -584,6 +602,7 @@ test('invalid sub schema', function () {
     expect($errors['map']['text'][0])->toEqual('-schema-required-Text-');
     expect($errors['map']['schema']['inner_email'][0])->toEqual('-schema-invalid-email-Email-test INVALID example.com-');
 });
+
 
 test('list schema', function () {
     $testData = [[
@@ -631,6 +650,7 @@ test('list schema', function () {
     expect($values[1]['list_schema'][0]['inner_email'])->toEqual('example@example.com');
     expect($values[1]['list_schema'][1]['inner_int'])->toEqual(47);
 });
+
 
 function getListData(): array
 {
@@ -687,6 +707,7 @@ function getListData(): array
     ];
 }
 
+
 function getListSchema(): Schema
 {
     return new class(title: 'List Root', list: true) extends Schema
@@ -706,6 +727,7 @@ function getListSchema(): Schema
     };
 }
 
+
 test('invalid list schema', function () {
     $testData = getListData();
     $schema = getListSchema();
@@ -721,6 +743,7 @@ test('invalid list schema', function () {
     expect($errors['map'][3]['list_schema'][0]['inner_int'][0])->toEqual('-schema-invalid-integer-Int-');
     expect($errors['map'][3]['list_schema'][2]['inner_email'][0])->toEqual('-schema-invalid-email-Email-example INVALID example.com-');
 });
+
 
 test('grouped errors', function () {
     $testData = getListData();

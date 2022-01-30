@@ -32,6 +32,7 @@ test('clean with default extensions', function () {
     expect(Html::clean(MALFORMED))->toBe($clean);
 });
 
+
 test('clean with block extension', function () {
     $clean = '
         Test
@@ -47,6 +48,7 @@ test('clean with block extension', function () {
     expect(Html::clean(MALFORMED, ['basic', 'block']))->toBe($clean);
 });
 
+
 test('clean with headfoot extension', function () {
 
     $clean = '
@@ -58,6 +60,7 @@ test('clean with headfoot extension', function () {
 
     expect(Html::clean(MALFORMED, ['basic', 'headfoot']))->toBe($clean);
 });
+
 
 test('clean with nav extension', function () {
     $clean = '
