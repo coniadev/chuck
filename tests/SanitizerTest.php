@@ -3,9 +3,6 @@
 declare(strict_types=1);
 
 use Chuck\Util;
-use Chuck\Request;
-use Chuck\Router;
-use Chuck\Config;
 
 const MALFORMED = '
         <header>Test</header>
@@ -21,16 +18,8 @@ const MALFORMED = '
         <footer>Test</footer>';
 
 
-function getRequest(array $options = []): Request
-{
-    $config = new Config(getSettings($options));
-    $router = new Router();
-    return new Request($config, $router);
-}
-
-
 test('default extensions', function () {
-    $util = new Util(getRequest());
+    $util = new Util($this->getRequest());
 
 
     $clean = '
@@ -44,7 +33,7 @@ test('default extensions', function () {
 });
 
 test('block extension', function () {
-    $util = new Util(getRequest([
+    $util = new Util($this->getRequest([
         'sanitizer' => [
             'extensions' => [
                 'basic',
@@ -68,7 +57,7 @@ test('block extension', function () {
 });
 
 test('headfoot extension', function () {
-    $util = new Util(getRequest([
+    $util = new Util($this->getRequest([
         'sanitizer' => [
             'extensions' => [
                 'basic',
@@ -88,7 +77,7 @@ test('headfoot extension', function () {
 });
 
 test('nav extension', function () {
-    $util = new Util(getRequest([
+    $util = new Util($this->getRequest([
         'sanitizer' => [
             'extensions' => [
                 'basic',

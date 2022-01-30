@@ -3,7 +3,7 @@
 declare(strict_types=1);
 // phpcs:disable Generic.Files.LineLength
 
-use \Chuck\Schema;
+use Chuck\Schema;
 
 test('type int', function () {
     $testData = [
