@@ -27,14 +27,39 @@ class I18n
         throw new \ValueError(_('This is not a valid number'));
     }
 
-    public static function localizeDate(int $timestamp, string $locale): string
-    {
+    public static function localizeDateTime(
+        int $timestamp,
+        string $locale,
+        int $dateFormat = \IntlDateFormatter::MEDIUM,
+        int $timeFormat = \IntlDateFormatter::MEDIUM,
+        string $tz = null,
+        int $calendar = null,
+    ): string {
         $formatter = new \IntlDateFormatter(
             $locale,
-            \IntlDateFormatter::MEDIUM,
-            \IntlDateFormatter::NONE
+            $dateFormat,
+            $timeFormat,
+            $tz,
+            $calendar,
         );
 
         return $formatter->format($timestamp);
+    }
+
+    public static function localizeDate(
+        int $timestamp,
+        string $locale,
+        int $dateFormat = \IntlDateFormatter::MEDIUM,
+        string $tz = null,
+        int $calendar = null,
+    ): string {
+        return self::localizeDateTime(
+            $timestamp,
+            $locale,
+            $dateFormat,
+            \IntlDateFormatter::NONE,
+            $tz,
+            $calendar,
+        );
     }
 }
