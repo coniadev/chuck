@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-use Chuck\Util\I18n;
 use Chuck\Util\Arrays;
+use Chuck\Util\I18n;
+use Chuck\Util\Strings;
 
 const TIMESTAMP = 1643545993; // 2022-01-30 13:33:13
+
 
 test('parse floats', function () {
     expect(I18n::parseFloat('13,23'))->toBe(13.23);
@@ -116,4 +118,14 @@ test('array is assoc', function () {
     expect(Arrays::isAssoc([1, 2, 3]))->toBe(false);
     expect(Arrays::isAssoc(['leprosy' => 1, 'symbolic' => 2]))->toBe(true);
     expect(Arrays::isAssoc([1 => 1, 2 => 2]))->toBe(true);
+});
+
+
+test('string entropy', function () {
+    $lower = Strings::entropy('spirit crusher');
+    $upper = Strings::entropy('SPIRIT CRUSHER');
+    $mixed = Strings::entropy('Spirit Crusher');
+
+    expect($lower)->toBe($upper);
+    expect($lower)->toBeLessThan($mixed);
 });
