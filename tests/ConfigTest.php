@@ -15,7 +15,7 @@ test('config defaults', function () {
 
     expect($config->get('devport'))->toBe(1983);
     expect($config->di('Request'))->toBe(Request::class);
-    expect($config->renderer('json'))->toBe(JsonRenderer::class);
+    expect($config->get('renderer')['json'])->toBe(JsonRenderer::class);
 });
 
 
@@ -37,8 +37,8 @@ test('config custom options', function () {
 
     expect($config->get('devport'))->toBe(1983);
     expect($config->get('album'))->toBe('Symbolic');
-    expect($config->renderer('template'))->toBe(TemplateRenderer::class);
-    expect($config->renderer('json'))->toBe(FantasyJsonRenderer::class);
+    expect($config->get('renderer')['template'])->toBe(TemplateRenderer::class);
+    expect($config->get('renderer')['json'])->toBe(FantasyJsonRenderer::class);
     expect($config->path('root'))->toBe(__DIR__);
     expect($config->di('Request'))->toBe(FantasyRequest::class);
     expect($config->di('Response'))->toBe(Response::class);

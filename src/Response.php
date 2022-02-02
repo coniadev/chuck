@@ -90,7 +90,7 @@ class Response implements ResponseInterface
         $type = $r[0];
         $identifier = implode(':', array_slice($r, 1));
 
-        $class = $this->request->config->renderer($type);
+        $class = $this->request->config->get('renderer')[$type];
         $rendererObj = new $class($this->request, $body, $identifier);
 
         foreach ($rendererObj->headers() as $header) {

@@ -50,9 +50,4 @@ class Config implements ConfigInterface
     {
         return $this->config['di'][$key];
     }
-
-    public function renderer(string $key): string
-    {
-        return $this->config['renderer'][$key];
-    }
 }
