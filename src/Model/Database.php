@@ -9,42 +9,74 @@ use \PDO;
 use Chuck\ConfigInterface;
 use Chuck\Hash;
 use Chuck\RequestInterface;
+use Chuck\Model\DatabaseInterface;
 
 class Database
 {
-    public RequestInterface $request;
-    public ConfigInterface $config;
-    public $fetchMode;
-    public $printSql = false;
+    protected int $defaultFetchMode;
+    protected bool $shouldPrint = false;
+    protected bool $useMemcache = false;
 
     protected Hash $hash;
     protected PDO $conn;
+    protected bool $useMemcached = false;
     protected ?\Memcached $memcached = null;
-    protected array $scriptPaths;
+    protected array $scriptPaths = [];
 
-    public function __construct(RequestInterface $request, int $fetchMode)
-    {
-        $this->request = $request;
-        $config = $request->config;
-        $this->config = $config;
-        $this->fetchMode = $fetchMode;
-        $this->hash = new Hash($request);
+    public function __construct(
+        protected string $dsn,
+        protected ?string $username = null,
+        protected ?string $password = null,
+        protected ?array $options = null,
+    ) {
+
         $this->connect();
-        $this->setScriptPaths();
-        $this->printSql = $config->get('print_sql');
     }
 
-
-    protected function setScriptPaths(): void
+    public static function fromConfig(ConfigInterface $config): self
     {
-        $dirs = $this->config->path('sql');
+        $db = new Database(self::buildDsn($config), $config->db('username'), $config->db('password'));
+        // $this->hash = new Hash($config);
+        $db->addScriptPaths($config->path('sql'));
+        $db->fetchMode = $config->db('fetchMode') ?? PDO::FETCH_DEFAULT;
+        $db->shouldPrint = $config->db('print');
 
-        if (!is_array($dirs)) {
-            $dirs = [$dirs];
+        return $db;
+    }
+
+    protected static function buildDsn(ConfigInterface $config): string
+    {
+        $dbConfig = $config->get('db');
+        $dbms = $dbConfig['dbms'];
+        $host = $dbConfig['host'];
+        $port = $dbConfig['port'];
+        $dbname = $dbConfig['name'];
+
+
+        return "$dbms:host=$host;port=$port;dbname=$dbname";
+    }
+
+    public function shouldPrint(bool $shouldPrint): self
+    {
+        $this->shouldPrint = $shouldPrint;
+
+        return $this;
+    }
+
+    public function setDefaultFetchMode(int $fetchMode): self
+    {
+        $this->fetchMode = $fetchMode;
+
+        return $this;
+    }
+
+    protected function addScriptPaths(array|string $paths): void
+    {
+        if (!is_array($paths)) {
+            $paths = [$paths];
         }
 
-        // TODO: add additional paths
-        $this->scriptPaths = array_merge($dirs, []);
+        $this->scriptPaths = array_merge($this->scriptPaths, $paths);
     }
 
     public function getScriptPaths(): array
@@ -54,24 +86,13 @@ class Database
 
     protected function connect(): void
     {
-        $db = $this->config->get('db');
-        $dbms = $db['dbms'];
-        $host = $db['host'];
-        $port = $db['port'];
-        $dbname = $db['name'];
-        $username = $db['user'];
-        $password = $db['pass'];
 
-        $memcachedConfig = $this->config->get('memcached');
-        if ($memcachedConfig['use']) {
+        $memcachedConfig = [];
+        if ($this->useMemcached) {
             $this->connectMemcached($memcachedConfig);
         }
 
-        $this->conn = new PDO(
-            "$dbms:host=$host;port=$port;dbname=$dbname",
-            $username,
-            $password
-        );
+        $this->conn = new PDO($this->dsn, $this->username, $this->password);
 
         // Always throw an exception when an error occures
         $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
