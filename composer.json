@@ -24,6 +24,11 @@
             "Chuck\\": "src"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Chuck\\Tests\\": "tests/setup"
+        }
+    },
     "config": {
         "allow-plugins": {
             "pestphp/pest-plugin": true

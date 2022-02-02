@@ -21,7 +21,7 @@ const MALFORMED = '
         <footer>Test</footer>';
 
 
-test('clean with default extensions', function () {
+test('Clean with default extensions', function () {
     $clean = '
         Test
         <div>Test</div>
@@ -33,7 +33,7 @@ test('clean with default extensions', function () {
 });
 
 
-test('clean with block extension', function () {
+test('Clean with block extension', function () {
     $clean = '
         Test
         <aside><div>Test</div></aside>
@@ -49,7 +49,7 @@ test('clean with block extension', function () {
 });
 
 
-test('clean with headfoot extension', function () {
+test('Clean with headfoot extension', function () {
 
     $clean = '
         <header>Test</header>
@@ -62,7 +62,7 @@ test('clean with headfoot extension', function () {
 });
 
 
-test('clean with nav extension', function () {
+test('Clean with nav extension', function () {
     $clean = '
         Test
         <div>Test</div>

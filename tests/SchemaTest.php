@@ -6,7 +6,7 @@ declare(strict_types=1);
 use Chuck\Schema;
 
 
-test('type int', function () {
+test('Type int', function () {
     $testData = [
         'valid_int_1' => '13',
         'valid_int_2' => 13,
@@ -45,7 +45,7 @@ test('type int', function () {
 });
 
 
-test('type float', function () {
+test('Type float', function () {
     $testData = [
         'valid_float_1' => '13',
         'valid_float_2' => '13.13',
@@ -77,7 +77,7 @@ test('type float', function () {
 });
 
 
-test('type boolean', function () {
+test('Type boolean', function () {
     $testData = [
         'valid_bool_1' => true,
         'valid_bool_2' => false,
@@ -130,7 +130,7 @@ test('type boolean', function () {
 });
 
 
-test('type text', function () {
+test('Type text', function () {
     $testData = [
         'valid_text_1' => 'Lorem ipsum',
         'valid_text_2' => false,
@@ -166,7 +166,7 @@ test('type text', function () {
 });
 
 
-test('type html', function () {
+test('Type html', function () {
     $html = '<a href="http://example.com/test">Test</a>' .
         '<script>console.log();</script>' .
         '<code data-attr="test">let test = 1;</code>';
@@ -202,7 +202,7 @@ test('type html', function () {
 });
 
 
-test('type plain', function () {
+test('Type plain', function () {
     $testData = [
         'valid_plain_1' => '<a onclick="">Test</a><script></script>',
         'valid_plain_2' => true,
@@ -232,7 +232,7 @@ test('type plain', function () {
 });
 
 
-test('type list', function () {
+test('Type list', function () {
     $testData = [
         'valid_list_1' => [1, 2],
         'valid_list_2' => [['key' => 'data']],
@@ -271,7 +271,7 @@ test('type list', function () {
 });
 
 
-test('unknown data', function () {
+test('Unknown data', function () {
     $testData = [
         'unknown_1' => 'Test',
         'unknown_2' => '13',
@@ -328,7 +328,7 @@ test('unknown data', function () {
 });
 
 
-test('required validator', function () {
+test('Required validator', function () {
     $testData = [
         'valid_1' => 'value',
         'valid_2' => false,
@@ -362,7 +362,7 @@ test('required validator', function () {
 });
 
 
-test('email validator', function () {
+test('Email validator', function () {
     $testData = [
         'valid_email' => 'valid@email.com',
         'invalid_email' => 'invalid@email',
@@ -384,7 +384,7 @@ test('email validator', function () {
 });
 
 
-test('min value validator', function () {
+test('Min value validator', function () {
     $testData = [
         'valid_1' => 13,
         'valid_2' => 13,
@@ -415,7 +415,7 @@ test('min value validator', function () {
 });
 
 
-test('max value validator', function () {
+test('Max value validator', function () {
     $testData = [
         'valid_1' => 13,
         'valid_2' => 13,
@@ -446,7 +446,7 @@ test('max value validator', function () {
 });
 
 
-test('min length validator', function () {
+test('Min length validator', function () {
     $testData = [
         'valid_1' => 'abcdefghijklm',
         'valid_2' => 'abcdefghij',
@@ -470,7 +470,7 @@ test('min length validator', function () {
 });
 
 
-test('max length validator', function () {
+test('Max length validator', function () {
     $testData = [
         'valid_1' => 'abcdefghi',
         'valid_2' => 'abcdefghij',
@@ -494,7 +494,7 @@ test('max length validator', function () {
 });
 
 
-test('regex validator ', function () {
+test('Regex validator ', function () {
     $testData = [
         'valid' => 'abcdefghi',
         'invalid' => 'abcdefghiklm',
@@ -520,7 +520,7 @@ test('regex validator ', function () {
 });
 
 
-test('in validator ', function () {
+test('In validator ', function () {
     $testData = [
         'valid1' => 'valid',
         'valid2' => 'alsovalid',
@@ -554,7 +554,7 @@ class SubSchema extends Schema
 }
 
 
-test('sub schema', function () {
+test('Sub schema', function () {
     $testData = [
         'int' => 13,
         'text' => 'Text',
@@ -578,7 +578,7 @@ test('sub schema', function () {
 });
 
 
-test('invalid sub schema', function () {
+test('Invalid sub schema', function () {
     $testData = [
         'int' => 13,
         'schema' => [
@@ -605,7 +605,7 @@ test('invalid sub schema', function () {
 });
 
 
-test('list schema', function () {
+test('List schema', function () {
     $testData = [[
         'int' => 13,
         'text' => 'Text 1',
@@ -729,7 +729,7 @@ function getListSchema(): Schema
 }
 
 
-test('invalid list schema', function () {
+test('Invalid list schema', function () {
     $testData = getListData();
     $schema = getListSchema();
 
@@ -746,7 +746,7 @@ test('invalid list schema', function () {
 });
 
 
-test('grouped errors', function () {
+test('Grouped errors', function () {
     $testData = getListData();
     $schema = getListSchema();
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Chuck\Testing\TestCase;
+use Chuck\Tests\TestCase;
 use Chuck\Util\Arrays;
 use Chuck\Util\I18n;
 use Chuck\Util\Path;
@@ -13,7 +13,7 @@ uses(TestCase::class);
 const TIMESTAMP = 1643545993; // 2022-01-30 13:33:13
 
 
-test('parse floats', function () {
+test('Parse floats', function () {
     expect(I18n::parseFloat('13,23'))->toBe(13.23);
     expect(I18n::parseFloat('13.23'))->toBe(13.23);
     expect(I18n::parseFloat('13,73,83.23'))->toBe(137383.23);
@@ -28,17 +28,17 @@ test('parse floats', function () {
 });
 
 
-test('parse invalid floats 1', function () {
+test('Parse invalid floats 1', function () {
     expect(I18n::parseFloat('13,00h'))->toBe(1.0);
 })->throws(\ValueError::class);
 
 
-test('parse invalid floats 2', function () {
+test('Parse invalid floats 2', function () {
     expect(I18n::parseFloat('h23.00'))->toBe(1.0);
 })->throws(\ValueError::class);
 
 
-test('localize date', function () {
+test('Localize date', function () {
     expect(I18n::localizeDate(TIMESTAMP, 'en'))->toBe('Jan 30, 2022');
     expect(I18n::localizeDate(TIMESTAMP, 'de'))->toBe('30.01.2022');
     expect(I18n::localizeDate(
@@ -63,7 +63,7 @@ test('localize date', function () {
 });
 
 
-test('localize date and time', function () {
+test('Localize date and time', function () {
     expect(I18n::localizeDateTime(TIMESTAMP, 'en'))->toBe('Jan 30, 2022, 12:33:13 PM');
     expect(I18n::localizeDateTime(TIMESTAMP, 'de'))->toBe('30.01.2022, 12:33:13');
     expect(I18n::localizeDateTIME(
@@ -88,7 +88,7 @@ test('localize date and time', function () {
 });
 
 
-test('array group by', function () {
+test('Array group by', function () {
     $data = [
         ['key' => 'leprosy', 'value' => 13],
         ['key' => 'symbolic', 'value' => 31],
@@ -117,7 +117,7 @@ test('array group by', function () {
 });
 
 
-test('array is assoc', function () {
+test('Array is assoc', function () {
     expect(Arrays::isAssoc([]))->toBe(false);
     expect(Arrays::isAssoc([1, 2, 3]))->toBe(false);
     expect(Arrays::isAssoc(['leprosy' => 1, 'symbolic' => 2]))->toBe(true);
@@ -125,7 +125,7 @@ test('array is assoc', function () {
 });
 
 
-test('string entropy', function () {
+test('String entropy', function () {
     $lower = Strings::entropy('spirit crusher');
     $upper = Strings::entropy('SPIRIT CRUSHER');
     $mixed = Strings::entropy('Spirit Crusher');
@@ -135,7 +135,7 @@ test('string entropy', function () {
 });
 
 
-test('path realpath', function () {
+test('Path realpath', function () {
     expect(
         Path::realpath('/perserverance/./of/././the/../time')
     )->toBe('/perserverance/of/time');
@@ -145,7 +145,7 @@ test('path realpath', function () {
 });
 
 
-test('path is inside root dir', function () {
+test('Path is inside root dir', function () {
     $root = dirname(__DIR__);
     $request = $this->getRequest(['path' => ['root' => $root]]);
     $pathUtil = new Path($request);

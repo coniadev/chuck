@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Testing;
+namespace Chuck\Tests;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
-use \PDO;
+
 use Chuck\Testing\App;
 use Chuck\Config;
 use Chuck\Router;
+use Chuck\Request;
 
 class TestCase extends BaseTestCase
 {
@@ -18,7 +19,7 @@ class TestCase extends BaseTestCase
 
     public function getConfig(array $options = []): Config
     {
-        $defaults = require __DIR__ . '/../defaults.php';
+        $defaults = require __DIR__ . '/../../src/defaults.php';
 
         return new Config(array_replace_recursive($defaults, $options));
     }

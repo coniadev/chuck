@@ -2,10 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Testing;
+namespace Chuck\Tests;
 
 use \PDO;
-use Chuck\Testing\TestCase;
+
+use Chuck\Config;
+use Chuck\Tests\TestCase;
+
 
 class DatabaseCase extends TestCase
 {
@@ -14,17 +17,33 @@ class DatabaseCase extends TestCase
         parent::__construct($name, $data, $dataName);
 
         $this->createTestDb();
-        print "hans";
     }
 
-    public function getTestDbDsn(): string
+    public function getDsn(): string
     {
         return 'sqlite:' . sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'chuck_test_db.sqlite3';
     }
 
+    public function getConfig(array $options = []): Config
+    {
+        $ds = DIRECTORY_SEPARATOR;
+
+        return parent::getConfig(
+            [
+                'db' => [
+                    'dsn' => $this->getDsn()
+                ],
+                'path' => [
+                    'sql' => [
+                        __DIR__ . $ds . '..' . $ds . 'fixtures' . $ds . 'sql' . $ds . 'additional',
+                    ],
+                ]
+            ],
+        );
+    }
     public function createTestDb(): void
     {
-        $dbfile = $this->getTestDbDsn();
+        $dbfile = $this->getDsn();
 
         if (file_exists($dbfile)) {
             unlink($dbfile);

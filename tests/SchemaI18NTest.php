@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Chuck\SchemaI18N;
 
 
-test('type int', function () {
+test('Translated value', function () {
     $testData = [
         'de' => [
             'text' => 'the13',

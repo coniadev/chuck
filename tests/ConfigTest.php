@@ -9,7 +9,7 @@ use Chuck\Renderer\JsonRenderer;
 use Chuck\Renderer\TemplateRenderer;
 
 
-test('config defaults', function () {
+test('Config defaults', function () {
     $config = new Config([]);
 
     expect($config->get('devport'))->toBe(1983);
@@ -18,7 +18,7 @@ test('config defaults', function () {
 });
 
 
-test('config custom options', function () {
+test('Config custom options', function () {
     $config = new Config([
         'album' => 'Symbolic',
         'path' => [
@@ -45,7 +45,7 @@ test('config custom options', function () {
 });
 
 
-test('config default value', function () {
+test('Config default value', function () {
     $config = new Config([]);
 
     expect($config->get('devport', 1984))->toBe(1983);
@@ -57,14 +57,14 @@ test('config default value', function () {
 });
 
 
-test('config missing key', function () {
+test('Config missing key', function () {
     $config = new Config([]);
 
     $config->get('missing');
 })->throws(\InvalidArgumentException::class);
 
 
-test('config path is array', function () {
+test('Config path is array', function () {
     $config = new Config([
         'path' => [
             'array' => [
