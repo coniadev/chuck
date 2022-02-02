@@ -11,7 +11,6 @@ use Chuck\Renderer\TemplateRenderer;
 
 test('config defaults', function () {
     $config = new Config([]);
-    echo (Request::class . PHP_EOL);
 
     expect($config->get('devport'))->toBe(1983);
     expect($config->di('Request'))->toBe(Request::class);

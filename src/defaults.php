@@ -2,8 +2,9 @@
 
 namespace Chuck;
 
+
 return [
-    // must be set in app config
+    // Must be set in app config
     'appname' => null,
 
     // e. g. 'example.com'. Must be set in app config
@@ -13,29 +14,29 @@ return [
 
     'devel' => false,
 
-    // the develompent server port
+    // The develompent server port
     'devport' => 1983,
 
-    // the permission required for every request
+    // The permission required for every request
     'default_permission' => null,
     'locales' => [],
     'default_locale' => null,
     'loglevel' => 'DEBUG',
 
-    // this value will be added to the current time()
+    // This value will be added to the current time()
     // as expiry date for sessions.
     'session' => [
         'expire' => 60 * 60 * 24 * 7,
 
-        // indicates wether a custom session handler is used
+        // Indicates wether a custom session handler is used
         'custom' => false,
 
-        // the custom handler.
-        // must implement \Chuck\Model\SessionInterface
+        // The custom handler.
+        // Must implement \Chuck\Model\SessionInterface
         'model' => null,
     ],
 
-    // path values will be initialized with
+    // mth values will be initialized with
     // default values in Config::getPathDefaults
     'path' => [
         'root' => null,
@@ -43,10 +44,10 @@ return [
         'sql' => null,
         'public' => null,
 
-        // if set, file logging will be activated
+        // If set, file logging will be activated
         'log' => null,
 
-        // additional custom `php run` scripts:
+        // Additional custom `php run` scripts:
         'scripts' => null,
     ],
 
@@ -54,7 +55,7 @@ return [
         // 'folder' => 'path',
     ],
 
-    // default classes
+    // Default classes used by Chuck
     'di' => [
         'Request' => Request::class,
         'Response' => Response::class,
@@ -65,8 +66,8 @@ return [
         'Template' => Template::class,
         'Log' => Log::class,
 
-        // set if you want to use authentication
-        // must implement \Chuck\Model\AuthInterface
+        // Set if you want to use authentication.
+        // Must implement \Chuck\Model\AuthInterface
         'Auth' => null,
     ],
 
@@ -78,34 +79,20 @@ return [
 
     // database credentials
     'db' => [
-        'dbms' => null,  // 'pgsql', 'sqlite', or 'mysql' etc.
-        'host' => null,  // 'localhost' '192.168.13.13'
-        'port' => null,  // PostgreSQL: 5432, MySQL 3306
-        'name' => null,  // the name of the database
-        'user' => null,  // the username
-        'password' => null,  // tha password
-        'fetchMode' => null,
-        'print' => false, // print interpolated sql to stdout
-
-        // if `true` the values in the settings above
-        // are considered ENVIRONMENT_VARIABLES from
-        // which the actual values are read at runtime
-        'fromenv' => false
-        // Example:
-        // [
-        //     'fromenv' => true,
-        //     'user' => 'DB_USER',
-        //     'pass' => 'DB_PASS;
-        //     ...
-        // ]
-        // Chuck now tries to read the database user's name
-        // and password from the env vars DB_USER and DB_PASS
+        // The PDO connection string. See:
+        //   PostgreSQL: https://www.php.net/manual/de/ref.pdo-pgsql.connection.php
+        //   MySQL: https://www.php.net/manual/de/ref.pdo-mysql.connection.php
+        //   Sqlite: https://www.php.net/manual/de/ref.pdo-sqlite.connection.php
+        // and others
+        'dsn' => null,
+        'options' => null, // Array with PDO options passed to new \PDO(...)
+        'fetchMode' => null, // Defaults to PDO::FETCH_DEFAULT,
+        'print' => false, // Print interpolated sql to stdout
     ],
 
-    // memcached configuration
+    // Memcached configuration
     'memcached' => null,
-    //example: [
-    //    'use' => false,
+    // Example: [
     //    'host' => 'localhost',
     //    'port' => 11211,
     //    'expire' => 86400,  // 1 day

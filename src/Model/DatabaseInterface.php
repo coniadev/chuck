@@ -18,10 +18,10 @@ interface DatabaseInterface
         protected ?array $options = null,
     );
     public static function fromConfig(ConfigInterface $config): self;
-    public function printSql(bool $shouldPrint): DatabaseInterface;
-    public function setDefaultFetchMode(int $fetchMode): DatabaseInterface;
-    public function addScriptPaths(array|string $paths): void;
-    public function getScriptPaths(): array;
+    public function printSql(bool $shouldPrint): self;
+    public function defaultFetchMode(int $fetchMode): self;
+    public function addScriptPaths(array|string $paths): self;
+    public function memcachedConfig(array $settings): self;
     public function begin(): bool;
     public function commit(): bool;
     public function rollback(): bool;

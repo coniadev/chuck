@@ -98,6 +98,7 @@ class Query
         array|string|null $hashKey = null,
         bool $asUid = false
     ): ?array {
+        $this->db->connect();
         $this->stmt->execute();
         $result = $this->nullIfNot($this->stmt->fetch($this->db->getFetchMode()));
 
@@ -136,6 +137,7 @@ class Query
         array|string|null $hashKey = null,
         bool $asUid = false
     ): ?iterable {
+        $this->db->connect();
         $this->stmt->execute();
         $result = $this->nullIfNot($this->stmt->fetchAll($this->db->getFetchMode()));
 
@@ -148,6 +150,7 @@ class Query
 
     public function allFlatList(): ?iterable
     {
+        $this->db->connect();
         $this->stmt->execute();
         return $this->nullIfNot($this->stmt->fetchAll(\PDO::FETCH_NUM));
     }
@@ -166,11 +169,13 @@ class Query
 
     public function run(): bool
     {
+        $this->db->connect();
         return $this->stmt->execute();
     }
 
     public function len(): int
     {
+        $this->db->connect();
         $this->stmt->execute();
         return $this->stmt->rowCount();
     }

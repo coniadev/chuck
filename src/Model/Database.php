@@ -18,8 +18,8 @@ class Database
     protected bool $useMemcache = false;
 
     protected Hash $hash;
-    protected PDO $conn;
-    protected bool $useMemcached = false;
+    protected ?PDO $conn = null;
+    protected ?array $memcachedConfig = null;
     protected ?\Memcached $memcached = null;
     protected array $scriptPaths = [];
 
@@ -29,31 +29,19 @@ class Database
         protected ?string $password = null,
         protected ?array $options = null,
     ) {
-
-        $this->connect();
     }
 
     public static function fromConfig(ConfigInterface $config): self
     {
-        $db = new Database(self::buildDsn($config), $config->db('username'), $config->db('password'));
+        $dbConf = $config->get('db');
+        $db = new Database($dbConf['dsn'], $dbConf['username'] ?? null, $dbConf['password'] ?? null);
         // $this->hash = new Hash($config);
-        $db->addScriptPaths($config->path('sql'));
-        $db->fetchMode = $config->db('fetchMode') ?? PDO::FETCH_DEFAULT;
-        $db->shouldPrint = $config->db('print');
+        $db->addScriptPath($config->path('sql'));
+        $db->fetchMode = $dbConf['fetchMode'] ?? PDO::FETCH_DEFAULT;
+        $db->fetchMode = $dbConf['fetchMode'] ?? PDO::FETCH_DEFAULT;
+        $db->shouldPrint = $dbConf['print'];
 
         return $db;
-    }
-
-    protected static function buildDsn(ConfigInterface $config): string
-    {
-        $dbConfig = $config->get('db');
-        $dbms = $dbConfig['dbms'];
-        $host = $dbConfig['host'];
-        $port = $dbConfig['port'];
-        $dbname = $dbConfig['name'];
-
-
-        return "$dbms:host=$host;port=$port;dbname=$dbname";
     }
 
     public function shouldPrint(bool $shouldPrint): self
@@ -63,33 +51,39 @@ class Database
         return $this;
     }
 
-    public function setDefaultFetchMode(int $fetchMode): self
+    public function defaultFetchMode(int $fetchMode): self
     {
         $this->fetchMode = $fetchMode;
 
         return $this;
     }
 
-    protected function addScriptPaths(array|string $paths): void
+    public function memcachedConfig(array $settings): self
+    {
+        $this->memcachedConfig = $settings;
+
+        return $this;
+    }
+
+    protected function addScriptPath(array|string $paths): self
     {
         if (!is_array($paths)) {
             $paths = [$paths];
         }
 
         $this->scriptPaths = array_merge($this->scriptPaths, $paths);
+
+        return $this;
     }
 
-    public function getScriptPaths(): array
+    public function connect(): self
     {
-        return $this->scriptPaths;
-    }
+        if ($this->conn) {
+            return $this;
+        }
 
-    protected function connect(): void
-    {
-
-        $memcachedConfig = [];
-        if ($this->useMemcached) {
-            $this->connectMemcached($memcachedConfig);
+        if ($this->memcachedConfig) {
+            $this->connectMemcached($this->memcachedConfig);
         }
 
         $this->conn = new PDO($this->dsn, $this->username, $this->password);
@@ -102,9 +96,11 @@ class Database
         $this->conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
         // do not alter casing of the columns from sql
         $this->conn->setAttribute(PDO::ATTR_CASE, PDO::CASE_NATURAL);
+
+        return $this;
     }
 
-    protected function connectMemcached(array $config): void
+    protected function connectMemcached(?array $config): void
     {
         $this->memcached = new \Memcached();
         $this->memcached->setOption(\Memcached::OPT_BINARY_PROTOCOL, true);
@@ -116,6 +112,7 @@ class Database
 
     public function begin(): bool
     {
+        $this->connect();
         return $this->conn->beginTransaction();
     }
 
@@ -131,6 +128,7 @@ class Database
 
     public function getConn(): \PDO
     {
+        $this->connect();
         return $this->conn;
     }
 
@@ -142,16 +140,6 @@ class Database
     public function __get($key): Folder
     {
         return new Folder($this, $key);
-    }
-
-    public function setFetchMode(int $mode): void
-    {
-        $this->fetchMode = $mode;
-    }
-
-    public function getFetchMode(): int
-    {
-        return $this->fetchMode;
     }
 
     public function encode(int $id): string
