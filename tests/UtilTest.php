@@ -2,10 +2,13 @@
 
 declare(strict_types=1);
 
+use Chuck\Testing\TestCase;
 use Chuck\Util\Arrays;
 use Chuck\Util\I18n;
 use Chuck\Util\Path;
 use Chuck\Util\Strings;
+
+uses(TestCase::class);
 
 const TIMESTAMP = 1643545993; // 2022-01-30 13:33:13
 

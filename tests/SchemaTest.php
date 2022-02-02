@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 use Chuck\Schema;
 
+
 test('type int', function () {
     $testData = [
         'valid_int_1' => '13',
