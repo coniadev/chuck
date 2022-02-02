@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Chuck\Testing;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
+use \PDO;
 use Chuck\Testing\App;
 use Chuck\Config;
 use Chuck\Router;

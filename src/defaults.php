@@ -2,7 +2,6 @@
 
 namespace Chuck;
 
-
 return [
     // must be set in app config
     'appname' => null,
@@ -13,8 +12,6 @@ return [
     'url' => null,
 
     'devel' => false,
-    // print interpolated sql to stdout
-    'print_sql' => false,
 
     // the develompent server port
     'devport' => 1983,
@@ -86,7 +83,9 @@ return [
         'port' => null,  // PostgreSQL: 5432, MySQL 3306
         'name' => null,  // the name of the database
         'user' => null,  // the username
-        'pass' => null,  // tha password
+        'password' => null,  // tha password
+        'fetchMode' => null,
+        'print' => false, // print interpolated sql to stdout
 
         // if `true` the values in the settings above
         // are considered ENVIRONMENT_VARIABLES from
