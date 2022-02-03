@@ -31,7 +31,6 @@ test('Database connection single script dir', function () {
 test('Query with question mark parameters', function () {
     $db = $this->getDb();
     $result = $db->members->byId(2)->one();
-    error_log(print_r($result, true));
 
     expect($result['name'])->toBe('Rick Rozz');
 });

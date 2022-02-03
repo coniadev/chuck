@@ -9,7 +9,6 @@ use \PDO;
 use Chuck\Util\Arrays;
 
 
-
 enum ArgType
 {
     case Args;
@@ -42,7 +41,7 @@ class Query
             $this->stmt = $this->db->getConn()->query($this->script);
         }
 
-        if ($db->printSql) {
+        if ($db->shouldPrintScript()) {
             error_log(
                 "\n\n-----------------------------------------------\n\n" .
                     $this->interpolate($script, $args) .
@@ -100,7 +99,6 @@ class Query
         $fetchMode = $fetchMode ?? $this->db->getFetchMode();
 
         $this->db->connect();
-        error_log(print_r($this->stmt, true));
         $this->stmt->execute();
         $result = $this->nullIfNot($this->stmt->fetch($fetchMode));
 

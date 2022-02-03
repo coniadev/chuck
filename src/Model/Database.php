@@ -11,6 +11,7 @@ use Chuck\Hash;
 use Chuck\Model\DatabaseInterface;
 use Chuck\Util\Path;
 
+
 class Database implements DatabaseInterface
 {
     protected ConfigInterface $config;
@@ -38,13 +39,6 @@ class Database implements DatabaseInterface
         $this->shouldPrint = $dbConf['print'];
     }
 
-    public function shouldPrint(bool $shouldPrint): self
-    {
-        $this->shouldPrint = $shouldPrint;
-
-        return $this;
-    }
-
     public function defaultFetchMode(int $fetchMode): self
     {
         $this->fetchMode = $fetchMode;
@@ -59,13 +53,19 @@ class Database implements DatabaseInterface
         return $this;
     }
 
+    /**
+     * Adds a single or multiple paths to the list of script paths.
+     *
+     * Script paths are ordered last in first out (LIFO).
+     * Which means the last path added is the first one searched
+     * for a SQL script.
+     */
     public function addScriptDirs(array|string $dirs): self
     {
         if (!is_array($dirs)) {
             $dirs = [$dirs];
         }
 
-        $clean = [];
         $pathUtil = new Path($this->config);
 
         foreach ($dirs as $dir) {
@@ -75,12 +75,22 @@ class Database implements DatabaseInterface
                 throw new \InvalidArgumentException('SQL script path is outside of project root');
             }
 
-            $clean[] = $dir;
+            array_unshift($this->scriptPaths, $dir);
         }
 
-        $this->scriptPaths = array_merge($this->scriptPaths, $clean);
+        return $this;
+    }
+
+    public function setPrintScript(bool $shouldPrint): self
+    {
+        $this->shouldPrint = $shouldPrint;
 
         return $this;
+    }
+
+    public function shouldPrintScript(): bool
+    {
+        return $this->shouldPrint;
     }
 
     public function getScriptDirs(): array
@@ -158,6 +168,18 @@ class Database implements DatabaseInterface
 
     public function __get($key): Folder
     {
+        $exists = false;
+
+        foreach ($this->scriptPaths as $path) {
+            $exists = is_dir($path . DIRECTORY_SEPARATOR . $key);
+
+            if ($exists) break;
+        }
+
+        if (!$exists) {
+            throw new \UnexpectedValueException('The SQL folder does not exist: ' . $key);
+        }
+
         return new Folder($this, $key);
     }
 

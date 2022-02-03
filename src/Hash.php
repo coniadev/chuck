@@ -7,6 +7,7 @@ namespace Chuck;
 use Chuck\Exception\HttpNotFound;
 use \Hashids\Hashids;
 
+
 class Hash
 {
     public function __construct(RequestInterface $request)
@@ -31,7 +32,6 @@ class Hash
     public function decode(string $id): int
     {
         try {
-            // error_log($id . " " . print_r($this->hashids->decode($id)[0], true));
             return $this->hashids->decode($id)[0];
         } catch (\Exception) {
             // Hashes are used exclusively for addressing resources in

@@ -13,13 +13,14 @@ interface DatabaseInterface
 {
     public function __construct(ConfigInterface $config);
 
-    public function shouldPrint(bool $shouldPrint): self;
-
     public function defaultFetchMode(int $fetchMode): self;
     public function getFetchMode(): int;
 
     public function addScriptDirs(array|string $dirs): self;
     public function getScriptDirs(): array;
+
+    public function setPrintScript(bool $shouldPrint): self;
+    public function shouldPrintScript(): bool;
 
     public function memcachedConfig(array $settings): self;
     public function getMemcached(): ?\Memcached;
