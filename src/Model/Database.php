@@ -10,9 +10,11 @@ use Chuck\ConfigInterface;
 use Chuck\Hash;
 use Chuck\RequestInterface;
 use Chuck\Model\DatabaseInterface;
+use Chuck\Util\Path;
 
 class Database
 {
+    protected ConfigInterface $config;
     protected int $defaultFetchMode;
     protected bool $shouldPrint = false;
     protected bool $useMemcache = false;
@@ -23,25 +25,18 @@ class Database
     protected ?\Memcached $memcached = null;
     protected array $scriptPaths = [];
 
-    public function __construct(
-        protected string $dsn,
-        protected ?string $username = null,
-        protected ?string $password = null,
-        protected ?array $options = null,
-    ) {
-    }
-
-    public static function fromConfig(ConfigInterface $config): self
+    public function __construct(ConfigInterface $config)
     {
+        $this->config = $config;
         $dbConf = $config->get('db');
-        $db = new Database($dbConf['dsn'], $dbConf['username'] ?? null, $dbConf['password'] ?? null);
+        $this->dsn = $dbConf['dsn'];
+        $this->username = $dbConf['username'] ?? null;
+        $this->password = $dbConf['password'] ?? null;
         // $this->hash = new Hash($config);
-        $db->addScriptPath($config->path('sql'));
-        $db->fetchMode = $dbConf['fetchMode'] ?? PDO::FETCH_DEFAULT;
-        $db->fetchMode = $dbConf['fetchMode'] ?? PDO::FETCH_DEFAULT;
-        $db->shouldPrint = $dbConf['print'];
-
-        return $db;
+        $this->addScriptPath($config->path('sql'));
+        $this->fetchMode = $dbConf['fetchMode'] ?? PDO::FETCH_DEFAULT;
+        $this->fetchMode = $dbConf['fetchMode'] ?? PDO::FETCH_DEFAULT;
+        $this->shouldPrint = $dbConf['print'];
     }
 
     public function shouldPrint(bool $shouldPrint): self
@@ -71,9 +66,34 @@ class Database
             $paths = [$paths];
         }
 
-        $this->scriptPaths = array_merge($this->scriptPaths, $paths);
+        $clean = [];
+        $pathUtil = new Path($this->config);
+
+        foreach ($paths as $path) {
+            $path = Path::realpath($path);
+
+            if (!$pathUtil->insideRoot($path)) {
+                throw new \InvalidArgumentException('SQL script path is outside of project root');
+            }
+
+            $clean[] = $path;
+        }
+
+        $this->scriptPaths = array_merge($this->scriptPaths, $clean);
 
         return $this;
+    }
+
+    public function getScriptPaths(): array
+    {
+
+        return $this->scriptPaths;
+    }
+
+    public function getFetchmode(): int
+    {
+
+        return $this->fetchMode;
     }
 
     public function connect(): self

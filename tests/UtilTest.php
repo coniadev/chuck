@@ -147,8 +147,8 @@ test('Path realpath', function () {
 
 test('Path is inside root dir', function () {
     $root = dirname(__DIR__);
-    $request = $this->getRequest(['path' => ['root' => $root]]);
-    $pathUtil = new Path($request);
+    $config = $this->getConfig(['path' => ['root' => $root]]);
+    $pathUtil = new Path($config);
 
     expect($pathUtil->insideRoot("$root/../leprosy"))->toBe(false);
     expect($pathUtil->insideRoot("$root/symbolic"))->toBe(true);

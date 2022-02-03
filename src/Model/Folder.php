@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Model;
 
+
 class Folder
 {
     protected $db;
@@ -66,14 +67,14 @@ class Folder
         return $stmt;
     }
 
-    public function __get(string $key): Script
+    protected function getScript($key): Script
     {
-        $config = $this->db->config;
-
-        if ($config->get('devel')) {
+        // if ($config->get('devel')) {
+        if (true) {
             $stmt = $this->readScript($key);
         } else {
             $mc = $this->db->getMemcached();
+
             if ($mc) {
                 $stmt = $this->fromCache($mc, $key);
             } else {
@@ -88,11 +89,24 @@ class Folder
         // If $stmt is not truthy until now,
         // assume the script is a dnyamic sql template
         $script = $this->scriptPath($key, true);
+        echo ($script . PHP_EOL);
 
         if ($script) {
             return new Script($this->db, $script, true);
         }
 
         throw new \ErrorException('SQL script does not exist');
+    }
+
+    public function __get(string $key): Script
+    {
+        return $this->getScript($key);
+    }
+
+    public function __call(string $key, array $args): Query
+    {
+        $script = $this->getScript($key);
+
+        return $script->invoke($args);
     }
 }

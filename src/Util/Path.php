@@ -4,19 +4,18 @@ declare(strict_types=1);
 
 namespace Chuck\Util;
 
-use Chuck\RequestInterface;
+use Chuck\ConfigInterface;
 
 class Path
 {
-    public function __construct(RequestInterface $request = null)
+    public function __construct(ConfigInterface $config = null)
     {
-        $this->request = $request;
+        $this->config = $config;
     }
 
     public function insideRoot(string $path): bool
     {
-        $config = $this->request->config;
-        $root = $config->path('root');
+        $root = $this->config->path('root');
 
         return str_starts_with(self::realpath($path), $root);
     }

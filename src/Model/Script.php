@@ -63,7 +63,7 @@ class Script
         return [];
     }
 
-    public function __invoke($params = []): Query
+    public function invoke(array $params = []): Query
     {
         if ($this->isTemplate) {
             $script = $this->evaluateTemplate($this->script, $params);
@@ -73,5 +73,10 @@ class Script
         }
 
         return new Query($this->db, $script, $params);
+    }
+
+    public function __invoke(array $params = []): Query
+    {
+        return $this->invoke();
     }
 }

@@ -7,6 +7,7 @@ namespace Chuck\Tests;
 use \PDO;
 
 use Chuck\Config;
+use Chuck\Model\Database;
 use Chuck\Tests\TestCase;
 
 
@@ -19,9 +20,14 @@ class DatabaseCase extends TestCase
         $this->createTestDb();
     }
 
-    public function getDsn(): string
+    protected function getDbFile(): string
     {
-        return 'sqlite:' . sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'chuck_test_db.sqlite3';
+        return sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'chuck_test_db.sqlite3';
+    }
+
+    protected function getDsn(): string
+    {
+        return 'sqlite:' . $this->getDbFile();
     }
 
     public function getConfig(array $options = []): Config
@@ -35,21 +41,22 @@ class DatabaseCase extends TestCase
                 ],
                 'path' => [
                     'sql' => [
-                        __DIR__ . $ds . '..' . $ds . 'fixtures' . $ds . 'sql' . $ds . 'additional',
+                        __DIR__ . $ds . '..' . $ds . 'fixtures' . $ds . 'sql' . $ds . 'default',
                     ],
                 ]
             ],
         );
     }
+
     public function createTestDb(): void
     {
-        $dbfile = $this->getDsn();
+        $dbfile = $this->getDbFile();
 
         if (file_exists($dbfile)) {
             unlink($dbfile);
         }
 
-        $db = new PDO("$dbfile");
+        $db = new PDO($this->getDsn());
 
         $commands = ['
             CREATE TABLE IF NOT EXISTS users (
@@ -85,5 +92,10 @@ class DatabaseCase extends TestCase
         foreach ($commands as $command) {
             $db->exec($command);
         }
+    }
+
+    public function getDb(?array $options = []): Database
+    {
+        return new Database($this->getConfig($options));
     }
 }

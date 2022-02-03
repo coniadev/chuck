@@ -9,13 +9,14 @@ uses(DatabaseCase::class);
 
 
 test('Database connection', function () {
-    $db = new Database($this->getDsn());
+    $db = new Database($this->getConfig());
 
     expect($db->getConn())->toBeInstanceOf(\PDO::class);
 });
 
-test('Database connection via config', function () {
-    $db = Database::fromConfig($this->getConfig());
+test('Database query', function () {
+    $db = $this->getDb();
+    $result = $db->users->all()->all();
 
-    expect($db->getConn())->toBeInstanceOf(\PDO::class);
+    expect(count($result))->toBe(3);
 });
