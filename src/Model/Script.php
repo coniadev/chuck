@@ -63,20 +63,20 @@ class Script
         return [];
     }
 
-    public function invoke(array $params = []): Query
+    public function invoke(...$args): Query
     {
         if ($this->isTemplate) {
-            $script = $this->evaluateTemplate($this->script, $params);
-            $params = $this->prepareTemplateVars($script, $params);
+            $script = $this->evaluateTemplate($this->script, $args);
+            $args = $this->prepareTemplateVars($script, $args);
         } else {
             $script = $this->script;
         }
 
-        return new Query($this->db, $script, $params);
+        return new Query($this->db, $script, $args);
     }
 
-    public function __invoke(array $params = []): Query
+    public function __invoke(...$args): Query
     {
-        return $this->invoke();
+        return $this->invoke(...$args);
     }
 }

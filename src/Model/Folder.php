@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck\Model;
 
+const ds = DIRECTORY_SEPARATOR;
+
 
 class Folder
 {
@@ -20,9 +22,8 @@ class Folder
     {
         $ext = $isTemplate ? '.php' : '';
 
-        foreach ($this->db->getScriptPaths() as $path) {
-            $result = $path . DIRECTORY_SEPARATOR . $this->folder .
-                DIRECTORY_SEPARATOR . $key . '.sql' . $ext;
+        foreach ($this->db->getScriptDirs() as $path) {
+            $result = $path . ds . $this->folder . ds . $key . '.sql' . $ext;
 
             if (file_exists($result)) {
                 return $result;
@@ -47,9 +48,9 @@ class Folder
         return false;
     }
 
-    protected function fromCache(\Memcached $mc, string $key): string
+    protected function fromCache(\Memcached $mc, string $key, string $prefix = 'sql'): string
     {
-        $memKey = APP_VERSION . '/' . $this->folder . '/' . $key;
+        $memKey = 'prefix' . ds . $this->folder . ds . $key;
         $stmt = $mc->get($memKey);
 
         if (!$stmt) {
@@ -103,10 +104,10 @@ class Folder
         return $this->getScript($key);
     }
 
-    public function __call(string $key, array $args): Query
+    public function __call(string $key, $args): Query
     {
         $script = $this->getScript($key);
 
-        return $script->invoke($args);
+        return $script->invoke(...$args);
     }
 }

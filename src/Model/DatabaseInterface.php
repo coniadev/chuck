@@ -11,24 +11,27 @@ use Chuck\ConfigInterface;
 
 interface DatabaseInterface
 {
-    public function __construct(
-        protected string $dsn,
-        protected ?string $username = null,
-        protected ?string $password = null,
-        protected ?array $options = null,
-    );
-    public static function fromConfig(ConfigInterface $config): self;
-    public function printSql(bool $shouldPrint): self;
+    public function __construct(ConfigInterface $config);
+
+    public function shouldPrint(bool $shouldPrint): self;
+
     public function defaultFetchMode(int $fetchMode): self;
-    public function addScriptPaths(array|string $paths): self;
+    public function getFetchMode(): int;
+
+    public function addScriptDirs(array|string $dirs): self;
+    public function getScriptDirs(): array;
+
     public function memcachedConfig(array $settings): self;
+    public function getMemcached(): ?\Memcached;
+
+    // Database operations
+    public function getConn(): PDO;
     public function begin(): bool;
     public function commit(): bool;
     public function rollback(): bool;
-    public function getConn(): PDO;
-    public function getMemcached(): ?\Memcached;
     public function __get($key): Folder;
-    public function getFetchMode(): int;
+
+    // HashIds
     public function encode(int $id): string;
     public function encodeList(iterable $list, array|string $hashKey, bool $asUid = false): \Generator;
     public function decode(string $uid): int;

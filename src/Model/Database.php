@@ -8,11 +8,10 @@ use \PDO;
 
 use Chuck\ConfigInterface;
 use Chuck\Hash;
-use Chuck\RequestInterface;
 use Chuck\Model\DatabaseInterface;
 use Chuck\Util\Path;
 
-class Database
+class Database implements DatabaseInterface
 {
     protected ConfigInterface $config;
     protected int $defaultFetchMode;
@@ -24,6 +23,7 @@ class Database
     protected ?array $memcachedConfig = null;
     protected ?\Memcached $memcached = null;
     protected array $scriptPaths = [];
+    protected int $fetchMode;
 
     public function __construct(ConfigInterface $config)
     {
@@ -33,9 +33,8 @@ class Database
         $this->username = $dbConf['username'] ?? null;
         $this->password = $dbConf['password'] ?? null;
         // $this->hash = new Hash($config);
-        $this->addScriptPath($config->path('sql'));
-        $this->fetchMode = $dbConf['fetchMode'] ?? PDO::FETCH_DEFAULT;
-        $this->fetchMode = $dbConf['fetchMode'] ?? PDO::FETCH_DEFAULT;
+        $this->addScriptDirs($config->path('sql'));
+        $this->fetchMode = $dbConf['fetchMode'] ?? PDO::FETCH_BOTH;
         $this->shouldPrint = $dbConf['print'];
     }
 
@@ -60,23 +59,23 @@ class Database
         return $this;
     }
 
-    protected function addScriptPath(array|string $paths): self
+    public function addScriptDirs(array|string $dirs): self
     {
-        if (!is_array($paths)) {
-            $paths = [$paths];
+        if (!is_array($dirs)) {
+            $dirs = [$dirs];
         }
 
         $clean = [];
         $pathUtil = new Path($this->config);
 
-        foreach ($paths as $path) {
-            $path = Path::realpath($path);
+        foreach ($dirs as $dir) {
+            $dir = Path::realpath($dir);
 
-            if (!$pathUtil->insideRoot($path)) {
+            if (!$pathUtil->insideRoot($dir)) {
                 throw new \InvalidArgumentException('SQL script path is outside of project root');
             }
 
-            $clean[] = $path;
+            $clean[] = $dir;
         }
 
         $this->scriptPaths = array_merge($this->scriptPaths, $clean);
@@ -84,7 +83,7 @@ class Database
         return $this;
     }
 
-    public function getScriptPaths(): array
+    public function getScriptDirs(): array
     {
 
         return $this->scriptPaths;

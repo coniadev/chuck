@@ -6,6 +6,9 @@ namespace Chuck\Model;
 
 use \PDO;
 
+use Chuck\Util\Arrays;
+
+
 /**
  * Takes an array and allows item property access to its elements.
  */
@@ -29,21 +32,34 @@ class Item
     }
 }
 
+enum ArgType
+{
+    case Args;
+    case Assoc;
+}
+
 
 class Query
 {
     protected $db;
     protected $script;
     protected $stmt;
+    protected $argsType;
 
-    public function __construct($db, $script, $params)
+    public function __construct($db, $script, $args)
     {
         $this->db = $db;
         $this->script = $script;
+        $argsCount = count($args);
 
-        if (count($params) > 0) {
+        if ($argsCount > 0) {
             $this->stmt = $this->db->getConn()->prepare($this->script);
-            $this->bindParameters($params);
+
+            if ($argsCount === 1 && Arrays::isAssoc($args[0])) {
+                $this->bindArgs($args[0], ArgType::Assoc);
+            } else {
+                $this->bindArgs($args, ArgType::Args);
+            }
         } else {
             $this->stmt = $this->db->getConn()->query($this->script);
         }
@@ -51,35 +67,37 @@ class Query
         if ($db->printSql) {
             error_log(
                 "\n\n-----------------------------------------------\n\n" .
-                    $this->interpolate($script, $params) .
+                    $this->interpolate($script, $args) .
                     "\n------------------------------------------------\n"
             );
         }
     }
 
-    protected function bindParameters(array $params): void
+    protected function bindArgs(array $args, ArgType $argType): void
     {
-        foreach ($params as $param => $value) {
-            $p = ':' . $param;
+        foreach ($args as $a => $value) {
+            if ($argType = ArgType::Assoc) {
+                $arg = ':' . $a;
+            }
 
             switch (gettype($value)) {
                 case 'boolean':
-                    $this->stmt->bindValue($p, $value, PDO::PARAM_BOOL);
+                    $this->stmt->bindValue($arg, $value, PDO::PARAM_BOOL);
                     break;
                 case 'integer':
-                    $this->stmt->bindValue($p, $value, PDO::PARAM_INT);
+                    $this->stmt->bindValue($arg, $value, PDO::PARAM_INT);
                     break;
                 case 'string':
-                    $this->stmt->bindValue($p, $value, PDO::PARAM_STR);
+                    $this->stmt->bindValue($arg, $value, PDO::PARAM_STR);
                     break;
                 case 'NULL':
-                    $this->stmt->bindValue($p, $value, PDO::PARAM_NULL);
+                    $this->stmt->bindValue($arg, $value, PDO::PARAM_NULL);
                     break;
                 case 'array':
-                    $this->stmt->bindValue($p, '{' . implode(', ', $value) . '}');
+                    $this->stmt->bindValue($arg, '{' . implode(', ', $value) . '}');
                     break;
                 default:
-                    $this->stmt->bindValue($p, $value);
+                    $this->stmt->bindValue($arg, $value);
                     break;
             }
         }
@@ -96,11 +114,15 @@ class Query
 
     public function one(
         array|string|null $hashKey = null,
-        bool $asUid = false
+        bool $asUid = false,
+        int $fetchMode = null,
     ): ?array {
+        $fetchMode = $fetchMode ?? $this->db->getFetchMode();
+
         $this->db->connect();
+        error_log(print_r($this->stmt, true));
         $this->stmt->execute();
-        $result = $this->nullIfNot($this->stmt->fetch($this->db->getFetchMode()));
+        $result = $this->nullIfNot($this->stmt->fetch($fetchMode));
 
         if ($hashKey !== null && $result) {
             if (is_array($hashKey)) {
@@ -123,9 +145,11 @@ class Query
 
     public function item(
         array|string|null $hashKey = null,
-        bool $asUid = false
+        bool $asUid = false,
+        int $fetchMode = null,
     ): ?Item {
-        $result = $this->one($hashKey, $asUid);
+        $result = $this->one($hashKey, $asUid, $fetchMode);
+
         if ($result === null) {
             return null;
         }
@@ -135,11 +159,15 @@ class Query
 
     public function all(
         array|string|null $hashKey = null,
-        bool $asUid = false
+        bool $asUid = false,
+        int $fetchMode = null,
     ): ?iterable {
+        $fetchMode = $fetchMode ?? $this->db->getFetchMode();
+
         $this->db->connect();
         $this->stmt->execute();
-        $result = $this->nullIfNot($this->stmt->fetchAll($this->db->getFetchMode()));
+        $fetchMode = $this->db->getFetchMode();
+        $result = $this->nullIfNot($this->stmt->fetchAll($fetchMode));
 
         if ($hashKey !== null && $result) {
             return $this->db->encodeList($result, $hashKey, $asUid);
@@ -157,14 +185,17 @@ class Query
 
     public function items(
         array|string|null $hashKey = null,
-        bool $asUid = false
+        bool $asUid = false,
+        int $fetchMode = null,
     ): ?iterable {
-        $result = $this->all($hashKey, $asUid);
+        $result = $this->all($hashKey, $asUid, $fetchMode);
         if ($result === null) {
             return null;
         }
 
-        return array_map(fn ($item) => new Item($item), $result);
+        foreach ($result as $item) {
+            yield new Item($item);
+        }
     }
 
     public function run(): bool
@@ -184,12 +215,12 @@ class Query
      * Replaces any parameter placeholders in a query with the
      * value of that parameter and returns the query as string.
      */
-    public function interpolate($query, $params): string
+    public function interpolate($query, $args): string
     {
         // This method only supports named bindings
         $map = [];
 
-        foreach ($params as $key => $value) {
+        foreach ($args as $key => $value) {
             $key = ':' . $key;
 
             if (is_string($value)) {
