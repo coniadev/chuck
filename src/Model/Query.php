@@ -22,6 +22,7 @@ class Query
     protected $script;
     protected $stmt;
     protected $argsType;
+    protected $executed = false;
 
     public function __construct($db, $script, $args)
     {
@@ -82,7 +83,7 @@ class Query
         }
     }
 
-    protected function nullIfNot($value)
+    protected function nullIfNot(mixed $value): mixed
     {
         if (is_array($value)) {
             return $value;
@@ -92,41 +93,24 @@ class Query
     }
 
     public function one(
-        array|string|null $hashKey = null,
-        bool $asUid = false,
         int $fetchMode = null,
     ): ?array {
-        $fetchMode = $fetchMode ?? $this->db->getFetchMode();
-
         $this->db->connect();
-        $this->stmt->execute();
-        $result = $this->nullIfNot($this->stmt->fetch($fetchMode));
 
-        if ($hashKey !== null && $result) {
-            if (is_array($hashKey)) {
-                foreach ($hashKey as $hk) {
-                    $result[$hk] = $this->db->encode($result[$hk]);
-                }
-            } else {
-                if ($asUid) {
-                    $targetKey = 'uid';
-                } else {
-                    $targetKey = $hashKey;
-                }
-
-                $result[$targetKey] = $this->db->encode($result[$hashKey]);
-            }
+        if (!$this->executed) {
+            $this->stmt->execute();
+            $this->executed = true;
         }
+
+        $result = $this->nullIfNot($this->stmt->fetch($fetchMode ?? $this->db->getFetchMode()));
 
         return $result;
     }
 
     public function item(
-        array|string|null $hashKey = null,
-        bool $asUid = false,
         int $fetchMode = null,
     ): ?Item {
-        $result = $this->one($hashKey, $asUid, $fetchMode);
+        $result = $this->one($fetchMode);
 
         if ($result === null) {
             return null;
@@ -136,40 +120,19 @@ class Query
     }
 
     public function all(
-        array|string|null $hashKey = null,
-        bool $asUid = false,
         int $fetchMode = null,
-    ): ?iterable {
-        $fetchMode = $fetchMode ?? $this->db->getFetchMode();
-
+    ): iterable {
         $this->db->connect();
         $this->stmt->execute();
-        $fetchMode = $this->db->getFetchMode();
-        $result = $this->nullIfNot($this->stmt->fetchAll($fetchMode));
-
-        if ($hashKey !== null && $result) {
-            return $this->db->encodeList($result, $hashKey, $asUid);
-        }
+        $result = $this->stmt->fetchAll($fetchMode ?? $this->db->getFetchMode());
 
         return $result;
     }
 
-    public function allFlatList(): ?iterable
-    {
-        $this->db->connect();
-        $this->stmt->execute();
-        return $this->nullIfNot($this->stmt->fetchAll(\PDO::FETCH_NUM));
-    }
-
     public function items(
-        array|string|null $hashKey = null,
-        bool $asUid = false,
         int $fetchMode = null,
-    ): ?iterable {
-        $result = $this->all($hashKey, $asUid, $fetchMode);
-        if ($result === null) {
-            return null;
-        }
+    ): iterable {
+        $result = $this->all($fetchMode);
 
         foreach ($result as $item) {
             yield new Item($item);
@@ -179,6 +142,7 @@ class Query
     public function run(): bool
     {
         $this->db->connect();
+
         return $this->stmt->execute();
     }
 
@@ -186,6 +150,7 @@ class Query
     {
         $this->db->connect();
         $this->stmt->execute();
+
         return $this->stmt->rowCount();
     }
 

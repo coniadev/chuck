@@ -74,6 +74,24 @@ test('Expand script dirs :: query from expanded new namespace', function () {
 });
 
 
+test('Multiple Query->one calls', function () {
+    $db = new Database($this->getConfig());
+    $query = $db->members->activeFromTo([
+        'from' => 1990,
+        'to' => 1995,
+    ]);
+
+    $i = 0;
+    $result = $query->one();
+    while ($result) {
+        $i++;
+        $result = $query->one();
+    }
+
+    expect($i)->toBe(7);
+});
+
+
 test('Script dir shadowing', function () {
     $db = $this->getDb();
 
