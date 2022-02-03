@@ -1,1 +1,1 @@
-SELECT member, name FROM members WHERE member = :member;
+SELECT member, name, joined FROM members WHERE member = :member;

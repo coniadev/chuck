@@ -96,7 +96,7 @@ class Folder
             return new Script($this->db, $script, true);
         }
 
-        throw new \ErrorException('SQL script does not exist');
+        throw new \UnexpectedValueException('SQL script does not exist');
     }
 
     public function __get(string $key): Script

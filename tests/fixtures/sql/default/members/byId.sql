@@ -1,1 +1,1 @@
-SELECT member, name FROM members WHERE member = ?;
+SELECT member, name, left FROM members WHERE member = ?;

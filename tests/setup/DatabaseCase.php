@@ -73,7 +73,7 @@ class DatabaseCase extends TestCase
                 ('Chuck Schuldiner', 1983, NULL),
                 ('Rick Rozz', 1983, 1989),
                 ('Chris Reifert', 1986, 1987),
-                ('Terry Buttler', 1987, 1990),
+                ('Terry Butler', 1987, 1990),
                 ('Bill Andrews', 1987, 1990),
                 ('Paul Masdival', 1989, 1992),
                 ('James Murphy', 1989, 1990),
