@@ -9,28 +9,6 @@ use \PDO;
 use Chuck\Util\Arrays;
 
 
-/**
- * Takes an array and allows item property access to its elements.
- */
-class Item
-{
-    private $_data = [];
-
-    public function __construct(public array $arr)
-    {
-        $this->_data = $arr;
-    }
-
-    public function __get(string $name)
-    {
-        return $this->_data[$name];
-    }
-
-    public function __set(string $name, mixed $value)
-    {
-        $this->_data[$name] = $value;
-    }
-}
 
 enum ArgType
 {
@@ -55,7 +33,7 @@ class Query
         if ($argsCount > 0) {
             $this->stmt = $this->db->getConn()->prepare($this->script);
 
-            if ($argsCount === 1 && Arrays::isAssoc($args[0])) {
+            if ($argsCount === 1 && is_array($args[0]) && Arrays::isAssoc($args[0])) {
                 $this->bindArgs($args[0], ArgType::Assoc);
             } else {
                 $this->bindArgs($args, ArgType::Args);
@@ -76,8 +54,10 @@ class Query
     protected function bindArgs(array $args, ArgType $argType): void
     {
         foreach ($args as $a => $value) {
-            if ($argType = ArgType::Assoc) {
+            if ($argType === ArgType::Assoc) {
                 $arg = ':' . $a;
+            } else {
+                $arg = $a + 1; // question mark placeholders ar 1-indexed
             }
 
             switch (gettype($value)) {
