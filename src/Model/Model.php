@@ -33,16 +33,6 @@ abstract class Model
         return $db;
     }
 
-    public static function toIsoDateTime(int $timestamp): string
-    {
-        return (string)date('Y-m-d H:i:s', $timestamp);
-    }
-
-    public static function toIsoDate(int $timestamp): string
-    {
-        return (string)date('Y-m-d', $timestamp);
-    }
-
     public static function encode(int $id): string
     {
         return self::db()->encode($id);
