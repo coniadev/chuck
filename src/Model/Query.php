@@ -24,7 +24,7 @@ class Query
     protected $argsType;
     protected $executed = false;
 
-    public function __construct($db, $script, $args)
+    public function __construct(DatabaseInterface $db, string $script, array $args)
     {
         $this->db = $db;
         $this->script = $script;
