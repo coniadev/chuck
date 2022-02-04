@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Chuck\Model;
 
-use \PDO;
-
-use Chuck\Util\Arrays;
-
 
 interface QueryInterface
 {

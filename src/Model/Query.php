@@ -16,7 +16,7 @@ enum ArgType
 }
 
 
-class Query
+class Query implements QueryInterface
 {
     protected $db;
     protected $script;
@@ -33,8 +33,12 @@ class Query
         if ($argsCount > 0) {
             $this->stmt = $this->db->getConn()->prepare($this->script);
 
-            if ($argsCount === 1 && is_array($args[0]) && Arrays::isAssoc($args[0])) {
-                $this->bindArgs($args[0], ArgType::Assoc);
+            if ($argsCount === 1 && is_array($args[0])) {
+                if (Arrays::isAssoc($args[0])) {
+                    $this->bindArgs($args[0], ArgType::Assoc);
+                } else {
+                    $this->bindArgs($args[0], ArgType::Args);
+                }
             } else {
                 $this->bindArgs($args, ArgType::Args);
             }

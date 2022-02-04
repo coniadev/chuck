@@ -31,8 +31,11 @@ test('Database connection single script dir', function () {
 test('Query with question mark parameters', function () {
     $db = $this->getDb();
     $result = $db->members->byId(2)->one();
-
     expect($result['name'])->toBe('Rick Rozz');
+
+    // arguments can also be passed as array
+    $result = $db->members->byId([4])->one();
+    expect($result['name'])->toBe('Terry Butler');
 });
 
 
@@ -89,6 +92,33 @@ test('Multiple Query->one calls', function () {
     }
 
     expect($i)->toBe(7);
+});
+
+
+test('Databse::execute', function () {
+    $db = new Database($this->getConfig());
+    $query = 'SELECT * FROM albums';
+
+    expect(count($db->execute($query)->all()))->toBe(7);
+});
+
+
+test('Databse::execute with args', function () {
+    $db = new Database($this->getConfig());
+    $queryQmark = 'SELECT name FROM members WHERE joined = ? AND left = ?';
+    $queryNamed = 'SELECT name FROM members WHERE joined = :joined AND left = :left';
+
+    expect(
+        $db->execute($queryQmark, [1991, 1992])->one()['name']
+    )->toBe('Sean Reinert');
+
+    expect(
+        $db->execute($queryQmark, 1991, 1992)->one()['name']
+    )->toBe('Sean Reinert');
+
+    expect(
+        $db->execute($queryNamed, ['left' => 1992, 'joined' => 1991])->one()['name']
+    )->toBe('Sean Reinert');
 });
 
 

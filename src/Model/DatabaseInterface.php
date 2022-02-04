@@ -30,5 +30,6 @@ interface DatabaseInterface
     public function begin(): bool;
     public function commit(): bool;
     public function rollback(): bool;
+    public function execute(string $query, ...$args): QueryInterface;
     public function __get($key): Folder;
 }

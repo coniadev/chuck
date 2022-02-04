@@ -8,6 +8,8 @@ use \PDO;
 
 use Chuck\ConfigInterface;
 use Chuck\Model\DatabaseInterface;
+use Chuck\Model\QueryInterface;
+use Chuck\Util\Arrays;
 use Chuck\Util\Path;
 
 
@@ -161,6 +163,11 @@ class Database implements DatabaseInterface
     public function getMemcached(): ?\Memcached
     {
         return $this->memcached;
+    }
+
+    public function execute(string $query, ...$args): QueryInterface
+    {
+        return new Query($this, $query, $args);
     }
 
     public function __get($key): Folder
