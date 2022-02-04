@@ -33,24 +33,6 @@ abstract class Model
         return $db;
     }
 
-    public static function encode(int $id): string
-    {
-        return self::db()->encode($id);
-    }
-
-    public static function encodeList(
-        array $list,
-        $key,
-        bool $asUid = false
-    ): iterable {
-        return self::db()->encodeList($list, $key, $asUid);
-    }
-
-    public static function decode(string $uid): int
-    {
-        return self::db()->decode($uid);
-    }
-
     public static function toArray(?iterable $list): array
     {
         if (is_array($list)) {
@@ -67,5 +49,41 @@ abstract class Model
     public static function hashsecret(): string
     {
         return self::$request->config->get('hashsecret');
+    }
+
+    public function encode(int $id): string
+    {
+        return $this->hash->encode($id);
+    }
+
+    public function encodeList(
+        iterable $list,
+        array|string $hashKey,
+        bool $asUid = false
+    ): \Generator {
+        if (is_array($hashKey)) {
+            foreach ($list as $item) {
+                foreach ($hashKey as $hk) {
+                    $item[$hk] = $this->hash->encode($item[$hk]);
+                }
+                yield $item;
+            }
+        } else {
+            if ($asUid) {
+                $targetKey = 'uid';
+            } else {
+                $targetKey = $hashKey;
+            }
+
+            foreach ($list as $item) {
+                $item[$targetKey] = $this->hash->encode($item[$hashKey]);
+                yield $item;
+            }
+        }
+    }
+
+    public function decode(string $uid): int
+    {
+        return $this->hash->decode($uid);
     }
 }

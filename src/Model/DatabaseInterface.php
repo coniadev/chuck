@@ -31,9 +31,4 @@ interface DatabaseInterface
     public function commit(): bool;
     public function rollback(): bool;
     public function __get($key): Folder;
-
-    // HashIds
-    public function encode(int $id): string;
-    public function encodeList(iterable $list, array|string $hashKey, bool $asUid = false): \Generator;
-    public function decode(string $uid): int;
 }

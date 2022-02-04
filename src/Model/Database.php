@@ -7,7 +7,6 @@ namespace Chuck\Model;
 use \PDO;
 
 use Chuck\ConfigInterface;
-use Chuck\Hash;
 use Chuck\Model\DatabaseInterface;
 use Chuck\Util\Path;
 
@@ -19,7 +18,6 @@ class Database implements DatabaseInterface
     protected bool $shouldPrint = false;
     protected bool $useMemcache = false;
 
-    protected Hash $hash;
     protected ?PDO $conn = null;
     protected ?array $memcachedConfig = null;
     protected ?\Memcached $memcached = null;
@@ -33,7 +31,6 @@ class Database implements DatabaseInterface
         $this->dsn = $dbConf['dsn'];
         $this->username = $dbConf['username'] ?? null;
         $this->password = $dbConf['password'] ?? null;
-        // $this->hash = new Hash($config);
         $this->addScriptDirs($config->path('sql'));
         $this->fetchMode = $dbConf['fetchMode'] ?? PDO::FETCH_BOTH;
         $this->shouldPrint = $dbConf['print'];
@@ -181,41 +178,5 @@ class Database implements DatabaseInterface
         }
 
         return new Folder($this, $key);
-    }
-
-    public function encode(int $id): string
-    {
-        return $this->hash->encode($id);
-    }
-
-    public function encodeList(
-        iterable $list,
-        array|string $hashKey,
-        bool $asUid = false
-    ): \Generator {
-        if (is_array($hashKey)) {
-            foreach ($list as $item) {
-                foreach ($hashKey as $hk) {
-                    $item[$hk] = $this->hash->encode($item[$hk]);
-                }
-                yield $item;
-            }
-        } else {
-            if ($asUid) {
-                $targetKey = 'uid';
-            } else {
-                $targetKey = $hashKey;
-            }
-
-            foreach ($list as $item) {
-                $item[$targetKey] = $this->hash->encode($item[$hashKey]);
-                yield $item;
-            }
-        }
-    }
-
-    public function decode(string $uid): int
-    {
-        return $this->hash->decode($uid);
     }
 }
