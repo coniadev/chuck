@@ -110,18 +110,6 @@ class Query implements QueryInterface
         return $result;
     }
 
-    public function item(
-        int $fetchMode = null,
-    ): ?Item {
-        $result = $this->one($fetchMode);
-
-        if ($result === null) {
-            return null;
-        }
-
-        return new Item($result);
-    }
-
     public function all(
         int $fetchMode = null,
     ): iterable {
@@ -130,16 +118,6 @@ class Query implements QueryInterface
         $result = $this->stmt->fetchAll($fetchMode ?? $this->db->getFetchMode());
 
         return $result;
-    }
-
-    public function items(
-        int $fetchMode = null,
-    ): iterable {
-        $result = $this->all($fetchMode);
-
-        foreach ($result as $item) {
-            yield new Item($item);
-        }
     }
 
     public function run(): bool
