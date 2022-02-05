@@ -34,12 +34,14 @@ class Script
      */
     protected function prepareTemplateVars(string $script, Args $args): array
     {
+        // remove PostgreSQL blocks
+        $script = preg_replace(Query::PATTERN_BLOCK, ' ', $script);
         // remove strings
-        $script = preg_replace('/(["\'])(?:\\\1|.)*?\1/', ' ', $script);
+        $script = preg_replace(Query::PATTERN_STRING, ' ', $script);
         // remove /* */ comments
-        $script = preg_replace('/\/\*([\s\S]*?)\*\//', ' ', $script);
+        $script = preg_replace(Query::PATTERN_COMMENT_MULTI, ' ', $script);
         // remove single line comments
-        $script = preg_replace('/--.*$/', ' ', $script);
+        $script = preg_replace(Query::PATTERN_COMMENT_SINGLE, ' ', $script);
 
         // match everything starting with : and a letter
         // exclude multiple colons, like type casts (::text)
@@ -69,7 +71,7 @@ class Script
         $args = new Args($argsArray);
 
         if ($this->isTemplate) {
-            if ($args->type() === ArgType::Args) {
+            if ($args->type() === ArgType::Positional) {
                 throw new \InvalidArgumentException(
                     'Template queries `*.sql.php` allow named parameters only'
                 );

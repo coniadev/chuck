@@ -164,11 +164,38 @@ test('Script printing named parameters', function () {
     $db->setPrintScript(true);
 
     ob_start();
-    $db->members->joined(['year' => 1997])->run();
+    $result = $db->members->joined([
+        'year' => 1997,
+        'testPrinting' => true,
+        'interestedInNames' => true,
+    ])->one();
     $output = ob_get_contents();
     ob_end_clean();
 
+    expect($result['name'])->toBe('Shannon Hamm');
+    expect($output)->toContain('Emotions :year');
+    expect($output)->toContain('mantas, -- :year');
+    expect($output)->toContain("' :year");
+    expect($output)->toContain('Secret Face :year');
     expect($output)->toContain('WHERE joined = 1997');
+});
+
+
+test('Script printing positional parameters', function () {
+    $db = $this->getDb();
+    $db->setPrintScript(true);
+
+    ob_start();
+    $result = $db->members->left(2001)->one();
+    $output = ob_get_contents();
+    ob_end_clean();
+
+    expect($result['name'])->toBe('Shannon Hamm');
+    expect($output)->toContain('Emotions ?');
+    expect($output)->toContain('mantas, -- ?');
+    expect($output)->toContain("' ?");
+    expect($output)->toContain('Secret Face ?');
+    expect($output)->toContain('WHERE left = 2001');
 });
 
 

@@ -7,6 +7,6 @@ namespace Chuck\Model;
 
 enum ArgType
 {
-    case Args;
-    case Assoc;
+    case Named;
+    case Positional;
 }

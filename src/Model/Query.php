@@ -7,6 +7,16 @@ namespace Chuck\Model;
 use \PDO;
 
 
+class PreparedQuery
+{
+    public function __construct(
+        public string $query,
+        public array $swaps,
+    ) {
+    }
+}
+
+
 
 class Query implements QueryInterface
 {
@@ -14,6 +24,15 @@ class Query implements QueryInterface
     protected string $script;
     protected \PDOStatement $stmt;
     protected bool $executed = false;
+
+    // Matches multi line single and double quotes and handles \' \" escapes
+    const PATTERN_STRING = '/([\'"])(?:\\\1|[\s\S])*?\1/';
+    // PostgreSQL blocks delimited with $$
+    const PATTERN_BLOCK = '/(\$\$)[\s\S]*?\1/';
+    // Multi line comments /* */
+    const PATTERN_COMMENT_MULTI = '/\/\*([\s\S]*?)\*\//';
+    // Single line comments --
+    const PATTERN_COMMENT_SINGLE = '/--.*$/m';
 
     public function __construct(DatabaseInterface $db, string $script, Args $args)
     {
@@ -43,7 +62,7 @@ class Query implements QueryInterface
     protected function bindArgs(array $args, ArgType $argType): void
     {
         foreach ($args as $a => $value) {
-            if ($argType === ArgType::Assoc) {
+            if ($argType === ArgType::Named) {
                 $arg = ':' . $a;
             } else {
                 $arg = $a + 1; // question mark placeholders ar 1-indexed
@@ -121,36 +140,110 @@ class Query implements QueryInterface
         return $this->stmt->rowCount();
     }
 
-    /**
-     * Replaces any parameter placeholders in a query with the
-     * value of that parameter and returns the query as string.
-     */
-    public function interpolate(string $query, Args $args): string
+    protected function convertValue(mixed $value): string
     {
-        // This method only supports named bindings
+        if (is_string($value)) {
+            return "'" . $value . "'";
+        }
+
+        if (is_array($value)) {
+            return '{' . implode("','", $value) . '}';
+        }
+
+        if (is_null($value)) {
+            return 'NULL';
+        }
+
+        return (string)$value;
+    }
+
+    protected function prepareQuery(string $query): PreparedQuery
+    {
+        $patterns = [
+            self::PATTERN_BLOCK,
+            self::PATTERN_STRING,
+            self::PATTERN_COMMENT_MULTI,
+            self::PATTERN_COMMENT_SINGLE,
+        ];
+        $swaps = [];
+
+        $i = 0;
+
+        do {
+            $found = false;
+
+            foreach ($patterns as $pattern) {
+                $matches = [];
+
+                if (preg_match($pattern, $query, $matches)) {
+                    $match = $matches[0];
+                    $replacement = "___CHUCK_REPLACE_${i}___";
+                    $swaps[$replacement] = $match;
+
+                    $query = preg_replace($pattern, $replacement, $query, limit: 1);
+                    $found = true;
+                    $i++;
+
+                    break;
+                }
+            }
+        } while ($found);
+
+        return new PreparedQuery($query, $swaps);
+    }
+
+    protected function restoreQuery(string $query, PreparedQuery $prep): string
+    {
+        foreach ($prep->swaps as $swap => $replacement) {
+            $query = str_replace($swap, $replacement, $query);
+        }
+
+        return $query;
+    }
+
+
+    protected function interpolateNamed(string $query, array $args): string
+    {
         $map = [];
 
-        foreach ($args->get() as $key => $value) {
+        foreach ($args as $key => $value) {
             $key = ':' . $key;
-
-            if (is_string($value)) {
-                $map[$key] = "'" . $value . "'";
-                continue;
-            }
-
-            if (is_array($value)) {
-                $map[$key] = '{' . implode("','", $value) . '}';
-                continue;
-            }
-
-            if (is_null($value)) {
-                $map[$key] = 'NULL';
-                continue;
-            }
-
-            $map[$key] = (string)$value;
+            $map[$key] = $this->convertValue($value);
         }
 
         return strtr($query, $map);
+    }
+
+
+    protected function interpolatePositional(string $query, array $args): string
+    {
+        foreach ($args as $value) {
+            $query = preg_replace('/\\?/', $this->convertValue($value), $query, 1);
+        }
+
+        return $query;
+    }
+
+    /**
+     * For debugging purposes only.
+     *
+     * Replaces any parameter placeholders in a query with the
+     * value of that parameter and returns the query as string.
+     *
+     * Covers most of the cases but is not perfect.
+     */
+    public function interpolate(string $query, Args $args): string
+    {
+        $prep = $this->prepareQuery($query);
+        $argsArray = $args->get();
+        $interpolated = $this->interpolateNamed($prep->query, $argsArray);
+
+        if ($args->type() === ArgType::Named) {
+            $interpolated = $this->interpolateNamed($prep->query, $argsArray);
+        } else {
+            $interpolated = $this->interpolatePositional($prep->query, $argsArray);
+        }
+
+        return $this->restoreQuery($interpolated, $prep);
     }
 }

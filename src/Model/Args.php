@@ -24,15 +24,15 @@ class Args
 
         if ($this->count === 1 && is_array($args[0])) {
             if (Arrays::isAssoc($args[0])) {
-                $this->type = ArgType::Assoc;
+                $this->type = ArgType::Named;
             } else {
-                $this->type = ArgType::Args;
+                $this->type = ArgType::Positional;
             }
 
             return $args[0];
         }
 
-        $this->type = ArgType::Args;
+        $this->type = ArgType::Positional;
 
         return $args;
     }
