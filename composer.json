@@ -10,14 +10,13 @@
         "psy/psysh": "*",
         "phpunit/phpunit": "^9",
         "nunomaduro/collision": "^6",
-        "pestphp/pest": "^1"
+        "pestphp/pest": "^1",
+        "filp/whoops": "^2.14"
     },
     "require": {
         "tgalopin/html-sanitizer": "^1.5",
         "monolog/monolog": "^2.3",
-        "league/plates": "^3.4",
-        "hashids/hashids": "^4.1",
-        "filp/whoops": "^2.14"
+        "league/plates": "^3.4"
     },
     "autoload": {
         "psr-4": {

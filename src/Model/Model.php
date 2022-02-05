@@ -27,7 +27,7 @@ abstract class Model
         static $db = null;
 
         if ($db === null) {
-            $db = new Database(self::$request, $fetchMode);
+            $db = new Database(self::$request->config, $fetchMode);
         }
 
         return $db;
@@ -41,49 +41,8 @@ abstract class Model
 
         try {
             return iterator_to_array($list);
-        } catch (\TypeError $e) {
+        } catch (\TypeError) {
             return [];
         }
-    }
-
-    public static function hashsecret(): string
-    {
-        return self::$request->config->get('hashsecret');
-    }
-
-    public function encode(int $id): string
-    {
-        return $this->hash->encode($id);
-    }
-
-    public function encodeList(
-        iterable $list,
-        array|string $hashKey,
-        bool $asUid = false
-    ): \Generator {
-        if (is_array($hashKey)) {
-            foreach ($list as $item) {
-                foreach ($hashKey as $hk) {
-                    $item[$hk] = $this->hash->encode($item[$hk]);
-                }
-                yield $item;
-            }
-        } else {
-            if ($asUid) {
-                $targetKey = 'uid';
-            } else {
-                $targetKey = $hashKey;
-            }
-
-            foreach ($list as $item) {
-                $item[$targetKey] = $this->hash->encode($item[$hashKey]);
-                yield $item;
-            }
-        }
-    }
-
-    public function decode(string $uid): int
-    {
-        return $this->hash->decode($uid);
     }
 }

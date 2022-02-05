@@ -6,7 +6,6 @@ namespace Chuck\Testing;
 
 use Chuck\Testing\Request;
 use Chuck\App as BaseApp;
-use Chuck\Hash;
 
 class App extends BaseApp
 {
@@ -37,17 +36,5 @@ class App extends BaseApp
         }
 
         return $request;
-    }
-
-    public function encodeHash(int $id): string
-    {
-        $hash = new Hash($this->getTestRequest());
-        return $hash->encode($id);
-    }
-
-    public function decodeHash(string $uid): int
-    {
-        $hash = new Hash($this->getTestRequest());
-        return $hash->decode($uid);
     }
 }

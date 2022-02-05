@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Chuck\Testing;
 
-use Chuck\Hash;
 use Chuck\RequestInterface;
 use Chuck\Request as BaseRequest;
 
@@ -63,9 +62,8 @@ class Request extends BaseRequest implements RequestInterface
         $session = $this->session;
         $session->setUser($userId);
 
-        $hash = new Hash($this);
         $this->user = [
-            'usr' => $hash->encode($userId)
+            'usr' => $userId,
         ];
 
         $this->permissions = $permissions;

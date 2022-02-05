@@ -13,5 +13,4 @@ DB_USER
 DB_PASS
 
 AUTH_SECRET = null // the auth secret
-HASH_SECRET = null // the hashids secret
 JWT_SECRET  = null // JWT secret
