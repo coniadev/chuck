@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Chuck\Tests\DatabaseCase;
+use Chuck\Tests\Helper;
 use Chuck\Model\Database;
 
 uses(DatabaseCase::class);
@@ -166,3 +167,20 @@ test('Accessing non-existent script/query', function () {
     $db = $this->getDb();
     $db->members->doesNotExist;
 })->throws(\UnexpectedValueException::class);
+
+
+test('With Memcached', function () {
+    $db = $this->getDb([
+        'memcached' => [
+            'host' => 'localhost',
+            'port' => 11211,
+            'expire' => 1,
+        ],
+    ]);
+
+    $db->members->list()->all();
+    $mc = $db->getMemcached();
+    $db->members->list()->all();
+    expect($mc->getConn())->toBeInstanceOf(\Memcached::class);
+    expect($mc->get('chucksql/members/list'))->toBe("SELECT member, name, joined, left FROM members;\n");
+})->skip(!Helper::memcachedExtensionLoaded());

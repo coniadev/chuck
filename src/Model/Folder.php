@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Chuck\Model;
 
-const ds = DIRECTORY_SEPARATOR;
-
 
 class Folder
 {
@@ -48,9 +46,11 @@ class Folder
         return false;
     }
 
-    protected function fromCache(\Memcached $mc, string $key, string $prefix = 'sql'): string
-    {
-        $memKey = 'prefix' . ds . $this->folder . ds . $key;
+    protected function fromCache(
+        \Chuck\Memcached $mc,
+        string $key,
+    ): string {
+        $memKey = $this->db->getMemcachedPrefix() . '/' . $this->folder . '/' . $key;
         $stmt = $mc->get($memKey);
 
         if (!$stmt) {
@@ -60,7 +60,6 @@ class Folder
                 $mc->set(
                     $memKey,
                     $stmt,
-                    (int)($this->config->get('memcached')['expire'])
                 );
             }
         }
@@ -70,17 +69,12 @@ class Folder
 
     protected function getScript($key): Script
     {
-        // if ($config->get('devel')) {
-        if (true) {
-            $stmt = $this->readScript($key);
-        } else {
-            $mc = $this->db->getMemcached();
+        $mc = $this->db->getMemcached();
 
-            if ($mc) {
-                $stmt = $this->fromCache($mc, $key);
-            } else {
-                $stmt = $this->readScript($key);
-            }
+        if ($mc) {
+            $stmt = $this->fromCache($mc, $key);
+        } else {
+            $stmt = $this->readScript($key);
         }
 
         if ($stmt) {
@@ -90,7 +84,6 @@ class Folder
         // If $stmt is not truthy until now,
         // assume the script is a dnyamic sql template
         $script = $this->scriptPath($key, true);
-        echo ($script . PHP_EOL);
 
         if ($script) {
             return new Script($this->db, $script, true);

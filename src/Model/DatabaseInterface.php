@@ -22,8 +22,7 @@ interface DatabaseInterface
     public function setPrintScript(bool $shouldPrint): self;
     public function shouldPrintScript(): bool;
 
-    public function memcachedConfig(array $settings): self;
-    public function getMemcached(): ?\Memcached;
+    public function getMemcached(): ?\Chuck\Memcached;
 
     // Database operations
     public function getConn(): PDO;

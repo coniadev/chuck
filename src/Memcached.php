@@ -8,8 +8,8 @@ interface WrapperInterface
 {
     public function __construct(string $server, int $port);
     public function get(string $key): mixed;
-    public function add(string $key, mixed $value, int $expires = 0): bool;
-    public function set(string $key, mixed $value, int $expires = 0): bool;
+    public function add(string $key, mixed $value, int $expire): bool;
+    public function set(string $key, mixed $value, int $expire): bool;
     public function delete(string $key, int $timeout = 0): bool;
     public function getConn(): mixed;
 }
@@ -56,14 +56,14 @@ class MemcachedWrapper extends BaseWrapper implements WrapperInterface
         $this->conn->addServer($this->server, $this->port);
     }
 
-    public function add(string $key, mixed $value, int $expires = 0): bool
+    public function add(string $key, mixed $value, int $expire): bool
     {
-        return $this->conn->add($key, $value, $expires);
+        return $this->conn->add($key, $value, $expire);
     }
 
-    public function set(string $key, mixed $value, int $expires = 0): bool
+    public function set(string $key, mixed $value, int $expire): bool
     {
-        return $this->conn->set($key, $value, $expires);
+        return $this->conn->set($key, $value, $expire);
     }
 }
 
@@ -76,17 +76,17 @@ class MemcacheWrapper extends BaseWrapper implements WrapperInterface
         $this->conn->connect($this->server, $this->port);
     }
 
-    public function add(string $key, mixed $value, int $expires = 0): bool
+    public function add(string $key, mixed $value, int $expire): bool
     {
         // TODO: Using 0 as flag value, compression is not used
         //       Should we use MEMCACHE_COMPRESSED?
-        return $this->conn->add($key, $value, 0, $expires);
+        return $this->conn->add($key, $value, 0, $expire);
     }
 
-    public function set(string $key, mixed $value, int $expires = 0): bool
+    public function set(string $key, mixed $value, int $expire): bool
     {
         // TODO: See self::add
-        return $this->conn->set($key, $value, 0, $expires);
+        return $this->conn->set($key, $value, 0, $expire);
     }
 }
 
@@ -96,20 +96,33 @@ class Memcached implements MemcachedInterface
     protected WrapperInterface $impl;
 
     public function __construct(
-        protected string $server = 'localhost',
-        protected int $port = 11211,
-        string $implementation = null
+        string $server = 'localhost',
+        int $port = 11211,
+        ?string $implementation = null,
+        protected ?int $expire = null,
+        protected bool $preferMemcached = true,
     ) {
         if ($implementation) {
-            $this->impl = new $implementation($server, $port);
+            switch ($implementation) {
+                case 'Memcached':
+                    $this->impl = new MemcachedWrapper($server, $port);
+                    break;
+                case 'Memcache':
+                    $this->impl = new MemcacheWrapper($server, $port);
+                    break;
+                default:
+                    throw new \InvalidArgumentException('Memcached implementation does not exist');
+            }
         } else {
-            if (class_exists('\Memcached', false)) {
+            if (class_exists('\Memcached', false) && $preferMemcached) {
                 $this->impl = new MemcachedWrapper($server, $port);
             } else {
                 if (class_exists('\Memcache', false)) {
                     $this->impl = new MemcacheWrapper($server, $port);
                 } else {
-                    throw new \ErrorException('No memcached extension available');
+                    // @codeCoverageIgnoreStart
+                    throw new \RuntimeException('No memcached extension available');
+                    // @codeCoverageIgnoreEnd
                 }
             }
         }
@@ -117,7 +130,14 @@ class Memcached implements MemcachedInterface
 
     public static function fromConfig(ConfigInterface $config): self
     {
-        $mc = new self('localhost', 11211, \Memcached::class);
+        $settings = $config->get('memcached');
+
+        $mc = new self(
+            server: $settings['host'] ?? 'localhost',
+            port: $settings['port'] ?? 11211,
+            implementation: $settings['implementation'] ?? null,
+            expire: $settings['expire'] ?? null,
+        );
 
         return $mc;
     }
@@ -137,13 +157,22 @@ class Memcached implements MemcachedInterface
         return $this->impl->delete($key, $timeout);
     }
 
-    public function add(string $key, mixed $value, int $expires = 0): bool
+    public function add(string $key, mixed $value, ?int $expire = null): bool
     {
-        return $this->impl->add($key, $value, $expires);
+        return $this->impl->add($key, $value, $this->getExpire($expire));
     }
 
-    public function set(string $key, mixed $value, int $expires = 0): bool
+    public function set(string $key, mixed $value, ?int $expire = null): bool
     {
-        return $this->impl->set($key, $value, $expires);
+        return $this->impl->set($key, $value, $this->getExpire($expire));
+    }
+
+    public function getExpire(?int $expire): int
+    {
+        if ($expire === null) {
+            return $this->expire ?? 0;
+        }
+
+        return $expire;
     }
 }

@@ -7,7 +7,7 @@ namespace Chuck\Tests;
 
 class Helper
 {
-    public static function memcachedExtLoaded(): bool
+    public static function memcachedExtensionLoaded(): bool
     {
         if (!class_exists('\Memcached', false)) {
             return false;
@@ -30,7 +30,7 @@ class Helper
         return false;
     }
 
-    public static function memcacheExtLoaded(): bool
+    public static function memcacheExtensionLoaded(): bool
     {
         if (!class_exists('\Memcache', false)) {
             return false;

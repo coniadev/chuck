@@ -79,22 +79,24 @@ return [
 
     // database credentials
     'db' => [
-        // The PDO connection string. See:
-        //   PostgreSQL: https://www.php.net/manual/de/ref.pdo-pgsql.connection.php
-        //   MySQL: https://www.php.net/manual/de/ref.pdo-mysql.connection.php
-        //   Sqlite: https://www.php.net/manual/de/ref.pdo-sqlite.connection.php
-        // and others
-        'dsn' => null,
-        'options' => null, // Array with PDO options passed to new \PDO(...)
-        'fetchMode' => null, // Defaults to PDO::FETCH_DEFAULT,
-        'print' => false, // Print interpolated sql to stdout
+        'dsn' => null,       // The PDO connection string. See:
+        //                        PostgreSQL: https://www.php.net/manual/de/ref.pdo-pgsql.connection.php
+        //                        MySQL: https://www.php.net/manual/de/ref.pdo-mysql.connection.php
+        //                        Sqlite: https://www.php.net/manual/de/ref.pdo-sqlite.connection.php
+        //                      and others
+        'options' => null,   // optional, array with PDO options passed to new \PDO(...)
+        'fetchMode' => null, // optional, Defaults to PDO::FETCH_DEFAULT,
+        'print' => false,    // Print interpolated sql to stdout
+        'memcachedPrefix' => 'chucksql', // Should be set to a application version number or the like
     ],
 
     // Memcached configuration
     'memcached' => null,
     // Example: [
-    //    'host' => 'localhost',
-    //    'port' => 11211,
-    //    'expire' => 86400,  // 1 day
+    //    'implementation' => null,  // optional, either 'Memcached' or 'Memcache'
+    //                               // if not given uses what is available or throws error
+    //    'host' => null,            // optional, defaults to 'localhost'
+    //    'port' => null,            // optional, defaults to 11211
+    //    'expire' => null,          // optional, defaults to 0 which means never expire
     //],
 ];

@@ -18,11 +18,10 @@ class Database implements DatabaseInterface
     protected ConfigInterface $config;
     protected int $defaultFetchMode;
     protected bool $shouldPrint = false;
-    protected bool $useMemcache = false;
 
     protected ?PDO $conn = null;
-    protected ?array $memcachedConfig = null;
-    protected ?\Memcached $memcached = null;
+    protected ?\Chuck\Memcached $memcached = null;
+    protected string $memcachedPrefix;
     protected array $scriptPaths = [];
     protected int $fetchMode;
 
@@ -31,6 +30,7 @@ class Database implements DatabaseInterface
         $this->config = $config;
         $dbConf = $config->get('db');
         $this->dsn = $dbConf['dsn'];
+        $this->memcachedPrefix = $dbConf['memcachedPrefix'];
         $this->username = $dbConf['username'] ?? null;
         $this->password = $dbConf['password'] ?? null;
         $this->addScriptDirs($config->path('sql'));
@@ -41,13 +41,6 @@ class Database implements DatabaseInterface
     public function defaultFetchMode(int $fetchMode): self
     {
         $this->fetchMode = $fetchMode;
-
-        return $this;
-    }
-
-    public function memcachedConfig(array $settings): self
-    {
-        $this->memcachedConfig = $settings;
 
         return $this;
     }
@@ -110,8 +103,8 @@ class Database implements DatabaseInterface
             return $this;
         }
 
-        if ($this->memcachedConfig) {
-            $this->connectMemcached($this->memcachedConfig);
+        if ($this->config->get('memcached')) {
+            $this->memcached = \Chuck\Memcached::fromConfig($this->config);
         }
 
         $this->conn = new PDO($this->dsn, $this->username, $this->password);
@@ -126,16 +119,6 @@ class Database implements DatabaseInterface
         $this->conn->setAttribute(PDO::ATTR_CASE, PDO::CASE_NATURAL);
 
         return $this;
-    }
-
-    protected function connectMemcached(?array $config): void
-    {
-        $this->memcached = new \Memcached();
-        $this->memcached->setOption(\Memcached::OPT_BINARY_PROTOCOL, true);
-        $this->memcached->addServer(
-            $config['host'],
-            $config['port']
-        ) or die('Cannot connect to memcached server!');
     }
 
     public function begin(): bool
@@ -160,9 +143,14 @@ class Database implements DatabaseInterface
         return $this->conn;
     }
 
-    public function getMemcached(): ?\Memcached
+    public function getMemcached(): ?\Chuck\Memcached
     {
         return $this->memcached;
+    }
+
+    public function getMemcachedPrefix(): string
+    {
+        return $this->memcachedPrefix;
     }
 
     public function execute(string $query, ...$args): QueryInterface

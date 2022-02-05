@@ -35,16 +35,19 @@ class DatabaseCase extends TestCase
         $ds = DIRECTORY_SEPARATOR;
 
         return parent::getConfig(
-            [
-                'db' => [
-                    'dsn' => $this->getDsn()
-                ],
-                'path' => [
-                    'sql' => [
-                        __DIR__ . $ds . '..' . $ds . 'fixtures' . $ds . 'sql' . $ds . 'default',
+            array_replace_recursive(
+                [
+                    'db' => [
+                        'dsn' => $this->getDsn()
                     ],
-                ]
-            ],
+                    'path' => [
+                        'sql' => [
+                            __DIR__ . $ds . '..' . $ds . 'fixtures' . $ds . 'sql' . $ds . 'default',
+                        ],
+                    ]
+                ],
+                $options,
+            )
         );
     }
 
@@ -78,7 +81,7 @@ class DatabaseCase extends TestCase
                 ('Paul Masdival', 1989, 1992),
                 ('James Murphy', 1989, 1990),
                 ('Sean Reinert', 1991, 1992),
-                ('Steve Di Giorgio', 1991, 1995),
+                ('Steve DiGiorgio', 1991, 1995),
                 ('Scott Carino', 1991, 1992),
                 ('Gene Hoglan', 1993, 1995),
                 ('Andy LaRocque', 1993, 1993),

@@ -18,11 +18,10 @@ enum ArgType
 
 class Query implements QueryInterface
 {
-    protected $db;
-    protected $script;
-    protected $stmt;
-    protected $argsType;
-    protected $executed = false;
+    protected Database $db;
+    protected string $script;
+    protected \PDOStatement $stmt;
+    protected bool $executed = false;
 
     public function __construct(DatabaseInterface $db, string $script, array $args)
     {
