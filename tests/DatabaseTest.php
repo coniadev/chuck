@@ -28,6 +28,16 @@ test('Database connection single script dir', function () {
 });
 
 
+test('Database init with method calls', function () {
+    $db = new Database($this->getConfig());
+
+    $db->defaultFetchMode(\PDO::FETCH_ASSOC)->memcachedConfig(['fake' => 'yes']);
+
+    expect($db->getFetchmode())->toBe(\PDO::FETCH_ASSOC);
+    expect($db->getMemcached())->toBe(\PDO::FETCH_ASSOC);
+});
+
+
 test('Query with question mark parameters', function () {
     $db = $this->getDb();
     $result = $db->members->byId(2)->one();
