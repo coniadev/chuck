@@ -85,7 +85,7 @@ return [
         //                        Sqlite: https://www.php.net/manual/de/ref.pdo-sqlite.connection.php
         //                      and others
         'options' => null,   // optional, array with PDO options passed to new \PDO(...)
-        'fetchMode' => null, // optional, Defaults to PDO::FETCH_DEFAULT,
+        'fetchMode' => null, // optional, Defaults to PDO::FETCH_BOTH,
         'print' => false,    // Print interpolated sql to stdout
         'memcachedPrefix' => 'chucksql', // Should be set to a application version number or the like
     ],

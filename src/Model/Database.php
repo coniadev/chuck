@@ -155,7 +155,7 @@ class Database implements DatabaseInterface
 
     public function execute(string $query, ...$args): QueryInterface
     {
-        return new Query($this, $query, $args);
+        return new Query($this, $query, new Args($args));
     }
 
     public function __get($key): Folder

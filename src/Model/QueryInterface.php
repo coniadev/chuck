@@ -7,7 +7,7 @@ namespace Chuck\Model;
 
 interface QueryInterface
 {
-    public function __construct(DatabaseInterface $db, string $script, array $args);
+    public function __construct(DatabaseInterface $db, string $script, Args $args);
     public function one(int $fetchMode = null): ?array;
     public function all(int $fetchMode = null): iterable;
     public function run(): bool;

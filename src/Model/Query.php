@@ -6,14 +6,6 @@ namespace Chuck\Model;
 
 use \PDO;
 
-use Chuck\Util\Arrays;
-
-
-enum ArgType
-{
-    case Args;
-    case Assoc;
-}
 
 
 class Query implements QueryInterface
@@ -23,24 +15,14 @@ class Query implements QueryInterface
     protected \PDOStatement $stmt;
     protected bool $executed = false;
 
-    public function __construct(DatabaseInterface $db, string $script, array $args)
+    public function __construct(DatabaseInterface $db, string $script, Args $args)
     {
         $this->db = $db;
         $this->script = $script;
-        $argsCount = count($args);
 
-        if ($argsCount > 0) {
+        if ($args->count() > 0) {
             $this->stmt = $this->db->getConn()->prepare($this->script);
-
-            if ($argsCount === 1 && is_array($args[0])) {
-                if (Arrays::isAssoc($args[0])) {
-                    $this->bindArgs($args[0], ArgType::Assoc);
-                } else {
-                    $this->bindArgs($args[0], ArgType::Args);
-                }
-            } else {
-                $this->bindArgs($args, ArgType::Args);
-            }
+            $this->bindArgs($args->get(), $args->type());
         } else {
             $this->stmt = $this->db->getConn()->query($this->script);
         }

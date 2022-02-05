@@ -36,11 +36,7 @@ class Folder
         $script = $this->scriptPath($key, false);
 
         if ($script) {
-            try {
-                return file_get_contents($script);
-            } catch (\Throwable) {
-                return false;
-            }
+            return file_get_contents($script);
         }
 
         return false;

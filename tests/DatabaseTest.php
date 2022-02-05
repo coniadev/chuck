@@ -21,11 +21,18 @@ test('Database connection', function () {
 });
 
 
-test('Database connection single script dir', function () {
+test('Add script dir outside of root directory', function () {
     $db = $this->getDb();
-    $result = $db->members->list()->all();
+    $db->addScriptDirs('/etc');
+})->throws(\InvalidArgumentException::class);
 
-    expect(count($result))->toBe(NUMBER_OF_MEMBERS);
+
+test('Set whether it should print sql to stdout', function () {
+    $db = $this->getDb();
+
+    expect($db->shouldPrintScript())->toBe(false);
+    $db->setPrintScript(true);
+    expect($db->shouldPrintScript())->toBe(true);
 });
 
 
@@ -36,6 +43,49 @@ test('Database init set fetch mode via method', function () {
 
     expect($db->getFetchmode())->toBe(\PDO::FETCH_ASSOC);
     expect($result)->toBeInstanceOf(Database::class);
+});
+
+
+test('Fetch all :: Query::all()', function () {
+    $db = $this->getDb();
+    $result = $db->members->list()->all();
+
+    expect(count($result))->toBe(NUMBER_OF_MEMBERS);
+});
+
+
+test('Fetch one :: Query::one()', function () {
+    $db = $this->getDb();
+    $result = $db->members->list()->one();
+
+    expect($result['name'] ?? null)->toBeTruthy();
+});
+
+
+test('Run only queries :: Query::run()', function () {
+    $db = $this->getDb();
+
+    $db->members->add('Tim Aymar', 1998, 2001)->run();
+    expect(count($db->members->list()->all()))->toBe(NUMBER_OF_MEMBERS + 1);
+    $db->members->delete(['name' => 'Tim Aymar'])->run();
+    expect(count($db->members->list()->all()))->toBe(NUMBER_OF_MEMBERS);
+});
+
+
+test('Transactions begin/commit', function () {
+    $db = $this->getDb();
+
+    $db->begin();
+    $db->members->add('Tim Aymar', 1998, 2001)->run();
+    $db->commit();
+    expect(count($db->members->list()->all()))->toBe(NUMBER_OF_MEMBERS + 1);
+
+    $db->members->delete(['name' => 'Tim Aymar'])->run();
+
+    $db->begin();
+    $db->members->add('Tim Aymar', 1998, 2001)->run();
+    $db->rollback();
+    expect(count($db->members->list()->all()))->toBe(NUMBER_OF_MEMBERS);
 });
 
 
@@ -59,6 +109,26 @@ test('Query with named parameters', function () {
 
     expect(count($result))->toBe(7);
 });
+
+
+test('Template query', function () {
+    $db = $this->getDb([
+        'db' => ['fetchMode' => \PDO::FETCH_ASSOC],
+    ]);
+
+    $result = $db->members->byName(['name' => 'Richard Christy'])->one();
+    expect(count($result))->toBe(2);
+
+    $result = $db->members->byName(['name' => 'Richard Christy', 'interestedInDates' => true])->one();
+    expect(count($result))->toBe(4);
+});
+
+
+test('Template query with positional args', function () {
+    $db = $this->getDb();
+
+    $db->members->byName('Richard Christy');
+})->throws(\InvalidArgumentException::class);
 
 
 test('Expand script dirs :: query from default', function () {

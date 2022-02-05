@@ -17,9 +17,9 @@ class Script
         $this->isTemplate = $isTemplate;
     }
 
-    protected function evaluateTemplate(string $path, array $params): string
+    protected function evaluateTemplate(string $path, Args $args): string
     {
-        extract($params);
+        extract($args->get());
         ob_start();
         include $path;
 
@@ -32,7 +32,7 @@ class Script
      *
      * PDO does not allow unused parameters.
      */
-    protected function prepareTemplateVars(string $script, array $params): array
+    protected function prepareTemplateVars(string $script, Args $args): array
     {
         // remove strings
         $script = preg_replace('/(["\'])(?:\\\1|.)*?\1/', ' ', $script);
@@ -50,24 +50,36 @@ class Script
             $result,
             PREG_PATTERN_ORDER
         )) {
-            $newParams = [];
+            $argsArray = $args->get();
+            $newArgs = [];
 
-            foreach (array_unique($result[0]) as $param) {
-                $p = substr($param, 2);
-                $newParams[$p] = $params[$p];
+            foreach (array_unique($result[0]) as $arg) {
+                $a = substr($arg, 2);
+                $newArgs[$a] = $argsArray[$a];
             }
 
-            return $newParams;
+            return $newArgs;
         }
 
         return [];
     }
 
-    public function invoke(...$args): Query
+    public function invoke(...$argsArray): Query
     {
+        $args = new Args($argsArray);
+
         if ($this->isTemplate) {
+            if ($args->type() === ArgType::Args) {
+                throw new \InvalidArgumentException(
+                    'Template queries `*.sql.php` allow named parameters only'
+                );
+            }
+
             $script = $this->evaluateTemplate($this->script, $args);
-            $args = $this->prepareTemplateVars($script, $args);
+
+            // We need to wrap the result of the prepare call in an array
+            // to get back to the format of ...$argsArray.
+            $args = new Args([$this->prepareTemplateVars($script, $args)]);
         } else {
             $script = $this->script;
         }
