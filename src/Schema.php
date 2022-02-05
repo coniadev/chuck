@@ -89,11 +89,7 @@ abstract class Schema implements SchemaInterface
         ];
     }
 
-    protected function rules(): void
-    {
-        // Must be implemented in child classes
-        throw new \ErrorException('not implemented');
-    }
+    abstract protected function rules(): void;
 
     protected function addSubError(string $field, array $error, ?int $listIndex): void
     {
