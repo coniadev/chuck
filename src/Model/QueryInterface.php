@@ -12,5 +12,5 @@ interface QueryInterface
     public function all(int $fetchMode = null): iterable;
     public function run(): bool;
     public function len(): int;
-    public function interpolate($query, $args): string;
+    public function interpolate(string $query, Args $args): string;
 }

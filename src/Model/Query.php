@@ -28,11 +28,15 @@ class Query implements QueryInterface
         }
 
         if ($db->shouldPrintScript()) {
-            error_log(
-                "\n\n-----------------------------------------------\n\n" .
-                    $this->interpolate($script, $args) .
-                    "\n------------------------------------------------\n"
-            );
+            $msg = "\n\n-----------------------------------------------\n\n" .
+                $this->interpolate($script, $args) .
+                "\n------------------------------------------------\n";
+
+            if ($_SERVER['SERVER_SOFTWARE'] ?? false) {
+                error_log($msg);
+            } else {
+                print($msg);
+            };
         }
     }
 
@@ -121,12 +125,12 @@ class Query implements QueryInterface
      * Replaces any parameter placeholders in a query with the
      * value of that parameter and returns the query as string.
      */
-    public function interpolate($query, $args): string
+    public function interpolate(string $query, Args $args): string
     {
         // This method only supports named bindings
         $map = [];
 
-        foreach ($args as $key => $value) {
+        foreach ($args->get() as $key => $value) {
             $key = ':' . $key;
 
             if (is_string($value)) {

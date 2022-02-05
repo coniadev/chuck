@@ -89,7 +89,7 @@ test('Transactions begin/commit', function () {
 });
 
 
-test('Query with question mark parameters', function () {
+test('Query with positional parameters', function () {
     $db = $this->getDb();
     $result = $db->members->byId(2)->one();
     expect($result['name'])->toBe('Rick Rozz');
@@ -116,10 +116,10 @@ test('Template query', function () {
         'db' => ['fetchMode' => \PDO::FETCH_ASSOC],
     ]);
 
-    $result = $db->members->byName(['name' => 'Richard Christy'])->one();
-    expect(count($result))->toBe(2);
+    $result = $db->members->joined(['year' => 1983])->one();
+    expect(count($result))->toBe(3);
 
-    $result = $db->members->byName(['name' => 'Richard Christy', 'interestedInDates' => true])->one();
+    $result = $db->members->joined(['year' => 1983, 'interestedInNames' => true])->one();
     expect(count($result))->toBe(4);
 });
 
@@ -127,8 +127,19 @@ test('Template query', function () {
 test('Template query with positional args', function () {
     $db = $this->getDb();
 
-    $db->members->byName('Richard Christy');
+    $db->members->joined(1983);
 })->throws(\InvalidArgumentException::class);
+
+
+test('Template query with no SQL args', function () {
+    $db = $this->getDb();
+
+    $result = $db->members->ordered(['order' => 'asc'])->all();
+    expect($result[0]['name'])->toBe('Andy LaRocque');
+
+    $result = $db->members->ordered(['order' => 'desc'])->all();
+    expect($result[0]['name'])->toBe('Terry Butler');
+});
 
 
 test('Expand script dirs :: query from default', function () {
@@ -137,6 +148,27 @@ test('Expand script dirs :: query from default', function () {
 
     $result = $db->members->list()->all();
     expect(count($result))->toBe(NUMBER_OF_MEMBERS);
+});
+
+
+test('Script instance', function () {
+    $db = $this->getDb();
+
+    $byId = $db->members->byId;
+    expect($byId(5)->one()['name'])->toBe('Bill Andrews');
+});
+
+
+test('Script printing named parameters', function () {
+    $db = $this->getDb();
+    $db->setPrintScript(true);
+
+    ob_start();
+    $db->members->joined(['year' => 1997])->run();
+    $output = ob_get_contents();
+    ob_end_clean();
+
+    expect($output)->toContain('WHERE joined = 1997');
 });
 
 
@@ -206,7 +238,7 @@ test('Databse::execute with args', function () {
 test('Script dir shadowing', function () {
     $db = $this->getDb();
 
-    // The query in the default dir uses question mark parameters
+    // The query in the default dir uses positional parameters
     // and returns the field `left` additionally to `member` and `name`.
     $result = $db->members->byId(2)->one();
     expect($result['name'])->toBe('Rick Rozz');
