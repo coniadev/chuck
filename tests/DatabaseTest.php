@@ -28,13 +28,13 @@ test('Database connection single script dir', function () {
 });
 
 
-test('Database init with method calls', function () {
+test('Database init set fetch mode via method', function () {
     $db = new Database($this->getConfig());
 
-    $db->defaultFetchMode(\PDO::FETCH_ASSOC)->memcachedConfig(['fake' => 'yes']);
+    $result = $db->defaultFetchMode(\PDO::FETCH_ASSOC);
 
     expect($db->getFetchmode())->toBe(\PDO::FETCH_ASSOC);
-    expect($db->getMemcached())->toBe(\PDO::FETCH_ASSOC);
+    expect($result)->toBeInstanceOf(Database::class);
 });
 
 
