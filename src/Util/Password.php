@@ -6,19 +6,21 @@ namespace Chuck\Util;
 
 use Chuck\ConfigInterface;
 
+const CHUCK_DEFAULT_PW_ENTROPY = 40.0;
+
 
 class Password
 {
     public function __construct(
-        protected string $algo = PASSWORD_ARGON2ID,
-        protected float $entropy = 40.0,
+        protected string|int|null $algo = PASSWORD_ARGON2ID,
+        protected float $entropy = CHUCK_DEFAULT_PW_ENTROPY,
     ) {
     }
 
     public static function fromConfig(ConfigInterface $config): self
     {
-        $entropy = $config->get('minimum_password_entropy');
-        $algo = $config->get('password_algorithm');
+        $entropy = $config->get('minimum_password_entropy', CHUCK_DEFAULT_PW_ENTROPY);
+        $algo = $config->get('password_algorithm', PASSWORD_ARGON2ID);
         $pw = new self($algo, $entropy);
 
         return $pw;
