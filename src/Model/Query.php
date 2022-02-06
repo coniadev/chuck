@@ -246,4 +246,9 @@ class Query implements QueryInterface
 
         return $this->restoreQuery($interpolated, $prep);
     }
+
+    public function __toString(): string
+    {
+        return $this->interpolate();
+    }
 }
