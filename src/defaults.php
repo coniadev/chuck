@@ -17,11 +17,14 @@ return [
     // The develompent server port
     'devport' => 1983,
 
-    // The permission required for every request
-    'default_permission' => null,
     'locales' => [],
     'default_locale' => null,
     'loglevel' => 'DEBUG',
+
+    // The permission required for every request
+    'default_permission' => null,
+    'minimum_password_entropy' => 40.0,
+    'password_algorithm' => PASSWORD_ARGON2ID,
 
     // This value will be added to the current time()
     // as expiry date for sessions.
