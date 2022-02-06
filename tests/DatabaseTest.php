@@ -54,6 +54,17 @@ test('Fetch all :: Query::all()', function () {
 });
 
 
+test('Get row count :: Query::len()', function () {
+    // SQLite unlike MySQL/Postgres always returns 0.
+    // So this tests does not check for correct result
+    // but if the code runs without errors.
+    $db = $this->getDb();
+    $result = $db->members->list()->len();
+
+    expect($result)->toBe(0);
+});
+
+
 test('Fetch one :: Query::one()', function () {
     $db = $this->getDb();
     $result = $db->members->list()->one();
@@ -108,6 +119,16 @@ test('Query with named parameters', function () {
     ])->all();
 
     expect(count($result))->toBe(7);
+});
+
+
+test('Query with string parameters', function () {
+    $db = $this->getDb();
+    $query = $db->types->test([
+        'val' => 'Death',
+    ]);
+
+    expect((string)$query)->toBe("SELECT * FROM typetest WHERE val = 'Death';\n");
 });
 
 
