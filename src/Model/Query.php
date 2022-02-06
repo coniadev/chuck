@@ -82,11 +82,12 @@ class Query implements QueryInterface
                     $this->stmt->bindValue($arg, $value, PDO::PARAM_NULL);
                     break;
                 case 'array':
-                    $this->stmt->bindValue($arg, '{' . implode(', ', $value) . '}');
+                    $this->stmt->bindValue($arg, json_encode($value), PDO::PARAM_STR);
                     break;
                 default:
-                    $this->stmt->bindValue($arg, $value);
-                    break;
+                    throw new \InvalidArgumentException(
+                        'Only the types bool, int, string, null and array are supported'
+                    );
             }
         }
     }
@@ -147,11 +148,15 @@ class Query implements QueryInterface
         }
 
         if (is_array($value)) {
-            return '{' . implode("','", $value) . '}';
+            return "'" . json_encode($value) . "'";
         }
 
         if (is_null($value)) {
             return 'NULL';
+        }
+
+        if (is_bool($value)) {
+            return $value ? 'true' : 'false';
         }
 
         return (string)$value;

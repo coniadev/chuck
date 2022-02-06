@@ -111,6 +111,46 @@ test('Query with named parameters', function () {
 });
 
 
+test('Query with boolean parameters', function () {
+    $db = $this->getDb();
+    $query = $db->types->test([
+        'val' => true,
+    ]);
+
+    expect((string)$query)->toBe("SELECT * FROM typetest WHERE val = true;\n");
+});
+
+
+test('Query with NULL parameters', function () {
+    $db = $this->getDb();
+    $query = $db->types->test([
+        'val' => null,
+    ]);
+
+    expect((string)$query)->toBe("SELECT * FROM typetest WHERE val = NULL;\n");
+});
+
+
+test('Query with array parameters', function () {
+    $db = $this->getDb();
+    $query = $db->types->test([
+        'val' => [1, 2, 3],
+    ]);
+
+    expect((string)$query)->toBe("SELECT * FROM typetest WHERE val = '[1,2,3]';\n");
+});
+
+
+test('Query with invalid type parameters', function () {
+    $db = $this->getDb();
+    $obj = new stdClass();
+    $obj->name = 'Death';
+    $db->types->test([
+        'val' => $obj,
+    ]);
+})->throws(\InvalidArgumentException::class);
+
+
 test('Template query', function () {
     $db = $this->getDb([
         'db' => ['fetchMode' => \PDO::FETCH_ASSOC],

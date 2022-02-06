@@ -25,6 +25,7 @@ interface DatabaseInterface
     public function getMemcached(): ?\Chuck\Memcached;
 
     // Database operations
+    public function connect(): self;
     public function getConn(): PDO;
     public function begin(): bool;
     public function commit(): bool;
