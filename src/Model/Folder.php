@@ -18,10 +18,10 @@ class Folder
 
     protected function scriptPath(string $key, bool $isTemplate): bool|string
     {
-        $ext = $isTemplate ? '.php' : '';
+        $ext = $isTemplate ? '.tpql' : '.sql';
 
         foreach ($this->db->getScriptDirs() as $path) {
-            $result = $path . ds . $this->folder . ds . $key . '.sql' . $ext;
+            $result = $path . ds . $this->folder . ds . $key . $ext;
 
             if (file_exists($result)) {
                 return $result;

@@ -238,7 +238,7 @@ test('Query printing named parameters', function () {
     expect($output)->toContain('mantas, -- :year');
     expect($output)->toContain("' :year");
     expect($output)->toContain('Secret Face :year');
-    expect($output)->toContain('WHERE joined = 1997');
+    expect($output)->toContain('joined = 1997');
 });
 
 

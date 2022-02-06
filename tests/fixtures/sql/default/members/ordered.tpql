@@ -1,7 +1,7 @@
 SELECT
-*
-FROM
-members
+    *
+    FROM
+    members
 ORDER BY name
 <?php if ($order == 'desc') : ?>
     DESC;
