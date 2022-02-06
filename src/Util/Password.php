@@ -38,7 +38,7 @@ class Password
         return password_verify($password, $hash);
     }
 
-    public function encrypt(string $password): string
+    public function hash(string $password): string
     {
         return password_hash($password, $this->algo);
     }
