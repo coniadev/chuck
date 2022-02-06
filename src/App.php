@@ -59,21 +59,58 @@ class App
         string $name,
         string $route,
         string|callable $view,
-        array|string $method,
-        string $renderer = null,
-        string $permissions = null,
+        array $params = [],
     ): void {
-        $this->router->add($params);
+        $this->router->add($name, $route, $view, $params);
     }
 
-    public function get(
+    protected function addMethodSpecificRoute(
         string $name,
         string $route,
         string|callable $view,
-        string $renderer = null,
-        string $permissions = null,
+        string $method,
+        array $params = [],
     ): void {
-        $this->route($name, $route, $view, 'GET', $renderer, $permission);
+        if (array_key_exists('method', $params)) {
+            throw new \InvalidArgumentException('Not allowed to define method');
+        }
+
+        $this->router->add(
+            $name,
+            $route,
+            $view,
+            array_merge($params, ['method' => $method])
+        );
+    }
+
+    public function get(string $name, string $route, string|callable $view, array $params = [],): void
+    {
+        $this->addMethodSpecificRoute($name, $route, $view, 'GET', $params);
+    }
+
+    public function post(string $name, string $route, string|callable $view, array $params = [],): void
+    {
+        $this->addMethodSpecificRoute($name, $route, $view, 'POST', $params);
+    }
+
+    public function put(string $name, string $route, string|callable $view, array $params = [],): void
+    {
+        $this->addMethodSpecificRoute($name, $route, $view, 'PUT', $params);
+    }
+
+    public function delete(string $name, string $route, string|callable $view, array $params = [],): void
+    {
+        $this->addMethodSpecificRoute($name, $route, $view, 'DELETE', $params);
+    }
+
+    public function patch(string $name, string $route, string|callable $view, array $params = [],): void
+    {
+        $this->addMethodSpecificRoute($name, $route, $view, 'PATH', $params);
+    }
+
+    public function options(string $name, string $route, string|callable $view, array $params = [],): void
+    {
+        $this->addMethodSpecificRoute($name, $route, $view, 'OPTIONS', $params);
     }
 
     public function staticRoute(

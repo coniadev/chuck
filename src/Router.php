@@ -6,8 +6,6 @@ namespace Chuck;
 
 use Chuck\Exception\HttpNotFound;
 use Chuck\Exception\HttpInternalError;
-use Chuck\Exception\HttpForbidden;
-use Chuck\Exception\HttpUnauthorized;
 
 class Router implements RouterInterface
 {
@@ -21,43 +19,23 @@ class Router implements RouterInterface
         return $this->routes;
     }
 
-    protected function convertToRegex(string $route): string
-    {
-        // escape forward slashes
-        //     /hans/franz  to \/hans\/franz
-        $pattern = preg_replace('/\//', '\\/', $route);
-
-        // convert variables to named group patterns
-        //     /hans/{franz}  to  /hans/(?P<hans>[\w-]+)
-        $pattern = preg_replace('/\{(\w+?)\}/', '(?P<\1>[\w-]+)', $pattern);
-
-        // convert variables with custom patterns e.g. {hans:\d+}
-        //     /hans/{franz:\d+}  to  /hans/(?P<hans>\d+)
-        // TODO: support length ranges: {hans:\d{1,3}}
-        $pattern = preg_replace('/\{(\w+?):(.+?)\}/', '(?P<\1>\2)', $pattern);
-
-        // convert remainder pattern ...slug to (?P<slug>.*)
-        $pattern = preg_replace('/\.\.\.(\w+?)$/', '(?P<\1>.*)', $pattern);
-
-        $pattern = '/^' . $pattern . '$/';
-
-        return $pattern;
-    }
 
     protected function removeQueryString($url): string
     {
         return strtok($url, '?');
     }
 
-    public function add(array $route): void
-    {
-        $name = $route['name'];
-
+    public function add(
+        string $name,
+        string $route,
+        string|callable $view,
+        array $params = [],
+    ): void {
         if (array_key_exists($name, $this->names)) {
             throw new \ErrorException('Duplicate route name: ' . $name);
         }
 
-        $route['pattern'] = $this->convertToRegex($route['route']);
+        $route = new Route($route, $view, $params);
         $this->routes[] = $route;
         $this->names[$name] = $route;
     }
@@ -83,27 +61,6 @@ class Router implements RouterInterface
         return $protocol . $server;
     }
 
-    protected function replaceParams(string $route, array $args): string
-    {
-        foreach ($args as $name => $value) {
-            // basic variables
-            $route =  preg_replace(
-                '/\{' . $name . '(:.*?)?\}/',
-                (string)$value,
-                $route
-            );
-
-            // remainder variables
-            $route =  preg_replace(
-                '/\.\.\.' . $name . '/',
-                (string)$value,
-                $route
-            );
-        }
-
-        return $route;
-    }
-
     public function routeUrl(string $name, array $args): string
     {
         $route = $this->names[$name] ?? null;
@@ -111,7 +68,7 @@ class Router implements RouterInterface
         if ($route) {
             return
                 $this->getServerPart() .
-                $this->replaceParams($route['route'], $args);
+                $route->replaceParams($args);
         }
 
         throw new \RuntimeException('Route not found: ' . $name);
@@ -168,13 +125,13 @@ class Router implements RouterInterface
         return true;
     }
 
-    public function match(RequestInterface $request): bool
+    public function match(RequestInterface $request): ?Route
     {
         $url = $this->removeQueryString($request->url());
         $requestMethod = strtolower($request->method());
 
         foreach ($this->routes as $route) {
-            if (preg_match($route['pattern'], $url, $matches)) {
+            if (preg_match($route->pattern, $url, $matches)) {
                 $args = [];
 
                 foreach ($matches as $key => $match) {
@@ -182,95 +139,58 @@ class Router implements RouterInterface
                 }
 
                 if (count($args) > 0) {
-                    $route['args'] = $args;
+                    $route->addArgs($args);
                 }
 
                 if ($this->checkMethod($route, $requestMethod)) {
-                    $this->params = array_replace_recursive(
-                        [
-                            'path' => $url,
-                            'name' => null,
-                            'route' => null,
-                            'view' => null,
-                            'permission' => null,
-                            'renderer' => null,
-                            'csrf' => true,
-                            'csrf_page' => 'default',
-                        ],
-                        $route,
-                    );
-                    return true;
+                    $route->addUrl($url);
+
+                    return $route;
                 }
             }
         }
 
-        return false;
+        return null;
     }
 
-    protected function checkAndCall(
-        Controller $ctrl,
-        string $view,
-        RequestInterface $request
-    ): ResponseInterface {
-        $session = $request->session;
-
-        if ($ctrl->before($request)) {
-            $response = $ctrl->$view($request);
-
-            if ($response instanceof ResponseInterface) {
-                return $ctrl->after($request, $response);
-            } else {
-                $renderer = $this->params['renderer'] ?? null;
-                $class = $request->config->di('Response');
-
-                return $ctrl->after(
-                    $request,
-                    new $class($request, $response, $renderer)
-                );
-            }
-        } else {
-            $auth = $request->config->di('Auth');
-            if ($session->authenticatedUserId() || $auth::verifyJWT() || $auth::verifyApiKey()) {
-                // User is authenticated but does not have the permissions
-                throw new HttpForbidden($request);
-            } else {
-                if ($request->isXHR()) {
-                    throw new HttpUnauthorized($request);
-                } else {
-                    // User needs to log in
-                    $session->rememberReturnTo();
-                    return $request->redirect($request->routeUrl('user:login'));
-                }
-            }
-        }
-    }
 
     public function dispatch(App $app): ResponseInterface
     {
         $request = $app->getRequest();
+        $route = $this->match($request);
 
-        if ($this->match($request)) {
-            $segments = explode('::', $this->params['view']);
-            $ctrlName = $segments[0];
-            $view = $segments[1];
+        if ($route) {
+            $viewDef = $route->view();
 
-            if (class_exists($ctrlName)) {
-                $ctrl = new $ctrlName($this->params);
-                $app->negotiateLocale($request);
+            if (is_string($viewDef)) {
+                $segments = explode('::', $viewDef);
+                $ctrlName = $segments[0];
+                $viewName = $segments[1];
 
-                if (!method_exists($ctrl, $view)) {
+                if (class_exists($ctrlName)) {
+                    $ctrl = new $ctrlName($this->params);
+                    $app->negotiateLocale($request);
+
+                    if (!method_exists($ctrl, $viewName)) {
+                        throw new HttpInternalError(
+                            $request,
+                            "Controller view method not found $ctrlName::$viewName"
+                        );
+                    }
+
+                    $view = new ViewController($request, $route);
+                    $view->addCallable($ctrl, $viewName);
+                    return $view->call();
+                } else {
                     throw new HttpInternalError(
                         $request,
-                        "Controller view method not found $ctrlName::$view"
+                        "Controller not found $ctrlName"
                     );
                 }
-
-                return $this->checkAndCall($ctrl, $view, $request);
             } else {
-                throw new HttpInternalError(
-                    $request,
-                    "Controller not found $ctrlName"
-                );
+                $view = new ViewFunction($request, $route);
+                $view->addCallable($viewDef);
+                return $view->call();
             }
         } else {
             throw new HttpNotFound($request);
