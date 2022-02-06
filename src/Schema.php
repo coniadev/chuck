@@ -45,7 +45,7 @@ class Validator
 
 abstract class Schema implements SchemaInterface
 {
-    protected static array $validators = [];
+    protected array $validators = [];
 
     public array $errorList = [];  // a list of errorList to be displayed in frontend
 
@@ -63,11 +63,7 @@ abstract class Schema implements SchemaInterface
         protected array $langs = [],
         protected ?string $title = null,
     ) {
-    }
-
-    public static function addValidator(Validator $validator): void
-    {
-        self::$validators[$validator->name] = $validator;
+        $this->addValidators();
     }
 
     protected function add(
@@ -77,7 +73,7 @@ abstract class Schema implements SchemaInterface
         string ...$validators
     ) {
         if (!$field) {
-            throw new \ErrorException(
+            throw new \InvalidArgumentException(
                 'Schema definition error: field must not be empty'
             );
         }
@@ -142,7 +138,7 @@ abstract class Schema implements SchemaInterface
         $validatorName = $validatorArray[0];
         $validatorArgs = array_slice($validatorArray, 1);
 
-        $validator = self::$validators[$validatorName];
+        $validator = $this->validators[$validatorName];
 
         if (is_array($value->value)) {
             if (empty($value->value) && $validator->skipNull) {
@@ -588,121 +584,107 @@ abstract class Schema implements SchemaInterface
 
         return $this->cachedPristine;
     }
+
+    protected function addValidators(): void
+    {
+        // In error messages
+        //   %1$s  is the field label
+        //   %2$s  is the value
+        //   %3$s  is the field name
+        //   %4$s  is the first validator parameter
+        //   %5$s  is the next validator parameter
+        //   %6$s  is the next ... and so on
+        $this->validators['required'] = new Validator(
+            'required',
+            _('-schema-required-%1$s-'),
+            function (Value $value, ...$args) {
+                $val = $value->value;
+
+                if (is_null($val)) {
+                    return false;
+                } elseif (is_string($val) && trim($val) === '') {
+                    return false;
+                } elseif (is_array($val) && count($val) === 0) {
+                    return false;
+                }
+
+                return true;
+            },
+            false
+        );
+
+        $this->validators['email'] = new Validator(
+            'email',
+            _('-schema-invalid-email-%1$s-%2$s-'),
+            function (Value $value, ...$args) {
+                return filter_var(
+                    trim((string)$value->value),
+                    \FILTER_VALIDATE_EMAIL
+                ) !== false;
+            },
+            true
+        );
+
+        $this->validators['minlen'] = new Validator(
+            'minlen',
+            _('-schema-minlen-%1$s-%4$s-'),
+            function (Value $value, ...$args) {
+                return strlen($value->value) >= (int)$args[0];
+            },
+            true
+        );
+
+        $this->validators['maxlen'] = new Validator(
+            'maxlen',
+            _('-schema-maxlen-%1$s-%4$s-'),
+            function (Value $value, ...$args) {
+                return strlen($value->value) <= (int)$args[0];
+            },
+            true
+        );
+
+        $this->validators['min'] = new Validator(
+            'min',
+            _('-schema-min-%1$s-%2$s-%4$s-'),
+            function (Value $value, ...$args) {
+                return (float)$value->value >= (float)$args[0];
+            },
+            true
+        );
+
+        $this->validators['max'] = new Validator(
+            'max',
+            _('-schema-max-%1$s-%2$s-%4$s-'),
+            function (Value $value, ...$args) {
+                return $value->value <= (float)$args[0];
+            },
+            true
+        );
+
+        $this->validators['regex'] = new Validator(
+            'regex',
+            _('-schema-regex-%1$s-%2$s-'),
+            function (Value $value, ...$args) {
+                // as regex patterns could contain colons ':' and validator
+                // args are separated by colons and split at their position
+                // we need to join them again
+                return preg_match(implode(':', $args), $value->value) === 1;
+            },
+            true
+        );
+
+
+        $this->validators['in'] = new Validator(
+            'in',
+            _('-schema-in-%1$s-%4$s-'),
+            function (Value $value, ...$args) {
+                // Allowed values must be passed as validator arg
+                // seperated by comma.
+                // Like: in:firstval,secondval,thirdval
+                $allowed = explode(',', $args[0]);
+                return in_array($value->value, $allowed);
+            },
+            true
+        );
+    }
 }
-
-
-// In error messages
-//   %1$s  is the field label
-//   %2$s  is the value
-//   %3$s  is the field name
-//   %4$s  is the first validator parameter
-//   %5$s  is the next validator parameter
-//   %6$s  is the next ... and so on
-Schema::addValidator(
-    new Validator(
-        'required',
-        _('-schema-required-%1$s-'),
-        function (Value $value, ...$args) {
-            $val = $value->value;
-
-            if (is_null($val)) {
-                return false;
-            } elseif (is_string($val) && trim($val) === '') {
-                return false;
-            } elseif (is_array($val) && count($val) === 0) {
-                return false;
-            }
-
-            return true;
-        },
-        false
-    )
-);
-
-Schema::addValidator(
-    new Validator(
-        'email',
-        _('-schema-invalid-email-%1$s-%2$s-'),
-        function (Value $value, ...$args) {
-            return filter_var(
-                trim((string)$value->value),
-                \FILTER_VALIDATE_EMAIL
-            ) !== false;
-        },
-        true
-    )
-);
-
-Schema::addValidator(
-    new Validator(
-        'minlen',
-        _('-schema-minlen-%1$s-%4$s-'),
-        function (Value $value, ...$args) {
-            return strlen($value->value) >= (int)$args[0];
-        },
-        true
-    )
-);
-
-Schema::addValidator(
-    new Validator(
-        'maxlen',
-        _('-schema-maxlen-%1$s-%4$s-'),
-        function (Value $value, ...$args) {
-            return strlen($value->value) <= (int)$args[0];
-        },
-        true
-    )
-);
-
-Schema::addValidator(
-    new Validator(
-        'min',
-        _('-schema-min-%1$s-%2$s-%4$s-'),
-        function (Value $value, ...$args) {
-            return (float)$value->value >= (float)$args[0];
-        },
-        true
-    )
-);
-
-Schema::addValidator(
-    new Validator(
-        'max',
-        _('-schema-max-%1$s-%2$s-%4$s-'),
-        function (Value $value, ...$args) {
-            return $value->value <= (float)$args[0];
-        },
-        true
-    )
-);
-
-Schema::addValidator(
-    new Validator(
-        'regex',
-        _('-schema-regex-%1$s-%2$s-'),
-        function (Value $value, ...$args) {
-            // as regex patterns could contain colons ':' and validator
-            // args are separated by colons and split at their position
-            // we need to join them again
-            return preg_match(implode(':', $args), $value->value) === 1;
-        },
-        true
-    )
-);
-
-
-Schema::addValidator(
-    new Validator(
-        'in',
-        _('-schema-in-%1$s-%4$s-'),
-        function (Value $value, ...$args) {
-            // Allowed values must be passed as validator arg
-            // seperated by comma.
-            // Like: in:firstval,secondval,thirdval
-            $allowed = explode(',', $args[0]);
-            return in_array($value->value, $allowed);
-        },
-        true
-    )
-);
