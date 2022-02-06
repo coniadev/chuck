@@ -11,11 +11,7 @@ class Arrays
         $result = [];
 
         foreach ($data as $val) {
-            if (array_key_exists($key, $val)) {
-                $result[$val[$key]][] = $val;
-            } else {
-                $result[""][] = $val;
-            }
+            $result[$val[$key]][] = $val;
         }
 
         return $result;
