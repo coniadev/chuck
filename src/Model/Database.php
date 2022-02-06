@@ -73,14 +73,14 @@ class Database implements DatabaseInterface
         return $this;
     }
 
-    public function setPrintScript(bool $shouldPrint): self
+    public function setPrintQuery(bool $shouldPrint): self
     {
         $this->shouldPrint = $shouldPrint;
 
         return $this;
     }
 
-    public function shouldPrintScript(): bool
+    public function shouldPrintQuery(): bool
     {
         return $this->shouldPrint;
     }

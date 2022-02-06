@@ -20,8 +20,6 @@ class PreparedQuery
 
 class Query implements QueryInterface
 {
-    protected Database $db;
-    protected string $script;
     protected \PDOStatement $stmt;
     protected bool $executed = false;
 
@@ -34,25 +32,27 @@ class Query implements QueryInterface
     // Single line comments --
     const PATTERN_COMMENT_SINGLE = '/--.*$/m';
 
-    public function __construct(DatabaseInterface $db, string $script, Args $args)
-    {
-        $this->db = $db;
-        $this->script = $script;
-
+    public function __construct(
+        protected DatabaseInterface $db,
+        protected string $query,
+        protected Args $args
+    ) {
         if ($args->count() > 0) {
-            $this->stmt = $this->db->getConn()->prepare($this->script);
+            $this->stmt = $this->db->getConn()->prepare($query);
             $this->bindArgs($args->get(), $args->type());
         } else {
-            $this->stmt = $this->db->getConn()->query($this->script);
+            $this->stmt = $this->db->getConn()->query($query);
         }
 
-        if ($db->shouldPrintScript()) {
+        if ($db->shouldPrintQuery()) {
             $msg = "\n\n-----------------------------------------------\n\n" .
-                $this->interpolate($script, $args) .
+                $this->interpolate() .
                 "\n------------------------------------------------\n";
 
             if ($_SERVER['SERVER_SOFTWARE'] ?? false) {
+                // @codeCoverageIgnoreStart
                 error_log($msg);
+                // @codeCoverageIgnoreEnd
             } else {
                 print($msg);
             };
@@ -232,13 +232,13 @@ class Query implements QueryInterface
      *
      * Covers most of the cases but is not perfect.
      */
-    public function interpolate(string $query, Args $args): string
+    public function interpolate(): string
     {
-        $prep = $this->prepareQuery($query);
-        $argsArray = $args->get();
+        $prep = $this->prepareQuery($this->query);
+        $argsArray = $this->args->get();
         $interpolated = $this->interpolateNamed($prep->query, $argsArray);
 
-        if ($args->type() === ArgType::Named) {
+        if ($this->args->type() === ArgType::Named) {
             $interpolated = $this->interpolateNamed($prep->query, $argsArray);
         } else {
             $interpolated = $this->interpolatePositional($prep->query, $argsArray);

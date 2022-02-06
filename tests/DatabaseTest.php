@@ -30,9 +30,9 @@ test('Add script dir outside of root directory', function () {
 test('Set whether it should print sql to stdout', function () {
     $db = $this->getDb();
 
-    expect($db->shouldPrintScript())->toBe(false);
-    $db->setPrintScript(true);
-    expect($db->shouldPrintScript())->toBe(true);
+    expect($db->shouldPrintQuery())->toBe(false);
+    $db->setPrintQuery(true);
+    expect($db->shouldPrintQuery())->toBe(true);
 });
 
 
@@ -159,9 +159,9 @@ test('Script instance', function () {
 });
 
 
-test('Script printing named parameters', function () {
+test('Query printing named parameters', function () {
     $db = $this->getDb();
-    $db->setPrintScript(true);
+    $db->setPrintQuery(true);
 
     ob_start();
     $result = $db->members->joined([
@@ -181,9 +181,9 @@ test('Script printing named parameters', function () {
 });
 
 
-test('Script printing positional parameters', function () {
+test('Query printing positional parameters', function () {
     $db = $this->getDb();
-    $db->setPrintScript(true);
+    $db->setPrintQuery(true);
 
     ob_start();
     $result = $db->members->left(2001)->one();

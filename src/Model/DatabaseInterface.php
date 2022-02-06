@@ -19,8 +19,8 @@ interface DatabaseInterface
     public function addScriptDirs(array|string $dirs): self;
     public function getScriptDirs(): array;
 
-    public function setPrintScript(bool $shouldPrint): self;
-    public function shouldPrintScript(): bool;
+    public function setPrintQuery(bool $shouldPrint): self;
+    public function shouldPrintQuery(): bool;
 
     public function getMemcached(): ?\Chuck\Memcached;
 
