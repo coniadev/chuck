@@ -132,6 +132,11 @@ test('String entropy', function () {
 
     expect($lower)->toBe($upper);
     expect($lower)->toBeLessThan($mixed);
+    expect(Strings::entropy('Correct Horse Battery Staple'))->toBeGreaterThan(100);
+    expect(Strings::entropy('evil-chuck-666'))->toBeGreaterThan(40);
+    expect(Strings::entropy('acegik'))->toBeLessThan(15);
+    expect(Strings::entropy('12345'))->toBeLessThan(10);
+    expect(Strings::entropy('1'))->toBe(0.0);
 });
 
 

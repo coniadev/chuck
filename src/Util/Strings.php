@@ -55,12 +55,13 @@ class Strings
         for ($i = 1; $i < count($chars); $i++) {
             $sumDiff += abs(mb_ord($chars[$i - 1]) - mb_ord($chars[$i]));
         }
+
         // probably something like acegik...
-        if ($sumDiff <= 10) {
+        if ($sumDiff <= 12) {
             $len -= 1;
         }
         // probably something like 12345 or aaabbb
-        if ($sumDiff <= 2) {
+        if ($sumDiff <= 5) {
             $len -= 1;
         }
 
