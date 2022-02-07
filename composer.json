@@ -11,7 +11,9 @@
         "phpunit/phpunit": "^9",
         "nunomaduro/collision": "^6",
         "pestphp/pest": "^1",
-        "filp/whoops": "^2.14"
+        "filp/whoops": "^2.14",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
+        "sirbrillig/phpcs-variable-analysis": "^2.11"
     },
     "require": {
         "tgalopin/html-sanitizer": "^1.5",
@@ -30,7 +32,8 @@
     },
     "config": {
         "allow-plugins": {
-            "pestphp/pest-plugin": true
+            "pestphp/pest-plugin": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     }
 }
