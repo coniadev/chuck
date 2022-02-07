@@ -46,9 +46,44 @@ test('Parameter matching regex', function () {
     $route = new Route('contrib', '/contributed/{from:\d+}/{to:\d\d\d}', fn () => null);
 
     expect($route->match($this->request(method: 'GET', url: '/contributed/1983/1991')))->toBe(null);
-    expect($route->match($this->request(method: 'GET', url: '/contributed/13731/666')))->toBe($route);
-    expect($route->args())->toBe(['from' => '13731', 'to' => '666']);
+    expect($route->match($this->request(method: 'GET', url: '/contributed/19937/701')))->toBe($route);
+    expect($route->args())->toBe(['from' => '19937', 'to' => '701']);
+
+    $route = new Route('albums', '/albums/{from:\d{4}}', fn () => null);
+    expect($route->match($this->request(method: 'GET', url: '/albums/1995')))->toBe($route);
+    expect($route->match($this->request(method: 'GET', url: '/albums/521')))->toBe(null);
+
+    $route = new Route('albums', '/albums/{from:\d{3,4}}', fn () => null);
+    expect($route->match($this->request(method: 'GET', url: '/albums/2001')))->toBe($route);
+    expect($route->match($this->request(method: 'GET', url: '/albums/127')))->toBe($route);
+    expect($route->match($this->request(method: 'GET', url: '/albums/13')))->toBe(null);
+
+    $route = new Route('albums', '/albums/{from:\d{2}}/{to:\d{4,5}}', fn () => null);
+    expect($route->match($this->request(method: 'GET', url: '/albums/aa/bbbb')))->toBe(null);
+    expect($route->match($this->request(method: 'GET', url: '/albums/13/773')))->toBe(null);
+    expect($route->match($this->request(method: 'GET', url: '/albums/457/1709')))->toBe(null);
+    expect($route->match($this->request(method: 'GET', url: '/albums/73/5183')))->toBe($route);
+    expect($route->match($this->request(method: 'GET', url: '/albums/43/93911')))->toBe($route);
+    expect($route->args())->toBe(['from' => '43', 'to' => '93911']);
 });
+
+
+test('Parameter matching brace error I', function () {
+    // Invalid escaped left braces
+    new Route('contrib', '/contributed/{from:\{\d+}', fn () => null);
+})->throws(\ValueError::class);
+
+
+test('Parameter matching brace error II', function () {
+    // Invalid escaped right braces
+    new Route('contrib', '/contributed/{from:\d+\}}', fn () => null);
+})->throws(\ValueError::class);
+
+
+test('Parameter matching brace error III', function () {
+    // Invalid unbalanced braces
+    new Route('contrib', '/contributed/{from:\d+{1,2}{}', fn () => null);
+})->throws(\ValueError::class);
 
 
 test('Url construction :: regular parameters', function () {

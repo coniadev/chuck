@@ -6,6 +6,10 @@ namespace Chuck;
 
 use Chuck\Util\Arrays;
 
+const LEFT_BRACE = '§§§€§§§';
+const RIGHT_BRACE = '§§§£§§§';
+
+
 class Route
 {
     protected array $args = [];
@@ -63,19 +67,68 @@ class Route
         return $this;
     }
 
+
+    protected function hideInnerBraces(string $str): string
+    {
+        if (strpos($str, '\{') || strpos($str, '\}')) {
+            throw new \ValueError('Escaped braces are not allowed: ' . $this->route);
+        }
+
+        $new = '';
+        $level = 0;
+
+        foreach (str_split($str) as $c) {
+            if ($c === '{') {
+                $level += 1;
+
+                if ($level > 1) {
+                    $new .= LEFT_BRACE;
+                } else {
+                    $new .= '{';
+                }
+                continue;
+            }
+
+            if ($c === '}') {
+                if ($level > 1) {
+                    $new .= RIGHT_BRACE;
+                } else {
+                    $new .= '}';
+                }
+
+                $level -= 1;
+                continue;
+            }
+
+            $new .= $c;
+        }
+
+        if ($level !== 0) {
+            throw  new \ValueError('Unbalanced braces in route pattern: ' . $this->route);
+        }
+
+        return $new;
+    }
+
+    protected function restoreInnerBraces(string $str): string
+    {
+        return str_replace(LEFT_BRACE, '{', str_replace(RIGHT_BRACE, '}', $str));
+    }
+
     protected function convertToRegex(string $route): string
     {
         // escape forward slashes
         //     /evil/chuck  to \/evil\/chuck
         $pattern = preg_replace('/\//', '\\/', $route);
 
+        $pattern = $this->hideInnerBraces($pattern);
+
         // convert variables to named group patterns
-        //     /evil/{chuck}  to  /evil/(?P<evil>[\w-]+)
+        //     /evil/{chuck}  to  /evil/(?P<chuck>[\w-]+)
         $pattern = preg_replace('/\{(\w+?)\}/', '(?P<\1>[\w-]+)', $pattern);
 
         // convert variables with custom patterns e.g. {evil:\d+}
-        //     /evil/{chuck:\d+}  to  /evil/(?P<evil>\d+)
-        // TODO: support length ranges: {evil:\d{1,3}}
+        //     /evil/{chuck:\d+}  to  /evil/(?P<chuck>\d+)
         $pattern = preg_replace('/\{(\w+?):(.+?)\}/', '(?P<\1>\2)', $pattern);
 
         // convert remainder pattern ...slug to (?P<slug>.*)
@@ -83,7 +136,7 @@ class Route
 
         $pattern = '/^' . $pattern . '$/';
 
-        return $pattern;
+        return $this->restoreInnerBraces($pattern);
     }
 
     public function getUrl(...$args): string
