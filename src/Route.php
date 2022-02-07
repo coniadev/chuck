@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use Chuck\Util\Arrays;
+
 class Route
 {
-    protected array $args;
+    protected array $args = [];
     protected string $pattern;
+    protected array $methods = [];
 
     public function __construct(
         protected string $name,
@@ -55,7 +58,7 @@ class Route
 
     public function method(string ...$args): self
     {
-        $this->methods = array_map(fn ($m) => strtoupper($m), $args);
+        $this->methods = array_merge($this->methods, array_map(fn ($m) => strtoupper($m), $args));
 
         return $this;
     }
@@ -63,16 +66,16 @@ class Route
     protected function convertToRegex(string $route): string
     {
         // escape forward slashes
-        //     /hans/franz  to \/hans\/franz
+        //     /evil/chuck  to \/evil\/chuck
         $pattern = preg_replace('/\//', '\\/', $route);
 
         // convert variables to named group patterns
-        //     /hans/{franz}  to  /hans/(?P<hans>[\w-]+)
+        //     /evil/{chuck}  to  /evil/(?P<evil>[\w-]+)
         $pattern = preg_replace('/\{(\w+?)\}/', '(?P<\1>[\w-]+)', $pattern);
 
-        // convert variables with custom patterns e.g. {hans:\d+}
-        //     /hans/{franz:\d+}  to  /hans/(?P<hans>\d+)
-        // TODO: support length ranges: {hans:\d{1,3}}
+        // convert variables with custom patterns e.g. {evil:\d+}
+        //     /evil/{chuck:\d+}  to  /evil/(?P<evil>\d+)
+        // TODO: support length ranges: {evil:\d{1,3}}
         $pattern = preg_replace('/\{(\w+?):(.+?)\}/', '(?P<\1>\2)', $pattern);
 
         // convert remainder pattern ...slug to (?P<slug>.*)
@@ -86,21 +89,35 @@ class Route
     public function getUrl(...$args): string
     {
         if (count($args) > 0) {
+            if (is_array($args[0] ?? null)) {
+                $args = $args[0];
+            } else {
+                if (!Arrays::isAssoc($args)) {
+                    throw new \InvalidArgumentException(
+                        'Route::getUrl: either pass an associative array or named arguments'
+                    );
+                }
+            }
+
+            $url = $this->route;
+
             foreach ($args as $name => $value) {
                 // basic variables
-                $route =  preg_replace(
+                $url = preg_replace(
                     '/\{' . $name . '(:.*?)?\}/',
                     (string)$value,
-                    $this->route
+                    $url
                 );
 
                 // remainder variables
-                $route =  preg_replace(
+                $url = preg_replace(
                     '/\.\.\.' . $name . '/',
                     (string)$value,
-                    $route
+                    $url
                 );
             }
+
+            return $url;
         }
 
         return $this->route;
@@ -111,31 +128,9 @@ class Route
         return $this->view;
     }
 
-    public function pattern(): string
+    public function args(): array
     {
-        return $this->pattern;
-    }
-
-    public function params(): array
-    {
-        return array_replace_recursive(
-            [
-                'path' => null,
-                'name' => null,
-                'route' => null,
-                'view' => null,
-                'permission' => null,
-                'renderer' => null,
-                'csrf' => true,
-                'csrf_page' => 'default',
-            ],
-            $this->params,
-        );
-    }
-
-    public function addArgs(array $args): void
-    {
-        $this->params['args'] = $args;
+        return $this->args;
     }
 
     protected function removeQueryString($url): string
@@ -150,46 +145,32 @@ class Route
 
     protected function checkMethod(RequestInterface $request): bool
     {
-        if (array_key_exists('method', $this->params)) {
-            $allowed = $this->params['method'];
-
-            if (is_array($allowed)) {
-                foreach ($allowed as $method) {
-                    if ($this->isMethodAllowed($request, $method)) {
-                        return true;
-                    }
-                }
-            } else {
-                if ($this->isMethodAllowed($request, $allowed)) {
-                    return true;
-                }
-            }
-
-            return false;
+        if (count($this->methods) === 0) {
+            return true;
         }
 
-        return true;
+        foreach ($this->methods as $method) {
+            if ($this->isMethodAllowed($request, $method)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function match(RequestInterface $request): ?Route
     {
         $url = $this->removeQueryString($request->url());
-        $requestMethod = strtolower($request->method());
 
         if (preg_match($this->pattern, $url, $matches)) {
-            $args = [];
+            // Remove integer indexes from array
+            $matches = array_filter($matches, fn ($_, $k) => !is_int($k), ARRAY_FILTER_USE_BOTH);
 
             foreach ($matches as $key => $match) {
-                $args[$key] = $match;
-            }
-
-            if (count($args) > 0) {
-                $this->addArgs($args);
+                $this->args[$key] = $match;
             }
 
             if ($this->checkMethod($request)) {
-                $this->params['url'] = $url;
-
                 return $this;
             }
         }

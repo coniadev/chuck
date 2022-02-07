@@ -18,12 +18,17 @@ class Request extends BaseRequest implements RequestInterface
 
     public function setUrl(string $url): void
     {
-        $_SERVER['HTTP_HOST'] = $this->config->get('hostname');
+        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
+        $_SERVER['HTTP_HOST'] = 'www.example.com';
 
         if (substr($url, 0, 1) === '/') {
             $_SERVER['REQUEST_URI'] = $url;
         } else {
-            $_SERVER['REQUEST_URI'] = "/$url";
+            if (str_starts_with($url, '/')) {
+                $_SERVER['REQUEST_URI'] = $url;
+            } else {
+                $_SERVER['REQUEST_URI'] = "/$url";
+            }
         }
     }
 

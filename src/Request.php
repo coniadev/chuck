@@ -13,13 +13,14 @@ class Request implements RequestInterface
     protected RouterInterface $router;
     protected array $customMethods = [];
 
-    public function __construct(ConfigInterface $config, RouterInterface $router)
-    {
+    public function __construct(
+        ConfigInterface $config,
+        RouterInterface $router,
+        string $session = '\Chuck\Session'
+    ) {
         $this->router = $router;
         $this->config = $config;
-
-        $class = $this->config->di('Session');
-        $this->session = new $class($this);
+        $this->session = new $session($this);
     }
 
     public function matchdict(string $key, ?string $default = null): ?string
@@ -215,7 +216,7 @@ class Request implements RequestInterface
         return $json;
     }
 
-    public function addRequestMethod(string $name, \Closure $func): void
+    public function addMethod(string $name, callable $func): void
     {
         $this->customMethods[$name] = $func;
     }

@@ -19,18 +19,8 @@ class Router implements RouterInterface
         return $this->routes;
     }
 
-
-    protected function removeQueryString($url): string
+    public function addRoute(RouteInterface $route): void
     {
-        return strtok($url, '?');
-    }
-
-    public function add(
-        string $name,
-        string $route,
-        string|callable $view,
-        array $params = [],
-    ): void {
         if (array_key_exists($name, $this->names)) {
             throw new \ErrorException('Duplicate route name: ' . $name);
         }
@@ -97,56 +87,11 @@ class Router implements RouterInterface
         return $url;
     }
 
-    protected function isMethod($allowed): bool
-    {
-        return strtoupper($_SERVER['REQUEST_METHOD']) === strtoupper($allowed);
-    }
-
-    protected function checkMethod(array $params): bool
-    {
-        if (array_key_exists('method', $params)) {
-            $allowed = $params['method'];
-
-            if (gettype($allowed) === 'string') {
-                if ($this->isMethod($allowed)) {
-                    return true;
-                }
-            } else {
-                foreach ($allowed as $method) {
-                    if ($this->isMethod($method)) {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        return true;
-    }
-
     public function match(RequestInterface $request): ?Route
     {
-        $url = $this->removeQueryString($request->url());
-        $requestMethod = strtolower($request->method());
-
         foreach ($this->routes as $route) {
-            if (preg_match($route->pattern, $url, $matches)) {
-                $args = [];
-
-                foreach ($matches as $key => $match) {
-                    $args[$key] = $match;
-                }
-
-                if (count($args) > 0) {
-                    $route->addArgs($args);
-                }
-
-                if ($this->checkMethod($route, $requestMethod)) {
-                    $route->addUrl($url);
-
-                    return $route;
-                }
+            if ($route->match($request)) {
+                return $route;
             }
         }
 
@@ -154,9 +99,8 @@ class Router implements RouterInterface
     }
 
 
-    public function dispatch(App $app): ResponseInterface
+    public function dispatch(RequestInterface $request): ResponseInterface
     {
-        $request = $app->getRequest();
         $route = $this->match($request);
 
         if ($route) {
@@ -169,7 +113,7 @@ class Router implements RouterInterface
 
                 if (class_exists($ctrlName)) {
                     $ctrl = new $ctrlName($this->params);
-                    $app->negotiateLocale($request);
+                    $request->negotiateLocale($request);
 
                     if (!method_exists($ctrl, $viewName)) {
                         throw new HttpInternalError(

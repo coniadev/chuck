@@ -9,5 +9,4 @@ interface ConfigInterface
     public function __construct(array $config);
     public function get(string $key);
     public function path(string $key);
-    public function di(string $key);
 }

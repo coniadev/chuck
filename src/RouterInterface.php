@@ -7,7 +7,7 @@ namespace Chuck;
 interface RouterInterface
 {
     public function getRoutes(): array;
-    public function add(string $name, string $route, string|callable $view, array $params);
+    public function addRoute(RouteInterface $route);
     public function addStatic(
         string $name,
         string $prefix,
@@ -17,5 +17,5 @@ interface RouterInterface
     public function routeName(): ?string;
     public function staticUrl(string $name, string $path): string;
     public function match(RequestInterface $request): ?Route;
-    public function dispatch(App $app);
+    public function dispatch(RequestInterface $app);
 }

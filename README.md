@@ -2,15 +2,24 @@ Chuck framework
 ===============
 
 
-Database credentials
---------------------
+Default:
 
-DB_DBMS = 'postgres|mysql|sqlite'
-DB_HOST
-DB_PORT
-DB_NAME
-DB_USER
-DB_PASS
+```php
+    use Chuck\{App, Route};
+    $app = App::create(__DIR__ . '/config.php');
+    $app->route(Route::get('index', '/', function (Request $request) {}));
+    $app->run();
+```
 
-AUTH_SECRET = null // the auth secret
-JWT_SECRET  = null // JWT secret
+
+Delarative:
+
+```php
+    use Chuck\{App, Config, Router, Route, Request};
+
+    $config = new Config(__DIR__ . '/config.php');
+    $router = new Router();
+    $router->add(new Route('index', '/', function (Request $request) {}));
+    $app = new App(new Request($config, $router));
+    $app->run();
+```

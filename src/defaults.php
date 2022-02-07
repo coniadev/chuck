@@ -4,14 +4,6 @@ namespace Chuck;
 
 
 return [
-    // Must be set in app config
-    'appname' => null,
-
-    // e. g. 'example.com'. Must be set in app config
-    'hostname' => null,
-    // e. g. 'https://www.example.com'. Must be set in app config
-    'url' => null,
-
     'devel' => false,
 
     // The develompent server port
@@ -56,22 +48,6 @@ return [
 
     'templates' => [
         // 'folder' => 'path',
-    ],
-
-    // Default classes used by Chuck
-    'di' => [
-        'Request' => Request::class,
-        'Response' => Response::class,
-        'Router' => Router::class,
-        'Error' => Error::class,
-        'Session' => Session::class,
-        'Model' => Model\Model::class,
-        'Template' => Template::class,
-        'Log' => Log::class,
-
-        // Set if you want to use authentication.
-        // Must implement \Chuck\Model\AuthInterface
-        'Auth' => null,
     ],
 
     'renderer' => [

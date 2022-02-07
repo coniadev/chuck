@@ -6,7 +6,6 @@ namespace Chuck;
 
 interface RequestInterface
 {
-    public function __construct(ConfigInterface $config, RouterInterface $router);
     public function matchdict(string $key, ?string $default = null): ?string;
     public function params(): array;
     public function param(string $key, ?string $default = null): null|string|array;
@@ -24,5 +23,5 @@ interface RequestInterface
     public function devel(): bool;
     public function isXHR(): bool;
     public function jsonBody(): ?array;
-    public function addRequestMethod(string $name, \Closure $func);
+    public function addMethod(string $name, callable $func);
 }

@@ -6,6 +6,7 @@ namespace Chuck;
 
 use Chuck\Util\Path;
 
+
 class Config implements ConfigInterface
 {
     protected array $config;
@@ -44,10 +45,5 @@ class Config implements ConfigInterface
         }
 
         return Path::realpath($this->config['path'][$key]);
-    }
-
-    public function di(string $key): string
-    {
-        return $this->config['di'][$key];
     }
 }
