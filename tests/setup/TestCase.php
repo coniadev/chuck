@@ -7,9 +7,9 @@ namespace Chuck\Tests;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 use Chuck\Testing\App;
+use Chuck\Testing\Request;
 use Chuck\Config;
 use Chuck\Router;
-use Chuck\Request;
 
 class TestCase extends BaseTestCase
 {
@@ -30,17 +30,32 @@ class TestCase extends BaseTestCase
     }
 
 
-    public function getRequest(array $options = []): Request
-    {
+    public function request(
+        array $options = [],
+        string $method = null,
+        string $url = null,
+    ): Request {
         $config = $this->getConfig($options);
         $router = new Router();
+        $request = new Request($config, $router);
 
-        return new Request($config, $router);
+        if ($method) {
+            $request->setMethod(strtoupper($method));
+        }
+
+        if ($url) {
+            $request->setUrl($url);
+        }
+
+        return $request;
     }
 
-    public function getApp(array $options = []): App
-    {
-        $app = new App($this->getConfig($options));
+    public function getApp(
+        array $options = [],
+        string $method = null,
+        string $url = null,
+    ): App {
+        $app = new App($this->request($options, $method, $url));
 
         return $app;
     }
