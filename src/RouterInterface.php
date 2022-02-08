@@ -18,4 +18,7 @@ interface RouterInterface
     public function staticUrl(string $name, string $file, bool $bust = false, string $host = null): string;
     public function match(RequestInterface $request): ?Route;
     public function dispatch(RequestInterface $app);
+    public function setResponseClass(string $class): void;
+    public function getResponseClass(): string;
+    public function setRenderer(string $name, string $class): void;
 }

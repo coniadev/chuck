@@ -9,7 +9,7 @@ class ViewFunction extends View
     protected string|\Closure $callable;
     protected string $action;
 
-    public function call(): mixed
+    public function respond(): ResponseInterface
     {
         return 'tet';
     }

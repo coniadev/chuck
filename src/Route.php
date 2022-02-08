@@ -15,6 +15,7 @@ class Route implements RouteInterface
     protected array $args = [];
     protected string $pattern;
     protected array $methods = [];
+    protected string $renderer = null;
 
     public function __construct(
         protected string $name,
@@ -76,6 +77,13 @@ class Route implements RouteInterface
         if ($name) {
             $this->name = $name . $this->name;
         }
+
+        return $this;
+    }
+
+    public function renderer(string $renderer): self
+    {
+        $this->renderer = $renderer;
 
         return $this;
     }

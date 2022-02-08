@@ -6,6 +6,7 @@ namespace Chuck;
 
 use Chuck\Exception\HttpNotFound;
 use Chuck\Exception\HttpInternalError;
+use Chuck\MiddlewareInterface;
 
 class Router implements RouterInterface
 {
@@ -13,6 +14,13 @@ class Router implements RouterInterface
     protected array $staticRoutes = [];
     public array $params = [];
     protected array $names = [];
+    protected string $responseClass = Response::class;
+    protected string $templateRenderer = Renderer\TemplateRenderer::class;
+    protected array $renderers = [
+        'string' => Renderer\StringRenderer::class,
+        'json' => Renderer\JsonRenderer::class,
+    ];
+    protected array $middlewares = [];
 
     public function getRoutes(): array
     {
@@ -43,6 +51,48 @@ class Router implements RouterInterface
             ];
         } else {
             throw new \InvalidArgumentException("The static directory does not exist: $dir");
+        }
+    }
+
+    public function setResponseClass(string $class): void
+    {
+        $this->responseClass = $class;
+    }
+
+    public function getResponseClass(): string
+    {
+        return $this->responseClass;
+    }
+
+    public function setRenderer(string $name, string $class): void
+    {
+        if (strtolower($name) === 'template') {
+            $this->templateRenderer = $class;
+        } else {
+            $this->renderers[$name] = $class;
+        }
+    }
+
+    public function renderer(string $name): string
+    {
+        if (strtolower($name) === 'template') {
+            return $this->templateRenderer;
+        } else {
+            return $this->renderers[$name];
+        }
+    }
+
+    public function addMiddleware(string $name, string $class): void
+    {
+        $interfaces = class_implements($class);
+
+        if ($interfaces && in_array(MiddlewareInterface::class, $interfaces)) {
+            $this->middlewares[$name] = $class;
+        } else {
+            throw new \InvalidArgumentException(
+                "The middleware '$class' does not implement " .
+                    MiddlewareInterface::class . '.'
+            );
         }
     }
 
@@ -114,7 +164,6 @@ class Router implements RouterInterface
         return null;
     }
 
-
     public function dispatch(RequestInterface $request): ResponseInterface
     {
         $route = $this->match($request);
@@ -122,36 +171,14 @@ class Router implements RouterInterface
         if ($route) {
             $viewDef = $route->view();
 
+            // $request->negotiateLocale($request);
             if (is_string($viewDef)) {
-                $segments = explode('::', $viewDef);
-                $ctrlName = $segments[0];
-                $viewName = $segments[1];
-
-                if (class_exists($ctrlName)) {
-                    $ctrl = new $ctrlName($this->params);
-                    $request->negotiateLocale($request);
-
-                    if (!method_exists($ctrl, $viewName)) {
-                        throw new HttpInternalError(
-                            $request,
-                            "Controller view method not found $ctrlName::$viewName"
-                        );
-                    }
-
-                    $view = new ViewController($request, $route);
-                    $view->addCallable($ctrl, $viewName);
-                    return $view->call();
-                } else {
-                    throw new HttpInternalError(
-                        $request,
-                        "Controller not found $ctrlName"
-                    );
-                }
+                $view = new ViewController($request, $route, $this, $viewDef);
             } else {
-                $view = new ViewFunction($request, $route);
-                $view->addCallable($viewDef);
-                return $view->call();
+                $view = new ViewFunction($request, $route, $this, $viewDef);
             }
+
+            return $view->respond();
         } else {
             throw new HttpNotFound($request);
         }

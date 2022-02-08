@@ -13,8 +13,6 @@ return [
     'default_locale' => null,
     'loglevel' => 'DEBUG',
 
-    // The permission required for every request
-    'default_permission' => null,
     'minimum_password_entropy' => 40.0,
     'password_algorithm' => PASSWORD_ARGON2ID,
 
@@ -48,12 +46,6 @@ return [
 
     'templates' => [
         // 'folder' => 'path',
-    ],
-
-    'renderer' => [
-        'string' => Renderer\StringRenderer::class,
-        'json' => Renderer\JsonRenderer::class,
-        'template' => Renderer\TemplateRenderer::class,
     ],
 
     // database credentials

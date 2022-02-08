@@ -124,7 +124,7 @@ class Request implements RequestInterface
         return $this->redirect($this->session->returnTo(), $code);
     }
 
-    public function getRouter(): RouterInterface
+    public function router(): RouterInterface
     {
         return $this->router;
     }

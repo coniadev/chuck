@@ -4,56 +4,40 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use Chuck\Exception\HttpForbidden;
-use Chuck\Exception\HttpUnauthorized;
+use Chuck\Exception\HttpInternalError;
 
 
 class ViewController extends View
 {
-    protected Controller $ctrl;
-    protected string $action;
+    protected object $ctrl;
+    protected string $method;
 
-    public function addCallable(Controller $ctrl, string $view): void
+    protected function init(): void
     {
-        $this->ctrl = $ctrl;
-        $this->view = $view;
+        $view = $this->view;
+
+        if (is_string($view) && !str_contains($view, '::')) {
+            $view .= '::__invoke';
+        }
+
+        [$ctrlName, $method] = explode('::', $view);
+
+        if (class_exists($ctrlName)) {
+            $this->ctrl = new $ctrlName($this->request);
+            $this->method = $method;
+        } else {
+            throw new HttpInternalError(
+                $this->request,
+                "Controller view method not found ${ctrl::class}::$view"
+            );
+        }
     }
 
-    public function call(): mixed
+    public function respond(): ResponseInterface
     {
-        $request = $this->request;
-        $session = $request->session;
         $ctrl = $this->ctrl;
         $view = $this->view;
 
-        if ($ctrl->before($request)) {
-            $response = $ctrl->$view($request);
-
-            if ($response instanceof ResponseInterface) {
-                return $ctrl->after($request, $response);
-            } else {
-                $renderer = $this->params['renderer'] ?? null;
-                $class = $request->config->di('Response');
-
-                return $ctrl->after(
-                    $request,
-                    new $class($request, $response, $renderer)
-                );
-            }
-        } else {
-            $auth = $request->config->di('Auth');
-            if ($session->authenticatedUserId() || $auth::verifyJWT() || $auth::verifyApiKey()) {
-                // User is authenticated but does not have the permissions
-                throw new HttpForbidden($request);
-            } else {
-                if ($request->isXHR()) {
-                    throw new HttpUnauthorized($request);
-                } else {
-                    // User needs to log in
-                    $session->rememberReturnTo();
-                    return $request->redirect($request->routeUrl('user:login'));
-                }
-            }
-        }
+        return $this->handle($ctrl->$view);
     }
 }

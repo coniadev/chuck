@@ -10,8 +10,7 @@ use Monolog\Handler\HandlerInterface;
 class App
 {
     protected string $namespace;
-    protected ConfigInterface $config;
-    protected RouterInterface $router;
+    protected ?RouterInterface $router = null;
     protected $localeNegotiatorClosure;
 
     public function __construct(protected RequestInterface $request)
@@ -21,6 +20,7 @@ class App
         // $log::init($request);
 
         $request->session->start();
+        $this->router = $request->router();
 
         // $error = new Error($request);
         // $error->register();
@@ -37,9 +37,18 @@ class App
         return $app;
     }
 
+    public function router(): RouterInterface
+    {
+        if (!$this->router) {
+            $this->router = $this->request->router();
+        }
+
+        return $this->router;
+    }
+
     public function route(RouteInterface $route): void
     {
-        $this->router->addRoute($route);
+        $this->router()->addRoute($route);
     }
 
     public function staticRoute(
@@ -47,23 +56,28 @@ class App
         string $prefix,
         string $path,
     ) {
-        $this->router->addStatic($name, $prefix, $path);
+        $this->router()->addStatic($name, $prefix, $path);
     }
 
-    public function addRequestMethod(string $name, callable $func): void
+    public function setResponse(string $class): void
     {
-        $this->request->addRequestMethod($name, $func);
+        $this->router()->setResponse($class);
+    }
+
+    public function setRenderer(string $name, string $class): void
+    {
+        $this->router()->setRenderer($name, $class);
     }
 
     public function pushLogHandler(HandlerInterface $handler): void
     {
-        $log = $this->config->di('Log');
-        $log::pushHandler($handler);
+        // $log = $this->config->di('Log');
+        // $log::pushHandler($handler);
     }
 
     public function run(): void
     {
-        $response = $this->router->dispatch($request);
+        $response = $this->router->dispatch($this->request);
         $response->respond();
     }
 }

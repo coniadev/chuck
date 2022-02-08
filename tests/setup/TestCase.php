@@ -17,16 +17,22 @@ class TestCase extends BaseTestCase
     {
     }
 
-    public function getConfig(array $options = []): Config
+
+    public function getConfigArray(array $options = []): array
     {
         $ds = DIRECTORY_SEPARATOR;
         $defaults = require __DIR__ . '/../../src/defaults.php';
 
-        return new Config(array_replace_recursive($defaults, [
+        return array_replace_recursive($defaults, [
             'path' => [
                 'root' => __DIR__ . $ds . '..' . $ds . '..',
             ]
-        ], $options));
+        ], $options);
+    }
+
+    public function getConfig(array $options = []): Config
+    {
+        return new Config($this->getConfigArray($options));
     }
 
 
