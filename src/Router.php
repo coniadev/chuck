@@ -21,11 +21,12 @@ class Router implements RouterInterface
 
     public function addRoute(RouteInterface $route): void
     {
+        $name = $route->name();
+
         if (array_key_exists($name, $this->names)) {
             throw new \ErrorException('Duplicate route name: ' . $name);
         }
 
-        $route = new Route($route, $view, $params);
         $this->routes[] = $route;
         $this->names[$name] = $route;
     }
@@ -33,32 +34,33 @@ class Router implements RouterInterface
     public function addStatic(
         string $name,
         string $prefix,
-        bool $cacheBusting = false
+        string $dir,
     ) {
-        $this->staticRoutes[$name] = [
-            'path' => '/' . trim($prefix, '/') . '/',
-            'bust' => $cacheBusting,
-        ];
+        if (is_dir($dir)) {
+            $this->staticRoutes[$name] = [
+                'prefix' => '/' . trim($prefix, '/') . '/',
+                'dir' => $dir,
+            ];
+        } else {
+            throw new \InvalidArgumentException("The static directory does not exist: $dir");
+        }
     }
 
     protected function getServerPart(): string
     {
-        $protocol = (!empty($_SERVER['HTTPS']) &&
-            (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['HTTPS'] == '1')) ? 'https://' : 'http://';
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
 
         $server = $_SERVER['HTTP_HOST'] ?? 'localhost';
 
         return $protocol . $server;
     }
 
-    public function routeUrl(string $name, array $args): string
+    public function routeUrl(string $name, mixed ...$args): string
     {
         $route = $this->names[$name] ?? null;
 
         if ($route) {
-            return
-                $this->getServerPart() .
-                $route->replaceParams($args);
+            return $this->getServerPart() . $route->url(...$args);
         }
 
         throw new \RuntimeException('Route not found: ' . $name);
@@ -69,22 +71,36 @@ class Router implements RouterInterface
         return $this->params['name'] ?? null;
     }
 
-    protected function getCacheBuster(string $url): string
+    protected function getCacheBuster(string $dir, string $path): string
     {
-        $sep = strpos($url, '?') === false ? '?' : '&';
-        return $url . $sep . 'v=' . substr(md5(APP_VERSION), 0, 6);
-    }
+        $ds = DIRECTORY_SEPARATOR;
+        $file = $dir . $ds . ltrim(str_replace('/', $ds, $path), $ds);
 
-    public function staticUrl(string $name, string $path): string
-    {
-        $route = $this->staticRoutes[$name];
-        $url = $this->getServerPart() . $route['path'] . trim($path, '/');
-
-        if ($route['bust']) {
-            $url = $this->getCacheBuster($url);
+        if (file_exists($file)) {
+            return substr(md5((string)filemtime($file)), 0, 6);
         }
 
-        return $url;
+        return '';
+    }
+
+    public function staticUrl(string $name, string $path, bool $bust = false, string $host = null): string
+    {
+        $route = $this->staticRoutes[$name];
+
+        if ($bust) {
+            // Check if there is already a query parameter present
+            if (strpos($path, '?')) {
+                $file = strtok($path, '?');
+                print("$file\n");
+                $sep = '&';
+            } else {
+                $file = $path;
+                $sep = '?';
+            }
+            $path .= $sep . 'v=' . $this->getCacheBuster($route['dir'], $file);
+        }
+
+        return ($host ? trim($host, '/') : $this->getServerPart()) . $route['prefix'] . trim($path, '/');
     }
 
     public function match(RequestInterface $request): ?Route

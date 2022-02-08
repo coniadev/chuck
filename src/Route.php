@@ -10,7 +10,7 @@ const LEFT_BRACE = '§§§€§§§';
 const RIGHT_BRACE = '§§§£§§§';
 
 
-class Route
+class Route implements RouteInterface
 {
     protected array $args = [];
     protected string $pattern;
@@ -19,43 +19,43 @@ class Route
     public function __construct(
         protected string $name,
         protected string $route,
-        protected string|\closure $view,
+        protected string|\Closure $view,
         protected array $params = [],
     ) {
         $this->route = '/' . ltrim($route, '/');
     }
 
-    public static function get(string $name, string $route, string|\closure $view, array $params = []): self
+    public static function get(string $name, string $route, string|\Closure $view, array $params = []): self
     {
         return (new self($name, $route, $view, $params))->method('GET');
     }
 
-    public static function post(string $name, string $route, string|\closure $view, array $params = []): self
+    public static function post(string $name, string $route, string|\Closure $view, array $params = []): self
     {
         return (new self($name, $route, $view, $params))->method('POST');
     }
 
-    public static function put(string $name, string $route, string|\closure $view, array $params = []): self
+    public static function put(string $name, string $route, string|\Closure $view, array $params = []): self
     {
         return (new self($name, $route, $view, $params))->method('PUT');
     }
 
-    public static function patch(string $name, string $route, string|\closure $view, array $params = []): self
+    public static function patch(string $name, string $route, string|\Closure $view, array $params = []): self
     {
         return (new self($name, $route, $view, $params))->method('PATCH');
     }
 
-    public static function delete(string $name, string $route, string|\closure $view, array $params = []): self
+    public static function delete(string $name, string $route, string|\Closure $view, array $params = []): self
     {
         return (new self($name, $route, $view, $params))->method('DELETE');
     }
 
-    public static function head(string $name, string $route, string|\closure $view, array $params = []): self
+    public static function head(string $name, string $route, string|\Closure $view, array $params = []): self
     {
         return (new self($name, $route, $view, $params))->method('HEAD');
     }
 
-    public static function options(string $name, string $route, string|\closure $view, array $params = []): self
+    public static function options(string $name, string $route, string|\Closure $view, array $params = []): self
     {
         return (new self($name, $route, $view, $params))->method('OPTIONS');
     }
@@ -193,7 +193,7 @@ class Route
         return $this->route;
     }
 
-    public function view(): string|\closure
+    public function view(): string|\Closure
     {
         return $this->view;
     }

@@ -59,4 +59,14 @@ class TestCase extends BaseTestCase
 
         return $app;
     }
+
+    public function enableHttps(): void
+    {
+        $_SERVER['HTTPS'] = 'on';
+    }
+
+    public function disableHttps(): void
+    {
+        unset($_SERVER['HTTPS']);
+    }
 }

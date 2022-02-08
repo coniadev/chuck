@@ -19,7 +19,8 @@ Delarative:
 
     $config = new Config(__DIR__ . '/config.php');
     $router = new Router();
-    $router->add(new Route('index', '/', function (Request $request) {}));
-    $app = new App(new Request($config, $router));
+    $route = (new Route('index', '/', function (Request $request) {}))->method('GET');
+    $router->add($route);
+    $app = new App(new Request($router, $config));
     $app->run();
 ```

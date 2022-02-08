@@ -11,11 +11,11 @@ interface RouterInterface
     public function addStatic(
         string $name,
         string $prefix,
-        bool $cacheBusting = false
+        string $dir,
     );
     public function routeUrl(string $name, array $args): string;
     public function routeName(): ?string;
-    public function staticUrl(string $name, string $path): string;
+    public function staticUrl(string $name, string $file, bool $bust = false, string $host = null): string;
     public function match(RequestInterface $request): ?Route;
     public function dispatch(RequestInterface $app);
 }

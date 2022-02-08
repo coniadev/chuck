@@ -45,9 +45,9 @@ class App
     public function staticRoute(
         string $name,
         string $prefix,
-        bool $cacheBusting = false
+        string $path,
     ) {
-        $this->router->addStatic($name, $prefix, $cacheBusting);
+        $this->router->addStatic($name, $prefix, $path);
     }
 
     public function addRequestMethod(string $name, callable $func): void
