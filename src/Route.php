@@ -22,7 +22,7 @@ class Route
         protected string|\closure $view,
         protected array $params = [],
     ) {
-        $this->pattern = $this->convertToRegex($route);
+        $this->route = '/' . ltrim($route, '/');
     }
 
     public static function get(string $name, string $route, string|\closure $view, array $params = []): self
@@ -67,6 +67,23 @@ class Route
         return $this;
     }
 
+    public function prefix(?string $prefix = null, ?string $name = null): self
+    {
+        if ($prefix) {
+            $this->route = '/' . ltrim(rtrim($prefix, '/'), '/') . $this->route;
+        }
+
+        if ($name) {
+            $this->name = $name . $this->name;
+        }
+
+        return $this;
+    }
+
+    public function name(): string
+    {
+        return $this->name;
+    }
 
     protected function hideInnerBraces(string $str): string
     {
@@ -115,11 +132,11 @@ class Route
         return str_replace(LEFT_BRACE, '{', str_replace(RIGHT_BRACE, '}', $str));
     }
 
-    protected function convertToRegex(string $route): string
+    protected function pattern(): string
     {
         // escape forward slashes
         //     /evil/chuck  to \/evil\/chuck
-        $pattern = preg_replace('/\//', '\\/', $route);
+        $pattern = preg_replace('/\//', '\\/', $this->route);
 
         $pattern = $this->hideInnerBraces($pattern);
 
@@ -139,7 +156,7 @@ class Route
         return $this->restoreInnerBraces($pattern);
     }
 
-    public function getUrl(...$args): string
+    public function url(...$args): string
     {
         if (count($args) > 0) {
             if (is_array($args[0] ?? null)) {
@@ -147,7 +164,7 @@ class Route
             } else {
                 if (!Arrays::isAssoc($args)) {
                     throw new \InvalidArgumentException(
-                        'Route::getUrl: either pass an associative array or named arguments'
+                        'Route::url: either pass an associative array or named arguments'
                     );
                 }
             }
@@ -158,15 +175,15 @@ class Route
                 // basic variables
                 $url = preg_replace(
                     '/\{' . $name . '(:.*?)?\}/',
-                    (string)$value,
-                    $url
+                    urlencode((string)$value),
+                    $url,
                 );
 
                 // remainder variables
                 $url = preg_replace(
                     '/\.\.\.' . $name . '/',
-                    (string)$value,
-                    $url
+                    urlencode((string)$value),
+                    $url,
                 );
             }
 
@@ -186,7 +203,7 @@ class Route
         return $this->args;
     }
 
-    protected function removeQueryString($url): string
+    protected function removeQueryString(string $url): string
     {
         return strtok($url, '?');
     }
@@ -215,7 +232,7 @@ class Route
     {
         $url = $this->removeQueryString($request->url());
 
-        if (preg_match($this->pattern, $url, $matches)) {
+        if (preg_match($this->pattern(), $url, $matches)) {
             // Remove integer indexes from array
             $matches = array_filter($matches, fn ($_, $k) => !is_int($k), ARRAY_FILTER_USE_BOTH);
 

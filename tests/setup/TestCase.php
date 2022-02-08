@@ -32,8 +32,8 @@ class TestCase extends BaseTestCase
 
     public function request(
         array $options = [],
-        string $method = null,
-        string $url = null,
+        ?string $method = null,
+        ?string $url = null,
     ): Request {
         $config = $this->getConfig($options);
         $router = new Router();
@@ -43,7 +43,7 @@ class TestCase extends BaseTestCase
             $request->setMethod(strtoupper($method));
         }
 
-        if ($url) {
+        if ($url !== null) {
             $request->setUrl($url);
         }
 
@@ -52,8 +52,8 @@ class TestCase extends BaseTestCase
 
     public function getApp(
         array $options = [],
-        string $method = null,
-        string $url = null,
+        ?string $method = null,
+        ?string $url = null,
     ): App {
         $app = new App($this->request($options, $method, $url));
 

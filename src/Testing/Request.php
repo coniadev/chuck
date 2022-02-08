@@ -20,16 +20,7 @@ class Request extends BaseRequest implements RequestInterface
     {
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
         $_SERVER['HTTP_HOST'] = 'www.example.com';
-
-        if (substr($url, 0, 1) === '/') {
-            $_SERVER['REQUEST_URI'] = $url;
-        } else {
-            if (str_starts_with($url, '/')) {
-                $_SERVER['REQUEST_URI'] = $url;
-            } else {
-                $_SERVER['REQUEST_URI'] = "/$url";
-            }
-        }
+        $_SERVER['REQUEST_URI'] = '/' . ltrim($url, '/');
     }
 
     public function setMethod(string $method): void

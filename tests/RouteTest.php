@@ -10,6 +10,7 @@ uses(TestCase::class);
 test('Index matching', function () {
     $route = new Route('index', '/', fn () => null);
 
+    expect($route->match($this->request(method: 'GET', url: '')))->toBe($route);
     expect($route->match($this->request(method: 'GET', url: '/')))->toBe($route);
     expect($route->match($this->request(method: 'GET', url: '/rick')))->toBe(null);
 });
@@ -22,7 +23,8 @@ test('Simple matching', function () {
     expect($route->match($this->request(method: 'GET', url: '/chuck?is_evil=no')))->toBe($route);
     expect($route->match($this->request(method: 'GET', url: '/rick')))->toBe(null);
 
-    $route = new Route('chuck', '/chuck/and/rick', fn () => null);
+    // Definition without leading slash
+    $route = new Route('chuck', 'chuck/and/rick', fn () => null);
 
     expect($route->match($this->request(method: 'GET', url: '/chuck/and/rick')))->toBe($route);
     expect($route->match($this->request(method: 'GET', url: '/chuck')))->toBe(null);
@@ -65,47 +67,58 @@ test('Parameter matching regex', function () {
     expect($route->match($this->request(method: 'GET', url: '/albums/73/5183')))->toBe($route);
     expect($route->match($this->request(method: 'GET', url: '/albums/43/93911')))->toBe($route);
     expect($route->args())->toBe(['from' => '43', 'to' => '93911']);
+
+    $route = new Route('albums', '/albums{format:\.?(json|xml|)}', fn () => null);
+    expect($route->match($this->request(method: 'GET', url: '/albums')))->toBe($route);
+    expect($route->args())->toBe(['format' => '']);
+    expect($route->match($this->request(method: 'GET', url: '/albums.json')))->toBe($route);
+    expect($route->args())->toBe(['format' => '.json']);
+    expect($route->match($this->request(method: 'GET', url: '/albums.xml')))->toBe($route);
+    expect($route->args())->toBe(['format' => '.xml']);
 });
 
 
 test('Parameter matching brace error I', function () {
     // Invalid escaped left braces
-    new Route('contrib', '/contributed/{from:\{\d+}', fn () => null);
+    $route = new Route('contrib', '/contributed/{from:\{\d+}', fn () => null);
+    $route->match($this->request(method: 'GET', url: '/'));
 })->throws(\ValueError::class);
 
 
 test('Parameter matching brace error II', function () {
     // Invalid escaped right braces
-    new Route('contrib', '/contributed/{from:\d+\}}', fn () => null);
+    $route = new Route('contrib', '/contributed/{from:\d+\}}', fn () => null);
+    $route->match($this->request(method: 'GET', url: '/'));
 })->throws(\ValueError::class);
 
 
 test('Parameter matching brace error III', function () {
     // Invalid unbalanced braces
-    new Route('contrib', '/contributed/{from:\d+{1,2}{}', fn () => null);
+    $route = new Route('contrib', '/contributed/{from:\d+{1,2}{}', fn () => null);
+    $route->match($this->request(method: 'GET', url: '/'));
 })->throws(\ValueError::class);
 
 
 test('Url construction :: regular parameters', function () {
     $route = new Route('contrib', '/contributed/{from:\d+}/{to:\d\d\d}', fn () => null);
 
-    expect($route->getUrl(['from' => '1983', 'to' => '1991']))->toBe('/contributed/1983/1991');
-    expect($route->getUrl(from: 1983, to: 1991))->toBe('/contributed/1983/1991');
+    expect($route->url(['from' => '1983', 'to' => '1991']))->toBe('/contributed/1983/1991');
+    expect($route->url(from: 1983, to: 1991))->toBe('/contributed/1983/1991');
 });
 
 
 test('Url construction :: no parameters', function () {
     $route = new Route('albums', '/albums', fn () => null);
 
-    expect($route->getUrl())->toBe('/albums');
-    expect($route->getUrl(test: 1))->toBe('/albums');
+    expect($route->url())->toBe('/albums');
+    expect($route->url(test: 1))->toBe('/albums');
 });
 
 
 test('Url construction :: invalid call', function () {
     $route = new Route('albums', '/albums', fn () => null);
 
-    expect($route->getUrl(1, 2))->toBe('/albums');
+    expect($route->url(1, 2))->toBe('/albums');
 })->throws(\InvalidArgumentException::class);
 
 
@@ -202,6 +215,19 @@ test('All methods matching', function () {
     expect($route->match($this->request(method: 'PATCH', url: '/')))->toBe($route);
     expect($route->match($this->request(method: 'DELETE', url: '/')))->toBe($route);
     expect($route->match($this->request(method: 'OPTIONS', url: '/')))->toBe($route);
+});
+
+
+test('Route prefix', function () {
+    $route = Route::get('albums', 'albums', fn () => 'chuck')->prefix('api');
+    expect($route->match($this->request(method: 'GET', url: '/api/albums')))->toBe($route);
+
+    $route = Route::get('albums', 'albums', fn () => 'chuck')->prefix('api', 'api::');
+    expect($route->name())->toBe('api::albums');
+
+    $route = Route::get('albums', 'albums', fn () => 'chuck')->prefix(name: 'api::');
+    expect($route->match($this->request(method: 'GET', url: '/albums')))->toBe($route);
+    expect($route->name())->toBe('api::albums');
 });
 
 
