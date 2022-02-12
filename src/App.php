@@ -10,7 +10,7 @@ use Monolog\Handler\HandlerInterface;
 class App
 {
     protected string $namespace;
-    protected ?RouterInterface $router = null;
+    protected RouterInterface $router;
     protected $localeNegotiatorClosure;
 
     public function __construct(protected RequestInterface $request)
@@ -39,10 +39,6 @@ class App
 
     public function router(): RouterInterface
     {
-        if (!$this->router) {
-            $this->router = $this->request->router();
-        }
-
         return $this->router;
     }
 
@@ -56,17 +52,22 @@ class App
         string $prefix,
         string $path,
     ) {
-        $this->router()->addStatic($name, $prefix, $path);
+        $this->router->addStatic($name, $prefix, $path);
+    }
+
+    public function middleware(callable $middleware): void
+    {
+        $this->router->middleware($middleware);
     }
 
     public function setResponse(string $class): void
     {
-        $this->router()->setResponse($class);
+        $this->router->setResponse($class);
     }
 
     public function setRenderer(string $name, string $class): void
     {
-        $this->router()->setRenderer($name, $class);
+        $this->router->setRenderer($name, $class);
     }
 
     public function pushLogHandler(HandlerInterface $handler): void

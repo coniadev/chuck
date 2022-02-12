@@ -21,4 +21,6 @@ interface RouterInterface
     public function setResponseClass(string $class): void;
     public function getResponseClass(): string;
     public function setRenderer(string $name, string $class): void;
+    public function middleware(callable $middleware): void;
+    public function middlewares(): array;
 }

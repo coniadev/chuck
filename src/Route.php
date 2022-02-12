@@ -88,6 +88,20 @@ class Route implements RouteInterface
         return $this;
     }
 
+    public function middleware(string ...$args): self
+    {
+        foreach ($args as $arg) {
+            $this->middlewares[] = $arg;
+        }
+
+        return $this;
+    }
+
+    public function middlewares(): array
+    {
+        return $this->middlewares;
+    }
+
     public function name(): string
     {
         return $this->name;

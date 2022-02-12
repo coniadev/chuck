@@ -6,7 +6,6 @@ namespace Chuck;
 
 use Chuck\Exception\HttpNotFound;
 use Chuck\Exception\HttpInternalError;
-use Chuck\MiddlewareInterface;
 
 class Router implements RouterInterface
 {
@@ -82,18 +81,14 @@ class Router implements RouterInterface
         }
     }
 
-    public function addMiddleware(string $name, string $class): void
+    public function middleware(callable $middleware): void
     {
-        $interfaces = class_implements($class);
+        $this->middlewares[] = $middleware;
+    }
 
-        if ($interfaces && in_array(MiddlewareInterface::class, $interfaces)) {
-            $this->middlewares[$name] = $class;
-        } else {
-            throw new \InvalidArgumentException(
-                "The middleware '$class' does not implement " .
-                    MiddlewareInterface::class . '.'
-            );
-        }
+    public function middlewares(): array
+    {
+        return $this->middlewares;
     }
 
     protected function getServerPart(): string
