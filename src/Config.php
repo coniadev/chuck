@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Chuck;
 
 use Chuck\Util\Path;
+use Chuck\{Response, ResponseInterface}
+use Chuck\{Template, TemplateInterface}
+use Chuck\{Session, SessionInterface}
 
 
 class Config implements ConfigInterface
@@ -19,6 +22,18 @@ class Config implements ConfigInterface
             $defaults,
             $config,
         );
+
+        $this->registry = [
+            ResponseInterface::class => Response::class,
+            TemplateInterface::class => Template::class,
+            SessionInterface::class => Session::class,
+        ];
+
+        $this->renderers = [
+            'string' => Renderer\StringRenderer::class,
+            'json' => Renderer\JsonRenderer::class,
+            'template' => Renderer\TemplateRenderer::class,
+        ];
     }
 
     public function get(string $key, $default = null)
@@ -45,5 +60,46 @@ class Config implements ConfigInterface
         }
 
         return Path::realpath($this->config['path'][$key]);
+    }
+
+    public function registry(string $key): string
+    {
+        return $this->registry[$key] ??
+            throw new \InvalidArgumentException("Undefined registry key \"$key\"");
+    }
+
+    public function register(string $key, mixed $value): void
+    {
+
+        $this->registry[$key] = $value;
+    }
+
+    public function setResponseClass(string $class): string
+    {
+        if (!($class instanceof ResponseInterface)) {
+            throw new \InvalidArgumentException("The response class does not implement " . ResponseInterface::class);
+        }
+
+        $this->registry[ResponseInterface::class] = $class;
+    }
+
+    public function responseClass(): string
+    {
+        return $this->registry[ResponseInterface::class];
+    }
+
+    public function addRenderer(string $key, string $class): void
+    {
+        if (!($class instanceof RendererInterface)) {
+            throw new \InvalidArgumentException("The renderer class does not implement " . RendererInterface::class);
+        }
+
+        $this->renderers[$key] = $class;
+    }
+
+    public function renderer(string $key): string
+    {
+        return $this->renderers[$key] ??
+            throw new \InvalidArgumentException("Undefined renderer \"$key\"");
     }
 }
