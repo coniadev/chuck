@@ -14,12 +14,6 @@ class Router implements RouterInterface
     protected array $staticRoutes = [];
     public array $params = [];
     protected array $names = [];
-    protected string $responseClass = Response::class;
-    protected string $templateRenderer = Renderer\TemplateRenderer::class;
-    protected array $renderers = [
-        'string' => Renderer\StringRenderer::class,
-        'json' => Renderer\JsonRenderer::class,
-    ];
     protected array $middlewares = [];
 
     public function getRoutes(): array
@@ -51,34 +45,6 @@ class Router implements RouterInterface
             ];
         } else {
             throw new \InvalidArgumentException("The static directory does not exist: $dir");
-        }
-    }
-
-    public function setResponseClass(string $class): void
-    {
-        $this->responseClass = $class;
-    }
-
-    public function getResponseClass(): string
-    {
-        return $this->responseClass;
-    }
-
-    public function setRenderer(string $name, string $class): void
-    {
-        if (strtolower($name) === 'template') {
-            $this->templateRenderer = $class;
-        } else {
-            $this->renderers[$name] = $class;
-        }
-    }
-
-    public function renderer(string $name): string
-    {
-        if (strtolower($name) === 'template') {
-            return $this->templateRenderer;
-        } else {
-            return $this->renderers[$name];
         }
     }
 
@@ -195,17 +161,20 @@ class Router implements RouterInterface
         if ($result instanceof ResponseInterface) {
             return $result;
         } else {
+            $config = $request->config;
             $body = $this->body;
             $renderer = $route->getRenderer();
 
             if ($renderer) {
-                if (array_key_exists($this->renderers, $renderer) {
-                    $rendererObj = new $this->renderers[$renderer]($this->request, $body);
+                $rendererObj = new ($config->renderer($renderer))($this->request, $body);
+                $response = new $request->response();
+                $response->setBody($rendererObj->render());
 
-                    $response = new Response(
                 foreach ($rendererObj->headers() as $header) {
-                    $this->addHeader($header['name'], $header['value']);
+                    $response->addHeader($header['name'], $header['value'], $header['replace']);
                 }
+
+                return $response;
             }
 
             throw new HttpInternalError(
