@@ -9,18 +9,19 @@ class Request implements RequestInterface
     public $rolefinder = null;
     public SessionInterface $session;
 
-    protected RouterInterface $router;
-    protected ResponseInterface $response;
+    protected readonly RouterInterface $router;
+    protected readonly ResponseInterface $response;
+    protected readonly ConfigInterface $config;
+    protected readonly SessionInterface $session;
     protected array $customMethods = [];
 
     public function __construct(
         ConfigInterface $config,
         RouterInterface $router,
-        string $session = '\Chuck\Session'
     ) {
         $this->router = $router;
         $this->config = $config;
-        $this->session = new $session($this);
+        $this->session = new ($config->registry(SessionInterface::class))($this);
     }
 
     public function matchdict(string $key, ?string $default = null): ?string
@@ -113,7 +114,7 @@ class Request implements RequestInterface
 
     public function redirect(string $url, int $code = 302): ResponseInterface
     {
-        $class = $this->config->di('Response');
+        $class = $this->config->responseClass();
         $response = new $class($this);
         $response->addHeader('Location', $url, true, $code);
         return $response;
@@ -147,24 +148,6 @@ class Request implements RequestInterface
     public function hasFlashes(): bool
     {
         return $this->session->hasFlashes();
-    }
-
-    public function permissions(): array
-    {
-        static $permissions = false;
-
-        if ($permissions !== false) {
-            return $permissions;
-        }
-
-        $auth = $this->config->di('Auth');
-
-        if (!$auth) {
-            return [];
-        }
-
-        $permissions = $auth::permissions();
-        return $permissions;
     }
 
     public function user(): ?array
@@ -216,46 +199,54 @@ class Request implements RequestInterface
         return $json;
     }
 
-    public function addMethod(string $name, callable $func): void
+    public function addMethod(string $name, callable $callable): void
     {
-        $this->customMethods[$name] = $func;
+        $this->customMethods[$name] = $callable;
     }
 
-    public function response(
-        ?int $status = null,
+    public function getResponse(
+        ?int $statusCode = null,
         ?mixed $body = null,
-        array $headers = [],
+        ?array $headers = [],
         ?string $protocol = null,
         ?string $reasonPhrase = null,
     ): ResponseInterface {
-        $response = $this->response ?: new Response();
+        if (!$this->response) {
+            $this->response = new ($this->config->responseClass())();
+        }
 
-        if ($status) {
-            $response->setStatus($status);
+        if ($statusCode) {
+            $this->response->setStatusCode($statusCode, $reasonPhrase);
         }
 
         if ($body) {
-            $response->setBody($body);
+            $this->response->setBody($body);
         }
 
-        foreach($headers as $name => $value) {
-            $response->setHeader($name, $value);
+        foreach ($headers ?? [] as $name => $value) {
+            $this->response->addHeader($name, $value);
         }
 
         if ($protocol) {
-            $response->setProtocol($protocol);
+            $this->response->setProtocol($protocol);
         }
 
-        if ($reasonPhrase) {
-            $response->setReasonPhrase($reasonPhrase);
-        }
-
-        return $response;
+        return $this->response;
     }
 
     public function __call(string $name, array $args)
     {
         $func = $this->customMethods[$name];
         return $func->call($this, ...$args);
+    }
+
+    public function __get(string $key): ResponseInterface | SessionInterface | ConfigInterface
+    {
+        return match ($key) {
+            'response' => $this->response ?: $this->getResponse(),
+            'config' => $this->config,
+            'session' => $this->session,
+            default => throw new \ErrorException("Undefined property \"$key\"")
+        };
     }
 }

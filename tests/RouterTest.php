@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Chuck\Tests\TestCase;
-use Chuck\{Router, Route};
+use Chuck\{Router, Route, Request, Response};
 
 uses(TestCase::class);
 
@@ -52,10 +52,10 @@ test('Static routes', function () {
 
 test('Dispatch without renderer', function () {
     $router = new Router();
-    $index = new Route('index', '/', fn (Request $request) => {
-        return new Response(
-    });
+    $index = new Route('index', '/', fn (Request $request) => new Response(200, 'Chuck'));
     $router->addRoute($index);
 
-    expect($router->match($this->request(method: 'GET', url: '/albums')))->toBe($albums);
+    $response = $router->dispatch($this->request(method: 'GET', url: '/'));
+    expect($response)->toBeInstanceOf(Response::class);
+    expect($response->getBody())->toBe('Chuck');
 });
