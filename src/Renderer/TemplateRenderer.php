@@ -36,12 +36,20 @@ class TemplateRenderer extends Renderer
     {
         if (array_key_exists('contenttype', $this->args)) {
             return [
-                'Content-Type' => $this->args['contenttype'],
+                [
+                    'name' => 'Content-Type',
+                    'value' => $this->args['contenttype'],
+                    'replace' => true,
+                ],
             ];
         }
 
         return [
-            'Content-Type' => 'text/html',
+            [
+                'name' => 'Content-Type',
+                'value' => 'text/html',
+                'replace' => true,
+            ],
         ];
     }
 }

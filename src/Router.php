@@ -171,7 +171,7 @@ class Router implements RouterInterface
                 $response->setBody($rendererObj->render());
 
                 foreach ($rendererObj->headers() as $header) {
-                    $response->addHeader($header['name'], $header['value'], $header['replace']);
+                    $response->addHeader($header['name'], $header['value'], $header['replace'] ?? true);
                 }
 
                 return $response;

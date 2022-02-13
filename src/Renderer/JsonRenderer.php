@@ -23,9 +23,11 @@ class JsonRenderer extends Renderer
             [
                 'name' => 'Content-type',
                 'value' => 'application/json',
+                'replace' => true,
             ], [
                 'name' => 'X-CSRF-Token',
                 'value' => $this->request->session->csrf->get(),
+                'replace' => true,
             ],
         ];
     }
