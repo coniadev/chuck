@@ -7,10 +7,10 @@ namespace Chuck;
 class Request implements RequestInterface
 {
     public $rolefinder = null;
-    public ConfigInterface $config;
     public SessionInterface $session;
 
     protected RouterInterface $router;
+    protected ResponseInterface $response;
     protected array $customMethods = [];
 
     public function __construct(
@@ -219,6 +219,38 @@ class Request implements RequestInterface
     public function addMethod(string $name, callable $func): void
     {
         $this->customMethods[$name] = $func;
+    }
+
+    public function response(
+        ?int $status = null,
+        ?mixed $body = null,
+        array $headers = [],
+        ?string $protocol = null,
+        ?string $reasonPhrase = null,
+    ): ResponseInterface {
+        $response = $this->response ?: new Response();
+
+        if ($status) {
+            $response->setStatus($status);
+        }
+
+        if ($body) {
+            $response->setBody($body);
+        }
+
+        foreach($headers as $name => $value) {
+            $response->setHeader($name, $value);
+        }
+
+        if ($protocol) {
+            $response->setProtocol($protocol);
+        }
+
+        if ($reasonPhrase) {
+            $response->setReasonPhrase($reasonPhrase);
+        }
+
+        return $response;
     }
 
     public function __call(string $name, array $args)

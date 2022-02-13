@@ -6,49 +6,62 @@ namespace Chuck;
 
 use Chuck\Exception\HttpNotFound;
 
+const REASON_PHRASES = [
+    100 => 'Continue', 101 => 'Switching Protocols',
+    200 => 'OK', 201 => 'Created', 202 => 'Accepted', 203 => 'Non-Authoritative Information',
+    204 => 'No Content', 205 => 'Reset Content', 206 => 'Partial Content',
+    300 => 'Multiple Choices', 301 => 'Moved Permanently', 302 => 'Found', 303 => 'See Other',
+    304 => 'Not Modified', 305 => 'Use Proxy', 307 => 'Temporary Redirect',
+    400 => 'Bad Request', 401 => 'Unauthorized', 402 => 'Payment Required', 403 => 'Forbidden',
+    404 => 'Not Found', 405 => 'Method Not Allowed', 406 => 'Not Acceptable',
+    407 => 'Proxy Authentication Required', 408 => 'Request Time-out', 409 => 'Conflict',
+    410 => 'Gone', 411 => 'Length Required', 412 => 'Precondition Failed',
+    413 => 'Request Entity Too Large', 414 => 'Request-URI Too Large', 415 => 'Unsupported Media Type',
+    416 => 'Requested range not satisfiable', 417 => 'Expectation Failed',
+    500 => 'Internal Server Error', 501 => 'Not Implemented', 502 => 'Bad Gateway',
+    503 => 'Service Unavailable', 504 => 'Gateway Time-out', 505 => 'HTTP Version not supported',
+];
+
+
 class Response implements ResponseInterface
 {
-    protected int $status = 200;
-    protected $body;
     protected $file;
-    protected ?string $renderer = null;
-    protected array $headers = [];
-    protected $config;
 
     public function __construct(
-        RequestInterface $request,
-        $body = null,
-        string $renderer = null
+        protected int $statusCode = 200,
+        protected mixed $body = null,
+        protected array $headers = [],
+        protected string $protocol = '1.1',
+        protected ?string $reasonPhrase = null,
     ) {
-        $this->request = $request;
-        $this->config = $request->config;
-        $this->body = $body;
-
-        if ($renderer !== null) {
-            $this->renderer = $renderer;
+        if ($reasonPhrase && $statusCode === null) {
+            throw new \InvalidArgumentException('$statusCode must not be null if $reasonPhrase is set');
         }
     }
 
-    public function setStatus(int $status): void
+    public function setStatusCode(int $statusCode, ?string $reasonPhrase = null): void
     {
-        $this->status = $status;
+        $this->statusCode = $statusCode;
+
+        if ($reasonPhrase !== null) {
+            $this->reasonPhrase = $reasonPhrase;
+        }
     }
 
-    public function getStatus(): int
+    public function getStatusCode(): int
     {
-        return $this->status;
+        return $this->statusCode;
     }
 
     public function addHeader(
-        string $key,
+        string $name,
         string $value,
-        bool $replace = false,
-        ?int $statusCode = null
+        bool $replace = true,
     ): void {
-        $this->headers[$key] = [
+        $this->headers[] = [
+            'name' => $name,
             'value' => $value,
             'replace' => $replace,
-            'statusCode' => $statusCode,
         ];
     }
 
@@ -57,47 +70,14 @@ class Response implements ResponseInterface
         return $this->headers;
     }
 
-    public function getRawBody()
+    public function getBody(): ?mixed
     {
         return $this->body;
     }
 
-    public function getBody(): ?string
+    public function setBody(mixed $body): void
     {
-        $renderer = $this->renderer;
-        $body = $this->body;
-
-        if ($body === null) {
-            if ($renderer === 'json') {
-                return 'null';
-            }
-
-            return null;
-        }
-
-        if ($renderer === null) {
-            // auto detect renderer
-            if (is_iterable($body)) {
-                $renderer = 'json';
-            } elseif (is_string($body)) {
-                $renderer = 'string';
-            } else {
-                return null;
-            }
-        }
-
-        $r = explode(':', $renderer);
-        $type = $r[0];
-        $identifier = implode(':', array_slice($r, 1));
-
-        $class = $this->request->config->get('renderer')[$type];
-        $rendererObj = new $class($this->request, $body, $identifier);
-
-        foreach ($rendererObj->headers() as $header) {
-            $this->addHeader($header['name'], $header['value']);
-        }
-
-        return $rendererObj->render();
+        return $body;
     }
 
     public function file($path)
@@ -126,49 +106,25 @@ class Response implements ResponseInterface
         }
 
         $this->addHeader('Content-Type', $contentType);
-
-        switch ($this->config->get('fileserver')) {
-            case null:
-                $finfo = finfo_open(FILEINFO_MIME_ENCODING);
-                $this->addHeader('Content-Transfer-Encoding', finfo_file($finfo, $path));
-                break;
-            case 'apache':
-                // apt install libapache2-mod-xsendfile
-                // a2enmod xsendfile
-                // Apache config:
-                //    XSendFile On
-                //    XSendFilePath "/path/to/files"
-                $this->addHeader("X-Sendfile", $file);
-                break;
-            case 'nginx':
-                // Nginx config
-                //   location /path/to/files/ {
-                //       internal;
-                //           alias   /some/path/; # note the trailing slash
-                //       }
-                //   }
-                $this->addHeader("X-Accel-Redirect", $file);
-                break;
-        }
+        $finfo = finfo_open(FILEINFO_MIME_ENCODING);
+        $this->addHeader('Content-Transfer-Encoding', finfo_file($finfo, $path));
     }
 
-    public function respond(): void
+    public function emit(): void
     {
-        http_response_code($this->status);
-
         $body = $this->getBody();
 
-        foreach ($this->headers as $header => $value) {
-            if ($value['statusCode'] !== null) {
-                header(
-                    "$header: " . $value['value'],
-                    $value['replace'],
-                    $value['statusCode']
-                );
-            } else {
-                header("$header: " . $value['value'], $value['replace']);
-            }
+        foreach ($this->headers as $header) {
+            header(sprintf('%s: %s', $header['name'], $header['value']), $header['replace']);
         }
+
+        // Emit status line after general headers to overwrite previous status codes
+        header(sprintf(
+            'HTTP/%s %d%s',
+            $this->protocol,
+            $this->statusCode,
+            $this->reasonPhrase ? ' ' . $this->reasonPhrase : ''
+        ), true);
 
         if ($body !== null) {
             echo $body;

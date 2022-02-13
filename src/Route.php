@@ -15,7 +15,8 @@ class Route implements RouteInterface
     protected array $args = [];
     protected string $pattern;
     protected array $methods = [];
-    protected string $renderer = null;
+    protected ?string $renderer = null;
+    protected array $middlewares = [];
 
     public function __construct(
         protected string $name,
@@ -81,6 +82,11 @@ class Route implements RouteInterface
         return $this;
     }
 
+    public function getRenderer(): string
+    {
+        return $this->renderer;
+    }
+
     public function renderer(string $renderer): self
     {
         $this->renderer = $renderer;
@@ -88,11 +94,9 @@ class Route implements RouteInterface
         return $this;
     }
 
-    public function middleware(string ...$args): self
+    public function middleware(callable $middleware): self
     {
-        foreach ($args as $arg) {
-            $this->middlewares[] = $arg;
-        }
+        $this->middlewares[] = $middleware;
 
         return $this;
     }

@@ -48,3 +48,14 @@ test('Static routes', function () {
         bust: true,
     ))->toMatch('/https:\/\/chuck.local\/static\/test.json\?v=[a-f0-9]{6}$/');
 });
+
+
+test('Dispatch without renderer', function () {
+    $router = new Router();
+    $index = new Route('index', '/', fn (Request $request) => {
+        return new Response(
+    });
+    $router->addRoute($index);
+
+    expect($router->match($this->request(method: 'GET', url: '/albums')))->toBe($albums);
+});

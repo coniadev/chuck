@@ -4,16 +4,12 @@ declare(strict_types=1);
 
 use Chuck\Config;
 use Chuck\Request;
-use Chuck\Response;
-use Chuck\Renderer\JsonRenderer;
-use Chuck\Renderer\TemplateRenderer;
 
 
 test('Config defaults', function () {
     $config = new Config([]);
 
     expect($config->get('devport'))->toBe(1983);
-    expect($config->get('renderer')['json'])->toBe(JsonRenderer::class);
 });
 
 
@@ -23,20 +19,11 @@ test('Config custom options', function () {
         'path' => [
             'root' => __DIR__,
         ],
-        'di' => [
-            'Additional' => Additional::class,
-            'Request' => FantasyRequest::class,
-        ],
-        'renderer' => [
-            'json' => FantasyJsonRenderer::class,
-        ],
     ]);
     echo (Request::class . PHP_EOL);
 
     expect($config->get('devport'))->toBe(1983);
     expect($config->get('album'))->toBe('Symbolic');
-    expect($config->get('renderer')['template'])->toBe(TemplateRenderer::class);
-    expect($config->get('renderer')['json'])->toBe(FantasyJsonRenderer::class);
     expect($config->path('root'))->toBe(__DIR__);
 });
 

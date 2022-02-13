@@ -11,4 +11,5 @@ interface RouteInterface
     public function name(): string;
     public function args(): array;
     public function method(string ...$args): self;
+    public function middleware(callable $middleware): self;
 }

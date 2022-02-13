@@ -7,6 +7,7 @@ namespace Chuck;
 use Chuck\Exception\HttpNotFound;
 use Chuck\Exception\HttpInternalError;
 
+
 class Router implements RouterInterface
 {
     protected array $routes = [];
@@ -86,11 +87,6 @@ class Router implements RouterInterface
         $this->middlewares[] = $middleware;
     }
 
-    public function middlewares(): array
-    {
-        return $this->middlewares;
-    }
-
     protected function getServerPart(): string
     {
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
@@ -159,21 +155,82 @@ class Router implements RouterInterface
         return null;
     }
 
+    protected function getViewResult(RouteInterface $route, RequestInterface $request): mixed
+    {
+        $view = $route->view();
+
+        if (is_callable($view)) {
+            return $view($request);
+        } else {
+            if (is_string($view) && !str_contains($view, '::')) {
+                $view .= '::__invoke';
+            }
+
+            [$ctrlName, $method] = explode('::', $view);
+
+            if (class_exists($ctrlName)) {
+                $ctrl = new $ctrlName($this->request);
+
+                if (method_exists($ctrl, 'method')) {
+                    return $ctrl->$method($request);
+                } else {
+                    throw new HttpInternalError(
+                        $this->request,
+                        "Controller method not found $view"
+                    );
+                }
+            } else {
+                throw new HttpInternalError(
+                    $this->request,
+                    "Controller not found ${ctrlName}"
+                );
+            }
+        }
+    }
+
+    protected function respond(RouteInterface $route, RequestInterface $request): ResponseInterface
+    {
+        $result = $this->getViewResult($route, $request);
+
+        if ($result instanceof ResponseInterface) {
+            return $result;
+        } else {
+            $body = $this->body;
+            $renderer = $route->getRenderer();
+
+            if ($renderer) {
+                if (array_key_exists($this->renderers, $renderer) {
+                    $rendererObj = new $this->renderers[$renderer]($this->request, $body);
+
+                    $response = new Response(
+                foreach ($rendererObj->headers() as $header) {
+                    $this->addHeader($header['name'], $header['value']);
+                }
+            }
+
+            throw new HttpInternalError(
+                $this->request,
+                "No response object returned and no renderer specified"
+            );
+        }
+    }
+
     public function dispatch(RequestInterface $request): ResponseInterface
     {
         $route = $this->match($request);
 
         if ($route) {
-            $viewDef = $route->view();
+            $middlewares = array_merge($this->middlewares, $route->middlewares());
 
-            // $request->negotiateLocale($request);
-            if (is_string($viewDef)) {
-                $view = new ViewController($request, $route, $this, $viewDef);
-            } else {
-                $view = new ViewFunction($request, $route, $this, $viewDef);
+            while ($current = current($middlewares)) {
+                $next = next($middlewares);
+
+                if ($next !== false) {
+                    $request = $current($request, $next);
+                }
             }
 
-            return $view->respond();
+            return $this->respond($route, $request);
         } else {
             throw new HttpNotFound($request);
         }
