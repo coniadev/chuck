@@ -4,41 +4,44 @@ declare(strict_types=1);
 
 namespace Chuck\Renderer;
 
-use Chuck\RequestInterface;
 use Chuck\Util;
 
-class TemplateRenderer implements RendererInterface
+
+class TemplateRenderer extends Renderer
 {
-    public function __construct(
-        RequestInterface $request,
-        $data,
-        string $identifier
-    ) {
-        $this->request = $request;
-        $this->context = $data ?? [];
+    public function render(): string
+    {
+        $this->request = $this->request;
+        $this->context = $this->data ?? [];
 
         // Plates needs a double colon, plugin route renderers
         // need to be configured with a single one.
-        $this->template = implode('::', explode(':', $identifier));
-    }
+        $this->template = implode('::', explode(':', $this->args[0]));
 
-    public function render(): string
-    {
+
         if (gettype($this->context) === 'object') {
             $this->context = iterator_to_array($this->context);
         }
+
         $class = $this->request->config->di('Template');
         $template = new $class($this->request, [
             'request' => $this->request,
             'config' => $this->request->config,
             'devel' => $this->request->devel(),
-            'util' => new Util($this->request),
         ]);
         return $template->render($this->template, $this->context);
     }
 
     public function headers(): iterable
     {
-        return [];
+        if (array_key_exists('contenttype', $this->args)) {
+            return [
+                'Content-Type' => $this->args['contenttype'],
+            ];
+        }
+
+        return [
+            'Content-Type' => 'text/html',
+        ];
     }
 }

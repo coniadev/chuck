@@ -4,19 +4,9 @@ declare(strict_types=1);
 
 namespace Chuck\Renderer;
 
-use Chuck\RequestInterface;
 
-class JsonRenderer implements RendererInterface
+class JsonRenderer extends Renderer
 {
-    public function __construct(
-        RequestInterface $request,
-        $data,
-        string $identifier
-    ) {
-        $this->request = $request;
-        $this->data = $data;
-    }
-
     public function render(): string
     {
         // If $context is of type 'object' it should be a Generator
