@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Chuck;
 
 use Chuck\Util\Path;
-use Chuck\{Response, ResponseInterface}
-use Chuck\{Template, TemplateInterface}
-use Chuck\{Session, SessionInterface}
+use Chuck\{Response, ResponseInterface};
+use Chuck\{Template, TemplateInterface};
+use Chuck\{Session, SessionInterface};
 
 
 class Config implements ConfigInterface

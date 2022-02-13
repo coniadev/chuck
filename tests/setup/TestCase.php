@@ -37,9 +37,9 @@ class TestCase extends BaseTestCase
 
 
     public function request(
-        array $options = [],
         ?string $method = null,
         ?string $url = null,
+        array $options = [],
     ): Request {
         $config = $this->getConfig($options);
         $router = new Router();

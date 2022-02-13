@@ -13,12 +13,10 @@ interface RequestInterface
     public function staticUrl(string $name, string $path): string;
     public function url();
     public function redirect(string $url, int $code = 302): ResponseInterface;
-    public function response(): ResponseInterface;
+    public function getResponse(): ResponseInterface;
     public function router(): RouterInterface;
     public function flash(string $type, string $message);
     public function popFlash(): array;
-    public function permissions(): ?array;
-    public function user(): ?array;
     public function method(): string;
     public function isMethod(string $method): bool;
     public function redirectToRemembered(int $code = 302);

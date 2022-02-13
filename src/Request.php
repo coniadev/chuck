@@ -6,9 +6,6 @@ namespace Chuck;
 
 class Request implements RequestInterface
 {
-    public $rolefinder = null;
-    public SessionInterface $session;
-
     protected readonly RouterInterface $router;
     protected readonly ResponseInterface $response;
     protected readonly ConfigInterface $config;
@@ -150,17 +147,6 @@ class Request implements RequestInterface
         return $this->session->hasFlashes();
     }
 
-    public function user(): ?array
-    {
-        $auth = $this->config->di('Auth');
-
-        if (!$auth) {
-            return null;
-        }
-
-        return $auth::user();
-    }
-
     public function method(): string
     {
         return strtoupper($_SERVER['REQUEST_METHOD']);
@@ -206,7 +192,7 @@ class Request implements RequestInterface
 
     public function getResponse(
         ?int $statusCode = null,
-        ?mixed $body = null,
+        mixed $body = null,
         ?array $headers = [],
         ?string $protocol = null,
         ?string $reasonPhrase = null,

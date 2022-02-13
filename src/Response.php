@@ -70,17 +70,17 @@ class Response implements ResponseInterface
         return $this->headers;
     }
 
-    public function getBody(): ?mixed
+    public function getBody(): mixed
     {
         return $this->body;
     }
 
     public function setBody(mixed $body): void
     {
-        return $body;
+        $this->body = $body;
     }
 
-    public function file($path)
+    public function file(string $path): void
     {
         $this->file = $path;
 
@@ -91,14 +91,14 @@ class Response implements ResponseInterface
                 'css' => 'text/css',
                 'html' => 'text/html',
             ][$ext] ?? null;
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $contentType = null;
         }
 
         // Should be a binary file
         try {
             if (!$contentType) {
-                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $finfo = new \finfo(FILEINFO_MIME_TYPE);
                 $contentType = finfo_file($finfo, $path);
             }
         } catch (\Exception $e) {
@@ -106,7 +106,7 @@ class Response implements ResponseInterface
         }
 
         $this->addHeader('Content-Type', $contentType);
-        $finfo = finfo_open(FILEINFO_MIME_ENCODING);
+        $finfo = new \finfo(FILEINFO_MIME_ENCODING);
         $this->addHeader('Content-Transfer-Encoding', finfo_file($finfo, $path));
     }
 

@@ -135,19 +135,19 @@ class Router implements RouterInterface
             [$ctrlName, $method] = explode('::', $view);
 
             if (class_exists($ctrlName)) {
-                $ctrl = new $ctrlName($this->request);
+                $ctrl = new $ctrlName($request);
 
-                if (method_exists($ctrl, 'method')) {
+                if (method_exists($ctrl, $method)) {
                     return $ctrl->$method($request);
                 } else {
                     throw new HttpInternalError(
-                        $this->request,
+                        $request,
                         "Controller method not found $view"
                     );
                 }
             } else {
                 throw new HttpInternalError(
-                    $this->request,
+                    $request,
                     "Controller not found ${ctrlName}"
                 );
             }
@@ -162,11 +162,10 @@ class Router implements RouterInterface
             return $result;
         } else {
             $config = $request->config;
-            $body = $this->body;
             $renderer = $route->getRenderer();
 
             if ($renderer) {
-                $rendererObj = new ($config->renderer($renderer))($this->request, $body);
+                $rendererObj = new ($config->renderer($renderer))($this->request, $result);
                 $response = new $request->response();
                 $response->setBody($rendererObj->render());
 

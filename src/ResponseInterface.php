@@ -6,11 +6,18 @@ namespace Chuck;
 
 interface ResponseInterface
 {
-    public function __construct(Request $request, $body);
+    public function __construct(
+        int $statusCode,
+        mixed $body,
+        array $headers,
+        string $protocol,
+        ?string $reasonPhrase,
+    );
     public function setStatusCode(int $statusCode, ?string $reasonPhrase);
-    public function setProtocol(string $protocol);
+    public function getStatusCode(): int;
     public function addHeader(string $key, string $value);
-    public function getBody(): ?mixed;
+    public function getHeaders(): array;
+    public function getBody(): mixed;
     public function setBody(mixed $body): void;
     public function emit(): void;
 }
