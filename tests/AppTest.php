@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Chuck\Tests\TestCase;
-use Chuck\{App, Router, Route};
+use Chuck\{App, Router, Route, Request};
 
 uses(TestCase::class);
 
@@ -13,7 +13,27 @@ test('Create helper', function () {
 });
 
 
-test('App init', function () {
+test('Helper methods', function () {
+    $app = App::create($this->getConfigArray());
+
+    expect($app->request())->toBeInstanceOf(\Chuck\Request::class);
+    expect($app->router())->toBeInstanceOf(\Chuck\Router::class);
+    expect($app->config())->toBeInstanceOf(\Chuck\Config::class);
+});
+
+
+test('Middleware helper', function () {
+    $app = App::create($this->getConfigArray());
+
+    $app->middleware(function (Request $request, callable $next): Request {
+        return $next($request);
+    });
+
+    expect(count($app->router()->middlewares()))->toBe(1);
+});
+
+
+test('App run', function () {
     $app = new App($this->request(method: 'GET', url: '/'));
     $app->route(Route::get('index', '/', 'Chuck\Tests\Controller::textView'));
     ob_start();

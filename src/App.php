@@ -11,6 +11,7 @@ class App
 {
     protected string $namespace;
     protected RouterInterface $router;
+    protected ConfigInterface $config;
     protected $localeNegotiatorClosure;
 
     public function __construct(protected RequestInterface $request)
@@ -38,14 +39,24 @@ class App
         return $app;
     }
 
+    public function request(): RequestInterface
+    {
+        return $this->request;
+    }
+
     public function router(): RouterInterface
     {
-        return $this->router;
+        return $this->request->router();
+    }
+
+    public function config(): ConfigInterface
+    {
+        return $this->request->config;
     }
 
     public function route(RouteInterface $route): void
     {
-        $this->router()->addRoute($route);
+        $this->router->addRoute($route);
     }
 
     public function staticRoute(

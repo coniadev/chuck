@@ -7,6 +7,16 @@ use Chuck\{Router, Route, Request, Response};
 
 uses(TestCase::class);
 
+
+class Middleware
+{
+    public function __invoke(Request $request, callable $next): Request
+    {
+        return $next($request);
+    }
+}
+
+
 test('Matching', function () {
     $router = new Router();
     $index = new Route('index', '/', fn () => null);
@@ -57,3 +67,60 @@ test('Dispatch without renderer', function () {
     expect($response)->toBeInstanceOf(Response::class);
     expect($response->getBody())->toBe('Chuck');
 });
+
+
+test('Middleware add', function () {
+    $router = new Router();
+
+    $router->middleware(function (Request $request, callable $next): Request {
+        return $next($request);
+    });
+    $router->middleware(new Middleware());
+
+    expect(count($router->middlewares()))->toBe(2);
+});
+
+
+test('Middleware :: wrong return type', function () {
+    $router = new Router();
+
+    $router->middleware(function (Request $request, callable $next): int {
+        return $next($request);
+    });
+})->throws(\InvalidArgumentException::class);
+
+
+test('Middleware :: no return type', function () {
+    $router = new Router();
+
+    $router->middleware(function (Request $request, callable $next) {
+        return $next($request);
+    });
+})->throws(\InvalidArgumentException::class);
+
+
+test('Middleware :: wrong parameter count', function () {
+    $router = new Router();
+
+    $router->middleware(function (Request $request) {
+        return $request;
+    });
+})->throws(\InvalidArgumentException::class);
+
+
+test('Middleware :: wrong parameter type I', function () {
+    $router = new Router();
+
+    $router->middleware(function (string $request, callable $next) {
+        return $next($request);
+    });
+})->throws(\InvalidArgumentException::class);
+
+
+test('Middleware :: wrong parameter type II', function () {
+    $router = new Router();
+
+    $router->middleware(function (Request $request, int $next) {
+        return $next . $request;
+    });
+})->throws(\InvalidArgumentException::class);

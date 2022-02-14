@@ -48,9 +48,46 @@ class Router implements RouterInterface
         }
     }
 
-    public function middleware(callable $middleware): void
+    public function middleware(callable|object $middleware): void
     {
+        if (is_object($middleware)) {
+            $reflectionFunc = (new \ReflectionObject($middleware))->getMethod('__invoke');
+        } else {
+            $reflectionFunc = new \ReflectionFunction($middleware);
+        }
+
+        try {
+            $returnType = new \ReflectionClass((string)$reflectionFunc->getReturnType());
+
+            if (!($returnType->implementsInterface(RequestInterface::class))) {
+                throw new \InvalidArgumentException("Middleware's return type must implement " . RequestInterface::class);
+            }
+        } catch (\ReflectionException) {
+            throw new \InvalidArgumentException("Middleware's return type must implement " . RequestInterface::class);
+        }
+
+        $reflectionParams = $reflectionFunc->getParameters();
+        if (count($reflectionParams) !== 2) {
+            throw new \InvalidArgumentException("Middleware must accept two parameters");
+        }
+
+        $requestType = (new \ReflectionClass((string)$reflectionParams[0]->getType()));
+        if (!($requestType->implementsInterface(RequestInterface::class))) {
+            throw new \InvalidArgumentException("Middleware's first parameter must implement " . RequestInterface::class);
+        }
+
+        $nextType = (string)$reflectionParams[1]->getType();
+
+        if (!$nextType === 'callable') {
+            throw new \InvalidArgumentException("Middleware's second parameter must be of type 'callable'");
+        }
+
         $this->middlewares[] = $middleware;
+    }
+
+    public function middlewares(): array
+    {
+        return $this->middlewares;
     }
 
     protected function getServerPart(): string
