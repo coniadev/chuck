@@ -8,7 +8,7 @@ use Chuck\Util\Password;
 uses(TestCase::class);
 
 
-test('Password strenght', function () {
+test('Password strength', function () {
     $pw = new Password();
 
     expect($pw->strongEnough('1'))->toBe(false);
@@ -26,7 +26,6 @@ test('Password hash', function () {
 
 test('Password verify', function () {
     $pw = new Password();
-
     $hash = $pw->hash('evil-chuck-666');
 
     expect($pw->valid('evil-chuck-666', $hash))->toBe(true);

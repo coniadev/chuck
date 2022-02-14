@@ -21,6 +21,7 @@ class App
 
         $request->session->start();
         $this->router = $request->router();
+        $this->config = $request->config;
 
         // $error = new Error($request);
         // $error->register();
@@ -60,14 +61,14 @@ class App
         $this->router->middleware($middleware);
     }
 
-    public function setResponse(string $class): void
+    public function register(string $interface, string $class): void
     {
-        $this->router->setResponse($class);
+        $this->config->register($interface, $class);
     }
 
-    public function setRenderer(string $name, string $class): void
+    public function renderer(string $name, string $class): void
     {
-        $this->router->setRenderer($name, $class);
+        $this->config->addRenderer($name, $class);
     }
 
     public function pushLogHandler(HandlerInterface $handler): void

@@ -98,7 +98,6 @@ class Router implements RouterInterface
             // Check if there is already a query parameter present
             if (strpos($path, '?')) {
                 $file = strtok($path, '?');
-                print("$file\n");
                 $sep = '&';
             } else {
                 $file = $path;

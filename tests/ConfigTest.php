@@ -20,7 +20,6 @@ test('Config custom options', function () {
             'root' => __DIR__,
         ],
     ]);
-    echo (Request::class . PHP_EOL);
 
     expect($config->get('devport'))->toBe(1983);
     expect($config->get('album'))->toBe('Symbolic');

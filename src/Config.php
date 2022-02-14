@@ -8,6 +8,7 @@ use Chuck\Util\Path;
 use Chuck\{Response, ResponseInterface};
 use Chuck\{Template, TemplateInterface};
 use Chuck\{Session, SessionInterface};
+use Chuck\Renderer\RendererInterface;
 
 
 class Config implements ConfigInterface
@@ -68,24 +69,13 @@ class Config implements ConfigInterface
             throw new \InvalidArgumentException("Undefined registry key \"$key\"");
     }
 
-    public function register(string $key, mixed $value): void
+    public function register(string $interface, string $class): void
     {
-
-        $this->registry[$key] = $value;
-    }
-
-    public function setResponseClass(string $class): string
-    {
-        if (!($class instanceof ResponseInterface)) {
-            throw new \InvalidArgumentException("The response class does not implement " . ResponseInterface::class);
+        if (!($class instanceof $interface)) {
+            throw new \InvalidArgumentException("The class does not implement the interface");
         }
 
-        $this->registry[ResponseInterface::class] = $class;
-    }
-
-    public function responseClass(): string
-    {
-        return $this->registry[ResponseInterface::class];
+        $this->registry[$interface] = $class;
     }
 
     public function addRenderer(string $key, string $class): void
