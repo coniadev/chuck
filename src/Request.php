@@ -209,8 +209,12 @@ class Request implements RequestInterface
             $this->response->setBody($body);
         }
 
-        foreach ($headers ?? [] as $name => $value) {
-            $this->response->addHeader($name, $value);
+        foreach ($headers as $header) {
+            $this->response->addHeader(
+                $header['name'],
+                $header['value'],
+                $header['replace'] ?? true
+            );
         }
 
         if ($protocol) {

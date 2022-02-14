@@ -13,7 +13,13 @@ interface RequestInterface
     public function staticUrl(string $name, string $path): string;
     public function url();
     public function redirect(string $url, int $code = 302): ResponseInterface;
-    public function getResponse(): ResponseInterface;
+    public function getResponse(
+        ?int $statusCode = null,
+        mixed $body = null,
+        ?array $headers = [],
+        ?string $protocol = null,
+        ?string $reasonPhrase = null,
+    ): ResponseInterface;
     public function router(): RouterInterface;
     public function flash(string $type, string $message);
     public function popFlash(): array;

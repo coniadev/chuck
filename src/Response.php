@@ -48,6 +48,11 @@ class Response implements ResponseInterface
         }
     }
 
+    public function setProtocol(string $protocol): void
+    {
+        $this->protocol = $protocol;
+    }
+
     public function getStatusCode(): int
     {
         return $this->statusCode;

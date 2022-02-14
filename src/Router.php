@@ -166,7 +166,7 @@ class Router implements RouterInterface
 
             if ($renderer) {
                 $rendererObj = new ($config->renderer($renderer))($this->request, $result);
-                $response = new $request->response();
+                $response = $request->getResponse();
                 $response->setBody($rendererObj->render());
 
                 foreach ($rendererObj->headers() as $header) {
@@ -176,10 +176,7 @@ class Router implements RouterInterface
                 return $response;
             }
 
-            throw new HttpInternalError(
-                $request,
-                "No response object returned and no renderer specified"
-            );
+            return $request->getResponse(body: (string)$result);
         }
     }
 

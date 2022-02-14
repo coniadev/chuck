@@ -34,11 +34,11 @@ class TemplateRenderer extends Renderer
 
     public function headers(): iterable
     {
-        if (array_key_exists('contenttype', $this->args)) {
+        if (array_key_exists('contentType', $this->args)) {
             return [
                 [
                     'name' => 'Content-Type',
-                    'value' => $this->args['contenttype'],
+                    'value' => $this->args['contentType'],
                     'replace' => true,
                 ],
             ];
