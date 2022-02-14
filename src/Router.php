@@ -177,7 +177,7 @@ class Router implements RouterInterface
             }
 
             throw new HttpInternalError(
-                $this->request,
+                $request,
                 "No response object returned and no renderer specified"
             );
         }
