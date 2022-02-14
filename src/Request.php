@@ -197,7 +197,7 @@ class Request implements RequestInterface
         ?string $protocol = null,
         ?string $reasonPhrase = null,
     ): ResponseInterface {
-        if (!$this->response) {
+        if (!isset($this->response)) {
             $this->response = new ($this->config->responseClass())();
         }
 

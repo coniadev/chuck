@@ -176,7 +176,14 @@ class Router implements RouterInterface
                 return $response;
             }
 
-            return $request->getResponse(body: (string)$result);
+            if (is_string($result)) {
+                return $request->getResponse(body: $result);
+            }
+
+            throw new HttpInternalError(
+                $request,
+                "No renderer specified and view result is neither a response object nor a string."
+            );
         }
     }
 

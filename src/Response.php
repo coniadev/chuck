@@ -26,6 +26,7 @@ const REASON_PHRASES = [
 class Response implements ResponseInterface
 {
     protected $file;
+    protected $headersList = [];
 
     public function __construct(
         protected int $statusCode = 200,
@@ -88,9 +89,9 @@ class Response implements ResponseInterface
         ];
     }
 
-    public function getHeaders(): array
+    public function headersList(): array
     {
-        return $this->headers;
+        return $this->headersList;
     }
 
     public function getBody(): mixed
@@ -101,6 +102,15 @@ class Response implements ResponseInterface
     public function setBody(mixed $body): void
     {
         $this->body = $body;
+    }
+
+    protected function header(string $value, bool $replace): void
+    {
+        if (PHP_SAPI === 'cli') {
+            $this->headersList[] = $value;
+        } else {
+            header($value, $replace);
+        }
     }
 
     public function file(string $path): void
@@ -140,7 +150,7 @@ class Response implements ResponseInterface
         // Fix Content-Type
         $ct = $this->headers['Content-Type']['value'][0] ?? null;
         if (!array_key_exists('Content-Type', $this->headers)) {
-            header('Content-Type: text/html; charset=UTF-8', true);
+            $this->header('Content-Type: text/html; charset=UTF-8', true);
         } else {
             $ct = $this->headers['Content-Type']['value'][0];
 
@@ -152,12 +162,12 @@ class Response implements ResponseInterface
 
         foreach ($this->headers as $header) {
             foreach ($header as $value) {
-                header(sprintf('%s: %s', $header['name'], $value), $header['replace']);
+                $this->header(sprintf('%s: %s', $header['name'], $value), $header['replace']);
             }
         }
 
         // Emit status line after general headers to overwrite previous status codes
-        header(sprintf(
+        $this->header(sprintf(
             'HTTP/%s %d%s',
             $this->protocol,
             $this->statusCode,

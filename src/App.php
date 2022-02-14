@@ -76,9 +76,11 @@ class App
         // $log::pushHandler($handler);
     }
 
-    public function run(): void
+    public function run(): ResponseInterface
     {
         $response = $this->router->dispatch($this->request);
-        $response->respond();
+        $response->emit();
+
+        return $response;
     }
 }

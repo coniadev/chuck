@@ -7,7 +7,12 @@ namespace Chuck\Tests;
 
 class Controller
 {
-    public function view(): array
+    public function textView(): string
+    {
+        return 'success';
+    }
+
+    public function arrayView(): array
     {
         return ['success' => true];
     }

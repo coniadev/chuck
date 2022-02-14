@@ -8,11 +8,14 @@ use Chuck\RequestInterface;
 
 abstract class Renderer implements RendererInterface
 {
+    protected array $args;
+
     public function __construct(
         protected RequestInterface $request,
         protected mixed $data,
-        protected mixed ...$args,
+        mixed ...$args,
     ) {
+        $this->args = $args;
     }
 
     abstract public function render(): string;

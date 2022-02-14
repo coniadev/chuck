@@ -17,7 +17,7 @@ interface ResponseInterface
     public function getStatusCode(): int;
     public function setProtocol(string $protocol): void;
     public function addHeader(string $key, string $value);
-    public function getHeaders(): array;
+    public function headersList(): array;
     public function getBody(): mixed;
     public function setBody(mixed $body): void;
     public function emit(): void;
