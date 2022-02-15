@@ -148,6 +148,9 @@ test('Path realpath', function () {
     expect(
         Path::realpath('spiritual/../../../healing')
     )->toBe('healing');
+    expect(
+        Path::realpath('\\\\///perserverance//\\.\\/of/.///./the//../\\\\time\\\\', separator: '/')
+    )->toBe('/perserverance/of/time/');
 });
 
 

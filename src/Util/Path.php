@@ -20,10 +20,17 @@ class Path
         return str_starts_with(self::realpath($path), $root);
     }
 
-    public static function realpath(string $path): string
+    public static function realpath(string $path, string $separator = DIRECTORY_SEPARATOR): string
     {
-        $path = str_replace('//', '/', $path);
-        $segments = explode('/', $path);
+        $path = strtr($path, '\\', '/');
+
+        do {
+            $path = str_replace('//', '/', $path);
+        } while (strpos($path, '//') !== false);
+
+        $path = strtr($path, '/', $separator);
+
+        $segments = explode($separator, $path);
         $out = [];
 
         foreach ($segments as $segment) {
@@ -39,6 +46,6 @@ class Path
             $out[] = $segment;
         }
 
-        return implode('/', $out);
+        return implode($separator, $out);
     }
 }
