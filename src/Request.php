@@ -9,7 +9,6 @@ class Request implements RequestInterface
     protected readonly RouterInterface $router;
     protected readonly ResponseInterface $response;
     protected readonly ConfigInterface $config;
-    protected readonly SessionInterface $session;
     protected array $customMethods = [];
 
     public function __construct(
@@ -18,7 +17,6 @@ class Request implements RequestInterface
     ) {
         $this->router = $router;
         $this->config = $config;
-        $this->session = new ($config->registry(SessionInterface::class))($this);
     }
 
     public function matchdict(string $key, ?string $default = null): ?string
@@ -111,15 +109,10 @@ class Request implements RequestInterface
 
     public function redirect(string $url, int $code = 302): ResponseInterface
     {
-        $class = $this->config->responseClass();
+        $class = $this->config->registry(ResponseInterface::class);
         $response = new $class($this);
         $response->addHeader('Location', $url, true, $code);
         return $response;
-    }
-
-    public function redirectToRemembered(int $code = 302): ResponseInterface
-    {
-        return $this->redirect($this->session->returnTo(), $code);
     }
 
     public function router(): RouterInterface
@@ -130,21 +123,6 @@ class Request implements RequestInterface
     public function getRoute(): array
     {
         return $this->router->params;
-    }
-
-    public function flash(string $type, string $message): void
-    {
-        $this->session->flash($type, $message);
-    }
-
-    public function popFlash(): array
-    {
-        return $this->session->popFlash();
-    }
-
-    public function hasFlashes(): bool
-    {
-        return $this->session->hasFlashes();
     }
 
     public function method(): string
@@ -230,12 +208,11 @@ class Request implements RequestInterface
         return $func->call($this, ...$args);
     }
 
-    public function __get(string $key): ResponseInterface | SessionInterface | ConfigInterface
+    public function __get(string $key): ResponseInterface | ConfigInterface
     {
         return match ($key) {
             'response' => $this->response ?: $this->getResponse(),
             'config' => $this->config,
-            'session' => $this->session,
             default => throw new \ErrorException("Undefined property \"$key\"")
         };
     }

@@ -88,10 +88,13 @@ class App
         // $log::pushHandler($handler);
     }
 
-    public function run(): ResponseInterface
+    public function run(bool $emit = true): ResponseInterface
     {
         $response = $this->router->dispatch($this->request);
-        $response->emit();
+
+        if ($emit) {
+            $response->emit();
+        }
 
         return $response;
     }

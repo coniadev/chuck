@@ -19,6 +19,7 @@ return [
     // This value will be added to the current time()
     // as expiry date for sessions.
     'session' => [
+        'name' => 'chuck_session',
         'expire' => 60 * 60 * 24 * 7,
 
         // Indicates wether a custom session handler is used

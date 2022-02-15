@@ -151,15 +151,15 @@ class Session implements SessionInterface
         return $returnTo;
     }
 
-    public function remember(Token $token, int $expire): void
-    {
-        setcookie(
-            $this->config->get('appname') . '_auth',
-            $token->get(),
-            $expire,
-            '/'
-        );
-    }
+    // public function remember(Token $token, int $expire): void
+    // {
+    // setcookie(
+    // $this->config->get('appname') . '_auth',
+    // $token->get(),
+    // $expire,
+    // '/'
+    // );
+    // }
 
     public function forgetRemembered(): void
     {

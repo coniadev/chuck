@@ -17,7 +17,7 @@ test('Password strength', function () {
 });
 
 
-test('Password hash', function () {
+test('Password hash (default argon2)', function () {
     $pw = new Password();
 
     expect(str_starts_with($pw->hash('evil-chuck-666'), '$argon2id$v'))->toBe(true);
