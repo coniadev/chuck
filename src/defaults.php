@@ -37,8 +37,6 @@ return [
         'migrations' => null,
         'sql' => null,
         'public' => null,
-
-        // If set, file logging will be activated
         'log' => null,
 
         // Additional custom `php run` scripts:

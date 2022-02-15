@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use Monolog\Handler\HandlerInterface;
-
 
 class App
 {
@@ -80,12 +78,6 @@ class App
     public function renderer(string $name, string $class): void
     {
         $this->config->addRenderer($name, $class);
-    }
-
-    public function pushLogHandler(HandlerInterface $handler): void
-    {
-        // $log = $this->config->di('Log');
-        // $log::pushHandler($handler);
     }
 
     public function run(bool $emit = true): ResponseInterface
