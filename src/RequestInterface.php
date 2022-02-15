@@ -20,14 +20,11 @@ interface RequestInterface
         ?string $protocol = null,
         ?string $reasonPhrase = null,
     ): ResponseInterface;
-    public function router(): RouterInterface;
-    public function flash(string $type, string $message);
-    public function popFlash(): array;
     public function method(): string;
     public function isMethod(string $method): bool;
-    public function redirectToRemembered(int $code = 302);
     public function devel(): bool;
     public function isXHR(): bool;
     public function jsonBody(): ?array;
     public function addMethod(string $name, callable $func);
+    public function __get(string $key): ResponseInterface | ConfigInterface | RouterInterface;
 }

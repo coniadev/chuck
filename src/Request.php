@@ -115,11 +115,6 @@ class Request implements RequestInterface
         return $response;
     }
 
-    public function router(): RouterInterface
-    {
-        return $this->router;
-    }
-
     public function getRoute(): array
     {
         return $this->router->params;
@@ -205,14 +200,16 @@ class Request implements RequestInterface
     public function __call(string $name, array $args)
     {
         $func = $this->customMethods[$name];
+
         return $func->call($this, ...$args);
     }
 
-    public function __get(string $key): ResponseInterface | ConfigInterface
+    public function __get(string $key): ResponseInterface | ConfigInterface | RouterInterface
     {
         return match ($key) {
             'response' => $this->response ?: $this->getResponse(),
             'config' => $this->config,
+            'router' => $this->router,
             default => throw new \ErrorException("Undefined property \"$key\"")
         };
     }

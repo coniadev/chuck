@@ -22,11 +22,16 @@ class TestCase extends BaseTestCase
     {
         $ds = DIRECTORY_SEPARATOR;
         $defaults = require __DIR__ . '/../../src/defaults.php';
+        $dir = __DIR__;
 
         return array_replace_recursive($defaults, [
+            'appname' => 'chuck',
             'path' => [
-                'root' => __DIR__ . $ds . '..' . $ds . '..',
-            ]
+                'root' => $dir . $ds . '..' . $ds . '..',
+            ],
+            'templates' => [
+                'default' => "$dir$ds..${ds}fixtures${ds}templates${ds}default",
+            ],
         ], $options);
     }
 

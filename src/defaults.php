@@ -44,7 +44,7 @@ return [
     ],
 
     'templates' => [
-        // 'folder' => 'path',
+        // 'namespace' => 'path',
     ],
 
     // database credentials

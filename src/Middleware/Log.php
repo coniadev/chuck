@@ -17,8 +17,10 @@ class Log
 
     public function __invoke(RequestInterface $request, callable|object $next): RequestInterface
     {
-        $request->addMethod('log', function () use ($this): LoggerInterface {
-            return $this->logger;
+        $logger = $this->logger;
+
+        $request->addMethod('log', function () use ($logger): LoggerInterface {
+            return $logger;
         });
 
         return $next($request);

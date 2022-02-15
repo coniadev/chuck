@@ -14,22 +14,12 @@ class App
 
     public function __construct(protected RequestInterface $request)
     {
-        // Initialize logger
-        // $log = $this->config->di('Log');
-        // $log::init($request);
-
-        $request->session->start();
-        $this->router = $request->router();
+        $this->router = $request->router;
         $this->config = $request->config;
-
-        // $error = new Error($request);
-        // $error->register();
     }
 
     public static function create(array $settings): self
     {
-        session_set_cookie_params(['SameSite' => 'Strict']);
-
         $config = new Config($settings);
         $router = new Router();
         $app = new self(new Request($config, $router));
@@ -44,7 +34,7 @@ class App
 
     public function router(): RouterInterface
     {
-        return $this->request->router();
+        return $this->router;
     }
 
     public function config(): ConfigInterface

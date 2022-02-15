@@ -11,5 +11,4 @@ interface TemplateInterface
         array $defaults = [],
     );
     public function render(string $template, $context = []);
-    public function exists(string $template): bool;
 }
