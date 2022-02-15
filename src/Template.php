@@ -20,12 +20,12 @@ class Template implements TemplateInterface
         array $defaults = [],
     ) {
         $this->request = $request;
-        $config = $request->config;
+        $config = $request->getConfig();
 
         $this->defaults = array_merge([
             'config' => $config,
             'request' => $request,
-            'router' => $request->router,
+            'router' => $request->getRouter(),
             'devel' => $config->get('devel'),
         ], $defaults);
 

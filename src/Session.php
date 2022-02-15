@@ -17,7 +17,7 @@ class Session implements SessionInterface
         // session_set_cookie_params(['SameSite' => 'Strict']);
 
         $this->request = $request;
-        $this->config = $request->config;
+        $this->config = $request->getConfig();
     }
 
     public function start(): void

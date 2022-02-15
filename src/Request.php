@@ -163,6 +163,16 @@ class Request implements RequestInterface
         $this->customMethods[$name] = $callable;
     }
 
+    public function getRouter(): RouterInterface
+    {
+        return $this->router;
+    }
+
+    public function getConfig(): ConfigInterface
+    {
+        return $this->config;
+    }
+
     public function getResponse(
         ?int $statusCode = null,
         mixed $body = null,

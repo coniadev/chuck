@@ -12,7 +12,7 @@ class Session
 {
     public function __invoke(RequestInterface $request, callable|object $next): RequestInterface
     {
-        $class = $request->config->registry(SessionInterface::class);
+        $class = $request->getConfig()->registry(SessionInterface::class);
         $session = new $class($request);
 
         $request->addMethod('session', function () use ($session): SessionInterface {

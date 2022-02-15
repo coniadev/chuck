@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace Chuck\Renderer;
 
-use Chuck\Util;
-
 
 class TemplateRenderer extends Renderer
 {
     public function render(): string
     {
-        $this->request = $this->request;
+        $request = $this->request;
         $this->context = $this->data ?? [];
 
         // Plates needs a double colon, plugin route renderers
@@ -23,12 +21,8 @@ class TemplateRenderer extends Renderer
             $this->context = iterator_to_array($this->context);
         }
 
-        $class = $this->request->config->di('Template');
-        $template = new $class($this->request, [
-            'request' => $this->request,
-            'config' => $this->request->config,
-            'devel' => $this->request->devel(),
-        ]);
+        $class = $request->getConfig()->registry(TemplateInterface::class);
+        $template = new $class($request);
         return $template->render($this->template, $this->context);
     }
 

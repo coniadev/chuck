@@ -14,8 +14,8 @@ class App
 
     public function __construct(protected RequestInterface $request)
     {
-        $this->router = $request->router;
-        $this->config = $request->config;
+        $this->router = $request->getRouter();
+        $this->config = $request->getConfig();
     }
 
     public static function create(array $settings): self
@@ -39,7 +39,7 @@ class App
 
     public function config(): ConfigInterface
     {
-        return $this->request->config;
+        return $this->config;
     }
 
     public function route(RouteInterface $route): void

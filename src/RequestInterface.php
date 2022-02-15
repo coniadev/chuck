@@ -20,11 +20,12 @@ interface RequestInterface
         ?string $protocol = null,
         ?string $reasonPhrase = null,
     ): ResponseInterface;
+    public function getConfig(): ConfigInterface;
+    public function getRouter(): RouterInterface;
     public function method(): string;
     public function isMethod(string $method): bool;
     public function devel(): bool;
     public function isXHR(): bool;
     public function jsonBody(): ?array;
     public function addMethod(string $name, callable $func);
-    public function __get(string $key): ResponseInterface | ConfigInterface | RouterInterface;
 }

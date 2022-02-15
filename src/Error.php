@@ -64,7 +64,7 @@ class Error
     protected function logMessage($exception, bool $devel): void
     {
         $code = $exception->getCode();
-        $log = $this->request->config->di('Log');
+        $log = $this->request->getConfig()->di('Log');
 
         $isHttpError = is_subclass_of($exception::class, 'Chuck\Exception\HttpException');
 
@@ -101,7 +101,7 @@ class Error
         RequestInterface $request,
         HttpException $exception
     ): void {
-        $config = $request->config;
+        $config = $request->getConfig();
         $code = $exception->getCode();
         $tmplDefault = 'errors/httperror';
         $tmplPath = "errors/http$code";

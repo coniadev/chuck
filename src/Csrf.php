@@ -12,7 +12,7 @@ class Csrf
     public function __construct(RequestInterface $request)
     {
         $this->request = $request;
-        $this->config = $request->config;
+        $this->config = $request->getConfig();
 
         if (!isset($_SESSION['csrftokens'])) {
             $_SESSION['csrftokens'] = [];
