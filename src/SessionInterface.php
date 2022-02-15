@@ -19,7 +19,7 @@ interface SessionInterface
     public function authenticatedUserId();
     public function rememberReturnTo();
     public function returnTo(): string;
-    public function remember(Token $token, int $expire);
+    // public function remember(Token $token, int $expire);
     public function forgetRemembered();
     public function getAuthToken(): ?string;
 }

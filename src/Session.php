@@ -6,7 +6,7 @@ namespace Chuck;
 
 class Session implements SessionInterface
 {
-    public Csrf $csrf;
+    public readonly Csrf $csrf;
 
     protected RequestInterface $request;
     protected ConfigInterface $config;
@@ -126,6 +126,7 @@ class Session implements SessionInterface
         if (PHP_SAPI === 'cli') {
             return;
         }
+
         session_regenerate_id(true);
     }
 
@@ -148,6 +149,7 @@ class Session implements SessionInterface
     {
         $returnTo = $_COOKIE['return_to'] ?? '/';
         setcookie('return_to', '',  time() - 3600, '/');
+
         return $returnTo;
     }
 
