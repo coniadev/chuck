@@ -13,16 +13,22 @@ use Chuck\Renderer\RendererInterface;
 
 class Config implements ConfigInterface
 {
-    protected array $config;
+    protected readonly array $config;
+    protected readonly array $paths;
+    protected readonly array $templates;
+    protected readonly array $migrations;
+    protected readonly array $scripts;
+    protected readonly array $memcached;
+    protected readonly array $db;
 
     public function __construct(array $config)
     {
         $defaults = require 'defaults.php';
 
-        $this->config = array_replace_recursive(
+        $this->read(array_merge(
             $defaults,
             $config,
-        );
+        ));
 
         $this->registry = [
             ResponseInterface::class => Response::class,
@@ -35,6 +41,42 @@ class Config implements ConfigInterface
             'json' => Renderer\JsonRenderer::class,
             'template' => Renderer\TemplateRenderer::class,
         ];
+    }
+
+    protected function read(array $config): void
+    {
+        $this->config = $config;
+
+        foreach ($config as $key => $value) {
+            $segments = explode(trim(strtolower($key)), '.');
+
+            switch ($segments[0]) {
+                case 'path':
+                    $this->paths[$segments[1]] = $value;
+                    break;
+                case 'templates':
+                    $this->templates[$segments[1]] = $value;
+                    break;
+                case 'db':
+                    $this->db[$segments[1]] = $value;
+                    break;
+                case 'migrations':
+                    $this->migrations[] = $value;
+                    break;
+                case 'scripts':
+                    $this->scripts[] = $value;
+                    break;
+            }
+        }
+
+        if (!isset($config['path.root'])) {
+            throw new \ValueError('Configuration error: root path not set');
+        }
+
+        if (!isset($config['path.public'])) {
+            $this->config['path.public'] = $this->config['path.root'] . DIRECTORY_SEPARATOR . 'public';
+            $this->path['path']['public'] = $this->config['path.public'];
+        }
     }
 
     public function get(string $key, $default = null)

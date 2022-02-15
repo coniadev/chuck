@@ -2,71 +2,50 @@
 
 namespace Chuck;
 
-
 return [
-    'devel' => false,
+    'appname' => 'chuck',                   // Internal identifier, will be used in `php run` scripts for example
+    'host' => null,                         // If set will be used when generating URLs from routes for example
+    'env' => 'devel',                       // the current environment, e. g. 'development', 'production'
+    'debug' => false,                       // Whether it should show Whoops messages
+    'port' => 1983,                         // The develompent server port
 
-    // The develompent server port
-    'devport' => 1983,
+    'log.level' => 'DEBUG',                 // The default log level (Log middleware must be added)
+    'log.path' => null,                     // Path where the logfiles are written to
 
-    'locales' => [],
-    'default_locale' => null,
-    'loglevel' => 'DEBUG',
+    'locales.list' => [],                   // Array of locales, ['en_US', 'de_DE], optionally with names ['de' => 'Deutsch, 'en => ...]
+    'locales.default' => null,
 
-    'minimum_password_entropy' => 40.0,
-    'password_algorithm' => PASSWORD_ARGON2ID,
+    'password.minimumEtropy' => 40.0,       // Aproximately a password with about 12 thorougly mixed characters
+    'password.algorithm' => null,           // Uses what is available if not set, prefers ARGON2
 
-    // This value will be added to the current time()
-    // as expiry date for sessions.
-    'session' => [
-        'name' => 'chuck_session',
-        'expire' => 60 * 60 * 24 * 7,
+    'session.name' => 'chuck_session',      //
+    'session.expire' => 60 * 60 * 24 * 7,   // This value will be added to the current time()
 
-        // Indicates wether a custom session handler is used
-        'custom' => false,
+    // 'path.root' => null,                 // The root folder of the application, defaults to where composer.json is located
+    // 'path.public' => null,               // Path to the public directory, defaults to <path.root>/public
 
-        // The custom handler.
-        // Must implement \Chuck\Model\SessionInterface
-        'model' => null,
-    ],
+    // Special paths:
+    // <id> is a custom identifier, usually your apps name (appname) or the name of a lib/plugin
+    //
+    // 'migrations.<id>' => null,           // Paths to database migrations
+    // 'sql.<id>' => null,                  // Paths to SQL scripts
+    // 'scripts.<id>' => null,              // Additional custom `php run` script paths:
+    // 'templates.<id>' => null,            // Path to templates, should be absolute, like __DIR__ . '/path/to/templates',
 
-    // mth values will be initialized with
-    // default values in Config::getPathDefaults
-    'path' => [
-        'root' => null,
-        'migrations' => null,
-        'sql' => null,
-        'public' => null,
-        'log' => null,
-
-        // Additional custom `php run` scripts:
-        'scripts' => null,
-    ],
-
-    'templates' => [
-        // 'namespace' => 'path',
-    ],
-
-    // database credentials
-    'db' => [
-        'dsn' => null,       // The PDO connection string. See:
-        //                        PostgreSQL: https://www.php.net/manual/de/ref.pdo-pgsql.connection.php
-        //                        MySQL: https://www.php.net/manual/de/ref.pdo-mysql.connection.php
-        //                        Sqlite: https://www.php.net/manual/de/ref.pdo-sqlite.connection.php
-        //                      and others
-        'options' => null,   // optional, array with PDO options passed to new \PDO(...)
-        'fetchMode' => null, // optional, Defaults to PDO::FETCH_BOTH,
-        'print' => false,    // Print interpolated sql to stdout
-        'memcachedPrefix' => 'chucksql', // Should be set to a application version number or the like
-    ],
+    // 'db.dsn' => null,                    // The PDO connection string. See:
+    //                                      //     PostgreSQL: https://www.php.net/manual/de/ref.pdo-pgsql.connection.php
+    //                                      //     MySQL: https://www.php.net/manual/de/ref.pdo-mysql.connection.php
+    //                                      //     Sqlite: https://www.php.net/manual/de/ref.pdo-sqlite.connection.php
+    //                                      // and others
+    // 'db.options' => null,                // optional, array with PDO options passed to new \PDO(...)
+    // 'db.fetchMode' => null,              // optional, Defaults to PDO::FETCH_BOTH,
+    // 'db.debug' => false,                 // Print interpolated sql to stdout
+    // 'db.memcachedPrefix' => null,        // Should be set to a application version number or the like
 
     // Memcached configuration
-    'memcached' => null,
-    // Example: [
-    //    'implementation' => null,  // optional, either 'Memcached' or 'Memcache'
-    //                               // if not given uses what is available or throws error
-    //    'host' => null,            // optional, defaults to 'localhost'
-    //    'port' => null,            // optional, defaults to 11211
-    //    'expire' => null,          // optional, defaults to 0 which means never expire
-    //],
+    // 'memcached.implementation' => null,  // optional, either 'Memcached' or 'Memcache'
+    //                                      // if not given uses what is available or throws error
+    // 'memcached.host' => null,            // optional, defaults to 'localhost'
+    // 'memcached.port' => null,            // optional, defaults to 11211
+    // 'memcached.expire' => null,          // optional, defaults to 0 which means never expire
 ];
