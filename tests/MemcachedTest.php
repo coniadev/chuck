@@ -20,18 +20,16 @@ test('Memcached connection', function () {
 
 test('Memcached connection from config', function () {
     $options = [
-        'memcached' => [
-            'host' => 'localhost',
-            'port' => 11211,
-            'expire' => 666,
-        ],
+        'memcached.host' => 'localhost',
+        'memcached.port' => 11211,
+        'memcached.expire' => 666,
     ];
-    $mc = Memcached::fromConfig($this->getConfig($options));
+    $mc = Memcached::fromConfig($this->config($options));
     expect($mc->getConn())->toBeInstanceOf(\Memcached::class);
     expect($mc->getExpire(null))->toBe(666);
 
-    $options['memcached']['implementation'] = 'Memcached';
-    $mc = Memcached::fromConfig($this->getConfig($options));
+    $options['memcached.implementation'] = 'Memcached';
+    $mc = Memcached::fromConfig($this->config($options));
     expect($mc->getConn())->toBeInstanceOf(\Memcached::class);
     expect($mc->getExpire(null))->toBe(666);
 })->skip(!Helper::memcachedExtensionLoaded());
@@ -80,14 +78,12 @@ test('Memcache connection', function () {
 
 test('Memcache connection from config', function () {
     $options = [
-        'memcached' => [
-            'implementation' => 'Memcache',
-            'host' => 'localhost',
-            'port' => 11211,
-            'expire' => 666,
-        ],
+        'memcached.implementation' => 'Memcache',
+        'memcached.host' => 'localhost',
+        'memcached.port' => 11211,
+        'memcached.expire' => 666,
     ];
-    $mc = Memcached::fromConfig($this->getConfig($options));
+    $mc = Memcached::fromConfig($this->config($options));
     expect($mc->getConn())->toBeInstanceOf(\Memcache::class);
     expect($mc->getExpire(null))->toBe(666);
 })->skip(!Helper::memcacheExtensionLoaded());

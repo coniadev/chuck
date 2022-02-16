@@ -30,21 +30,15 @@ class DatabaseCase extends TestCase
         return 'sqlite:' . $this->getDbFile();
     }
 
-    public function getConfig(array $options = []): Config
+    public function config(array $options = []): Config
     {
         $ds = DIRECTORY_SEPARATOR;
 
-        return parent::getConfig(
+        return parent::config(
             array_replace_recursive(
                 [
-                    'db' => [
-                        'dsn' => $this->getDsn()
-                    ],
-                    'path' => [
-                        'sql' => [
-                            __DIR__ . $ds . '..' . $ds . 'fixtures' . $ds . 'sql' . $ds . 'default',
-                        ],
-                    ]
+                    'db.dsn' => $this->getDsn(),
+                    'sql.default' => __DIR__ . $ds . '..' . $ds . 'fixtures' . $ds . 'sql' . $ds . 'default',
                 ],
                 $options,
             )
@@ -144,6 +138,6 @@ class DatabaseCase extends TestCase
 
     public function getDb(?array $options = []): Database
     {
-        return new Database($this->getConfig($options));
+        return new Database($this->config($options));
     }
 }

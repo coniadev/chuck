@@ -9,12 +9,12 @@ uses(TestCase::class);
 
 
 test('Create helper', function () {
-    expect(App::create($this->getConfigArray()))->toBeInstanceOf(App::class);
+    expect(App::create($this->options()))->toBeInstanceOf(App::class);
 });
 
 
 test('Helper methods', function () {
-    $app = App::create($this->getConfigArray());
+    $app = App::create($this->options());
 
     expect($app->request())->toBeInstanceOf(\Chuck\Request::class);
     expect($app->router())->toBeInstanceOf(\Chuck\Router::class);
@@ -23,7 +23,7 @@ test('Helper methods', function () {
 
 
 test('Middleware helper', function () {
-    $app = App::create($this->getConfigArray());
+    $app = App::create($this->options());
 
     $app->middleware(function (Request $request, callable $next): Request {
         return $next($request);

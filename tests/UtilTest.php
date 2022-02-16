@@ -155,14 +155,13 @@ test('Path realpath', function () {
 
 
 test('Path is inside root dir', function () {
-    $root = dirname(__DIR__);
-    $config = $this->getConfig(['path' => ['root' => $root]]);
+    $config = $this->config();
     $pathUtil = new Path($config);
 
-    expect($pathUtil->insideRoot("$root/../leprosy"))->toBe(false);
-    expect($pathUtil->insideRoot("$root/symbolic"))->toBe(true);
-    expect($pathUtil->insideRoot("$root/././/./symbolic"))->toBe(true);
-    expect($pathUtil->insideRoot("$root/./..//./symbolic"))->toBe(false);
+    expect($pathUtil->insideRoot("$this->root/../leprosy"))->toBe(false);
+    expect($pathUtil->insideRoot("$this->root/symbolic"))->toBe(true);
+    expect($pathUtil->insideRoot("$this->root/././/./symbolic"))->toBe(true);
+    expect($pathUtil->insideRoot("$this->root/./..//./symbolic"))->toBe(false);
     expect($pathUtil->insideRoot("/etc/apache"))->toBe(false);
 });
 

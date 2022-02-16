@@ -110,7 +110,8 @@ class Error
         $tmpl = new $class($request);
         $context = [
             'request' => $request,
-            'devel' => $request->devel(),
+            'debug' => $request->debug(),
+            'env' => $request->env(),
             'exception' => $exception,
         ];
 
