@@ -31,16 +31,12 @@ class Template implements TemplateInterface
         ], $defaults);
 
         $this->pathUtil = new Path($config);
-        $this->addFolders($config->get('templates'));
+        $this->addFolders($config->path('templates'));
     }
 
     protected function addFolders(array $folders): void
     {
         foreach ($folders as $key => $dir) {
-            if (is_int($key)) {
-                throw new ValueError("Template paths must be key/value pairs");
-            }
-
             if (!$this->pathUtil->insideRoot($dir)) {
                 throw new ValueError("Template paths is not inside the project root directory: $dir");
             }
@@ -81,8 +77,6 @@ class Template implements TemplateInterface
     {
         try {
             [$namespace, $file] = explode('::', $template);
-
-            print("$namespace $file\n");
 
             if (empty($namespace) || empty($file)) {
                 throw new ValueError("Invalid template format: '$template'. Use 'namespace::template/path'.");

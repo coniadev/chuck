@@ -137,8 +137,6 @@ class Config implements ConfigInterface
             }
         }
 
-        // print_r($paths);
-
         return [$config, $paths];
     }
 

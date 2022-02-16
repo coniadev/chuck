@@ -15,18 +15,13 @@ test('Simple rendering', function () {
 });
 
 
-test('Config error :: wrong array format', function () {
-    new Template($this->request(options: ['templates' => [__DIR__ . '/fantasy/path']]));
-})->throws(\ValueError::class);
-
-
 test('Config error :: nonexistent template dir', function () {
-    new Template($this->request(options: ['templates' => ['default' => __DIR__ . '/fantasy/path']]));
+    new Template($this->request(options: ['templates.default' => __DIR__ . '/fantasy/path']));
 })->throws(\ValueError::class);
 
 
 test('Config error :: outside root', function () {
-    new Template($this->request(options: ['templates' => ['default' => __DIR__ . '../../../etc']]));
+    new Template($this->request(options: ['templates.default' => __DIR__ . '../../../etc']));
 })->throws(\ValueError::class);
 
 
