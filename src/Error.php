@@ -61,7 +61,7 @@ class Error
         return $msg;
     }
 
-    protected function logMessage($exception, bool $devel): void
+    protected function logMessage($exception, bool $debug): void
     {
         $code = $exception->getCode();
         $log = $this->request->getConfig()->di('Log');
@@ -74,14 +74,14 @@ class Error
         if (!$isHttpError || ($isHttpError && $code >= 500)) {
             $log::critical($this->getCritical($exception));
 
-            if ($devel) {
+            if ($debug) {
                 // write to builtin server output
                 error_log($this->getCritical($exception, true));
             }
         } else {
             $log::notice($this->getNotice($exception));
 
-            if ($devel) {
+            if ($debug) {
                 error_log($this->getNotice($exception, true));
             }
         }
@@ -142,7 +142,7 @@ class Error
     public function register(): void
     {
         $request = $this->request;
-        $devel = $this->request->devel();
+        $debug = $this->request->debug();
         $run = new Run();
 
         // Must be the first handler
@@ -152,9 +152,9 @@ class Error
             $run
         ) use (
             $request,
-            $devel
+            $debug
         ) {
-            $this->logMessage($exception, $devel);
+            $this->logMessage($exception, $debug);
 
             if (is_subclass_of($exception::class, 'Chuck\Exception\HttpException')) {
                 $run->sendHttpCode(false);
@@ -168,7 +168,7 @@ class Error
         };
         $run->pushHandler($handler);
 
-        if ($devel) {
+        if ($debug) {
             if (Misc::isAjaxRequest()) {
                 $jsonHandler = new JsonResponseHandler();
 

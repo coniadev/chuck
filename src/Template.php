@@ -26,7 +26,8 @@ class Template implements TemplateInterface
             'config' => $config,
             'request' => $request,
             'router' => $request->getRouter(),
-            'devel' => $config->get('devel'),
+            'debug' => $config->get('debug'),
+            'env' => $config->get('env'),
         ], $defaults);
 
         $this->pathUtil = new Path($config);

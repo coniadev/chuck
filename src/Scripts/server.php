@@ -17,20 +17,8 @@ class Server extends Chuck\Cli\Command
             $port = $args[0];
         }
 
-        $reloadMode = null;
-
-        if ($config->get('devel')) {
-            $reloadMode = 'hmr';
-
-            foreach ($args as $arg) {
-                if ($arg === 'live' || $arg === 'livereload') {
-                    $reloadMode = 'livereload';
-                }
-            }
-        }
-
         exec(
-            "RELOAD_MODE=$reloadMode PUBLIC_DIR=$publicDir php -S localhost:$port " .
+            "PUBLIC_DIR=$publicDir php -S localhost:$port " .
                 "    -t $publicDir/ " .
                 __DIR__ . "/support/server.php"
         );

@@ -5,7 +5,7 @@ namespace Chuck;
 return [
     'appname' => 'chuckapp',                // Internal identifier, will be used in `php run` scripts for example
     'host' => null,                         // If set will be used when generating URLs from routes for example
-    'env' => 'devel',                       // the current environment, e. g. 'development', 'production'
+    'env' => null,                          // the current environment, e. g. 'development', 'production'
     'debug' => false,                       // Whether it should show Whoops messages
     'port' => 1983,                         // The develompent server port
 

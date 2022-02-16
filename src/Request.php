@@ -140,14 +140,9 @@ class Request implements RequestInterface
         return $this->config->get('debug');
     }
 
-    public function env(): bool
+    public function env(): string
     {
         return $this->config->get('env');
-    }
-
-    public function production(): bool
-    {
-        return !$this->config->get('devel');
     }
 
     public function jsonBody(): ?array
