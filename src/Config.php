@@ -149,6 +149,24 @@ class Config implements ConfigInterface
             }
         }
 
+        if (!isset($config['origin'])) {
+            $https = $_SERVER['HTTPS'] ?? false ? true : false;
+            $proto = $https ? 'https' : 'http';
+            // Assume cli when HTTP_HOST ist not available
+            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            // Assume cli when SERVER_PORT ist not available
+            $port = match ($_SERVER['SERVER_PORT'] ?? $config['port']) {
+                80 => '',
+                443 => '',
+                default => ':' . ($_SERVER['SERVER_PORT'] ?? $config['port']),
+            };
+            $config['origin'] = "$proto://$host$port";
+        }
+
+        if (!isset($config['host'])) {
+            $config['host'] = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        }
+
         return [$config, $paths];
     }
 

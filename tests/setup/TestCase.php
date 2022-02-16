@@ -35,7 +35,6 @@ class TestCase extends BaseTestCase
         ];
     }
 
-
     public function options(array $options = []): array
     {
         $ds = DIRECTORY_SEPARATOR;
