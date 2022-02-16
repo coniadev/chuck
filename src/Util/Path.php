@@ -48,4 +48,9 @@ class Path
 
         return implode($separator, $out);
     }
+
+    public static function isAbsolute(string $path, string $separator = DIRECTORY_SEPARATOR): bool
+    {
+        return str_starts_with($path, $separator);
+    }
 }

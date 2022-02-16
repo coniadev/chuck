@@ -106,7 +106,7 @@ class Error
         $tmplDefault = 'errors/httperror';
         $tmplPath = "errors/http$code";
 
-        $class = $config->di('Template');
+        $class = $config->registry(TemplateInterface::class);
         $tmpl = new $class($request);
         $context = [
             'request' => $request,

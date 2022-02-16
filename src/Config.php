@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use \ValueError;
 use Chuck\Util\Path;
 use Chuck\{Response, ResponseInterface};
 use Chuck\{Template, TemplateInterface};
@@ -15,19 +16,16 @@ class Config implements ConfigInterface
 {
     protected readonly array $config;
     protected readonly array $paths;
-    protected readonly array $memcached;
-    protected readonly array $db;
+    protected readonly array $registry;
+    protected readonly array $renderers;
 
-    public function __construct(array $config)
+    public function __construct(protected array $pristine)
     {
-        $defaults = require 'defaults.php';
+        $this->pristine = array_merge(
+            require 'defaults.php',
+            $pristine,
+        );
 
-        $this->paths = [
-            'migrations' => [],
-            'scripts' => [],
-            'sql' => [],
-            'templates' => [],
-        ];
 
         $this->registry = [
             ResponseInterface::class => Response::class,
@@ -41,53 +39,107 @@ class Config implements ConfigInterface
             'template' => Renderer\TemplateRenderer::class,
         ];
 
-        $this->read(array_merge(
-            $defaults,
-            $config,
-        ));
+        [$this->config, $this->paths] = $this->read($this->pristine);
     }
 
-    protected function read(array $config): void
+    protected function preparePath(string $root, string $path): string
     {
-        $this->config = $config;
+        $path = Path::realpath($path);
 
-        foreach ($config as $key => $value) {
-            $segments = explode(trim(strtolower($key)), '.');
+        if (!Path::isAbsolute($path)) {
+            $path = $root . DIRECTORY_SEPARATOR . $path;
+        }
 
-            switch ($segments[0]) {
+        if (str_starts_with($path, $root)) {
+            return $path;
+        }
+
+        throw new ValueError('Configuration error: paths must be inside the root directory: ' . $root);
+    }
+
+    protected function prepareMainPaths(array $pristine): array
+    {
+        if (isset($pristine['path.root'])) {
+            $root = rtrim(Path::realpath($pristine['path.root']), DIRECTORY_SEPARATOR);
+
+            if (!Path::isAbsolute($root)) {
+                throw new ValueError('Configuration error: root path must be an absolute path: ' . $root);
+            }
+
+            unset($pristine['path.root']);
+        } else {
+            throw new ValueError('Configuration error: root path not set');
+        }
+
+        if (!isset($pristine['path.public'])) {
+            $public = $this->preparePath($root, 'public');
+
+            if (!is_dir($public)) {
+                throw new ValueError('Configuration error: public directory is not set and could not be determined');
+            }
+        } else {
+            $public = $pristine['path.public'];
+            unset($pristine['path.public']);
+        }
+
+        return [[
+            'root' => $root,
+            'public' => $public,
+            'migrations' => [],
+            'scripts' => [],
+            'sql' => [],
+            'templates' => [],
+        ], $pristine];
+    }
+
+    protected function read(array $pristine): array
+    {
+        [$paths, $pristine] = $this->prepareMainPaths($pristine);
+        $config = [];
+        $root = $paths['root'];
+
+        foreach ($pristine as $key => $value) {
+            $segments = explode('.', trim(strtolower($key)));
+
+            if (count($segments) === 1) {
+                $config[$key] = $value;
+                continue;
+            }
+
+            // if the key contains more than one '.' merge the remainder
+            // e. g. if $key = 'chuck.rick.chris', after the following operation
+            // $mainKey will be 'chuck' and $subKey 'rick.chris'
+            $mainKey = $segments[0];
+            $subKey = implode('.', array_slice($segments, 1));
+
+            switch ($mainKey) {
                 case 'path':
-                    $this->paths[$segments[1]] = Path::realpath($value);
+                    $paths[$subKey] = $this->preparePath($root, $value);
                     break;
                 case 'templates':
-                    $this->paths['templates'][$segments[1]] = Path::realpath($value);
+                    $paths['templates'][$subKey] = $this->preparePath($root, $value);
                     break;
                 case 'migrations':
-                    $this->paths['migrations'][] = Path::realpath($value);
+                    $paths['migrations'][] = $this->preparePath($root, $value);
                     break;
                 case 'scripts':
-                    $this->paths['scripts'][] = Path::realpath($value);
+                    $paths['scripts'][] = $this->preparePath($root, $value);
                     break;
                 case 'sql':
-                    $this->paths['sql'][] = Path::realpath($value);
+                    $paths['sql'][] = $this->preparePath($root, $value);
                     break;
-                case 'db':
-                    $this->db[$segments[1]] = $value;
-                    break;
+                default:
+                    if (!array_key_exists($mainKey, $config)) {
+                        $config[$mainKey] = [];
+                    }
+
+                    $config[$mainKey] = $subKey;
             }
         }
 
-        if (!isset($config['path.root'])) {
-            throw new \ValueError('Configuration error: root path not set');
-        }
+        // print_r($paths);
 
-        if (!isset($config['path.public'])) {
-            $proposedPublic = $config['path.root'] . DIRECTORY_SEPARATOR . 'public';
-            if (is_dir($proposedPublic)) {
-                $this->path['path']['public'] = $proposedPublic;
-            } else {
-                throw new \ValueError('Configuration error: public directory is not set and could not be determined');
-            }
-        }
+        return [$config, $paths];
     }
 
     public function get(string $key, $default = null)

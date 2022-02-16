@@ -13,31 +13,46 @@ use Chuck\Router;
 
 class TestCase extends BaseTestCase
 {
+    public readonly string $root;
+
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
+    {
+        parent::__construct($name, $data, $dataName);
+
+        $this->root = realpath(
+            __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'fixtures'
+        );
+    }
+
     public static function setUpBeforeClass(): void
     {
     }
 
-
-    public function getConfigArray(array $options = []): array
+    public function minimalOptions(): array
     {
-        $ds = DIRECTORY_SEPARATOR;
-        $defaults = require __DIR__ . '/../../src/defaults.php';
-        $dir = __DIR__;
-
-        return array_replace_recursive($defaults, [
-            'appname' => 'chuck',
-            'path' => [
-                'root' => $dir . $ds . '..' . $ds . '..',
-            ],
-            'templates' => [
-                'default' => "$dir$ds..${ds}fixtures${ds}templates${ds}default",
-            ],
-        ], $options);
+        return [
+            'path.root' => $this->root,
+        ];
     }
 
-    public function getConfig(array $options = []): Config
+
+    public function options(array $options = []): array
     {
-        return new Config($this->getConfigArray($options));
+        $ds = DIRECTORY_SEPARATOR;
+
+        return array_merge(
+            $this->minimalOptions(),
+            [
+                'appname' => 'chuck',
+                'templates.default' => __DIR__ . "$ds..${ds}fixtures${ds}templates${ds}default",
+            ],
+            $options
+        );
+    }
+
+    public function config(array $options = []): Config
+    {
+        return new Config($this->options($options));
     }
 
 
@@ -46,7 +61,7 @@ class TestCase extends BaseTestCase
         ?string $url = null,
         array $options = [],
     ): Request {
-        $config = $this->getConfig($options);
+        $config = $this->config($options);
         $router = new Router();
         $request = new Request($config, $router);
 
@@ -66,7 +81,7 @@ class TestCase extends BaseTestCase
         ?string $method = null,
         ?string $url = null,
     ): App {
-        $app = new App($this->request($options, $method, $url));
+        $app = new App($this->request($method, $url, $options));
 
         return $app;
     }
