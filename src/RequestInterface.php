@@ -24,7 +24,8 @@ interface RequestInterface
     public function getRouter(): RouterInterface;
     public function method(): string;
     public function isMethod(string $method): bool;
-    public function devel(): bool;
+    public function debug(): bool;
+    public function env(): string;
     public function isXHR(): bool;
     public function jsonBody(): ?array;
     public function addMethod(string $name, callable $func);

@@ -135,9 +135,14 @@ class Request implements RequestInterface
         return strtoupper($method) === $this->method();
     }
 
-    public function devel(): bool
+    public function debug(): bool
     {
-        return $this->config->get('devel');
+        return $this->config->get('debug');
+    }
+
+    public function env(): bool
+    {
+        return $this->config->get('env');
     }
 
     public function production(): bool
