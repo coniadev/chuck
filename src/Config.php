@@ -92,25 +92,37 @@ class Config implements ConfigInterface
         ], $pristine];
     }
 
+    protected function getKeys(string $key): array
+    {
+        $segments = explode('.', trim($key));
+
+        if (count($segments) === 1) {
+            return [$key, null];
+        }
+
+        // if the key contains more than one '.' merge the remainder
+        // e. g. if $key = 'chuck.rick.chris', after the following operation
+        // $mainKey will be 'chuck' and $subKey 'rick.chris'
+        $mainKey = $segments[0];
+        $subKey = implode('.', array_slice($segments, 1));
+
+        return [$mainKey, $subKey];
+    }
+
     protected function read(array $pristine): array
     {
         [$paths, $pristine] = $this->prepareMainPaths($pristine);
         $config = [];
         $root = $paths['root'];
 
-        foreach ($pristine as $key => $value) {
-            $segments = explode('.', trim($key));
 
-            if (count($segments) === 1) {
+        foreach ($pristine as $key => $value) {
+            [$mainKey, $subKey] = $this->getKeys($key);
+
+            if (!$subKey) {
                 $config[$key] = $value;
                 continue;
             }
-
-            // if the key contains more than one '.' merge the remainder
-            // e. g. if $key = 'chuck.rick.chris', after the following operation
-            // $mainKey will be 'chuck' and $subKey 'rick.chris'
-            $mainKey = $segments[0];
-            $subKey = implode('.', array_slice($segments, 1));
 
             switch ($mainKey) {
                 case 'path':
@@ -140,17 +152,28 @@ class Config implements ConfigInterface
         return [$config, $paths];
     }
 
+    /**
+     * Returns the given $key from the configuration file
+     *
+     * Also handles the dotted config file format, e. g. 'db.dsn'
+     */
     public function get(string $key, $default = null)
     {
-        if (func_num_args() > 1) {
-            return $this->config[$key] ?? $default;
-        }
+        [$mainKey, $subKey] = $this->getKeys($key);
 
-        if (!array_key_exists($key, $this->config)) {
+        try {
+            if ($subKey) {
+                return $this->config[$mainKey][$subKey];
+            } else {
+                return $this->config[$key];
+            }
+        } catch (\ErrorException) {
+            if (func_num_args() > 1) {
+                return $default;
+            }
+
             throw new \InvalidArgumentException("Chuck Error: The configuration key '$key' does not exist");
         }
-
-        return $this->config[$key];
     }
 
     public function path(string $key): string|array
