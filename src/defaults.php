@@ -3,7 +3,7 @@
 namespace Chuck;
 
 return [
-    'appname' => 'chuck',                   // Internal identifier, will be used in `php run` scripts for example
+    'appname' => 'chuckapp',                // Internal identifier, will be used in `php run` scripts for example
     'host' => null,                         // If set will be used when generating URLs from routes for example
     'env' => 'devel',                       // the current environment, e. g. 'development', 'production'
     'debug' => false,                       // Whether it should show Whoops messages
@@ -26,11 +26,12 @@ return [
 
     // Special paths:
     // <id> is a custom identifier, usually your apps name (appname) or the name of a lib/plugin
+    // should be absolute, like __DIR__ . '/path/to/files',
     //
     // 'migrations.<id>' => null,           // Paths to database migrations
     // 'sql.<id>' => null,                  // Paths to SQL scripts
     // 'scripts.<id>' => null,              // Additional custom `php run` script paths:
-    // 'templates.<id>' => null,            // Path to templates, should be absolute, like __DIR__ . '/path/to/templates',
+    // 'templates.<id>' => null,            // Path to templates
 
     // 'db.dsn' => null,                    // The PDO connection string. See:
     //                                      //     PostgreSQL: https://www.php.net/manual/de/ref.pdo-pgsql.connection.php

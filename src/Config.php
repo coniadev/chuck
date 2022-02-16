@@ -15,9 +15,6 @@ class Config implements ConfigInterface
 {
     protected readonly array $config;
     protected readonly array $paths;
-    protected readonly array $templates;
-    protected readonly array $migrations;
-    protected readonly array $scripts;
     protected readonly array $memcached;
     protected readonly array $db;
 
@@ -25,10 +22,12 @@ class Config implements ConfigInterface
     {
         $defaults = require 'defaults.php';
 
-        $this->read(array_merge(
-            $defaults,
-            $config,
-        ));
+        $this->paths = [
+            'migrations' => [],
+            'scripts' => [],
+            'sql' => [],
+            'templates' => [],
+        ];
 
         $this->registry = [
             ResponseInterface::class => Response::class,
@@ -41,6 +40,11 @@ class Config implements ConfigInterface
             'json' => Renderer\JsonRenderer::class,
             'template' => Renderer\TemplateRenderer::class,
         ];
+
+        $this->read(array_merge(
+            $defaults,
+            $config,
+        ));
     }
 
     protected function read(array $config): void
@@ -52,19 +56,22 @@ class Config implements ConfigInterface
 
             switch ($segments[0]) {
                 case 'path':
-                    $this->paths[$segments[1]] = $value;
+                    $this->paths[$segments[1]] = Path::realpath($value);
                     break;
                 case 'templates':
-                    $this->templates[$segments[1]] = $value;
+                    $this->paths['templates'][$segments[1]] = Path::realpath($value);
+                    break;
+                case 'migrations':
+                    $this->paths['migrations'][] = Path::realpath($value);
+                    break;
+                case 'scripts':
+                    $this->paths['scripts'][] = Path::realpath($value);
+                    break;
+                case 'sql':
+                    $this->paths['sql'][] = Path::realpath($value);
                     break;
                 case 'db':
                     $this->db[$segments[1]] = $value;
-                    break;
-                case 'migrations':
-                    $this->migrations[] = $value;
-                    break;
-                case 'scripts':
-                    $this->scripts[] = $value;
                     break;
             }
         }
@@ -74,8 +81,12 @@ class Config implements ConfigInterface
         }
 
         if (!isset($config['path.public'])) {
-            $this->config['path.public'] = $this->config['path.root'] . DIRECTORY_SEPARATOR . 'public';
-            $this->path['path']['public'] = $this->config['path.public'];
+            $proposedPublic = $config['path.root'] . DIRECTORY_SEPARATOR . 'public';
+            if (is_dir($proposedPublic)) {
+                $this->path['path']['public'] = $proposedPublic;
+            } else {
+                throw new \ValueError('Configuration error: public directory is not set and could not be determined');
+            }
         }
     }
 
@@ -94,15 +105,7 @@ class Config implements ConfigInterface
 
     public function path(string $key): string|array
     {
-        $path = $this->config['path'][$key];
-
-        if (is_array($path)) {
-            return array_map(function ($p) {
-                return Path::realpath($p);
-            }, $path);
-        }
-
-        return Path::realpath($this->config['path'][$key]);
+        return  $this->paths[$key];
     }
 
     public function registry(string $key): string
