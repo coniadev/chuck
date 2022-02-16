@@ -15,7 +15,7 @@ return [
     'locales.list' => [],                   // Array of locales, ['en_US', 'de_DE], optionally with names ['de' => 'Deutsch, 'en => ...]
     'locales.default' => null,
 
-    'password.minimumEtropy' => 40.0,       // Aproximately a password with about 12 thorougly mixed characters
+    'password.minimumEntropy' => 40.0,       // Aproximately a password with about 12 thorougly mixed characters
     'password.algorithm' => null,           // Uses what is available if not set, prefers ARGON2
 
     'session.name' => 'chuck_session',      //

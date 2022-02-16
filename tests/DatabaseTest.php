@@ -174,7 +174,7 @@ test('Query with invalid type parameters', function () {
 
 test('Template query', function () {
     $db = $this->getDb([
-        'db' => ['fetchMode' => \PDO::FETCH_ASSOC],
+        'db.fetchMode' => \PDO::FETCH_ASSOC,
     ]);
 
     $result = $db->members->joined(['year' => 1983])->one();
@@ -361,11 +361,10 @@ test('Accessing non-existent script/query', function () {
 
 test('With Memcached', function () {
     $db = $this->getDb([
-        'memcached' => [
-            'host' => 'localhost',
-            'port' => 11211,
-            'expire' => 1,
-        ],
+        'memcached.host' => 'localhost',
+        'memcached.port' => 11211,
+        'memcached.expire' => 1,
+        'db.memcachedPrefix' => 'chucksql',
     ]);
 
     $db->members->list()->all();

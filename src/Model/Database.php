@@ -9,7 +9,6 @@ use \PDO;
 use Chuck\ConfigInterface;
 use Chuck\Model\DatabaseInterface;
 use Chuck\Model\QueryInterface;
-use Chuck\Util\Arrays;
 use Chuck\Util\Path;
 
 
@@ -28,14 +27,14 @@ class Database implements DatabaseInterface
     public function __construct(ConfigInterface $config)
     {
         $this->config = $config;
-        $dbConf = $config->get('db');
-        $this->dsn = $dbConf['dsn'];
-        $this->memcachedPrefix = $dbConf['memcachedPrefix'];
+        $dbConf = $config->get('db', []);
+        $this->dsn = $dbConf['dsn'] ?? null;
+        $this->memcachedPrefix = $dbConf['memcachedPrefix'] ?? '';
         $this->username = $dbConf['username'] ?? null;
         $this->password = $dbConf['password'] ?? null;
         $this->addScriptDirs($config->path('sql'));
         $this->fetchMode = $dbConf['fetchMode'] ?? PDO::FETCH_BOTH;
-        $this->shouldPrint = $dbConf['print'];
+        $this->shouldPrint = $dbConf['print'] ?? false;
     }
 
     public function defaultFetchMode(int $fetchMode): self
@@ -103,7 +102,7 @@ class Database implements DatabaseInterface
             return $this;
         }
 
-        if ($this->config->get('memcached')) {
+        if ($this->config->get('memcached', false)) {
             $this->memcached = \Chuck\Memcached::fromConfig($this->config);
         }
 

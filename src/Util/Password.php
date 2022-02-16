@@ -19,8 +19,8 @@ class Password
 
     public static function fromConfig(ConfigInterface $config): self
     {
-        $entropy = $config->get('minimum_password_entropy', CHUCK_DEFAULT_PW_ENTROPY);
-        $algo = $config->get('password_algorithm', PASSWORD_ARGON2ID);
+        $entropy = $config->get('password.minimum', CHUCK_DEFAULT_PW_ENTROPY);
+        $algo = $config->get('password.algorithm', PASSWORD_ARGON2ID);
         $pw = new self($algo, $entropy);
 
         return $pw;

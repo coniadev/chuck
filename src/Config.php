@@ -99,7 +99,7 @@ class Config implements ConfigInterface
         $root = $paths['root'];
 
         foreach ($pristine as $key => $value) {
-            $segments = explode('.', trim(strtolower($key)));
+            $segments = explode('.', trim($key));
 
             if (count($segments) === 1) {
                 $config[$key] = $value;
