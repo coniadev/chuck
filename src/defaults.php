@@ -7,10 +7,16 @@ return [
     // 'path.public' => null,                // Path to the public directory, defaults to <path.root>/public
 
     'appname' => 'chuckapp',                 // Internal identifier, will be used in `php run` scripts for example
-    'host' => null,                          // If set will be used when generating URLs from routes for example
     'env' => null,                           // the current environment, e. g. 'development', 'production'
     'debug' => false,                        // Whether it should show Whoops messages
     'port' => 1983,                          // The develompent server port
+
+    // 'host' => null,                       // www.example.com
+    //                                       // Can be used in scripts or your app
+    //                                       // Will be created from $_SERVER if not set.
+    // 'origin' => null,                     // e. g. 'https://www.example.com:8080'
+    //                                       // Used for generating URLs from routes for example
+    //                                       // Will be created from $_SERVER if not set.
 
     // 'log.level' => 'DEBUG',               // The default log level (Log middleware must be added)
     // 'log.path' => null,                   // Path where the logfiles are written to

@@ -34,16 +34,15 @@ test('Password verify', function () {
 
 
 test('Password init from config', function () {
-    $pw = Password::fromConfig($this->config());
-    expect(str_starts_with($pw->hash('evil-chuck-666'), '$argon2id$v'))->toBe(true);
+    $hasArgon = Password::hasArgon2();
+
+    if ($hasArgon) {
+        $pw = Password::fromConfig($this->config());
+        expect(str_starts_with($pw->hash('evil-chuck-666'), '$argon2id$v'))->toBe(true);
+    }
 
     $pw = Password::fromConfig($this->config([
         'password.algorithm' => PASSWORD_BCRYPT,
     ]));
     expect(str_starts_with($pw->hash('evil-chuck-666'), '$2y$'))->toBe(true);
-
-    $pw = Password::fromConfig($this->config([
-        'password.algorithm' => null,
-    ]));
-    expect(str_starts_with($pw->hash('evil-chuck-666'), '$argon2id$v'))->toBe(true);
 });

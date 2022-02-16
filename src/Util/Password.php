@@ -12,15 +12,19 @@ const CHUCK_DEFAULT_PW_ENTROPY = 40.0;
 class Password
 {
     public function __construct(
-        protected string|int|null $algo = PASSWORD_ARGON2ID,
+        protected string|int|null $algo = null,
         protected float $entropy = CHUCK_DEFAULT_PW_ENTROPY,
     ) {
+        if ($this->algo === null) {
+            $this->algo = self::hasArgon2() ? PASSWORD_ARGON2ID : PASSWORD_BCRYPT;
+        }
     }
 
     public static function fromConfig(ConfigInterface $config): self
     {
-        $entropy = $config->get('password.minimum', CHUCK_DEFAULT_PW_ENTROPY);
-        $algo = $config->get('password.algorithm', PASSWORD_ARGON2ID);
+        $entropy = $config->get('password.entropy', CHUCK_DEFAULT_PW_ENTROPY);
+        $defaultAlgo = self::hasArgon2() ? PASSWORD_ARGON2ID : PASSWORD_BCRYPT;
+        $algo = $config->get('password.algorithm', $defaultAlgo);
         $pw = new self($algo, $entropy);
 
         return $pw;
@@ -43,5 +47,10 @@ class Password
     public function hash(string $password): string
     {
         return password_hash($password, $this->algo);
+    }
+
+    public static function hasArgon2(): bool
+    {
+        return in_array('argon2id', password_algos());
     }
 }

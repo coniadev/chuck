@@ -30,7 +30,7 @@ test('Default value', function () {
     $config = new Config($this->minimalOptions());
 
     expect($config->get('port', 1984))->toBe(1983);
-    expect($config->get('url', 'http://example.com'))->toBe('http://example.com');
+    expect($config->get('origin', 'http://example.com'))->toBe('http://example.com');
     expect($config->get('host', 'example.com'))->toBe('example.com');
 
     // missing/invalid key with default
@@ -49,7 +49,7 @@ test('Config default value', function () {
     $config = new Config($this->minimalOptions());
 
     expect($config->get('port', 1984))->toBe(1983);
-    expect($config->get('url', 'http://example.com'))->toBe('http://example.com');
+    expect($config->get('origin', 'http://example.com'))->toBe('http://example.com');
     expect($config->get('host', 'example.com'))->toBe('example.com');
 
     // missing/invalid key with default
