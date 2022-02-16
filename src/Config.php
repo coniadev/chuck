@@ -133,7 +133,7 @@ class Config implements ConfigInterface
                         $config[$mainKey] = [];
                     }
 
-                    $config[$mainKey] = $subKey;
+                    $config[$mainKey][$subKey] = $value;
             }
         }
 
@@ -186,5 +186,10 @@ class Config implements ConfigInterface
     {
         return $this->renderers[$key] ??
             throw new \InvalidArgumentException("Undefined renderer \"$key\"");
+    }
+
+    public function __toString(): string
+    {
+        return print_r($this->config, return: true);
     }
 }
