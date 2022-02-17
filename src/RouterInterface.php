@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use \Closure;
 
 interface RouterInterface
 {
     public function getRoutes(): array;
+    public function getRoute(): Route;
     public function addRoute(RouteInterface $route): void;
     public function addStatic(
         string $name,
@@ -16,7 +16,6 @@ interface RouterInterface
         string $dir,
     ): void;
     public function routeUrl(string $name, array $args): string;
-    public function routeName(): ?string;
     public function staticUrl(
         string $name,
         string $path,

@@ -25,8 +25,8 @@ const REASON_PHRASES = [
 
 class Response implements ResponseInterface
 {
-    protected $file;
-    protected $headersList = [];
+    protected string $file;
+    protected array $headersList = [];
 
     public function __construct(
         protected RequestInterface $request,
@@ -36,9 +36,6 @@ class Response implements ResponseInterface
         protected string $protocol = '1.1',
         protected ?string $reasonPhrase = null,
     ) {
-        if ($reasonPhrase && $statusCode === null) {
-            throw new \InvalidArgumentException('$statusCode must not be null if $reasonPhrase is set');
-        }
     }
 
     public function setStatusCode(int $statusCode, ?string $reasonPhrase = null): void
@@ -75,7 +72,7 @@ class Response implements ResponseInterface
         bool $replace = true,
     ): void {
         $this->validateHeaderName($name);
-        $name = ucwords(strtolower($name, '-'));
+        $name = ucwords(strtolower($name), '-');
 
         if (array_key_exists($name, $this->headers) && $replace === false) {
             $this->headers[$name] = [

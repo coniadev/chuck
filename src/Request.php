@@ -23,16 +23,13 @@ class Request implements RequestInterface
 
     public function matchdict(string $key, ?string $default = null): ?string
     {
+        $matchdict = $this->router->getRoute()->args();
+
         if (func_num_args() > 1) {
-            return $this->router->params['args'][$key] ?? $default;
+            return $matchdict[$key] ?? $default;
         }
 
-        return $this->router->params['args'][$key];
-    }
-
-    public function getMatchdict(): array
-    {
-        return $this->router->params['args'];
+        return $matchdict[$key];
     }
 
     public function params(): array
@@ -59,11 +56,6 @@ class Request implements RequestInterface
     public function routeUrl(string $name, array $args = []): string
     {
         return $this->router->routeUrl($name, $args);
-    }
-
-    public function routeName(): ?string
-    {
-        return $this->router->routeName();
     }
 
     public function staticUrl(string $name, string $path): string
@@ -117,9 +109,9 @@ class Request implements RequestInterface
         return $response;
     }
 
-    public function getRoute(): array
+    public function getRoute(): Route
     {
-        return $this->router->params;
+        return $this->router->getRoute();
     }
 
     public function method(): string
@@ -181,12 +173,13 @@ class Request implements RequestInterface
     }
 
     public function getResponse(
-        ?int $statusCode = null,
+        int $statusCode = 200,
         mixed $body = null,
         ?array $headers = [],
         ?string $protocol = null,
         ?string $reasonPhrase = null,
     ): ResponseInterface {
+        /** @psalm-suppress RedundantPropertyInitializationCheck */
         if (!isset($this->response)) {
             /**
              * @psalm-suppress InaccessibleProperty
@@ -198,9 +191,7 @@ class Request implements RequestInterface
             $this->response = new ($this->config->registry(ResponseInterface::class))($this);
         }
 
-        if ($statusCode) {
-            $this->response->setStatusCode($statusCode, $reasonPhrase);
-        }
+        $this->response->setStatusCode($statusCode, $reasonPhrase);
 
         if ($body) {
             $this->response->setBody($body);
@@ -231,8 +222,11 @@ class Request implements RequestInterface
     public function __get(string $key): ResponseInterface | ConfigInterface | RouterInterface
     {
         return match ($key) {
-            'response' => $this->response ?: $this->getResponse(),
+            /** @var ResponseInterface */
+            'response' => $this->getResponse(),
+            /** @var ConfigInterface */
             'config' => $this->config,
+            /** @var RouterInterface */
             'router' => $this->router,
             default => throw new \ErrorException("Undefined property \"$key\"")
         };

@@ -71,7 +71,7 @@ class Error
         if ($code == 404) {
             return;
         }
-        if (!$isHttpError || ($isHttpError && $code >= 500)) {
+        if (!$isHttpError || $code >= 500) {
             $log::critical($this->getCritical($exception));
 
             if ($debug) {

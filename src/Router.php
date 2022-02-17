@@ -12,9 +12,9 @@ use Chuck\Exception\HttpInternalError;
 
 class Router implements RouterInterface
 {
+    protected readonly Route $route;
     protected array $routes = [];
     protected array $staticRoutes = [];
-    public array $params = [];
     protected array $names = [];
     protected array $middlewares = [];
 
@@ -128,11 +128,6 @@ class Router implements RouterInterface
         }
 
         throw new \RuntimeException('Route not found: ' . $name);
-    }
-
-    public function routeName(): ?string
-    {
-        return $this->params['name'] ?? null;
     }
 
     protected function getCacheBuster(string $dir, string $path): string
@@ -254,6 +249,14 @@ class Router implements RouterInterface
         $route = $this->match($request);
 
         if ($route) {
+            /**
+             * @psalm-suppress InaccessibleProperty
+             *
+             * TODO: At the time of writing Psalm did not support
+             * readonly properties which are not initialized in the
+             * constructor. Recheck on occasion.
+             */
+            $this->route = $route;
             $middlewares = array_merge($this->middlewares, $route->middlewares());
 
             while ($current = current($middlewares)) {
@@ -268,5 +271,10 @@ class Router implements RouterInterface
         } else {
             throw new HttpNotFound($request);
         }
+    }
+
+    public function getRoute(): Route
+    {
+        return $this->route;
     }
 }

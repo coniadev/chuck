@@ -109,6 +109,7 @@ class Database implements DatabaseInterface
 
     public function connect(): self
     {
+        /** @psalm-suppress RedundantPropertyInitializationCheck */
         if (isset($this->conn)) {
             return $this;
         }

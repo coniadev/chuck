@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Model;
+namespace Core\Model;
 
 interface SessionInterface
 {
-    public function open($savepath, $id);
-    public function read($id);
-    public function write($id, $data);
-    public function destroy($id);
-    public function close();
-    public function gc($max);
+    public function open(string $savepath, string $id): bool;
+    public function read(string $id): string;
+    public function write(string $id, string $data): bool;
+    public function destroy(string $id): bool;
+    public function close(): bool;
+    public function gc(int $max): bool;
 }

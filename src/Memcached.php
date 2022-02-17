@@ -23,7 +23,7 @@ abstract class BaseWrapper
         protected string $server,
         protected int $port,
     ) {
-        $this->connect($server, $port);
+        $this->connect();
     }
 
     abstract protected function connect(): void;

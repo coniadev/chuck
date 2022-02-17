@@ -14,7 +14,7 @@ interface RequestInterface
     public function url(): string;
     public function redirect(string $url, int $code): ResponseInterface;
     public function getResponse(
-        ?int $statusCode = null,
+        int $statusCode = 200,
         mixed $body = null,
         ?array $headers = [],
         ?string $protocol = null,

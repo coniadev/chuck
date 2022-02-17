@@ -19,16 +19,22 @@ class JsonRenderer extends Renderer
 
     public function headers(): iterable
     {
-        return [
+        $headers = [
             [
                 'name' => 'Content-type',
                 'value' => 'application/json',
                 'replace' => true,
-            ], [
-                'name' => 'X-CSRF-Token',
-                'value' => $this->request->session->csrf->get(),
-                'replace' => true,
-            ],
+            ]
         ];
+
+        if (method_exists($this->request, 'session')) {
+            $headers[] = [
+                'name' => 'X-CSRF-Token',
+                'value' => $this->request->session()->csrf->get(),
+                'replace' => true,
+            ];
+        }
+
+        return $headers;
     }
 }

@@ -65,7 +65,7 @@ class Query implements QueryInterface
             if ($argType === ArgType::Named) {
                 $arg = ':' . $a;
             } else {
-                $arg = $a + 1; // question mark placeholders ar 1-indexed
+                $arg = (int)$a + 1; // question mark placeholders ar 1-indexed
             }
 
             switch (gettype($value)) {
