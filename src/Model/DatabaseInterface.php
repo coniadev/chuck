@@ -16,7 +16,7 @@ interface DatabaseInterface
     public function defaultFetchMode(int $fetchMode): self;
     public function getFetchMode(): int;
 
-    public function addScriptDirs(array|string $dirs): self;
+    public function addScriptDir(string $dir): self;
     public function getScriptDirs(): array;
 
     public function setPrintQuery(bool $shouldPrint): self;

@@ -16,8 +16,8 @@ class Config implements ConfigInterface
 {
     protected readonly array $config;
     protected readonly array $paths;
-    protected readonly array $registry;
-    protected readonly array $renderers;
+    protected array $registry;
+    protected array $renderers;
 
     public function __construct(protected array $pristine)
     {

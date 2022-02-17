@@ -64,7 +64,7 @@ class Error
     protected function logMessage($exception, bool $debug): void
     {
         $code = $exception->getCode();
-        $log = $this->request->getConfig()->di('Log');
+        $log = $this->request->getConfig()->registry(\Chuck\Middleware\Log::class);
 
         $isHttpError = is_subclass_of($exception::class, 'Chuck\Exception\HttpException');
 
@@ -110,8 +110,8 @@ class Error
         $tmpl = new $class($request);
         $context = [
             'request' => $request,
-            'debug' => $request->debug(),
-            'env' => $request->env(),
+            'debug' => $config->get('debug'),
+            'env' => $config->get('env'),
             'exception' => $exception,
         ];
 
@@ -142,7 +142,7 @@ class Error
     public function register(): void
     {
         $request = $this->request;
-        $debug = $this->request->debug();
+        $debug = $this->request->getConfig()->get('debug');
         $run = new Run();
 
         // Must be the first handler

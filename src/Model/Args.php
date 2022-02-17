@@ -11,13 +11,14 @@ class Args
 {
     protected ArgType $type;
     protected int $count;
+    protected readonly array $args;
 
     public function __construct(array $args)
     {
         $this->args = $this->prepare($args);
     }
 
-    protected function prepare(array $args)
+    protected function prepare(array $args): array
     {
 
         $this->count = count($args);

@@ -186,7 +186,7 @@ class Request implements RequestInterface
         ?string $reasonPhrase = null,
     ): ResponseInterface {
         if (!isset($this->response)) {
-            $this->response = new ($this->config->registry(ResponseInterface::class))();
+            $this->response = new ($this->config->registry(ResponseInterface::class))($this);
         }
 
         if ($statusCode) {

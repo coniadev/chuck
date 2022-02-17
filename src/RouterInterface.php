@@ -15,9 +15,14 @@ interface RouterInterface
     );
     public function routeUrl(string $name, array $args): string;
     public function routeName(): ?string;
-    public function staticUrl(string $name, string $file, bool $bust = false, string $host = null): string;
+    public function staticUrl(
+        string $name,
+        string $path,
+        bool $bust = false,
+        string $host = null
+    ): string;
     public function match(RequestInterface $request): ?Route;
-    public function dispatch(RequestInterface $app);
+    public function dispatch(RequestInterface $request);
     public function middleware(callable $middleware): void;
     public function middlewares(): array;
 }

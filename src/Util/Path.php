@@ -8,9 +8,8 @@ use Chuck\ConfigInterface;
 
 class Path
 {
-    public function __construct(ConfigInterface $config = null)
+    public function __construct(protected ConfigInterface $config)
     {
-        $this->config = $config;
     }
 
     public function insideRoot(string $path): bool

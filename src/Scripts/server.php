@@ -13,7 +13,7 @@ class Server extends Chuck\Cli\Command
         $publicDir = $config->path('public');
         $port = (string)$config->get('devport');
 
-        if (isset($args[0]) && is_integer($args[0])) {
+        if (isset($args[0]) && preg_match('/^[0-9]+$/', $args[0])) {
             $port = $args[0];
         }
 

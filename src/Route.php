@@ -15,7 +15,7 @@ class Route implements RouteInterface
     protected array $args = [];
     protected string $pattern;
     protected array $methods = [];
-    protected ?array $renderer = null;
+    protected ?Renderer\Config $renderer = null;
     protected array $middlewares = [];
 
     public function __construct(
@@ -84,15 +84,12 @@ class Route implements RouteInterface
 
     public function renderer(string $renderer, mixed ...$args): self
     {
-        $this->renderer = [
-            'type' => $renderer,
-            'args' => $args,
-        ];
+        $this->renderer = new Renderer\Config($renderer, $args);
 
         return $this;
     }
 
-    public function getRenderer(): ?array
+    public function getRenderer(): ?Renderer\Config
     {
         return $this->renderer;
     }

@@ -4,21 +4,27 @@ declare(strict_types=1);
 
 namespace Chuck\Renderer;
 
+use Chuck\TemplateInterface;
+
 
 class TemplateRenderer extends Renderer
 {
+    protected array $context;
+    protected string $template;
+
     public function render(): string
     {
         $request = $this->request;
-        $this->context = $this->data ?? [];
+        $context = $this->data ?? [];
 
         // Plates needs a double colon, plugin route renderers
         // need to be configured with a single one.
         $this->template = implode('::', explode(':', $this->args[0]));
 
-
-        if (gettype($this->context) === 'object') {
-            $this->context = iterator_to_array($this->context);
+        if (gettype($context) === 'object') {
+            $this->context = iterator_to_array($context);
+        } else {
+            $this->context = $context;
         }
 
         $class = $request->getConfig()->registry(TemplateInterface::class);

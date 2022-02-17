@@ -14,11 +14,11 @@ interface RequestInterface
     public function url();
     public function redirect(string $url, int $code): ResponseInterface;
     public function getResponse(
-        ?int $statusCode,
-        mixed $body,
-        ?array $headers,
-        ?string $protocol,
-        ?string $reasonPhrase,
+        ?int $statusCode = null,
+        mixed $body = null,
+        ?array $headers = [],
+        ?string $protocol = null,
+        ?string $reasonPhrase = null,
     ): ResponseInterface;
     public function getConfig(): ConfigInterface;
     public function getRouter(): RouterInterface;
@@ -26,5 +26,5 @@ interface RequestInterface
     public function isMethod(string $method): bool;
     public function isXHR(): bool;
     public function jsonBody(): ?array;
-    public function addMethod(string $name, callable $func);
+    public function addMethod(string $name, callable $callable);
 }

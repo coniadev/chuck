@@ -127,8 +127,12 @@ class Router implements RouterInterface
         return '';
     }
 
-    public function staticUrl(string $name, string $path, bool $bust = false, string $host = null): string
-    {
+    public function staticUrl(
+        string $name,
+        string $path,
+        bool $bust = false,
+        string $host = null
+    ): string {
         $route = $this->staticRoutes[$name];
 
         if ($bust) {
@@ -201,7 +205,7 @@ class Router implements RouterInterface
             $renderer = $route->getRenderer();
 
             if ($renderer) {
-                $rendererObj = new ($config->renderer($renderer))($this->request, $result);
+                $rendererObj = new ($config->renderer($renderer->type))($request, $result, $renderer->args);
                 $response = $request->getResponse();
                 $response->setBody($rendererObj->render());
 

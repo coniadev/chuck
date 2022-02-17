@@ -11,7 +11,7 @@ interface RendererInterface
     public function __construct(
         RequestInterface $request,
         mixed $data,
-        mixed ...$args,
+        array $args,
     );
     public function render(): string;
     public function headers(): iterable;

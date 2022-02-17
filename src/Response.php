@@ -29,6 +29,7 @@ class Response implements ResponseInterface
     protected $headersList = [];
 
     public function __construct(
+        protected RequestInterface $request,
         protected int $statusCode = 200,
         protected mixed $body = null,
         protected array $headers = [],
@@ -78,7 +79,7 @@ class Response implements ResponseInterface
 
         if (array_key_exists($name, $this->headers) && $replace === false) {
             $this->headers[$name] = [
-                'value' => array_merge($this->header[$name]['value'], $value),
+                'value' => array_merge($this->headers[$name]['value'], [$value]),
                 'replace' => $replace,
             ];
         }
@@ -178,7 +179,7 @@ class Response implements ResponseInterface
             echo $body;
         }
 
-        if ($this->file && $this->config->get('fileserver') === null) {
+        if ($this->file && $this->request->getConfig()->get('fileserver') === null) {
             readfile($this->file);
         }
     }

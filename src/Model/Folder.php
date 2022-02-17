@@ -21,7 +21,9 @@ class Folder
         $ext = $isTemplate ? '.tpql' : '.sql';
 
         foreach ($this->db->getScriptDirs() as $path) {
-            $result = $path . ds . $this->folder . ds . $key . $ext;
+            $result = $path . DIRECTORY_SEPARATOR .
+                $this->folder . DIRECTORY_SEPARATOR .
+                $key . $ext;
 
             if (file_exists($result)) {
                 return $result;

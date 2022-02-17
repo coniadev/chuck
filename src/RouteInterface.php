@@ -13,5 +13,5 @@ interface RouteInterface
     public function method(string ...$args): self;
     public function middleware(callable $middleware): self;
     public function renderer(string $renderer, mixed ...$args): self;
-    public function getRenderer(): ?array;
+    public function getRenderer(): ?Renderer\Config;
 }

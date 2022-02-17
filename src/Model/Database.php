@@ -18,11 +18,15 @@ class Database implements DatabaseInterface
     protected int $defaultFetchMode;
     protected bool $shouldPrint = false;
 
-    protected ?PDO $conn = null;
+    protected PDO $conn;
     protected ?\Chuck\Memcached $memcached = null;
+    protected string $dsn;
+    protected string $username;
+    protected string $password;
     protected string $memcachedPrefix;
     protected array $scriptPaths = [];
     protected int $fetchMode;
+
 
     public function __construct(ConfigInterface $config)
     {
@@ -45,29 +49,36 @@ class Database implements DatabaseInterface
     }
 
     /**
-     * Adds a single or multiple paths to the list of script paths.
+     * Adds the sql script paths from configuration.
      *
      * Script paths are ordered last in first out (LIFO).
      * Which means the last path added is the first one searched
      * for a SQL script.
      */
-    public function addScriptDirs(array|string $dirs): self
+    protected function addScriptDirs(array $dirs): self
     {
-        if (!is_array($dirs)) {
-            $dirs = [$dirs];
-        }
-
-        $pathUtil = new Path($this->config);
-
+        // Paths need not to be checked, Config already did
         foreach ($dirs as $dir) {
-            $dir = Path::realpath($dir);
-
-            if (!$pathUtil->insideRoot($dir)) {
-                throw new \InvalidArgumentException('SQL script path is outside of project root');
-            }
-
             array_unshift($this->scriptPaths, $dir);
         }
+
+        return $this;
+    }
+
+    /**
+     * Adds a single directory with sql scripts
+     */
+    public function addScriptDir(string $dir): self
+    {
+        $pathUtil = new Path($this->config);
+
+        $dir = Path::realpath($dir);
+
+        if (!$pathUtil->insideRoot($dir)) {
+            throw new \InvalidArgumentException('SQL script path is outside of project root');
+        }
+
+        array_unshift($this->scriptPaths, $dir);
 
         return $this;
     }
@@ -136,7 +147,7 @@ class Database implements DatabaseInterface
         return $this->conn->rollback();
     }
 
-    public function getConn(): \PDO
+    public function getConn(): PDO
     {
         $this->connect();
         return $this->conn;

@@ -14,6 +14,7 @@ class Template implements TemplateInterface
     protected array $folders = [];
     protected array $defaults;
     protected string $path;
+    protected Path $pathUtil;
 
     public function __construct(
         RequestInterface $request,
