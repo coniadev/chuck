@@ -60,8 +60,8 @@ test('Template paths', function () {
     ]));
     $prefix = $this->root . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR;
 
-    expect($config->path('templates')['default'])->toBe($prefix . 'default');
-    expect($config->path('templates')['relative'])->toBe($prefix . 'additional');
+    expect($config->templates()['default'])->toBe($prefix . 'default');
+    expect($config->templates()['relative'])->toBe($prefix . 'additional');
 });
 
 
@@ -72,7 +72,7 @@ test('Migrations paths', function () {
     ]));
     $prefix = $this->root . DIRECTORY_SEPARATOR . 'migrations' . DIRECTORY_SEPARATOR;
 
-    expect($config->path('migrations'))->toBe([
+    expect($config->migrations())->toBe([
         $prefix . 'default',
         $prefix . 'additional',
     ]);

@@ -152,10 +152,23 @@ class Config implements ConfigInterface
         if (!isset($config['origin'])) {
             $https = $_SERVER['HTTPS'] ?? false ? true : false;
             $proto = $https ? 'https' : 'http';
+
             // Assume cli when HTTP_HOST ist not available
             $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+
             // Assume cli when SERVER_PORT ist not available
-            $readPort = $_SERVER['SERVER_PORT'] ?? (string)$config['port'];
+            $readPort = $_SERVER['SERVER_PORT'] ?? '';
+
+            if (empty($readPort)) {
+                $configPort = $config['port'];
+
+                if (is_int($configPort) || is_string($configPort)) {
+                    $readPort = (string)$configPort;
+                } else {
+                    throw new \ValueError('Port could not be determined. Add it to the config file.');
+                }
+            }
+
             $port = match ($readPort) {
                 '80' => '',
                 '443' => '',
@@ -176,7 +189,7 @@ class Config implements ConfigInterface
      *
      * Also handles the dotted config file format, e. g. 'db.dsn'
      */
-    public function get(string $key, $default = null)
+    public function get(string $key, mixed $default = null): mixed
     {
         [$mainKey, $subKey] = $this->getKeys($key);
 
@@ -195,9 +208,46 @@ class Config implements ConfigInterface
         }
     }
 
-    public function path(string $key): string|array
+    public function path(string $key): string
     {
-        return  $this->paths[$key];
+        $value = $this->paths[$key];
+
+        if (is_string($value)) {
+            return $value;
+        }
+
+        throw new \InvalidArgumentException('Requested path is not of type string');
+    }
+
+    public function paths(string $key): array
+    {
+        $value = $this->paths[$key];
+
+        if (is_array($value)) {
+            return $value;
+        }
+
+        throw new \InvalidArgumentException('Requested paths are not of type array');
+    }
+
+    public function templates(): array
+    {
+        return  $this->paths['templates'];
+    }
+
+    public function migrations(): array
+    {
+        return  $this->paths['migrations'];
+    }
+
+    public function sql(): array
+    {
+        return  $this->paths['sql'];
+    }
+
+    public function scripts(): array
+    {
+        return  $this->paths['scripts'];
     }
 
     public function registry(string $key): string
