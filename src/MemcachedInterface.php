@@ -14,7 +14,7 @@ interface MemcachedInterface
         ?int $expire,
     );
     public function get(string $key): mixed;
-    public function add(string $key, mixed $value, ?int $expire = null): bool;
-    public function set(string $key, mixed $value, ?int $expire = null): bool;
+    public function add(string $key, array|string $value, ?int $expire = null): bool;
+    public function set(string $key, array|string $value, ?int $expire = null): bool;
     public function delete(string $key, int $timeout = 0): bool;
 }

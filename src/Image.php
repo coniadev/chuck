@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use \GdImage;
+
+
 class Image
 {
-    protected static function getImage(string $path): \GdImage|false
+    protected static function getImage(string $path): GdImage|false
     {
         if (!file_exists($path)) {
             throw new \InvalidArgumentException('File "' . $path . '" not found.');
@@ -35,7 +38,7 @@ class Image
         }
     }
 
-    protected static function writeImage(\GdImage $image, string $path): bool
+    protected static function writeImage(GdImage $image, string $path): bool
     {
         switch (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
             case 'jfif':
@@ -58,8 +61,14 @@ class Image
     }
 
     public static function thumb(string $path, string $dest, int $newWidth): bool
+
     {
         $image = self::getImage($path);
+
+        if (!$image) {
+            return false;
+        }
+
         $origWidth = imagesx($image);
         $origHeight = imagesy($image);
 
@@ -89,9 +98,14 @@ class Image
         return self::writeImage($thumb, $dest);
     }
 
-    public static function centerSquare(string $path, string $dest, int $size)
+    public static function centerSquare(string $path, string $dest, int $size): bool
     {
         $image = self::getImage($path);
+
+        if (!$image) {
+            return false;
+        }
+
         $x = imagesx($image);
         $y = imagesy($image);
 

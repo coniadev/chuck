@@ -33,7 +33,7 @@ class Folder
         return false;
     }
 
-    protected function readScript(string $key): bool|string
+    protected function readScript(string $key): string|false
     {
         $script = $this->scriptPath($key, false);
 
@@ -47,7 +47,7 @@ class Folder
     protected function fromCache(
         \Chuck\Memcached $mc,
         string $key,
-    ): string {
+    ): string|false {
         $memKey = $this->db->getMemcachedPrefix() . '/' . $this->folder . '/' . $key;
         $stmt = $mc->get($memKey);
 
@@ -72,7 +72,7 @@ class Folder
             $stmt = $this->readScript($key);
         }
 
-        if ($stmt && is_string($stmt)) {
+        if ($stmt) {
             return new Script($this->db, $stmt, false);
         }
 

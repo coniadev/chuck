@@ -10,9 +10,10 @@ use Chuck\SessionInterface;
 
 class Session
 {
-    public function __invoke(RequestInterface $request, callable|object $next): RequestInterface
+    public function __invoke(RequestInterface $request, callable $next): RequestInterface
     {
         $class = $request->getConfig()->registry(SessionInterface::class);
+        /** @var SessionInterface */
         $session = new $class($request);
 
         $request->addMethod('session', function () use ($session): SessionInterface {

@@ -15,7 +15,7 @@ class Log
     {
     }
 
-    public function __invoke(RequestInterface $request, callable|object $next): RequestInterface
+    public function __invoke(RequestInterface $request, callable $next): RequestInterface
     {
         $logger = $this->logger;
 

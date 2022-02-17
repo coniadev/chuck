@@ -31,7 +31,7 @@ class Template implements TemplateInterface
         ], $defaults);
 
         $this->pathUtil = new Path($config);
-        $this->addFolders($config->path('templates'));
+        $this->addFolders($config->templates());
     }
 
     protected function addFolders(array $folders): void

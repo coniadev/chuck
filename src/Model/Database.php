@@ -36,7 +36,7 @@ class Database implements DatabaseInterface
         $this->memcachedPrefix = $dbConf['memcachedPrefix'] ?? '';
         $this->username = $dbConf['username'] ?? null;
         $this->password = $dbConf['password'] ?? null;
-        $this->addScriptDirs($config->path('sql'));
+        $this->addScriptDirs($config->sql());
         $this->fetchMode = $dbConf['fetchMode'] ?? PDO::FETCH_BOTH;
         $this->shouldPrint = $dbConf['print'] ?? false;
     }

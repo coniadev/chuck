@@ -11,14 +11,16 @@ abstract class MigrationsCommand extends \Chuck\Cli\Command
     protected function getMigrations(ConfigInterface $config): array
     {
         $migrations = [];
-        $path = $config->path('migrations');
-        $migrations = array_merge(
-            $migrations,
-            array_filter(glob("$path/*.sql"), 'is_file'),
-            array_filter(glob("$path/*.php"), 'is_file'),
-        );
 
-        // Sort by file name and instead of full path
+        foreach ($config->migrations() as $path) {
+            $migrations = array_merge(
+                $migrations,
+                array_filter(glob("$path/*.sql"), 'is_file'),
+                array_filter(glob("$path/*.php"), 'is_file'),
+            );
+        }
+
+        // Sort by file name instead of full path
         uasort($migrations, function ($a, $b) {
             if (basename($a) == basename($b)) {
                 return 0;

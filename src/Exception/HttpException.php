@@ -21,4 +21,9 @@ abstract class HttpException extends \Exception
     {
         return $this->title;
     }
+
+    public function __toString(): string
+    {
+        return $this->title;
+    }
 }

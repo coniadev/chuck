@@ -54,7 +54,8 @@ class Runner
         // add the custom script dir first to allow
         // overriding of builtin scripts.
         if ($config->get('appname', false)) {
-            $customDir = $config->path('scripts');
+            $customDir = $config->scripts();
+
             if ($customDir) {
                 $scriptDirs[] = $customDir;
             }
@@ -69,7 +70,11 @@ class Runner
                 self::showCommands($scriptDirs);
             } else {
                 foreach ($scriptDirs as $scriptDir) {
-                    $file = "$scriptDir/$script";
+                    if (!is_string($scriptDir)) {
+                        continue;
+                    }
+
+                    $file = $scriptDir . DIRECTORY_SEPARATOR . $script;
 
                     if (file_exists($file)) {
                         $cmd = require $file;

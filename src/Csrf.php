@@ -30,6 +30,7 @@ class Csrf
     public function get(string $page = 'default'): ?string
     {
         $token = $_SESSION['csrftokens'][$page] ?? $this->set($page);
+
         return $token;
     }
 
@@ -51,17 +52,26 @@ class Csrf
             return false;
         }
 
-        return hash_equals($this->get($page), $token);
+        $savedToken = $this->get($page);
+
+        if (empty($savedToken)) {
+            return false;
+        }
+
+        return hash_equals($savedToken, $token);
     }
 
-    public function input($page = 'default', $key = 'csrftoken'): string
+    public function input(string $page = 'default', string $key = 'csrftoken'): string|false
     {
         $token = $this->get($page);
-        return
-            '<input type="hidden" id="' .
-            $key .
+
+        if (empty($token)) {
+            return false;
+        }
+
+        return '<input type="hidden" id="' .
+            htmlspecialchars($key) .
             '" name="csrftoken" value="' .
-            $token .
-            '">';
+            htmlspecialchars($token) . '">';
     }
 }

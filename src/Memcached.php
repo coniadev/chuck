@@ -157,12 +157,12 @@ class Memcached implements MemcachedInterface
         return $this->impl->delete($key, $timeout);
     }
 
-    public function add(string $key, mixed $value, ?int $expire = null): bool
+    public function add(string $key, array|string $value, ?int $expire = null): bool
     {
         return $this->impl->add($key, $value, $this->getExpire($expire));
     }
 
-    public function set(string $key, mixed $value, ?int $expire = null): bool
+    public function set(string $key, array|string $value, ?int $expire = null): bool
     {
         return $this->impl->set($key, $value, $this->getExpire($expire));
     }
