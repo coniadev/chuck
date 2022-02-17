@@ -81,46 +81,46 @@ test('Middleware add', function () {
 });
 
 
-test('Middleware :: wrong return type', function () {
-    $router = new Router();
-
-    $router->middleware(function (Request $request, callable $next): int {
-        return $next($request);
-    });
-})->throws(\InvalidArgumentException::class);
-
-
 test('Middleware :: no return type', function () {
     $router = new Router();
 
     $router->middleware(function (Request $request, callable $next) {
         return $next($request);
     });
-})->throws(\InvalidArgumentException::class);
+})->throws(\InvalidArgumentException::class, 'Middleware return type must be given');
+
+
+test('Middleware :: wrong return type', function () {
+    $router = new Router();
+
+    $router->middleware(function (Request $request, callable $next): int {
+        return $next($request);
+    });
+})->throws(\InvalidArgumentException::class, "Middleware's return type must implement");
 
 
 test('Middleware :: wrong parameter count', function () {
     $router = new Router();
 
-    $router->middleware(function (Request $request) {
+    $router->middleware(function (Request $request): Request {
         return $request;
     });
-})->throws(\InvalidArgumentException::class);
+})->throws(\InvalidArgumentException::class, 'Middleware must accept two parameters');
 
 
 test('Middleware :: wrong parameter type I', function () {
     $router = new Router();
 
-    $router->middleware(function (string $request, callable $next) {
+    $router->middleware(function (string $request, callable $next): Request {
         return $next($request);
     });
-})->throws(\InvalidArgumentException::class);
+})->throws(\InvalidArgumentException::class, "Middleware's first parameter must implement");
 
 
 test('Middleware :: wrong parameter type II', function () {
     $router = new Router();
 
-    $router->middleware(function (Request $request, int $next) {
-        return $next . $request;
+    $router->middleware(function (Request $request, int $next): Request {
+        return $next($request);
     });
-})->throws(\InvalidArgumentException::class);
+})->throws(\InvalidArgumentException::class, "Middleware's second parameter must be of type");

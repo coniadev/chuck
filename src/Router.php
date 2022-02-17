@@ -12,6 +12,7 @@ use Chuck\Exception\HttpInternalError;
 
 class Router implements RouterInterface
 {
+    /** @psalm-suppress PropertyNotSetInConstructor */
     protected readonly Route $route;
     protected array $routes = [];
     protected array $staticRoutes = [];
@@ -66,7 +67,7 @@ class Router implements RouterInterface
         try {
             $t = $reflectionFunc->getReturnType();
             /** @var class-string */
-            $returnType = empty($t) ? $t :
+            $returnType = (string)$t ?:
                 throw new \InvalidArgumentException("Middleware return type must be given");
 
             $returnTypeCls = new \ReflectionClass($returnType);
@@ -86,12 +87,15 @@ class Router implements RouterInterface
 
         // Check $request parameter
         $t = $reflectionParams[0]->getType();
-        /** @var class-string */
-        $requestType = empty($t) ? $t :
+        $requestType = (string)$t ?:
             throw new \InvalidArgumentException("Middleware's first parameter must implement " . RequestInterface::class);
 
-        $requestTypeCls = new \ReflectionClass($requestType);
-        if (!($requestTypeCls->implementsInterface(RequestInterface::class))) {
+        if (class_exists($requestType)) {
+            $requestTypeCls = new \ReflectionClass($requestType);
+            if (!($requestTypeCls->implementsInterface(RequestInterface::class))) {
+                throw new \InvalidArgumentException("Middleware's first parameter must implement " . RequestInterface::class);
+            }
+        } else {
             throw new \InvalidArgumentException("Middleware's first parameter must implement " . RequestInterface::class);
         }
 
