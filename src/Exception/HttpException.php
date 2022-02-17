@@ -6,21 +6,11 @@ namespace Chuck\Exception;
 
 use Chuck\RequestInterface;
 
-class HttpException extends \Exception
-{
-    protected $request;
-    protected $title = '';
-    protected $message = 'HTTP Error';
 
-    public function __construct(
-        RequestInterface $request,
-        ?string $message = null,
-        int $code = 0,
-        ?\Throwable $previous = null
-    ) {
-        parent::__construct($message ?: $this->message, $code, $previous);
-        $this->request = $request;
-    }
+abstract class HttpException extends \Exception
+{
+    protected readonly RequestInterface $request;
+    protected readonly string $title;
 
     public function getRequest(): RequestInterface
     {

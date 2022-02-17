@@ -4,11 +4,18 @@ declare(strict_types=1);
 
 namespace Chuck\Exception;
 
+use Chuck\RequestInterface;
+
+
 class HttpInternalError extends HttpException
 {
-    protected $code = 500;
-
-    protected $message = 'Internal Server Error';
-
-    protected $title = '500 Internal Server Error';
+    public function __construct(
+        protected RequestInterface $request,
+        string $message = 'Internal Server Error',
+        int $code = 500,
+        ?\Throwable $previous = null
+    ) {
+        parent::__construct($message, $code, $previous);
+        $this->title = '500 Internal Server Error';
+    }
 }

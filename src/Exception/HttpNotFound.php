@@ -4,11 +4,18 @@ declare(strict_types=1);
 
 namespace Chuck\Exception;
 
+use Chuck\RequestInterface;
+
+
 class HttpNotFound extends HttpException
 {
-    protected $code = 404;
-
-    protected $message = 'Not Found';
-
-    protected $title = '404 Not Found';
+    public function __construct(
+        protected RequestInterface $request,
+        string $message = 'Not Found',
+        int $code = 404,
+        ?\Throwable $previous = null
+    ) {
+        parent::__construct($message, $code, $previous);
+        $this->title = '404 Not Found';
+    }
 }
