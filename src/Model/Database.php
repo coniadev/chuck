@@ -14,10 +14,7 @@ use Chuck\Util\Path;
 
 class Database implements DatabaseInterface
 {
-    protected ConfigInterface $config;
-    protected int $defaultFetchMode;
-    protected bool $shouldPrint = false;
-
+    /** @psalm-suppress PropertyNotSetInConstructor */
     protected PDO $conn;
     protected ?\Chuck\Memcached $memcached = null;
     protected string $dsn;
@@ -26,6 +23,9 @@ class Database implements DatabaseInterface
     protected string $memcachedPrefix;
     protected array $scriptPaths = [];
     protected int $fetchMode;
+    protected ConfigInterface $config;
+    protected bool $shouldPrint = false;
+
 
 
     public function __construct(ConfigInterface $config)
@@ -164,12 +164,12 @@ class Database implements DatabaseInterface
         return $this->memcachedPrefix;
     }
 
-    public function execute(string $query, ...$args): QueryInterface
+    public function execute(string $query, mixed ...$args): QueryInterface
     {
         return new Query($this, $query, new Args($args));
     }
 
-    public function __get($key): Folder
+    public function __get(string $key): Folder
     {
         $exists = false;
 

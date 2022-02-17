@@ -10,7 +10,7 @@ class JsonRenderer extends Renderer
     public function render(): string
     {
         // If $context is of type 'object' it should be a Generator
-        if (gettype($this->data) === 'object') {
+        if ($this->data instanceof \Traversable) {
             return json_encode(iterator_to_array($this->data), JSON_UNESCAPED_SLASHES);
         }
 

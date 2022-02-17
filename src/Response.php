@@ -25,6 +25,7 @@ const REASON_PHRASES = [
 
 class Response implements ResponseInterface
 {
+    /** @psalm-suppress PropertyNotSetInConstructor */
     protected string $file;
     protected array $headersList = [];
 
@@ -115,16 +116,7 @@ class Response implements ResponseInterface
     {
         $this->file = $path;
 
-        try {
-            $ext = strtolower(pathinfo($path)['extension']);
-            $contentType = [
-                'js' => 'application/javascript',
-                'css' => 'text/css',
-                'html' => 'text/html',
-            ][$ext] ?? null;
-        } catch (\Exception) {
-            $contentType = null;
-        }
+        $contentType = mime_content_type($path) ?: null;
 
         // Should be a binary file
         try {
@@ -176,7 +168,8 @@ class Response implements ResponseInterface
             echo $body;
         }
 
-        if ($this->file && $this->request->getConfig()->get('fileserver') === null) {
+        /** @psalm-suppress RedundantPropertyInitializationCheck */
+        if (($this->file ?? null) && $this->request->getConfig()->get('fileserver') === null) {
             readfile($this->file);
         }
     }

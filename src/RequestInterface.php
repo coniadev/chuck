@@ -16,7 +16,7 @@ interface RequestInterface
     public function getResponse(
         int $statusCode = 200,
         mixed $body = null,
-        ?array $headers = [],
+        array $headers = [],
         ?string $protocol = null,
         ?string $reasonPhrase = null,
     ): ResponseInterface;

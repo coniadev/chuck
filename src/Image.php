@@ -6,7 +6,7 @@ namespace Chuck;
 
 class Image
 {
-    protected static function getImage(string $path)
+    protected static function getImage(string $path): \GdImage|false
     {
         if (!file_exists($path)) {
             throw new \InvalidArgumentException('File "' . $path . '" not found.');
@@ -35,7 +35,7 @@ class Image
         }
     }
 
-    protected static function writeImage($image, string $path)
+    protected static function writeImage(\GdImage $image, string $path): bool
     {
         switch (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
             case 'jfif':
@@ -52,6 +52,8 @@ class Image
             case 'webp':
                 return imagewebp($image, $path);
                 break;
+            default:
+                throw new \InvalidArgumentException('Image with given extension not supported: ' . $path);
         }
     }
 

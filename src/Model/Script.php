@@ -21,6 +21,8 @@ class Script
     {
         extract($args->get());
         ob_start();
+
+        /** @psalm-suppress UnresolvableInclude */
         include $path;
 
         return ob_get_clean();
@@ -66,7 +68,7 @@ class Script
         return [];
     }
 
-    public function invoke(...$argsArray): Query
+    public function invoke(mixed ...$argsArray): Query
     {
         $args = new Args($argsArray);
 
@@ -89,7 +91,7 @@ class Script
         return new Query($this->db, $script, $args);
     }
 
-    public function __invoke(...$args): Query
+    public function __invoke(mixed ...$args): Query
     {
         return $this->invoke(...$args);
     }

@@ -37,7 +37,7 @@ class Folder
     {
         $script = $this->scriptPath($key, false);
 
-        if ($script) {
+        if ($script && is_string($script)) {
             return file_get_contents($script);
         }
 
@@ -52,20 +52,17 @@ class Folder
         $stmt = $mc->get($memKey);
 
         if (!$stmt) {
-            $stmt = file_get_contents($this->scriptPath($key, false));
+            $stmt = $this->readScript($key);
 
             if ($stmt) {
-                $mc->set(
-                    $memKey,
-                    $stmt,
-                );
+                $mc->set($memKey, $stmt,);
             }
         }
 
         return $stmt;
     }
 
-    protected function getScript($key): Script
+    protected function getScript(string $key): Script
     {
         $mc = $this->db->getMemcached();
 
@@ -75,16 +72,16 @@ class Folder
             $stmt = $this->readScript($key);
         }
 
-        if ($stmt) {
+        if ($stmt && is_string($stmt)) {
             return new Script($this->db, $stmt, false);
         }
 
         // If $stmt is not truthy until now,
         // assume the script is a dnyamic sql template
-        $script = $this->scriptPath($key, true);
+        $dynStmt = $this->scriptPath($key, true);
 
-        if ($script) {
-            return new Script($this->db, $script, true);
+        if ($dynStmt && is_string($dynStmt)) {
+            return new Script($this->db, $dynStmt, true);
         }
 
         throw new \UnexpectedValueException('SQL script does not exist');
@@ -95,7 +92,7 @@ class Folder
         return $this->getScript($key);
     }
 
-    public function __call(string $key, $args): Query
+    public function __call(string $key, mixed $args): Query
     {
         $script = $this->getScript($key);
 

@@ -68,7 +68,7 @@ class Request implements RequestInterface
         return $_SERVER['REQUEST_URI'];
     }
 
-    public function serverUrl()
+    public function serverUrl(): string
     {
         $serverName = $_SERVER['SERVER_NAME'];
 
@@ -104,8 +104,9 @@ class Request implements RequestInterface
     public function redirect(string $url, int $code = 302): ResponseInterface
     {
         $class = $this->config->registry(ResponseInterface::class);
-        $response = new $class($this);
-        $response->addHeader('Location', $url, true, $code);
+        /** @var ResponseInterface */
+        $response = new $class($this, statusCode: $code);
+        $response->addHeader('Location', $url, true);
         return $response;
     }
 
@@ -175,7 +176,7 @@ class Request implements RequestInterface
     public function getResponse(
         int $statusCode = 200,
         mixed $body = null,
-        ?array $headers = [],
+        array $headers = [],
         ?string $protocol = null,
         ?string $reasonPhrase = null,
     ): ResponseInterface {
@@ -183,6 +184,7 @@ class Request implements RequestInterface
         if (!isset($this->response)) {
             /**
              * @psalm-suppress InaccessibleProperty
+             * @var ResponseInterface
              *
              * TODO: At the time of writing Psalm did not support
              * readonly properties which are not initialized in the

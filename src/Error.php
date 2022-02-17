@@ -153,7 +153,7 @@ class Error
         ) use (
             $request,
             $debug
-        ) {
+        ): int {
             $this->logMessage($exception, $debug);
 
             if (is_subclass_of($exception::class, 'Chuck\Exception\HttpException')) {
