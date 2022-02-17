@@ -158,6 +158,11 @@ class Request implements RequestInterface
         return $json;
     }
 
+
+    /**
+     * Adds a custom method to the request which can be used
+     * in views and middlewares, like $request->customMethod().
+     */
     public function addMethod(string $name, callable $callable): void
     {
         $this->customMethods[$name] = $callable;
