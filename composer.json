@@ -13,7 +13,8 @@
         "pestphp/pest": "^1",
         "filp/whoops": "^2.14",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
-        "sirbrillig/phpcs-variable-analysis": "^2.11"
+        "sirbrillig/phpcs-variable-analysis": "^2.11",
+        "vimeo/psalm": "^4.20"
     },
     "require": {
         "tgalopin/html-sanitizer": "^1.5",
