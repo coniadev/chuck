@@ -155,7 +155,7 @@ class Config implements ConfigInterface
             // Assume cli when HTTP_HOST ist not available
             $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
             // Assume cli when SERVER_PORT ist not available
-            $readPort = (string)($_SERVER['SERVER_PORT'] ?? $config['port']);
+            $readPort = $_SERVER['SERVER_PORT'] ?? (string)$config['port'];
             $port = match ($readPort) {
                 '80' => '',
                 '443' => '',

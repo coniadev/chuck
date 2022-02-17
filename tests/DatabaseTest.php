@@ -23,7 +23,7 @@ test('Database connection', function () {
 
 test('Add script dir outside of root directory', function () {
     $db = $this->getDb();
-    $db->addScriptDirs('/etc');
+    $db->addScriptDir('/etc');
 })->throws(\InvalidArgumentException::class);
 
 
@@ -205,7 +205,7 @@ test('Template query with no SQL args', function () {
 
 test('Expand script dirs :: query from default', function () {
     $db = new Database($this->config());
-    $db->addScriptDirs(ADDITIONAL_SCRIPTS);
+    $db->addScriptDir(ADDITIONAL_SCRIPTS);
 
     $result = $db->members->list()->all();
     expect(count($result))->toBe(NUMBER_OF_MEMBERS);
@@ -262,7 +262,7 @@ test('Query printing positional parameters', function () {
 
 test('Expand script dirs :: query from expanded', function () {
     $db = new Database($this->config());
-    $db->addScriptDirs(ADDITIONAL_SCRIPTS);
+    $db->addScriptDir(ADDITIONAL_SCRIPTS);
 
     $result = $db->members->byName(['name' => 'Rick Rozz'])->one();
     expect($result['member'])->toBe(2);
@@ -271,7 +271,7 @@ test('Expand script dirs :: query from expanded', function () {
 
 test('Expand script dirs :: query from expanded new namespace', function () {
     $db = new Database($this->config());
-    $db->addScriptDirs(ADDITIONAL_SCRIPTS);
+    $db->addScriptDir(ADDITIONAL_SCRIPTS);
 
     $result = $db->albums->list()->all();
     expect(count($result))->toBe(7);
@@ -335,7 +335,7 @@ test('Script dir shadowing', function () {
     // The query in the expand dir uses named parameters
     // and additionally returns the field `joined` in contrast
     // to the default dir, which returns the field `left`.
-    $db->addScriptDirs(ADDITIONAL_SCRIPTS);
+    $db->addScriptDir(ADDITIONAL_SCRIPTS);
     // Named parameter queries also support positional arguments
     $result = $db->members->byId(3)->one();
     expect($result['name'])->toBe('Chris Reifert');

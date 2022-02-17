@@ -14,10 +14,10 @@ interface ResponseInterface
         string $protocol = '1.1',
         ?string $reasonPhrase = null,
     );
-    public function setStatusCode(int $statusCode, ?string $reasonPhrase);
+    public function setStatusCode(int $statusCode, ?string $reasonPhrase): void;
     public function getStatusCode(): int;
     public function setProtocol(string $protocol): void;
-    public function addHeader(string $name, string $value, bool $replace = true);
+    public function addHeader(string $name, string $value, bool $replace = true): void;
     public function headersList(): array;
     public function getBody(): mixed;
     public function setBody(mixed $body): void;

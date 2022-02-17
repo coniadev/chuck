@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-function logit($msg): void
+function logit(string $msg): void
 {
     $hostPort = "[" . $_SERVER["REMOTE_ADDR"] . "]:" . $_SERVER["REMOTE_PORT"];
 
@@ -31,9 +31,16 @@ $url = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 logit($_SERVER['REQUEST_URI']);
 
 // serve existing files as-is
-if (file_exists($publicDir . $url)) {
+if ($publicDir) {
+    if (file_exists($publicDir . $url)) {
+        return false;
+    }
+
+    $_SERVER['SCRIPT_NAME'] = 'index.php';
+
+    /** @psalm-suppress UnresolvableInclude */
+    require_once $publicDir . '/index.php';
+    return true;
+} else {
     return false;
 }
-
-$_SERVER['SCRIPT_NAME'] = 'index.php';
-require_once $publicDir . '/index.php';

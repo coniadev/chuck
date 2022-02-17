@@ -14,7 +14,7 @@ class ExtractMessages extends Chuck\Cli\Command
         string $pot,
         string $locale,
         bool $join = false
-    ) {
+    ): void {
         $find =  " -type d \\( " .
             "-name node_modules -o -name Plugin " . // excluded
             "\\) -prune -false -o -name";

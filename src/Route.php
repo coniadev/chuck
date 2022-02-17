@@ -13,7 +13,6 @@ const RIGHT_BRACE = '§§§£§§§';
 class Route implements RouteInterface
 {
     protected array $args = [];
-    protected string $pattern;
     protected array $methods = [];
     protected ?Renderer\Config $renderer = null;
     protected array $middlewares = [];
@@ -182,7 +181,7 @@ class Route implements RouteInterface
         return $this->restoreInnerBraces($pattern);
     }
 
-    public function url(...$args): string
+    public function url(mixed ...$args): string
     {
         if (count($args) > 0) {
             if (is_array($args[0] ?? null)) {

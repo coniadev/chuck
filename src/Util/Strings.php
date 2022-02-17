@@ -69,7 +69,7 @@ class Strings
             $size += $classCount - 1;
         }
 
-        if ($size === 0 || $len <= 0) {
+        if ($size === 0.0 || $len <= 0) {
             return 0;
         }
         return log($size, 2) * $len;

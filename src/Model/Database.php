@@ -21,8 +21,8 @@ class Database implements DatabaseInterface
     protected PDO $conn;
     protected ?\Chuck\Memcached $memcached = null;
     protected string $dsn;
-    protected string $username;
-    protected string $password;
+    protected ?string $username;
+    protected ?string $password;
     protected string $memcachedPrefix;
     protected array $scriptPaths = [];
     protected int $fetchMode;
@@ -109,7 +109,7 @@ class Database implements DatabaseInterface
 
     public function connect(): self
     {
-        if ($this->conn) {
+        if (isset($this->conn)) {
             return $this;
         }
 

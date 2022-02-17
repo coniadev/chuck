@@ -13,7 +13,6 @@ class Template implements TemplateInterface
     protected RequestInterface $request;
     protected array $folders = [];
     protected array $defaults;
-    protected string $path;
     protected Path $pathUtil;
 
     public function __construct(
@@ -50,7 +49,7 @@ class Template implements TemplateInterface
         }
     }
 
-    public function render(string $template, $context = []): string
+    public function render(string $template, array $context = []): string
     {
         $context = array_merge($this->defaults, $context);
         $error = null;
@@ -102,13 +101,14 @@ class Template implements TemplateInterface
         throw new ValueError("Template '$path' is outside of the project root directory");
     }
 
-    protected static function load(string $template, array $context = [])
+    protected static function load(string $template, array $context = []): void
     {
         // Hide $template. Could be overwritten if $context['template'] exists.
         $____template____ = $template;
 
         extract($context);
 
-        return include $____template____;
+        /** @psalm-suppress UnresolvableInclude */
+        include $____template____;
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use \Closure;
+use \ValueError;
 use Chuck\Exception\HttpNotFound;
 use Chuck\Exception\HttpInternalError;
 
@@ -37,7 +39,7 @@ class Router implements RouterInterface
         string $name,
         string $prefix,
         string $dir,
-    ) {
+    ): void {
         if (is_dir($dir)) {
             $this->staticRoutes[$name] = [
                 'prefix' => '/' . trim($prefix, '/') . '/',
@@ -48,18 +50,28 @@ class Router implements RouterInterface
         }
     }
 
-    public function middleware(callable|object $middleware): void
+    public function middleware(Closure|object|string $middleware): void
     {
         if (is_object($middleware)) {
             $reflectionFunc = (new \ReflectionObject($middleware))->getMethod('__invoke');
         } else {
+            if (empty($middleware)) {
+                throw new \InvalidArgumentException("Middleware must not be empty");
+            }
+
             $reflectionFunc = new \ReflectionFunction($middleware);
         }
 
         try {
-            $returnType = new \ReflectionClass((string)$reflectionFunc->getReturnType());
+            $returnType = $reflectionFunc->getReturnType();
 
-            if (!($returnType->implementsInterface(RequestInterface::class))) {
+            if (!$returnType) {
+                throw new \InvalidArgumentException("Middleware return type must be given");
+            }
+
+            $returnTypeCls = new \ReflectionClass($returnType);
+
+            if (!($returnTypeCls->implementsInterface(RequestInterface::class))) {
                 throw new \InvalidArgumentException("Middleware's return type must implement " . RequestInterface::class);
             }
         } catch (\ReflectionException) {
@@ -71,14 +83,20 @@ class Router implements RouterInterface
             throw new \InvalidArgumentException("Middleware must accept two parameters");
         }
 
-        $requestType = (new \ReflectionClass((string)$reflectionParams[0]->getType()));
-        if (!($requestType->implementsInterface(RequestInterface::class))) {
+        $requestType = $reflectionParams[0]->getType();
+
+        if (!$requestType) {
+            throw new \InvalidArgumentException("Middleware's first parameter must implement " . RequestInterface::class);
+        }
+
+        $requestTypeCls = new \ReflectionClass($requestType);
+        if (!($requestTypeCls->implementsInterface(RequestInterface::class))) {
             throw new \InvalidArgumentException("Middleware's first parameter must implement " . RequestInterface::class);
         }
 
         $nextType = (string)$reflectionParams[1]->getType();
 
-        if (!$nextType === 'callable') {
+        if ($nextType !== 'callable') {
             throw new \InvalidArgumentException("Middleware's second parameter must be of type 'callable'");
         }
 
@@ -167,8 +185,8 @@ class Router implements RouterInterface
 
         if (is_callable($view)) {
             return $view($request);
-        } else {
-            if (is_string($view) && !str_contains($view, '::')) {
+        } elseif (is_string($view)) {
+            if (!str_contains($view, '::')) {
                 $view .= '::__invoke';
             }
 
@@ -191,6 +209,8 @@ class Router implements RouterInterface
                     "Controller not found ${ctrlName}"
                 );
             }
+        } else {
+            throw new ValueError('Wrong view type');
         }
     }
 

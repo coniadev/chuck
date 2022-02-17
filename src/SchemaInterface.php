@@ -12,7 +12,7 @@ interface SchemaInterface
         array $langs = [],
         ?string $title = null,
     );
-    public function validate(?array $data): bool;
+    public function validate(array $data, int $level = 1): bool;
     public function errors(bool $grouped = false): array;
     public function values(): array;
     public function pristineValues(): array;

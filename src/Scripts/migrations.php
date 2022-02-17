@@ -23,7 +23,7 @@ class Migrations extends Chuck\Cli\MigrationsCommand
 
     protected function add(ConfigInterface $config): void
     {
-        $ts = (string)date('YmdHis', time());
+        $ts = date('YmdHis', time());
         $fileName = readline('Name of the migration: ');
         // fopen("testfile.txt", "w")
         $fileName = str_replace(' ', '_', $fileName);
@@ -84,7 +84,7 @@ class Migrations extends Chuck\Cli\MigrationsCommand
     {
         $stmt = $db->prepare('SELECT migration FROM migrations;');
         $stmt->execute();
-        return array_map(fn ($mig) => $mig['migration'], $stmt->fetchAll());
+        return array_map(fn (array $mig): array => $mig['migration'], $stmt->fetchAll());
     }
 
     protected function migrateSQL(
@@ -114,6 +114,7 @@ class Migrations extends Chuck\Cli\MigrationsCommand
         bool $showStacktrace
     ): void {
         try {
+            /** @psalm-suppress UnresolvableInclude */
             $migObj = require $migration;
             $migObj->run($db);
             $this->logMigration($db, $migration);
@@ -124,9 +125,9 @@ class Migrations extends Chuck\Cli\MigrationsCommand
     }
 
     protected function showMessage(
-        $migration,
-        $e = null,
-        $showStacktrace = false
+        string $migration,
+        ?object $e = null,
+        bool $showStacktrace = false
     ): void {
         if ($e) {
             echo "\033[1;31mError\033[0m: while working on migration '\033[1;33m" .

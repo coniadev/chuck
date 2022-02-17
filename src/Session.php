@@ -6,6 +6,7 @@ namespace Chuck;
 
 class Session implements SessionInterface
 {
+    /** @psalm-suppress PropertyNotSetInConstructor */
     public readonly Csrf $csrf;
 
     protected RequestInterface $request;
@@ -43,6 +44,13 @@ class Session implements SessionInterface
             }
         }
 
+        /**
+         * @psalm-suppress InaccessibleProperty
+         *
+         * TODO: At the time of writing Psalm did not support
+         * readonly properties which are not initialized in the
+         * constructor. Recheck on occasion.
+         */
         $this->csrf = new Csrf($this->request);
 
 
@@ -94,12 +102,12 @@ class Session implements SessionInterface
         session_destroy();
     }
 
-    public function get($key)
+    public function get(string $key): mixed
     {
         return $_SESSION[$key] ?? null;
     }
 
-    public function set(string $key, $value)
+    public function set(string $key, mixed $value): void
     {
         $_SESSION[$key] = $value;
     }
@@ -133,12 +141,12 @@ class Session implements SessionInterface
         session_regenerate_id(true);
     }
 
-    public function setUser($userId): void
+    public function setUser(string|int $userId): void
     {
         $_SESSION['user_id'] = $userId;
     }
 
-    public function authenticatedUserId(): string|int|null
+    public function authenticatedUserId(): mixed
     {
         return $_SESSION['user_id'] ?? null;
     }

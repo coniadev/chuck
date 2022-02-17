@@ -6,8 +6,10 @@ namespace Chuck;
 
 class Request implements RequestInterface
 {
-    protected readonly RouterInterface $router;
+    /** @psalm-suppress PropertyNotSetInConstructor */
     protected readonly ResponseInterface $response;
+
+    protected readonly RouterInterface $router;
     protected readonly ConfigInterface $config;
     protected array $customMethods = [];
 
@@ -186,6 +188,13 @@ class Request implements RequestInterface
         ?string $reasonPhrase = null,
     ): ResponseInterface {
         if (!isset($this->response)) {
+            /**
+             * @psalm-suppress InaccessibleProperty
+             *
+             * TODO: At the time of writing Psalm did not support
+             * readonly properties which are not initialized in the
+             * constructor. Recheck on occasion.
+             */
             $this->response = new ($this->config->registry(ResponseInterface::class))($this);
         }
 

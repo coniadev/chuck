@@ -8,11 +8,11 @@ class Time
 {
     public static function toIsoDateTime(int $timestamp): string
     {
-        return (string)date('Y-m-d H:i:s', $timestamp);
+        return date('Y-m-d H:i:s', $timestamp);
     }
 
     public static function toIsoDate(int $timestamp): string
     {
-        return (string)date('Y-m-d', $timestamp);
+        return date('Y-m-d', $timestamp);
     }
 }

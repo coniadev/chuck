@@ -11,7 +11,7 @@ interface RequestInterface
     public function param(string $key, ?string $default): null|string|array;
     public function routeUrl(string $name, array $args = []): string;
     public function staticUrl(string $name, string $path): string;
-    public function url();
+    public function url(): string;
     public function redirect(string $url, int $code): ResponseInterface;
     public function getResponse(
         ?int $statusCode = null,
@@ -26,5 +26,5 @@ interface RequestInterface
     public function isMethod(string $method): bool;
     public function isXHR(): bool;
     public function jsonBody(): ?array;
-    public function addMethod(string $name, callable $callable);
+    public function addMethod(string $name, callable $callable): void;
 }

@@ -60,7 +60,7 @@ test('Static routes', function () {
 
 test('Dispatch without renderer', function () {
     $router = new Router();
-    $index = new Route('index', '/', fn (Request $request) => new Response(200, 'Chuck'));
+    $index = new Route('index', '/', fn (Request $request) => new Response($request, 200, 'Chuck'));
     $router->addRoute($index);
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/'));

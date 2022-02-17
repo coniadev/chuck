@@ -26,7 +26,7 @@ abstract class SchemaI18N implements SchemaInterface
         string $label,
         string|SchemaInterface $type,
         string ...$validators
-    ) {
+    ): void {
         if (!$field) {
             throw new \ErrorException(
                 'Schema definition error: field must not be empty'
@@ -41,7 +41,7 @@ abstract class SchemaI18N implements SchemaInterface
         ];
     }
 
-    public function validate(?array $data): bool
+    public function validate(array $data, int $level = 1): bool
     {
         $this->errorList = [];
         $this->errorMap = [];

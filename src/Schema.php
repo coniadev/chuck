@@ -36,7 +36,7 @@ class Validator
         $this->skipNull = $skipNull;
     }
 
-    public function validate(Value $value, ...$args): bool
+    public function validate(Value $value, string ...$args): bool
     {
         $func = $this->validator;
         return $func($value, ...$args);
@@ -49,8 +49,7 @@ abstract class Schema implements SchemaInterface
 
     public array $errorList = [];  // a list of errorList to be displayed in frontend
 
-    protected int $level;
-    protected array $data;
+    protected int $level = 0;
     protected array $rules = [];
     protected array $errorMap = [];     // a dictonary of errorList with the fieldname as key
     protected ?array $cachedValues = null;
@@ -71,7 +70,7 @@ abstract class Schema implements SchemaInterface
         string $label,
         string|SchemaInterface $type,
         string ...$validators
-    ) {
+    ): void {
         if (!$field) {
             throw new \InvalidArgumentException(
                 'Schema definition error: field must not be empty'
@@ -87,20 +86,20 @@ abstract class Schema implements SchemaInterface
 
     abstract protected function rules(): void;
 
-    protected function addSubError(string $field, array $error, ?int $listIndex): void
+    protected function addSubError(string $field, array|string|null $error, ?int $listIndex): void
     {
-        foreach ($error['errors'] as $err) {
+        foreach ($error['errors'] ?? [] as $err) {
             $this->errorList[] = $err;
         }
 
         if ($listIndex === null) {
-            $this->errorMap[$field] = $error['map'];
+            $this->errorMap[$field] = $error['map'] ?? [];
         } else {
-            $this->errorMap[$listIndex][$field] = $error['map'];
+            $this->errorMap[$listIndex][$field] = $error['map'] ?? [];
         }
     }
 
-    protected function addError(string $field, string $error, ?int $listIndex = null): void
+    protected function addError(string $field, array|string|null $error, ?int $listIndex = null): void
     {
         $e = [
             'error' => $error,
@@ -133,7 +132,7 @@ abstract class Schema implements SchemaInterface
         Value $value,
         string $validatorDefinition,
         ?int $listIndex
-    ) {
+    ): void {
         $validatorArray = explode(':', $validatorDefinition);
         $validatorName = $validatorArray[0];
         $validatorArgs = array_slice($validatorArray, 1);
@@ -222,12 +221,12 @@ abstract class Schema implements SchemaInterface
         return new Value($value, $pristine);
     }
 
-    protected function toPlain($pristine): Value
+    protected function toPlain(mixed $pristine): Value
     {
         return new Value((string)$pristine, $pristine);
     }
 
-    protected function toList($pristine, $label): Value
+    protected function toList(mixed $pristine, string $label): Value
     {
         if (is_array($pristine) && !Arrays::isAssoc($pristine)) {
             return new Value($pristine, $pristine);
@@ -269,7 +268,7 @@ abstract class Schema implements SchemaInterface
             return new Value($pristine, $pristine);
         }
 
-        if (preg_match('/^([0-9]|-[1-9]|-?[1-9][0-9]*)$/i', trim((string)$pristine ?? ''))) {
+        if (preg_match('/^([0-9]|-[1-9]|-?[1-9][0-9]*)$/i', trim($pristine))) {
             return new Value((int)$pristine, $pristine);
         }
 
@@ -280,7 +279,7 @@ abstract class Schema implements SchemaInterface
         );
     }
 
-    protected function toSubValues($pristine, $schema): Value
+    protected function toSubValues(mixed $pristine, SchemaInterface $schema): Value
     {
         if ($schema->validate($pristine, $this->level + 1)) {
             return new Value($pristine, $schema->values());
@@ -419,7 +418,7 @@ abstract class Schema implements SchemaInterface
         return $values;
     }
 
-    public function validate(?array $data, int $level = 1): bool
+    public function validate(array $data, int $level = 1): bool
     {
         $this->level = $level;
         $this->errorList = [];
@@ -430,7 +429,7 @@ abstract class Schema implements SchemaInterface
         $this->rules = [];
         $this->rules();
 
-        $values = $this->readValues($data ?? []);
+        $values = $this->readValues($data);
 
         if ($this->list) {
             $this->validatedValues = [];
@@ -547,7 +546,7 @@ abstract class Schema implements SchemaInterface
     protected function getValues(array $values): array
     {
         return array_map(
-            function ($item) {
+            function (Value $item): mixed {
                 return $item->value;
             },
             $values
@@ -560,11 +559,11 @@ abstract class Schema implements SchemaInterface
             if ($this->list) {
                 $this->cachedValues = [];
 
-                foreach ($this->validatedValues as $values) {
+                foreach ($this->validatedValues ?? [] as $values) {
                     $this->cachedValues[] = $this->getValues($values);
                 }
             } else {
-                $this->cachedValues = $this->getValues($this->validatedValues);
+                $this->cachedValues = $this->getValues($this->validatedValues ?? []);
             }
         }
 
@@ -575,10 +574,10 @@ abstract class Schema implements SchemaInterface
     {
         if ($this->cachedPristine === null) {
             $this->cachedPristine = array_map(
-                function ($item) {
+                function (Value $item): mixed {
                     return $item->pristine;
                 },
-                $this->validatedValues
+                $this->validatedValues ?? []
             );
         }
 
@@ -597,7 +596,7 @@ abstract class Schema implements SchemaInterface
         $this->validators['required'] = new Validator(
             'required',
             _('-schema-required-%1$s-'),
-            function (Value $value, ...$args) {
+            function (Value $value, string ...$args) {
                 $val = $value->value;
 
                 if (is_null($val)) {
@@ -616,7 +615,7 @@ abstract class Schema implements SchemaInterface
         $this->validators['email'] = new Validator(
             'email',
             _('-schema-invalid-email-%1$s-%2$s-'),
-            function (Value $value, ...$args) {
+            function (Value $value, string ...$args) {
                 return filter_var(
                     trim((string)$value->value),
                     \FILTER_VALIDATE_EMAIL
@@ -628,7 +627,7 @@ abstract class Schema implements SchemaInterface
         $this->validators['minlen'] = new Validator(
             'minlen',
             _('-schema-minlen-%1$s-%4$s-'),
-            function (Value $value, ...$args) {
+            function (Value $value, string ...$args) {
                 return strlen($value->value) >= (int)$args[0];
             },
             true
@@ -637,7 +636,7 @@ abstract class Schema implements SchemaInterface
         $this->validators['maxlen'] = new Validator(
             'maxlen',
             _('-schema-maxlen-%1$s-%4$s-'),
-            function (Value $value, ...$args) {
+            function (Value $value, string ...$args) {
                 return strlen($value->value) <= (int)$args[0];
             },
             true
@@ -646,7 +645,7 @@ abstract class Schema implements SchemaInterface
         $this->validators['min'] = new Validator(
             'min',
             _('-schema-min-%1$s-%2$s-%4$s-'),
-            function (Value $value, ...$args) {
+            function (Value $value, string ...$args) {
                 return (float)$value->value >= (float)$args[0];
             },
             true
@@ -655,7 +654,7 @@ abstract class Schema implements SchemaInterface
         $this->validators['max'] = new Validator(
             'max',
             _('-schema-max-%1$s-%2$s-%4$s-'),
-            function (Value $value, ...$args) {
+            function (Value $value, string ...$args) {
                 return $value->value <= (float)$args[0];
             },
             true
@@ -664,7 +663,7 @@ abstract class Schema implements SchemaInterface
         $this->validators['regex'] = new Validator(
             'regex',
             _('-schema-regex-%1$s-%2$s-'),
-            function (Value $value, ...$args) {
+            function (Value $value, string ...$args) {
                 // as regex patterns could contain colons ':' and validator
                 // args are separated by colons and split at their position
                 // we need to join them again
@@ -677,7 +676,7 @@ abstract class Schema implements SchemaInterface
         $this->validators['in'] = new Validator(
             'in',
             _('-schema-in-%1$s-%4$s-'),
-            function (Value $value, ...$args) {
+            function (Value $value, string ...$args) {
                 // Allowed values must be passed as validator arg
                 // seperated by comma.
                 // Like: in:firstval,secondval,thirdval

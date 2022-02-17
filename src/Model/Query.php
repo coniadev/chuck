@@ -101,9 +101,8 @@ class Query implements QueryInterface
         return $value ?: null;
     }
 
-    public function one(
-        int $fetchMode = null,
-    ): ?array {
+    public function one(int $fetchMode = null): ?array
+    {
         $this->db->connect();
 
         if (!$this->executed) {
