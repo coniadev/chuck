@@ -29,8 +29,13 @@ test('Custom options', function () {
 test('Host and origin', function () {
     $config = new Config($this->minimalOptions());
 
-    expect($config->get('origin'))->toBe('http://localhost:1983');
-    expect($config->get('host'))->toBe('localhost');
+    expect($config->get('origin'))->toBe('http://www.example.com');
+    expect($config->get('host'))->toBe('www.example.com');
+
+    $this->enableHttps();
+    $config = new Config($this->minimalOptions());
+
+    expect($config->get('origin'))->toBe('https://www.example.com');
 });
 
 
