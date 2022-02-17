@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Chuck\Tests\TestCase;
-use Chuck\{App, Router, Route, Request};
+use Chuck\{App, Route, Request};
 
 uses(TestCase::class);
 

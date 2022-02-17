@@ -50,24 +50,24 @@ class Router implements RouterInterface
         }
     }
 
-    public function middleware(Closure|object|string $middleware): void
+    public function middleware(object|string $middleware): void
     {
-        if (is_object($middleware)) {
-            $reflectionFunc = (new \ReflectionObject($middleware))->getMethod('__invoke');
-        } else {
-            if (empty($middleware)) {
-                throw new \InvalidArgumentException("Middleware must not be empty");
-            }
-
+        if ($middleware instanceof Closure) {
             $reflectionFunc = new \ReflectionFunction($middleware);
+        } elseif (is_object($middleware)) {
+            $reflectionFunc = (new \ReflectionObject($middleware))->getMethod('__invoke');
+        } elseif (is_callable($middleware)) {
+            $reflectionFunc = new \ReflectionFunction($middleware);
+        } else {
+            throw new \InvalidArgumentException("Middleware is not compatible");
         }
 
+        // Check the return type of the middleware
         try {
-            $returnType = $reflectionFunc->getReturnType();
-
-            if (!$returnType) {
+            $t = $reflectionFunc->getReturnType();
+            /** @var class-string */
+            $returnType = empty($t) ? $t :
                 throw new \InvalidArgumentException("Middleware return type must be given");
-            }
 
             $returnTypeCls = new \ReflectionClass($returnType);
 
@@ -78,22 +78,24 @@ class Router implements RouterInterface
             throw new \InvalidArgumentException("Middleware's return type must implement " . RequestInterface::class);
         }
 
+        // Check if two parameters are present
         $reflectionParams = $reflectionFunc->getParameters();
         if (count($reflectionParams) !== 2) {
             throw new \InvalidArgumentException("Middleware must accept two parameters");
         }
 
-        $requestType = $reflectionParams[0]->getType();
-
-        if (!$requestType) {
+        // Check $request parameter
+        $t = $reflectionParams[0]->getType();
+        /** @var class-string */
+        $requestType = empty($t) ? $t :
             throw new \InvalidArgumentException("Middleware's first parameter must implement " . RequestInterface::class);
-        }
 
         $requestTypeCls = new \ReflectionClass($requestType);
         if (!($requestTypeCls->implementsInterface(RequestInterface::class))) {
             throw new \InvalidArgumentException("Middleware's first parameter must implement " . RequestInterface::class);
         }
 
+        // Check $next parameter
         $nextType = (string)$reflectionParams[1]->getType();
 
         if ($nextType !== 'callable') {

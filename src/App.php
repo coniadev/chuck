@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use \Closure;
-
 
 class App
 {
     protected RouterInterface $router;
     protected ConfigInterface $config;
-    protected callable $localeNegotiatorClosure;
 
     public function __construct(protected RequestInterface $request)
     {
@@ -56,7 +53,7 @@ class App
         $this->router->addStatic($name, $prefix, $path);
     }
 
-    public function middleware(Closure|object|string $middleware): void
+    public function middleware(object|string $middleware): void
     {
         $this->router->middleware($middleware);
     }
