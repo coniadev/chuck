@@ -179,7 +179,7 @@ test('Http origin', function () {
     expect(Http::origin())->toBe('https://www.example.com');
     $this->setPort(666);
     expect(Http::origin())->toBe('https://www.example.com:666');
-    $this->setPort('');
     $this->disableHttps();
+    $this->setPort('');
     expect(Http::origin())->toBe('http://www.example.com');
 });

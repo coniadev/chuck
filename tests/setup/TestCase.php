@@ -44,6 +44,28 @@ class TestCase extends BaseTestCase
         unset($_SERVER['REQUEST_URI']);
         unset($_SERVER['SERVER_PORT']);
         unset($_SERVER['SERVER_PROTOCOL']);
+        global $_GET;
+        $_GET = [];
+        global $_POST;
+        $_POST = [];
+    }
+
+    public function set(string $method, array $values): void
+    {
+        global $_GET;
+        global $_POST;
+
+        foreach ($values as $key => $value) {
+            if (strtoupper($method) === 'GET') {
+                $_GET[$key] = $value;
+                continue;
+            }
+            if (strtoupper($method) === 'POST') {
+                $_POST[$key] = $value;
+            } else {
+                throw new \ValueError("Invalid method '$method'");
+            }
+        }
     }
 
     public function setMethod(string $method): void
@@ -63,6 +85,11 @@ class TestCase extends BaseTestCase
     public function setHost(string $host): void
     {
         $_SERVER['HTTP_HOST'] = $host;
+    }
+
+    public function setPort(int|string $port): void
+    {
+        $_SERVER['SERVER_PORT'] = (string)$port;
     }
 
     public function enableHttps(): void
