@@ -7,7 +7,7 @@ namespace Chuck\Exception;
 use Chuck\RequestInterface;
 
 
-class HttpNotFound extends HttpException
+class HttpNotFound extends HttpError
 {
     public function __construct(
         protected RequestInterface $request,

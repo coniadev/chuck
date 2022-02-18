@@ -7,7 +7,7 @@ namespace Chuck\Exception;
 use Chuck\RequestInterface;
 
 
-abstract class HttpException extends \Exception
+abstract class HttpError extends \Exception
 {
     protected readonly string $title;
 

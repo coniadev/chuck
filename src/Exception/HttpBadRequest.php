@@ -7,7 +7,7 @@ namespace Chuck\Exception;
 use Chuck\RequestInterface;
 
 
-class HttpBadRequest extends HttpException
+class HttpBadRequest extends HttpError
 {
     public function __construct(
         protected RequestInterface $request,

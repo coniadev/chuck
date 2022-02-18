@@ -7,7 +7,7 @@ namespace Chuck\Exception;
 use Chuck\RequestInterface;
 
 
-class HttpUnauthorized extends HttpException
+class HttpUnauthorized extends HttpError
 {
     public function __construct(
         protected RequestInterface $request,
