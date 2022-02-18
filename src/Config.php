@@ -251,7 +251,7 @@ class Config implements ConfigInterface
 
     public function register(string $interface, string $class): void
     {
-        if (!($class instanceof $interface)) {
+        if (!(is_subclass_of($class, $interface))) {
             throw new \InvalidArgumentException("The class does not implement the interface");
         }
 
@@ -260,8 +260,10 @@ class Config implements ConfigInterface
 
     public function addRenderer(string $key, string $class): void
     {
-        if (!($class instanceof RendererInterface)) {
-            throw new \InvalidArgumentException("The renderer class does not implement " . RendererInterface::class);
+        if (!(is_subclass_of($class, RendererInterface::class))) {
+            throw new \InvalidArgumentException(
+                "The renderer class does not implement " . RendererInterface::class
+            );
         }
 
         $this->renderers[$key] = $class;
