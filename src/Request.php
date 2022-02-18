@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use Chuck\Util\Http;
+
+
 class Request implements RequestInterface
 {
     /** @psalm-suppress PropertyNotSetInConstructor */
@@ -21,29 +24,21 @@ class Request implements RequestInterface
         $this->config = $config;
     }
 
-    public function matchdict(string $key, ?string $default = null): ?string
-    {
-        $matchdict = $this->router->getRoute()->args();
-
-        if (func_num_args() > 1) {
-            return $matchdict[$key] ?? $default;
-        }
-
-        return $matchdict[$key];
-    }
-
     public function params(): array
     {
-        return array_merge($_GET, $_POST);
+        // GET parameters have priority
+        return array_merge($_POST, $_GET);
     }
+
     public function param(string $key, ?string $default = null): null|string|array
     {
-        if (array_key_exists($key, $_POST)) {
-            return $_POST[$key];
-        }
-
+        // prefer GET parameters
         if (array_key_exists($key, $_GET)) {
             return $_GET[$key];
+        }
+
+        if (array_key_exists($key, $_POST)) {
+            return $_POST[$key];
         }
 
         if (func_num_args() > 1) {
@@ -53,16 +48,6 @@ class Request implements RequestInterface
         return null;
     }
 
-    public function routeUrl(string $name, array $args = []): string
-    {
-        return $this->router->routeUrl($name, $args);
-    }
-
-    public function staticUrl(string $name, string $path): string
-    {
-        return $this->router->staticUrl($name, $path);
-    }
-
     public function url(): string
     {
         return $_SERVER['REQUEST_URI'];
@@ -70,27 +55,7 @@ class Request implements RequestInterface
 
     public function serverUrl(): string
     {
-        $serverName = $_SERVER['SERVER_NAME'];
-
-        if (!in_array($_SERVER['SERVER_PORT'], [80, 443])) {
-            $port = ":$_SERVER[SERVER_PORT]";
-        } else {
-            $port = '';
-        }
-
-        if (!empty($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['HTTPS'] == '1')) {
-            $scheme = 'https';
-        } else {
-            $scheme = 'http';
-        }
-
-        return $scheme . '://' . $serverName . $port;
-    }
-
-    public function isXHR(): bool
-    {
-        return (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+        return Http::origin() . $this->url();
     }
 
     /**
@@ -98,7 +63,7 @@ class Request implements RequestInterface
      */
     public function urlPath(): string
     {
-        return trim(strtok($_SERVER['REQUEST_URI'], '?'));
+        return trim(strtok($this->url(), '?'));
     }
 
     public function redirect(string $url, int $code = 302): ResponseInterface
@@ -115,14 +80,24 @@ class Request implements RequestInterface
         return $this->router->getRoute();
     }
 
+    public function routeUrl(string $name, mixed ...$args): string
+    {
+        return Http::origin() . $this->router->routeUrl($name, ...$args);
+    }
+
+    public function staticUrl(string $name, string $path, bool $bust = false): string
+    {
+        return $this->getRouter()->staticUrl(
+            $name,
+            $path,
+            host: Http::origin(),
+            bust: $bust,
+        );
+    }
+
     public function method(): string
     {
         return strtoupper($_SERVER['REQUEST_METHOD']);
-    }
-
-    public function contentType(): string
-    {
-        return $_SERVER['CONTENT_TYPE'];
     }
 
     public function isMethod(string $method): bool
@@ -130,29 +105,21 @@ class Request implements RequestInterface
         return strtoupper($method) === $this->method();
     }
 
-    public function debug(): bool
+    public function jsonBody(string $stream = 'php:://input'): ?array
     {
-        return $this->config->get('debug');
-    }
-
-    public function env(): string
-    {
-        return $this->config->get('env');
-    }
-
-    public function jsonBody(): ?array
-    {
-        static $json = null;
-
-        if ($json === null) {
-            // Get JSON as a string
-            $jsonStr = file_get_contents('php://input');
-            $json = json_decode($jsonStr, true);
+        if (PHP_SAPI !== 'cli' && func_num_args() > 0) {
+            // @codeCoverageIgnoreStart
+            throw new \InvalidArgumentException('Changing the stream is only allowed in cli SAPI');
+            // @codeCoverageIgnoreEnd
         }
+
+        // Get JSON as a string
+        $jsonStr = file_get_contents($stream);
+        print($jsonStr . "\n");
+        $json = json_decode($jsonStr, true);
 
         return $json;
     }
-
 
     /**
      * Adds a custom method to the request which can be used
@@ -221,8 +188,9 @@ class Request implements RequestInterface
         return $func->call($this, ...$args);
     }
 
-    public function __get(string $key): ResponseInterface | ConfigInterface | RouterInterface
-    {
+    public function __get(
+        string $key
+    ): ResponseInterface | ConfigInterface | RouterInterface | RouteInterface | bool | string {
         return match ($key) {
             /** @var ResponseInterface */
             'response' => $this->getResponse(),
@@ -230,7 +198,13 @@ class Request implements RequestInterface
             'config' => $this->config,
             /** @var RouterInterface */
             'router' => $this->router,
-            default => throw new \ErrorException("Undefined property \"$key\"")
+            /** @var RouteInterface */
+            'route' => $this->router->getRoute(),
+            /** @var string */
+            'env' => $this->config->env(),
+            /** @var bool */
+            'debug' => $this->config->debug(),
+            default => throw new \RuntimeException("Undefined request property '$key'")
         };
     }
 }
