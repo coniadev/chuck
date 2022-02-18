@@ -9,7 +9,7 @@ class StringRenderer extends Renderer
 {
     public function render(): string
     {
-        return (string)$this->data;
+        return print_r($this->data, true);
     }
 
     public function headers(): iterable

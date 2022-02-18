@@ -21,19 +21,19 @@ class JsonRenderer extends Renderer
     {
         $headers = [
             [
-                'name' => 'Content-type',
+                'name' => 'Content-Type',
                 'value' => 'application/json',
                 'replace' => true,
             ]
         ];
 
-        if (method_exists($this->request, 'session')) {
-            $headers[] = [
-                'name' => 'X-CSRF-Token',
-                'value' => $this->request->session()->csrf->get(),
-                'replace' => true,
-            ];
-        }
+        // if (method_exists($this->request, 'session')) {
+        // $headers[] = [
+        // 'name' => 'X-CSRF-Token',
+        // 'value' => $this->request->session()->csrf->get(),
+        // 'replace' => true,
+        // ];
+        // }
 
         return $headers;
     }
