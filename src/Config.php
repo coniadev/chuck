@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Chuck;
 
 use \ValueError;
+use Chuck\Util\Http;
 use Chuck\Util\Path;
 use Chuck\{Response, ResponseInterface};
 use Chuck\{Template, TemplateInterface};
@@ -14,6 +15,9 @@ use Chuck\Renderer\RendererInterface;
 
 class Config implements ConfigInterface
 {
+    public readonly bool $debug;
+    public readonly string $env;
+
     protected readonly array $config;
     protected readonly array $paths;
     protected array $registry;
@@ -26,6 +30,9 @@ class Config implements ConfigInterface
             $pristine,
         );
 
+        $pristineEnv = $pristine['env'] ?? null;
+        $this->env = (!empty($pristineEnv) && is_string($pristineEnv)) ? $pristineEnv : '';
+        $this->debug = is_bool($pristine['debug'] ?? null) ? $pristine['debug'] : false;
 
         $this->registry = [
             ResponseInterface::class => Response::class,
@@ -150,31 +157,7 @@ class Config implements ConfigInterface
         }
 
         if (!isset($config['origin'])) {
-            $https = $_SERVER['HTTPS'] ?? false ? true : false;
-            $proto = $https ? 'https' : 'http';
-
-            // Assume cli when HTTP_HOST ist not available
-            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-
-            // Assume cli when SERVER_PORT ist not available
-            $readPort = $_SERVER['SERVER_PORT'] ?? '';
-
-            if (empty($readPort)) {
-                $configPort = $config['port'];
-
-                if (is_int($configPort) || is_string($configPort)) {
-                    $readPort = (string)$configPort;
-                } else {
-                    throw new \ValueError('Port could not be determined. Add it to the config file.');
-                }
-            }
-
-            $port = match ($readPort) {
-                '80' => '',
-                '443' => '',
-                default => ':' . $readPort,
-            };
-            $config['origin'] = "$proto://$host$port";
+            $config['origin'] = Http::origin();
         }
 
         if (!isset($config['host'])) {
@@ -206,6 +189,16 @@ class Config implements ConfigInterface
 
             throw new \InvalidArgumentException("Chuck Error: The configuration key '$key' does not exist");
         }
+    }
+
+    public function debug(): bool
+    {
+        return $this->debug;
+    }
+
+    public function env(): string
+    {
+        return $this->env;
     }
 
     public function path(string $key): string

@@ -18,4 +18,6 @@ interface ConfigInterface
     public function migrations(): array;
     public function sql(): array;
     public function scripts(): array;
+    public function debug(): bool;
+    public function env(): string;
 }
