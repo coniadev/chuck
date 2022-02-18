@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Chuck\Tests\TestCase;
 use Chuck\Util\Arrays;
+use Chuck\Util\Http;
 use Chuck\Util\I18n;
 use Chuck\Util\Path;
 use Chuck\Util\Strings;
@@ -169,4 +170,16 @@ test('Path is inside root dir', function () {
 test('ISO dates', function () {
     expect(Time::toIsoDate(TIMESTAMP))->toBe('2022-01-30');
     expect(Time::toIsoDateTime(TIMESTAMP))->toBe('2022-01-30 12:33:13');
+});
+
+
+test('Http origin', function () {
+    expect(Http::origin())->toBe('http://www.example.com');
+    $this->enableHttps();
+    expect(Http::origin())->toBe('https://www.example.com');
+    $this->setPort(666);
+    expect(Http::origin())->toBe('https://www.example.com:666');
+    $this->setPort('');
+    $this->disableHttps();
+    expect(Http::origin())->toBe('http://www.example.com');
 });
