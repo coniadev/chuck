@@ -9,7 +9,6 @@ use Chuck\RequestInterface;
 
 abstract class HttpException extends \Exception
 {
-    protected readonly RequestInterface $request;
     protected readonly string $title;
 
     public function getRequest(): RequestInterface

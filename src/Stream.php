@@ -7,17 +7,21 @@ namespace Chuck;
 
 class Stream
 {
-    protected callable $consumer;
+    protected object|string $consumer;
 
     public function __construct(
         protected int $handle,
-        callable $consumer
+        object|string $consumer
     ) {
         $this->consumer = $consumer;
     }
 
     public function consume(): void
     {
-        ($this->consumer)($this->handle);
+        if (is_callable($this->consumer)) {
+            ($this->consumer)($this->handle);
+        } else {
+            throw new \ValueError('Stream consumer is not callable');
+        }
     }
 }
