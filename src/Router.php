@@ -6,8 +6,10 @@ namespace Chuck;
 
 use \Closure;
 use \ValueError;
-use Chuck\Exception\HttpNotFound;
-use Chuck\Exception\HttpInternalError;
+use \RuntimeException;
+
+use Chuck\Error\HttpNotFound;
+use Chuck\Error\HttpInternalError;
 
 
 class Router implements RouterInterface
@@ -22,6 +24,15 @@ class Router implements RouterInterface
     public function getRoutes(): array
     {
         return $this->routes;
+    }
+
+    public function getRoute(): Route
+    {
+        try {
+            return $this->route;
+        } catch (\Throwable) {
+            throw new RuntimeException('Route is not initialized');
+        }
     }
 
     public function addRoute(RouteInterface $route): void
@@ -114,21 +125,12 @@ class Router implements RouterInterface
         return $this->middlewares;
     }
 
-    protected function getServerPart(): string
-    {
-        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
-
-        $server = $_SERVER['HTTP_HOST'] ?? 'localhost';
-
-        return $protocol . $server;
-    }
-
     public function routeUrl(string $name, mixed ...$args): string
     {
         $route = $this->names[$name] ?? null;
 
         if ($route) {
-            return $this->getServerPart() . $route->url(...$args);
+            return $route->url(...$args);
         }
 
         throw new \RuntimeException('Route not found: ' . $name);
@@ -166,7 +168,7 @@ class Router implements RouterInterface
             $path .= $sep . 'v=' . $this->getCacheBuster($route['dir'], $file);
         }
 
-        return ($host ? trim($host, '/') : $this->getServerPart()) . $route['prefix'] . trim($path, '/');
+        return ($host ? trim($host, '/') : '') . $route['prefix'] . trim($path, '/');
     }
 
     public function match(RequestInterface $request): ?Route
@@ -275,10 +277,5 @@ class Router implements RouterInterface
         } else {
             throw new HttpNotFound($request);
         }
-    }
-
-    public function getRoute(): Route
-    {
-        return $this->route;
     }
 }

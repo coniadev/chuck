@@ -31,12 +31,12 @@ test('Matching', function () {
 
 test('Generate route url', function () {
     $router = new Router();
-    $albums = new Route('albums', '/albums/{from}/{to}', fn () => null);
+    $albums = new Route('albums', 'albums/{from}/{to}', fn () => null);
     $router->addRoute($albums);
 
-    expect($router->routeUrl('albums', from: 1990, to: 1995))->toBe('http://www.example.com/albums/1990/1995');
+    expect($router->routeUrl('albums', from: 1990, to: 1995))->toBe('/albums/1990/1995');
     $this->enableHttps();
-    expect($router->routeUrl('albums', ['from' => 1988, 'to' => 1991]))->toBe('https://www.example.com/albums/1988/1991');
+    expect($router->routeUrl('albums', ['from' => 1988, 'to' => 1991]))->toBe('/albums/1988/1991');
     $this->disableHttps();
 });
 
@@ -46,7 +46,7 @@ test('Static routes', function () {
     $router = new Router();
     $router->addStatic('static', '/static', __DIR__ . $ds . 'fixtures' . $ds . 'static');
 
-    expect($router->staticUrl('static', 'test.json'))->toBe('http://www.example.com/static/test.json');
+    expect($router->staticUrl('static', 'test.json'))->toBe('/static/test.json');
     expect($router->staticUrl('static', 'test.json', true))->toMatch('/\?v=[a-f0-9]{6}$/');
     expect($router->staticUrl('static', 'test.json?exists=true', true))->toMatch('/\?exists=true&v=[a-f0-9]{6}$/');
     expect($router->staticUrl(
