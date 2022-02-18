@@ -7,8 +7,10 @@ namespace Chuck\Tests;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 use Chuck\Config;
+use Chuck\ConfigInterface;
 use Chuck\Request;
 use Chuck\Router;
+use Chuck\RouterInterface;
 
 class TestCase extends BaseTestCase
 {
@@ -107,6 +109,8 @@ class TestCase extends BaseTestCase
         ?string $url = null,
         ?bool $https = null,
         array $options = [],
+        ?RouterInterface $router = null,
+        ?ConfigInterface $config = null,
     ): Request {
         if ($method) {
             $this->setMethod($method);
@@ -124,8 +128,14 @@ class TestCase extends BaseTestCase
             }
         }
 
-        $config = $this->config($options);
-        $router = new Router();
+        if ($config === null) {
+            $config = $this->config($options);
+        }
+
+        if ($router === null) {
+            $router = new Router();
+        }
+
         $request = new Request($config, $router);
 
         return $request;
