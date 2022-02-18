@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Exception;
+namespace Chuck\Error;
 
 use Chuck\RequestInterface;
 
@@ -10,6 +10,7 @@ use Chuck\RequestInterface;
 abstract class HttpError extends \Exception
 {
     protected readonly string $title;
+    protected readonly RequestInterface $request;
 
     public function getRequest(): RequestInterface
     {
