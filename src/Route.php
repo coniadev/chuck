@@ -255,7 +255,7 @@ class Route implements RouteInterface
 
     public function match(RequestInterface $request): ?Route
     {
-        $url = $this->removeQueryString($request->url());
+        $url = $this->removeQueryString($_SERVER['REQUEST_URI']);
 
         if (preg_match($this->pattern(), $url, $matches)) {
             // Remove integer indexes from array
