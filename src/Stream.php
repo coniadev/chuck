@@ -24,4 +24,9 @@ class Stream
             throw new \ValueError('Stream consumer is not callable');
         }
     }
+
+    public function __toString(): string
+    {
+        return 'TODO: naus mit';
+    }
 }

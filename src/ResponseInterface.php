@@ -9,7 +9,7 @@ interface ResponseInterface
     public function __construct(
         RequestInterface $request,
         int $statusCode = 200,
-        mixed $body = null,
+        string|Stream $body = '',
         array $headers = [],
         string $protocol = '1.1',
         ?string $reasonPhrase = null,
@@ -19,7 +19,7 @@ interface ResponseInterface
     public function setProtocol(string $protocol): void;
     public function addHeader(string $name, string $value, bool $replace = true): void;
     public function headersList(): array;
-    public function getBody(): mixed;
-    public function setBody(mixed $body): void;
+    public function getBody(): string|Stream;
+    public function setBody(string|Stream $body): void;
     public function emit(): void;
 }

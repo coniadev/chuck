@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use Chuck\Exception\HttpNotFound;
+use Chuck\Error\HttpNotFound;
 
 const REASON_PHRASES = [
     100 => 'Continue', 101 => 'Switching Protocols',
@@ -32,7 +32,7 @@ class Response implements ResponseInterface
     public function __construct(
         protected RequestInterface $request,
         protected int $statusCode = 200,
-        protected mixed $body = null,
+        protected string|Stream $body = '',
         protected array $headers = [],
         protected string $protocol = '1.1',
         protected ?string $reasonPhrase = null,
@@ -80,6 +80,8 @@ class Response implements ResponseInterface
                 'value' => array_merge($this->headers[$name]['value'], [$value]),
                 'replace' => $replace,
             ];
+
+            return;
         }
 
         $this->headers[$name] = [
@@ -93,12 +95,12 @@ class Response implements ResponseInterface
         return $this->headersList;
     }
 
-    public function getBody(): mixed
+    public function getBody(): string|Stream
     {
         return $this->body;
     }
 
-    public function setBody(mixed $body): void
+    public function setBody(string|Stream $body): void
     {
         $this->body = $body;
     }
@@ -150,9 +152,9 @@ class Response implements ResponseInterface
             }
         }
 
-        foreach ($this->headers as $header) {
-            foreach ($header as $value) {
-                $this->header(sprintf('%s: %s', $header['name'], $value), $header['replace']);
+        foreach ($this->headers as $name => $entry) {
+            foreach ($entry['value'] as $value) {
+                $this->header(sprintf('%s: %s', $name, $value), $entry['replace']);
             }
         }
 
@@ -164,7 +166,7 @@ class Response implements ResponseInterface
             $this->reasonPhrase ? ' ' . $this->reasonPhrase : ''
         ), true);
 
-        if ($body !== null) {
+        if (!empty($body)) {
             echo $body;
         }
 
