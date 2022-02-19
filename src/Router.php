@@ -77,17 +77,30 @@ class Router implements RouterInterface
         // Check the return type of the middleware
         try {
             $t = $reflectionFunc->getReturnType();
-            /** @var class-string */
             $returnType = (string)$t ?:
                 throw new \InvalidArgumentException("Middleware return type must be given");
+            $types = explode('|', $returnType);
 
-            $returnTypeCls = new \ReflectionClass($returnType);
-
-            if (!($returnTypeCls->implementsInterface(RequestInterface::class))) {
-                throw new \InvalidArgumentException("Middleware's return type must implement " . RequestInterface::class);
+            if (count($types) !== 2) {
+                throw new ValueError("No union type ($returnType)");
             }
-        } catch (\ReflectionException) {
-            throw new \InvalidArgumentException("Middleware's return type must implement " . RequestInterface::class);
+
+            /** @var class-string $type */
+            foreach ($types as $type) {
+                $returnTypeCls = new \ReflectionClass($type);
+
+                if (!($returnTypeCls->implementsInterface(RequestInterface::class) ||
+                    $returnTypeCls->implementsInterface(ResponseInterface::class)
+                )) {
+                    throw new ValueError("Wrong return type $returnType");
+                }
+            }
+        } catch (\Throwable $e) {
+            throw new \InvalidArgumentException(
+                $e->getMessage() . ": " .
+                    "Middleware's return type must implement " . RequestInterface::class .
+                    "|" . ResponseInterface::class
+            );
         }
 
         // Check if two parameters are present
@@ -217,7 +230,7 @@ class Router implements RouterInterface
         }
     }
 
-    protected function respond(RouteInterface $route, RequestInterface $request): ResponseInterface
+    protected function respond(RequestInterface $request, RouteInterface $route): ResponseInterface
     {
         $result = $this->getViewResult($route, $request);
 
@@ -250,6 +263,40 @@ class Router implements RouterInterface
         }
     }
 
+    /**
+     * Recursively calls the callables in the middleware/view handler stack.
+     * The last one is assumed to be the view/action.
+     */
+    protected function workOffStack(
+        RequestInterface|ResponseInterface $requestResponse,
+        array $handlerStack,
+    ): RequestInterface|ResponseInterface {
+        // If a ResponseInterface is passed, the request is considered done.
+        // So the processing exists ahead of time.
+        if ($requestResponse instanceof ResponseInterface) {
+            return $requestResponse;
+        }
+
+        if (count($handlerStack) > 1) {
+            return $handlerStack[0](
+                $requestResponse,
+                function (RequestInterface $reqResp) use ($handlerStack): RequestInterface|ResponseInterface {
+                    return $this->workOffStack($reqResp, array_slice($handlerStack, 1));
+                }
+            );
+        } else {
+            return $handlerStack[0]($requestResponse);
+        }
+    }
+
+    /**
+     * Finds the matching route and generates the response while
+     * working of the middleware stack.
+     *
+     * @psalm-suppress InvalidReturnType
+     *
+     * See notes at the return statement.
+     */
     public function dispatch(RequestInterface $request): ResponseInterface
     {
         $route = $this->match($request);
@@ -263,17 +310,23 @@ class Router implements RouterInterface
              * constructor. Recheck on occasion.
              */
             $this->route = $route;
-            $middlewares = array_merge($this->middlewares, $route->middlewares());
+            $handlerStack = array_merge(
+                $this->middlewares,
+                $route->middlewares(),
+            );
+            $handlerStack[] = function (RequestInterface $req) use ($route): ResponseInterface {
+                return $this->respond($req, $route);
+            };
 
-            while ($current = current($middlewares)) {
-                $next = next($middlewares);
-
-                if ($next !== false) {
-                    $request = $current($request, $next);
-                }
-            }
-
-            return $this->respond($route, $request);
+            /**
+             * @psalm-suppress InvalidReturnStatement
+             *
+             * workOffStack is guaranteed to return a Response in the end.
+             * The union type is necessarry to allow recursive calls where
+             * the callables deeper down mostly return a Request. But the
+             * result at the end should always be a Response.
+             */
+            return $this->workOffStack($request, $handlerStack);
         } else {
             throw new HttpNotFound($request);
         }

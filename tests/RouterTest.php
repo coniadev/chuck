@@ -10,7 +10,7 @@ uses(TestCase::class);
 
 class Middleware
 {
-    public function __invoke(Request $request, callable $next): Request
+    public function __invoke(Request $request, callable $next): Request|Response
     {
         return $next($request);
     }
@@ -72,7 +72,7 @@ test('Dispatch without renderer', function () {
 test('Middleware add', function () {
     $router = new Router();
 
-    $router->middleware(function (Request $request, callable $next): Request {
+    $router->middleware(function (Request $request, callable $next): Response|Request {
         return $next($request);
     });
     $router->middleware(new Middleware());
@@ -102,7 +102,7 @@ test('Middleware :: wrong return type', function () {
 test('Middleware :: wrong parameter count', function () {
     $router = new Router();
 
-    $router->middleware(function (Request $request): Request {
+    $router->middleware(function (Request $request): Request|Response {
         return $request;
     });
 })->throws(\InvalidArgumentException::class, 'Middleware must accept two parameters');
@@ -111,7 +111,7 @@ test('Middleware :: wrong parameter count', function () {
 test('Middleware :: wrong parameter type I', function () {
     $router = new Router();
 
-    $router->middleware(function (string $request, callable $next): Request {
+    $router->middleware(function (string $request, callable $next): Response|Request {
         return $next($request);
     });
 })->throws(\InvalidArgumentException::class, "Middleware's first parameter must implement");
@@ -120,7 +120,7 @@ test('Middleware :: wrong parameter type I', function () {
 test('Middleware :: wrong parameter type II', function () {
     $router = new Router();
 
-    $router->middleware(function (Request $request, int $next): Request {
+    $router->middleware(function (Request $request, int $next): Request|Response {
         return $next($request);
     });
 })->throws(\InvalidArgumentException::class, "Middleware's second parameter must be of type");

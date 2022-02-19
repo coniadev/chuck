@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Chuck\Tests\TestCase;
-use Chuck\{App, Route, Request};
+use Chuck\{App, Route, Request, Response};
 use Chuck\Renderer\Renderer;
 
 uses(TestCase::class);
@@ -26,7 +26,7 @@ test('Helper methods', function () {
 test('Middleware helper', function () {
     $app = App::create($this->options());
 
-    $app->middleware(function (Request $request, callable $next): Request {
+    $app->middleware(function (Request $request, callable $next): Request|Response {
         return $next($request);
     });
 
