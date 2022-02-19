@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use Chuck\Error\HandlerInterface;
+
 
 class App
 {
@@ -12,13 +14,18 @@ class App
 
     public function __construct(protected RequestInterface $request)
     {
-        $this->router = $request->getRouter();
         $this->config = $request->getConfig();
+
+        $errorHandler = new ($this->config->registry(HandlerInterface::class))();
+        $errorHandler->addRequest($request);
+        $errorHandler->setup();
+
+        $this->router = $request->getRouter();
     }
 
-    public static function create(array $settings): self
+    public static function create(array $options): self
     {
-        $config = new Config($settings);
+        $config = new Config($options);
         $router = new Router();
         $app = new self(new Request($config, $router));
 

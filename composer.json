@@ -10,7 +10,6 @@
         "phpunit/phpunit": "^9",
         "nunomaduro/collision": "^6",
         "pestphp/pest": "^1",
-        "filp/whoops": "^2.14",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
         "sirbrillig/phpcs-variable-analysis": "^2.11",
         "vimeo/psalm": "^5.0.0-alpha1",

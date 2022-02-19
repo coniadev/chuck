@@ -186,6 +186,7 @@ test('Request::response', function () {
 
 test('Request::jsonBody', function () {
     // Simulates the php://input stream with a temp file
+    ob_start();
     $request = $this->request();
     $f = tmpfile();
     $streamName = stream_get_meta_data($f)['uri'];
@@ -197,4 +198,5 @@ test('Request::jsonBody', function () {
         ["title" => "Human", "released" => 1991]
     ]);
     fclose($f);
+    ob_end_clean();
 });

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a3a39fd2ddb0b5300c85b75ff68aa0fa",
+    "content-hash": "92c9d8ed0ccc56fb671a1c7db75f6cb0",
     "packages": [
         {
             "name": "league/uri-parser",

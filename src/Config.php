@@ -12,6 +12,7 @@ use Chuck\Util\Path;
 use Chuck\{Response, ResponseInterface};
 use Chuck\{Template, TemplateInterface};
 use Chuck\{Session, SessionInterface};
+use Chuck\Error\{Handler, HandlerInterface};
 use Chuck\Renderer\RendererInterface;
 
 
@@ -21,8 +22,8 @@ class Config implements ConfigInterface
     public readonly string $env;
 
     protected readonly array $config;
-    protected readonly array $paths;
-    protected array $registry;
+    protected readonly array $pathMap;
+    protected array $registryMap;
     protected array $renderers;
 
     public function __construct(protected array $pristine)
@@ -36,10 +37,11 @@ class Config implements ConfigInterface
         $this->env = (!empty($pristineEnv) && is_string($pristineEnv)) ? $pristineEnv : '';
         $this->debug = is_bool($pristine['debug'] ?? null) ? $pristine['debug'] : false;
 
-        $this->registry = [
+        $this->registryMap = [
             ResponseInterface::class => Response::class,
             TemplateInterface::class => Template::class,
             SessionInterface::class => Session::class,
+            HandlerInterface::class => Handler::class,
         ];
 
         $this->renderers = [
@@ -48,7 +50,7 @@ class Config implements ConfigInterface
             'template' => Renderer\TemplateRenderer::class,
         ];
 
-        [$this->config, $this->paths] = $this->read($this->pristine);
+        [$this->config, $this->pathMap] = $this->read($this->pristine);
     }
 
     protected function preparePath(string $root, string $path): string
@@ -122,9 +124,9 @@ class Config implements ConfigInterface
 
     protected function read(array $pristine): array
     {
-        [$paths, $pristine] = $this->prepareMainPaths($pristine);
+        [$pathMap, $pristine] = $this->prepareMainPaths($pristine);
         $config = [];
-        $root = $paths['root'];
+        $root = $pathMap['root'];
 
 
         foreach ($pristine as $key => $value) {
@@ -137,19 +139,19 @@ class Config implements ConfigInterface
 
             switch ($mainKey) {
                 case 'path':
-                    $paths[$subKey] = $this->preparePath($root, $value);
+                    $pathMap[$subKey] = $this->preparePath($root, $value);
                     break;
                 case 'templates':
-                    $paths['templates'][$subKey] = $this->preparePath($root, $value);
+                    $pathMap['templates'][$subKey] = $this->preparePath($root, $value);
                     break;
                 case 'migrations':
-                    $paths['migrations'][] = $this->preparePath($root, $value);
+                    $pathMap['migrations'][] = $this->preparePath($root, $value);
                     break;
                 case 'scripts':
-                    $paths['scripts'][] = $this->preparePath($root, $value);
+                    $pathMap['scripts'][] = $this->preparePath($root, $value);
                     break;
                 case 'sql':
-                    $paths['sql'][] = $this->preparePath($root, $value);
+                    $pathMap['sql'][] = $this->preparePath($root, $value);
                     break;
                 default:
                     if (!array_key_exists($mainKey, $config)) {
@@ -168,7 +170,7 @@ class Config implements ConfigInterface
             $config['host'] = $_SERVER['HTTP_HOST'] ?? 'localhost';
         }
 
-        return [$config, $paths];
+        return [$config, $pathMap];
     }
 
     /**
@@ -207,7 +209,7 @@ class Config implements ConfigInterface
 
     public function path(string $key): string
     {
-        $value = $this->paths[$key];
+        $value = $this->pathMap[$key];
 
         if (is_string($value)) {
             return $value;
@@ -218,7 +220,7 @@ class Config implements ConfigInterface
 
     public function paths(string $key): array
     {
-        $value = $this->paths[$key];
+        $value = $this->pathMap[$key];
 
         if (is_array($value)) {
             return $value;
@@ -229,27 +231,27 @@ class Config implements ConfigInterface
 
     public function templates(): array
     {
-        return  $this->paths['templates'];
+        return  $this->pathMap['templates'];
     }
 
     public function migrations(): array
     {
-        return  $this->paths['migrations'];
+        return  $this->pathMap['migrations'];
     }
 
     public function sql(): array
     {
-        return  $this->paths['sql'];
+        return  $this->pathMap['sql'];
     }
 
     public function scripts(): array
     {
-        return  $this->paths['scripts'];
+        return  $this->pathMap['scripts'];
     }
 
     public function registry(string $key): string
     {
-        return $this->registry[$key] ??
+        return $this->registryMap[$key] ??
             throw new InvalidArgumentException("Undefined registry key \"$key\"");
     }
 
@@ -267,12 +269,12 @@ class Config implements ConfigInterface
             throw new InvalidArgumentException("The class does not implement the interface");
         }
 
-        $this->registry[$interface] = $class;
+        $this->registryMap[$interface] = $class;
     }
 
     public function registered(string $key): bool
     {
-        return array_key_exists($key, $this->registry);
+        return array_key_exists($key, $this->registryMap);
     }
 
     public function addRenderer(string $key, string $class): void

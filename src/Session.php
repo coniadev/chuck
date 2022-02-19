@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use \SessionHandlerInterface;
+
 
 class Session implements SessionInterface
 {
