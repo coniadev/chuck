@@ -42,6 +42,10 @@ class Template implements TemplateInterface
 
     public function render(string $template, array $context = []): string
     {
+        if (empty($template)) {
+            throw new \InvalidArgumentException('No template path given');
+        }
+
         $context = array_merge($this->defaults, $context);
         $error = null;
         $path = $this->getPath($template);
@@ -66,20 +70,33 @@ class Template implements TemplateInterface
 
     protected function getPath(string $template): string
     {
-        try {
-            [$namespace, $file] = explode('::', $template);
+        $segments = explode(':', $template);
 
-            if (empty($namespace) || empty($file)) {
-                throw new ValueError("Invalid template format: '$template'. Use 'namespace::template/path'.");
-            }
-        } catch (\Throwable) {
-            throw new ValueError("Invalid template format: '$template'. Use 'namespace::template/path'.");
-        }
+        [$namespace, $file] = match (count($segments)) {
+            1 => [null, $segments[0]],
+            2 => [$segments[0], $segments[1]],
+            default => throw new ValueError(
+                "Invalid template format: '$template'. Use 'namespace:template/path or template/path'."
+            ),
+        };
 
         $file = trim(strtr($file, '\\', '/'), '/');
-
         $ds = DIRECTORY_SEPARATOR;
-        $path = Path::realpath($this->folders[$namespace] . $ds . $file . '.php');
+
+        if ($namespace) {
+            $path = Path::realpath($this->folders[$namespace] . $ds . $file . '.php');
+        } else {
+            if (count($this->folders) === 1) {
+                $path = Path::realpath(
+                    $this->folders[array_key_first($this->folders)] . $ds . $file . '.php'
+                );
+            } else {
+                throw new ValueError(
+                    "There must be a template namespace provided as there " .
+                        "are more than one template paths."
+                );
+            }
+        }
 
         if ($this->pathUtil->insideRoot($path)) {
             if (file_exists($path)) {

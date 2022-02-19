@@ -35,7 +35,7 @@ class ObjectMiddleware
 
 test('Middleware flow', function () {
     $app = App::create($this->options());
-    $app->route(Route::get('index', '/', 'Chuck\Tests\Controller::middlewareView'));
+    $app->route(Route::get('index', '/', 'Chuck\Tests\TestController::middlewareView'));
     $app->middleware('functionMiddleware');
     $app->middleware(new ObjectMiddleware(' second'));
 

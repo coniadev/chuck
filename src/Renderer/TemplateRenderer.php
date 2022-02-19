@@ -20,14 +20,13 @@ class TemplateRenderer extends Renderer
     ) {
         parent::__construct($request, $data, $args);
 
-        $context = $this->data ?? [];
-        $this->template = implode('::', explode(':', $this->args[0]));
-
-        if ($context instanceof \Traversable) {
-            $this->context = iterator_to_array($context);
+        if ($this->data instanceof \Traversable) {
+            $this->context = iterator_to_array($this->data);
         } else {
-            $this->context = $context;
+            $this->context = $this->data ?? [];
         }
+
+        $this->template = $this->args[0];
     }
 
     public function render(): string

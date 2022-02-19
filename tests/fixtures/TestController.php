@@ -8,7 +8,7 @@ use Chuck\Request;
 use Chuck\Response;
 
 
-class Controller
+class TestController
 {
     public function textView(): string
     {

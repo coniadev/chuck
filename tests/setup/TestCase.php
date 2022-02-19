@@ -113,13 +113,11 @@ class TestCase extends BaseTestCase
 
     public function options(array $options = []): array
     {
-        $ds = DIRECTORY_SEPARATOR;
-
         return array_merge(
             $this->minimalOptions(),
             [
                 'appname' => 'chuck',
-                'templates.default' => __DIR__ . "$ds..${ds}fixtures${ds}templates${ds}default",
+                'templates.default' => __DIR__ . '/../fixtures/templates/default',
             ],
             $options
         );

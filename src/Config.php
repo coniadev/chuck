@@ -84,7 +84,9 @@ class Config implements ConfigInterface
             $public = $this->preparePath($root, 'public');
 
             if (!is_dir($public)) {
-                throw new ValueError('Configuration error: public directory is not set and could not be determined');
+                throw new ValueError(
+                    'Configuration error: public directory is not set and could not be determined'
+                );
             }
         } else {
             $public = $pristine['path.public'];

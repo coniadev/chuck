@@ -16,9 +16,5 @@ abstract class Renderer implements RendererInterface
     }
 
     abstract public function render(): string;
-
-    public function headers(): iterable
-    {
-        return [];
-    }
+    abstract public function headers(): iterable;
 }
