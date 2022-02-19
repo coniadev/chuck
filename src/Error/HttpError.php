@@ -16,6 +16,7 @@ abstract class HttpError extends \Exception
 
     public static function withSubtitle(string $subTitle): self
     {
+        /** @psalm-suppress UnsafeInstantiation */
         $exception = new static();
         $exception->subTitle  = $subTitle;
 

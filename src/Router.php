@@ -9,7 +9,7 @@ use \ValueError;
 use \RuntimeException;
 
 use Chuck\Error\HttpNotFound;
-use Chuck\Error\HttpInternalError;
+use Chuck\Error\HttpServerError;
 
 
 class Router implements RouterInterface
@@ -217,16 +217,10 @@ class Router implements RouterInterface
                 if (method_exists($ctrl, $method)) {
                     return $ctrl->$method($request);
                 } else {
-                    throw new HttpInternalError(
-                        $request,
-                        "Controller method not found $view"
-                    );
+                    throw HttpServerError::withSubTitle("Controller method not found $view");
                 }
             } else {
-                throw new HttpInternalError(
-                    $request,
-                    "Controller not found ${ctrlName}"
-                );
+                throw HttpServerError::withSubTitle("Controller not found ${ctrlName}");
             }
         } else {
             throw new ValueError('Wrong view type');
@@ -259,10 +253,7 @@ class Router implements RouterInterface
                 return $request->getResponse(body: $result);
             }
 
-            throw new HttpInternalError(
-                $request,
-                "No renderer specified and view result is neither a response object nor a string."
-            );
+            throw HttpServerError::withSubTitle("No renderer specified and view result is neither a response object nor a string.");
         }
     }
 

@@ -12,7 +12,6 @@ use Chuck\Util\Path;
 use Chuck\{Response, ResponseInterface};
 use Chuck\{Template, TemplateInterface};
 use Chuck\{Session, SessionInterface};
-use Chuck\Error\{Handler, HandlerInterface};
 use Chuck\Renderer\RendererInterface;
 
 
@@ -41,7 +40,6 @@ class Config implements ConfigInterface
             ResponseInterface::class => Response::class,
             TemplateInterface::class => Template::class,
             SessionInterface::class => Session::class,
-            HandlerInterface::class => Handler::class,
         ];
 
         $this->renderers = [

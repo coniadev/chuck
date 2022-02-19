@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Chuck;
 
 use Chuck\Error\HandlerInterface;
+use Chuck\Error\Handler;
 
 
 class App
@@ -12,13 +13,19 @@ class App
     protected RouterInterface $router;
     protected ConfigInterface $config;
 
-    public function __construct(protected RequestInterface $request)
-    {
+    public function __construct(
+        protected RequestInterface $request,
+        HandlerInterface $errorHandler = null,
+        bool $forceErrorHandler = false,
+    ) {
         $this->config = $request->getConfig();
 
-        $errorHandler = new ($this->config->registry(HandlerInterface::class))();
-        $errorHandler->addRequest($request);
-        $errorHandler->setup();
+        if (PHP_SAPI !== 'cli' || $forceErrorHandler) {
+            if (!$errorHandler) {
+                $errorHandler = new Handler($request);
+            }
+            $errorHandler->setup();
+        }
 
         $this->router = $request->getRouter();
     }

@@ -10,18 +10,15 @@ use Chuck\Error\HttpError;
 
 class Handler
 {
-    protected RequestInterface $request;
-
-    public function addRequest(RequestInterface $request): void
+    public function __construct(protected RequestInterface $request)
     {
-        $this->request = $request;
     }
 
     public function handleError(
         int $level,
         string $message,
-        string $file = null,
-        int $line = null
+        string $file = '',
+        int $line = 0,
     ): bool {
         if ($level & error_reporting()) {
             throw new \ErrorException($message, $level, $level, $file, $line);
@@ -61,11 +58,11 @@ class Handler
         $response->emit();
     }
 
-    public function setup(): void
+    public function setup(): callable|null
     {
         $errorLevel = $this->request->getConfig()->get('errorLevel');
 
         set_error_handler($this->handleError(...), $errorLevel);
-        set_exception_handler($this->handleException(...));
+        return set_exception_handler($this->handleException(...));
     }
 }

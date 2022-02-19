@@ -77,5 +77,5 @@ test('App run', function () {
 
     expect($output)->toBe('success');
     expect(in_array('Content-Type: text/html; charset=UTF-8', $response->headersList()))->toBe(true);
-    expect(in_array('HTTP/1.1 200', $response->headersList()))->toBe(true);
+    expect(in_array('HTTP/1.1 200 OK', $response->headersList()))->toBe(true);
 });

@@ -160,7 +160,7 @@ class Response implements ResponseInterface
 
         // Emit status line after general headers to overwrite previous status codes
         $this->header(sprintf(
-            'HTTP/%s %d%s',
+            'HTTP/%s %d %s',
             $this->protocol,
             $this->statusCode,
             $this->reasonPhrase ?: REASON_PHRASES[$this->statusCode]
