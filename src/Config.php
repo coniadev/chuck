@@ -270,6 +270,11 @@ class Config implements ConfigInterface
         $this->registry[$interface] = $class;
     }
 
+    public function registered(string $key): bool
+    {
+        return array_key_exists($key, $this->registry);
+    }
+
     public function addRenderer(string $key, string $class): void
     {
         if (!(is_subclass_of($class, RendererInterface::class))) {

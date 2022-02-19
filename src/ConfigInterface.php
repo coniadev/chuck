@@ -12,6 +12,7 @@ interface ConfigInterface
     public function paths(string $key): array;
     public function register(string $interface, string $class): void;
     public function registry(string $key): string;
+    public function registered(string $key): bool;
     public function addRenderer(string $key, string $class): void;
     public function renderer(string $key): string;
     public function templates(): array;

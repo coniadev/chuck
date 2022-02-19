@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+
 class Session implements SessionInterface
 {
     /** @psalm-suppress PropertyNotSetInConstructor */
@@ -24,12 +25,12 @@ class Session implements SessionInterface
     public function start(): void
     {
         if (!isset($_SESSION)) {
-            // If we are run from the command line interface then we do not care
-            // about headers sent using the session_start.
+            // If we are run from the command line interface we do not care
+            // about headers sent using session_start.
             if (PHP_SAPI === 'cli') {
                 $_SESSION = [];
             } elseif (!headers_sent()) {
-                if ($this->config->get('session')['model'] !== null) {
+                if ($this->config->registered(SessionHandlerInterface::class)) {
                     $this->setupCustomSessions();
                 }
 
@@ -61,8 +62,7 @@ class Session implements SessionInterface
 
     protected function setupCustomSessions(): void
     {
-        $class = $this->config->get('session')['model'];
-        $handler = new $class();
+        $handler = new ($this->config->registry(SessionHandlerInterface::class))();
 
         session_set_save_handler(
             [$handler, 'open'],
@@ -77,6 +77,7 @@ class Session implements SessionInterface
     public function forget(): void
     {
         // Unset all of the session variables.
+        global $_SESSION;
         $_SESSION = [];
 
         if (PHP_SAPI === 'cli') {

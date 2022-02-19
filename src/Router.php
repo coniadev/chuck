@@ -117,7 +117,7 @@ class Router implements RouterInterface
         if (class_exists($requestType) || interface_exists($requestType)) {
             $requestTypeCls = new \ReflectionClass($requestType);
             if (
-                !($requestType === RequestInterface::class) ||
+                !($requestType === RequestInterface::class) &&
                 !($requestTypeCls->implementsInterface(RequestInterface::class))
             ) {
                 throw new \InvalidArgumentException("Middleware's first parameter must implement " . RequestInterface::class);
