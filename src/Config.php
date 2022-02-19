@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use \InvalidArgumentException;
 use \ValueError;
+
 use Chuck\Util\Http;
 use Chuck\Util\Path;
 use Chuck\{Response, ResponseInterface};
@@ -187,7 +189,7 @@ class Config implements ConfigInterface
                 return $default;
             }
 
-            throw new \InvalidArgumentException("Chuck Error: The configuration key '$key' does not exist");
+            throw new InvalidArgumentException("Chuck Error: The configuration key '$key' does not exist");
         }
     }
 
@@ -209,7 +211,7 @@ class Config implements ConfigInterface
             return $value;
         }
 
-        throw new \InvalidArgumentException('Requested path is not of type string');
+        throw new InvalidArgumentException('Requested path is not of type string');
     }
 
     public function paths(string $key): array
@@ -220,7 +222,7 @@ class Config implements ConfigInterface
             return $value;
         }
 
-        throw new \InvalidArgumentException('Requested paths are not of type array');
+        throw new InvalidArgumentException('Requested paths are not of type array');
     }
 
     public function templates(): array
@@ -246,13 +248,21 @@ class Config implements ConfigInterface
     public function registry(string $key): string
     {
         return $this->registry[$key] ??
-            throw new \InvalidArgumentException("Undefined registry key \"$key\"");
+            throw new InvalidArgumentException("Undefined registry key \"$key\"");
     }
 
     public function register(string $interface, string $class): void
     {
+        if (!class_exists($interface)) {
+            throw new InvalidArgumentException("Interface does not exist: $interface");
+        }
+
+        if (!class_exists($class)) {
+            throw new InvalidArgumentException("Class does not exist: $class");
+        }
+
         if (!(is_subclass_of($class, $interface))) {
-            throw new \InvalidArgumentException("The class does not implement the interface");
+            throw new InvalidArgumentException("The class does not implement the interface");
         }
 
         $this->registry[$interface] = $class;
@@ -261,7 +271,7 @@ class Config implements ConfigInterface
     public function addRenderer(string $key, string $class): void
     {
         if (!(is_subclass_of($class, RendererInterface::class))) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 "The renderer class does not implement " . RendererInterface::class
             );
         }
@@ -272,7 +282,7 @@ class Config implements ConfigInterface
     public function renderer(string $key): string
     {
         return $this->renderers[$key] ??
-            throw new \InvalidArgumentException("Undefined renderer \"$key\"");
+            throw new InvalidArgumentException("Undefined renderer \"$key\"");
     }
 
     public function __toString(): string
