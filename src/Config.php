@@ -253,7 +253,7 @@ class Config implements ConfigInterface
 
     public function register(string $interface, string $class): void
     {
-        if (!class_exists($interface)) {
+        if (!interface_exists($interface)) {
             throw new InvalidArgumentException("Interface does not exist: $interface");
         }
 

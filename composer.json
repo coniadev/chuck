@@ -32,7 +32,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Chuck\\Tests\\": "tests/setup"
+            "Chuck\\Tests\\": "tests/setup",
+            "Chuck\\Tests\\Fix\\": "tests/fixtures"
         }
     },
     "config": {

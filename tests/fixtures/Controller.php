@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Tests;
+namespace Chuck\Tests\Fix;
 
 use Chuck\Request;
 use Chuck\Response;

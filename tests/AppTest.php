@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Chuck\Tests\TestCase;
+use Chuck\Tests\Fix\{TestClass, TestInterface};
 use Chuck\{App, Route, Request, Response};
 use Chuck\Renderer\Renderer;
 
@@ -45,7 +46,7 @@ test('Static route helper', function () {
 
 test('Route helper', function () {
     $app = App::create($this->options());
-    $app->route(Route::get('albums', '/albums', 'Chuck\Tests\Controller::textView'));
+    $app->route(Route::get('albums', '/albums', 'Chuck\Tests\Fix\Controller::textView'));
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
 });
@@ -53,20 +54,9 @@ test('Route helper', function () {
 
 test('Register helper', function () {
     $app = App::create($this->options());
-    interface TestInterface
-    {
-        function test(): string;
-    }
-    class Test implements TestInterface
-    {
-        function test(): string
-        {
-            return '';
-        }
-    }
-    $app->register(TestInterface::class, Test::class);
+    $app->register(TestInterface::class, TestClass::class);
 
-    expect($app->config()->registry(TestInterface::class))->toBe(Test::class);
+    expect($app->config()->registry(TestInterface::class))->toBe(TestClass::class);
 });
 
 
@@ -87,7 +77,7 @@ test('Renderer helper', function () {
 
 test('App run', function () {
     $app = new App($this->request(method: 'GET', url: '/'));
-    $app->route(Route::get('index', '/', 'Chuck\Tests\Controller::textView'));
+    $app->route(Route::get('index', '/', 'Chuck\Tests\Fix\Controller::textView'));
     ob_start();
     $response = $app->run();
     $output = ob_get_contents();
