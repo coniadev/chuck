@@ -7,23 +7,27 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require-dev": {
-        "psy/psysh": "*",
         "phpunit/phpunit": "^9",
         "nunomaduro/collision": "^6",
         "pestphp/pest": "^1",
         "filp/whoops": "^2.14",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
         "sirbrillig/phpcs-variable-analysis": "^2.11",
-        "vimeo/psalm": "^5.0.0-alpha1"
+        "vimeo/psalm": "^5.0.0-alpha1",
+        "league/plates": "^3.4"
     },
     "require": {
         "php": ">=8.1",
         "tgalopin/html-sanitizer": "^1.5",
         "psr/log": "^3.0"
     },
+    "suggest": {
+        "league/plates": "If you want to use the Plates template engine"
+    },
     "autoload": {
         "psr-4": {
-            "Chuck\\": "src"
+            "Chuck\\": "src",
+            "Chuck\\Lib\\": "lib"
         }
     },
     "autoload-dev": {
