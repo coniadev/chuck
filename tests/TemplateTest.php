@@ -9,9 +9,10 @@ uses(TestCase::class);
 
 
 test('Simple rendering', function () {
-    $tpl = new Template($this->request());
+    $config = $this->config();
+    $tpl = new Template($this->request(config: $config), ['config' => $config]);
 
-    expect($tpl->render('default::index'))->toBe("<h1>chuck</h1>\n");
+    expect($tpl->render('default::index', ['text' => 'rules']))->toBe("<h1>chuck</h1>\n<p>rules</p>\n");
 });
 
 

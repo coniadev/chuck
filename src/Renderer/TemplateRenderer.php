@@ -32,8 +32,19 @@ class TemplateRenderer extends Renderer
 
     public function render(): string
     {
-        $class = $this->request->getConfig()->registry(TemplateInterface::class);
-        $template = new $class($this->request);
+        $request = $this->request;
+        $config = $request->getConfig();
+        $class = $config->registry(TemplateInterface::class);
+        $template = new $class(
+            $this->request,
+            defaults: [
+                'config' => $config,
+                'request' => $request,
+                'router' => $request->getRouter(),
+                'debug' => $config->get('debug'),
+                'env' => $config->get('env'),
+            ]
+        );
         return $template->render($this->template, $this->context);
     }
 

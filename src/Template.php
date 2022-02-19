@@ -12,23 +12,14 @@ class Template implements TemplateInterface
 {
     protected RequestInterface $request;
     protected array $folders = [];
-    protected array $defaults;
     protected Path $pathUtil;
 
     public function __construct(
         RequestInterface $request,
-        array $defaults = [],
+        protected array $defaults = [],
     ) {
         $this->request = $request;
         $config = $request->getConfig();
-
-        $this->defaults = array_merge([
-            'config' => $config,
-            'request' => $request,
-            'router' => $request->getRouter(),
-            'debug' => $config->get('debug'),
-            'env' => $config->get('env'),
-        ], $defaults);
 
         $this->pathUtil = new Path($config);
         $this->addFolders($config->templates());
