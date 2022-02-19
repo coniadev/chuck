@@ -4,19 +4,16 @@ declare(strict_types=1);
 
 namespace Chuck\Error;
 
-use Chuck\RequestInterface;
+use Throwable;
 
 
 class HttpBadRequest extends HttpError
 {
     public function __construct(
-        RequestInterface $request,
-        string $message = 'HTTP Error',
+        string $message = 'Bad Request',
         int $code = 400,
-        ?\Throwable $previous = null
+        ?Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);
-        $this->request = $request;
-        $this->title = '400 Bad Request';
     }
 }

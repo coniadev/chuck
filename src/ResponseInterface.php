@@ -14,7 +14,7 @@ interface ResponseInterface
         string $protocol = '1.1',
         ?string $reasonPhrase = null,
     );
-    public function setStatusCode(int $statusCode, ?string $reasonPhrase): void;
+    public function setStatusCode(int $statusCode, ?string $reasonPhrase = null): void;
     public function getStatusCode(): int;
     public function setProtocol(string $protocol): void;
     public function addHeader(string $name, string $value, bool $replace = true): void;

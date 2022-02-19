@@ -4,26 +4,26 @@ declare(strict_types=1);
 
 namespace Chuck\Error;
 
-use Chuck\RequestInterface;
-
 
 abstract class HttpError extends \Exception
 {
-    protected readonly string $title;
-    protected readonly RequestInterface $request;
-
-    public function getRequest(): RequestInterface
-    {
-        return $this->request;
-    }
+    protected ?string $subTitle = null;
 
     public function getTitle(): string
     {
-        return $this->title;
+        return (string)$this->getCode() . ' ' . $this->getMessage();
     }
 
-    public function __toString(): string
+    public static function withSubtitle(string $subTitle): self
     {
-        return $this->title;
+        $exception = new static();
+        $exception->subTitle  = $subTitle;
+
+        return $exception;
+    }
+
+    public function getSubTitle(): ?string
+    {
+        return $this->subTitle;
     }
 }

@@ -4,19 +4,16 @@ declare(strict_types=1);
 
 namespace Chuck\Error;
 
-use Chuck\RequestInterface;
+use Throwable;
 
 
-class HttpInternalError extends HttpError
+class HttpServerError extends HttpError
 {
     public function __construct(
-        RequestInterface $request,
         string $message = 'Internal Server Error',
         int $code = 500,
-        ?\Throwable $previous = null
+        ?Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);
-        $this->request = $request;
-        $this->title = '500 Internal Server Error';
     }
 }

@@ -127,7 +127,7 @@ class Response implements ResponseInterface
                 $contentType = finfo_file($finfo, $path);
             }
         } catch (\Exception) {
-            throw new HttpNotFound($this->request);
+            throw new HttpNotFound();
         }
 
         $this->addHeader('Content-Type', $contentType);
@@ -163,7 +163,7 @@ class Response implements ResponseInterface
             'HTTP/%s %d%s',
             $this->protocol,
             $this->statusCode,
-            $this->reasonPhrase ? ' ' . $this->reasonPhrase : ''
+            $this->reasonPhrase ?: REASON_PHRASES[$this->statusCode]
         ), true);
 
         if (!empty($body)) {

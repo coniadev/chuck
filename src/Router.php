@@ -331,7 +331,7 @@ class Router implements RouterInterface
              */
             return $this->workOffStack($request, $handlerStack);
         } else {
-            throw new HttpNotFound($request);
+            throw new HttpNotFound();
         }
     }
 }
