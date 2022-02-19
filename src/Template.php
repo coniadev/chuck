@@ -111,4 +111,19 @@ class Template implements TemplateInterface
         /** @psalm-suppress UnresolvableInclude */
         include $____template____;
     }
+
+    public function exists(string $template): bool
+    {
+        try {
+            $path = $this->getPath($template);
+
+            if (empty($path)) {
+                return false;
+            }
+
+            return true;
+        } catch (ValueError) {
+            return false;
+        }
+    }
 }

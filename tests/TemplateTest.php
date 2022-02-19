@@ -15,6 +15,14 @@ test('Simple rendering', function () {
 });
 
 
+test('Exists helper', function () {
+    $tpl = new Template($this->request());
+
+    expect($tpl->exists('default::index'))->toBe(true);
+    expect($tpl->exists('default::wrongindex'))->toBe(false);
+});
+
+
 test('Config error :: nonexistent template dir', function () {
     new Template($this->request(options: ['templates.default' => __DIR__ . '/fantasy/path']));
 })->throws(\ValueError::class);
