@@ -249,11 +249,7 @@ class Router implements RouterInterface
                 return $response;
             }
 
-            if (is_string($result)) {
-                return $request->getResponse(body: $result);
-            }
-
-            throw HttpServerError::withSubTitle("No renderer specified and view result is neither a response object nor a string.");
+            return $request->getResponse(body: $result);
         }
     }
 
@@ -308,6 +304,7 @@ class Router implements RouterInterface
                 $this->middlewares,
                 $route->middlewares(),
             );
+            // Add the view action to the end of the stack
             $handlerStack[] = function (RequestInterface $req) use ($route): ResponseInterface {
                 return $this->respond($req, $route);
             };

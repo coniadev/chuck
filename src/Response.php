@@ -32,7 +32,7 @@ class Response implements ResponseInterface
     public function __construct(
         protected RequestInterface $request,
         protected int $statusCode = 200,
-        protected string|Stream $body = '',
+        protected mixed $body = '',
         protected array $headers = [],
         protected string $protocol = '1.1',
         protected ?string $reasonPhrase = null,
@@ -95,12 +95,12 @@ class Response implements ResponseInterface
         return $this->headersList;
     }
 
-    public function getBody(): string|Stream
+    public function getBody(): mixed
     {
         return $this->body;
     }
 
-    public function setBody(string|Stream $body): void
+    public function setBody(mixed $body): void
     {
         $this->body = $body;
     }
