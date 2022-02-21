@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use Chuck\Error\HttpNotFound;
+use Chuck\File;
+use Chuck\FileInterface;
 
 const REASON_PHRASES = [
     100 => 'Continue', 101 => 'Switching Protocols',
@@ -26,7 +27,7 @@ const REASON_PHRASES = [
 class Response implements ResponseInterface
 {
     /** @psalm-suppress PropertyNotSetInConstructor */
-    protected string $file;
+    protected FileInterface $file;
     protected array $headersList = [];
 
     public function __construct(
@@ -114,25 +115,17 @@ class Response implements ResponseInterface
         }
     }
 
-    public function file(string $path): void
-    {
-        $this->file = $path;
-
-        $contentType = mime_content_type($path) ?: null;
-
-        // Should be a binary file
-        try {
-            if (!$contentType) {
-                $finfo = new \finfo(FILEINFO_MIME_TYPE);
-                $contentType = finfo_file($finfo, $path);
-            }
-        } catch (\Exception) {
-            throw new HttpNotFound();
+    public function file(
+        FileInterface|string $file,
+        bool $sendFile = false,
+        bool $asDownload = false,
+        int $chunkSize = 2 << 20, // 2 MB
+    ): void {
+        if (is_string($file)) {
+            $this->file = new File($this, $file, $sendFile, $asDownload, $chunkSize);
+        } else {
+            $this->file = $file;
         }
-
-        $this->addHeader('Content-Type', $contentType);
-        $finfo = new \finfo(FILEINFO_MIME_ENCODING);
-        $this->addHeader('Content-Transfer-Encoding', finfo_file($finfo, $path));
     }
 
     public function emit(): void
@@ -166,13 +159,19 @@ class Response implements ResponseInterface
             $this->reasonPhrase ?: REASON_PHRASES[$this->statusCode]
         ), true);
 
-        if (!empty($body)) {
-            echo $body;
+        // HEAD responses are not allowed to have a body
+        if ($this->request->method() === 'HEAD') {
+            return;
         }
 
         /** @psalm-suppress RedundantPropertyInitializationCheck */
-        if (($this->file ?? null) && $this->request->getConfig()->get('fileserver') === null) {
-            readfile($this->file);
+        if ($this->file ?? null) {
+            $this->file->emit();
+            return;
+        }
+
+        if (!empty($body)) {
+            echo $body;
         }
     }
 }
