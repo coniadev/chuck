@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Chuck;
+namespace Chuck\Body;
 
+use Chuck\ResponseInterface;
 use Chuck\Error\HttpNotFound;
 
 
-class File implements FileInterface
+class File implements Body
 {
     public function __construct(
         protected ResponseInterface $response,

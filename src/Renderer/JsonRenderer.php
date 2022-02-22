@@ -4,17 +4,33 @@ declare(strict_types=1);
 
 namespace Chuck\Renderer;
 
+use Chuck\RequestInterface;
+use Chuck\Body\Body;
+use Chuck\Body\Json;
+
 
 class JsonRenderer extends Renderer
 {
+    protected Json $body;
+
+    public function __construct(
+        RequestInterface $request,
+        mixed $data,
+        array $args,
+    ) {
+        parent::__construct($request, $data, $args);
+
+        $this->body = new Json($this->data);
+    }
+
     public function render(): string
     {
-        // If $context is of type 'object' it should be a Generator
-        if ($this->data instanceof \Traversable) {
-            return json_encode(iterator_to_array($this->data), JSON_UNESCAPED_SLASHES);
-        }
+        return (string)$this->body;
+    }
 
-        return json_encode($this->data, JSON_UNESCAPED_SLASHES);
+    public function body(): Body
+    {
+        return $this->body;
     }
 
     public function headers(): iterable

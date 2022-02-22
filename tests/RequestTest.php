@@ -173,7 +173,7 @@ test('Request::response', function () {
 
 
     expect($response->getStatusCode())->toBe(404);
-    expect($response->getBody())->toBe('Pull the Plug');
+    expect((string)$response->getBody())->toBe('Pull the Plug');
     ob_start();
     $response->emit();
     ob_end_clean();

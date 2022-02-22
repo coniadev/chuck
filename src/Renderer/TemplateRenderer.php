@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck\Renderer;
 
+use Chuck\Body\Body;
+use Chuck\Body\Text;
 use Chuck\RequestInterface;
 use Chuck\TemplateInterface;
 
@@ -45,6 +47,11 @@ class TemplateRenderer extends Renderer
             ]
         );
         return $template->render($this->template, $this->context);
+    }
+
+    public function body(): Body
+    {
+        return new Text($this->render());
     }
 
     public function headers(): iterable

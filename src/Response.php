@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use Chuck\File;
-use Chuck\FileInterface;
+use Chuck\Body\Body;
+use Chuck\Body\File;
+use Chuck\Body\Text;
 
 const REASON_PHRASES = [
     100 => 'Continue', 101 => 'Switching Protocols',
@@ -27,17 +28,24 @@ const REASON_PHRASES = [
 class Response implements ResponseInterface
 {
     /** @psalm-suppress PropertyNotSetInConstructor */
-    protected FileInterface $file;
     protected array $headersList = [];
+    protected ?Body $body = null;
 
     public function __construct(
         protected RequestInterface $request,
         protected int $statusCode = 200,
-        protected mixed $body = '',
+        string|Body|null $body = null,
         protected array $headers = [],
         protected string $protocol = '1.1',
         protected ?string $reasonPhrase = null,
     ) {
+        if (!empty($body)) {
+            if (is_string($body)) {
+                $this->body = new Text($body);
+            } else {
+                $this->body = $body;
+            }
+        }
     }
 
     public function setStatusCode(int $statusCode, ?string $reasonPhrase = null): void
@@ -96,14 +104,18 @@ class Response implements ResponseInterface
         return $this->headersList;
     }
 
-    public function getBody(): mixed
+    public function getBody(): ?Body
     {
         return $this->body;
     }
 
-    public function setBody(mixed $body): void
+    public function setBody(string|Body $body): void
     {
-        $this->body = $body;
+        if (is_string($body)) {
+            $this->body = new Text($body);
+        } else {
+            $this->body = $body;
+        }
     }
 
     protected function header(string $value, bool $replace): void
@@ -116,22 +128,16 @@ class Response implements ResponseInterface
     }
 
     public function file(
-        FileInterface|string $file,
+        string $file,
         bool $sendFile = false,
         bool $asDownload = false,
         int $chunkSize = 2 << 20, // 2 MB
     ): void {
-        if (is_string($file)) {
-            $this->file = new File($this, $file, $sendFile, $asDownload, $chunkSize);
-        } else {
-            $this->file = $file;
-        }
+        $this->body = new File($this, $file, $sendFile, $asDownload, $chunkSize);
     }
 
     public function emit(): void
     {
-        $body = $this->getBody();
-
         // Fix Content-Type
         $ct = $this->headers['Content-Type']['value'][0] ?? null;
         if (!array_key_exists('Content-Type', $this->headers)) {
@@ -164,14 +170,8 @@ class Response implements ResponseInterface
             return;
         }
 
-        /** @psalm-suppress RedundantPropertyInitializationCheck */
-        if ($this->file ?? null) {
-            $this->file->emit();
-            return;
-        }
-
-        if (!empty($body)) {
-            echo $body;
+        if ($this->body !== null) {
+            $this->body->emit();
         }
     }
 }

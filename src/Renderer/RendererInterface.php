@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Renderer;
 
+use Chuck\Body\Body;
 use Chuck\RequestInterface;
 
 interface RendererInterface
@@ -14,5 +15,6 @@ interface RendererInterface
         array $args,
     );
     public function render(): string;
+    public function body(): Body;
     public function headers(): iterable;
 }

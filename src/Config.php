@@ -43,7 +43,7 @@ class Config implements ConfigInterface
         ];
 
         $this->renderers = [
-            'string' => Renderer\StringRenderer::class,
+            'text' => Renderer\TextRenderer::class,
             'json' => Renderer\JsonRenderer::class,
             'template' => Renderer\TemplateRenderer::class,
         ];

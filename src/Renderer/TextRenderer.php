@@ -4,12 +4,24 @@ declare(strict_types=1);
 
 namespace Chuck\Renderer;
 
+use Chuck\Body\Body;
+use Chuck\Body\Text;
 
-class StringRenderer extends Renderer
+
+class TextRenderer extends Renderer
 {
     public function render(): string
     {
-        return print_r($this->data, true);
+        if (!is_string($this->data)) {
+            return print_r($this->data, true);
+        }
+
+        return $this->data;
+    }
+
+    public function body(): Body
+    {
+        return new Text($this->render());
     }
 
     public function headers(): iterable

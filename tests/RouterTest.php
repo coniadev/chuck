@@ -65,7 +65,7 @@ test('Dispatch without renderer', function () {
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/'));
     expect($response)->toBeInstanceOf(Response::class);
-    expect($response->getBody())->toBe('Chuck');
+    expect((string)$response->getBody())->toBe('Chuck');
 });
 
 
