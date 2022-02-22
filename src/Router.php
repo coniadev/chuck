@@ -7,6 +7,11 @@ namespace Chuck;
 use \Closure;
 use \ValueError;
 use \RuntimeException;
+use \ReflectionFunction;
+use \ReflectionMethod;
+use \ReflectionObject;
+use \ReflectionParameter;
+use \InvalidArgumentException;
 
 use Chuck\Error\HttpNotFound;
 use Chuck\Error\HttpServerError;
@@ -62,21 +67,48 @@ class Router implements RouterInterface
         }
     }
 
+    protected function getReflectionFunction(
+        object|string $callable,
+        string $errorMsg
+    ): ReflectionFunction|ReflectionMethod {
+        if ($callable instanceof Closure) {
+            return new ReflectionFunction($callable);
+        } elseif (is_object($callable)) {
+            return (new ReflectionObject($callable))->getMethod('__invoke');
+        } elseif (is_callable($callable)) {
+            return new ReflectionFunction($callable);
+        } else {
+            throw new InvalidArgumentException($errorMsg);
+        }
+    }
+
+    protected function paramImplementsRequestInterface(ReflectionParameter $param): bool
+    {
+        $type = $param->getType();
+        $requestType = (string)$type ?: false;
+
+        if (!$requestType) return false;
+
+        if (class_exists($requestType) || interface_exists($requestType)) {
+            $requestTypeCls = new \ReflectionClass($requestType);
+            if (
+                $requestType === RequestInterface::class ||
+                $requestTypeCls->implementsInterface(RequestInterface::class)
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function middleware(object|string $middleware): void
     {
-        if ($middleware instanceof Closure) {
-            $reflectionFunc = new \ReflectionFunction($middleware);
-        } elseif (is_object($middleware)) {
-            $reflectionFunc = (new \ReflectionObject($middleware))->getMethod('__invoke');
-        } elseif (is_callable($middleware)) {
-            $reflectionFunc = new \ReflectionFunction($middleware);
-        } else {
-            throw new \InvalidArgumentException("Middleware is not compatible");
-        }
+        $rf = $this->getReflectionFunction($middleware, "Middleware is not compatible");
 
         // Check the return type of the middleware
         try {
-            $t = $reflectionFunc->getReturnType();
+            $t = $rf->getReturnType();
             $returnType = (string)$t ?:
                 throw new \InvalidArgumentException("Middleware return type must be given");
             $types = explode('|', $returnType);
@@ -104,25 +136,13 @@ class Router implements RouterInterface
         }
 
         // Check if two parameters are present
-        $reflectionParams = $reflectionFunc->getParameters();
+        $reflectionParams = $rf->getParameters();
         if (count($reflectionParams) !== 2) {
             throw new \InvalidArgumentException("Middleware must accept two parameters");
         }
 
         // Check $request parameter
-        $t = $reflectionParams[0]->getType();
-        $requestType = (string)$t ?:
-            throw new \InvalidArgumentException("Middleware's first parameter must implement " . RequestInterface::class);
-
-        if (class_exists($requestType) || interface_exists($requestType)) {
-            $requestTypeCls = new \ReflectionClass($requestType);
-            if (
-                !($requestType === RequestInterface::class) &&
-                !($requestTypeCls->implementsInterface(RequestInterface::class))
-            ) {
-                throw new \InvalidArgumentException("Middleware's first parameter must implement " . RequestInterface::class);
-            }
-        } else {
+        if (!$this->paramImplementsRequestInterface($reflectionParams[0])) {
             throw new \InvalidArgumentException("Middleware's first parameter must implement " . RequestInterface::class);
         }
 
@@ -203,7 +223,7 @@ class Router implements RouterInterface
         $view = $route->view();
 
         if (is_callable($view)) {
-            return $view($request);
+            return $view(...$this->getViewArgs($view, $request));
         } elseif (is_string($view)) {
             if (!str_contains($view, '::')) {
                 $view .= '::__invoke';
@@ -215,7 +235,10 @@ class Router implements RouterInterface
                 $ctrl = new $ctrlName($request);
 
                 if (method_exists($ctrl, $method)) {
-                    return $ctrl->$method($request);
+                    return $ctrl->$method(...$this->getViewArgs(
+                        Closure::fromCallable([$ctrl, $method]),
+                        $request
+                    ));
                 } else {
                     throw HttpServerError::withSubTitle("Controller method not found $view");
                 }
@@ -251,6 +274,52 @@ class Router implements RouterInterface
 
             return $request->getResponse(body: $result);
         }
+    }
+
+    protected function getRequestParamOrError(
+        RequestInterface $request,
+        ReflectionParameter $param,
+        string $name,
+    ): RequestInterface {
+        if (!$this->paramImplementsRequestInterface($param)) {
+            throw new ValueError("The type of the view paramter '$name' is not supported.");
+        }
+
+        return $request;
+    }
+
+    /**
+     * Determines the arguments passed to the view
+     *
+     * - If a view parameter implements RequestInterface, the request will be passed.
+     * - If names of the view parameters match names of the route arguments
+     *   it will try to convert the argument to the parameter type and add it to
+     *   the returned args list.
+     * - Only string, float, int and RequestInterface are supported.
+     */
+    protected function getViewArgs(object|string $view, RequestInterface $request): array
+    {
+        $args = [];
+        $rf = $this->getReflectionFunction($view, "View callable is not compatible.");
+        $params = $rf->getParameters();
+        $routeArgs = $this->route->args();
+
+        foreach ($params as $param) {
+            $name = $param->getName();
+
+            $args[$name] = match ((string)$param->getType()) {
+                'int' => (int)$routeArgs[$name],
+                'float' => (float)$routeArgs[$name],
+                'string' => $routeArgs[$name],
+                default => $this->getRequestParamOrError($request, $param, $name),
+            };
+        }
+
+        if (count($params) === count($args)) {
+            return $args;
+        }
+
+        throw new ValueError('View parameters can not be resolved');
     }
 
     /**

@@ -81,7 +81,7 @@ class Route implements RouteInterface
         return $this;
     }
 
-    public function renderer(string $renderer, mixed ...$args): self
+    public function render(string $renderer, mixed ...$args): self
     {
         $this->renderer = new Renderer\Config($renderer, $args);
 
