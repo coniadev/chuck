@@ -26,4 +26,14 @@ class TestController
         $response->setBody($response->getBody() . ' view');
         return $response;
     }
+
+    public function routeParams(string $string, float $float, Request $request, int $int): array
+    {
+        return [
+            'string' => $string,
+            'float' => $float,
+            'int' => $int,
+            'request' => $request::class,
+        ];
+    }
 }

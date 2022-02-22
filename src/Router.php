@@ -185,7 +185,11 @@ class Router implements RouterInterface
                 return $response;
             }
 
-            return $request->getResponse(body: $result);
+            if (is_string($result)) {
+                return $request->getResponse(body: $result);
+            }
+
+            throw new ValueError('Cannot determine a handler for the return type of the view');
         }
     }
 

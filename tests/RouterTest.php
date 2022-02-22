@@ -3,18 +3,12 @@
 declare(strict_types=1);
 
 use Chuck\Tests\TestCase;
+use Chuck\Tests\Fix\TestMiddleware;
+use Chuck\Tests\Fix\TestController;
+use Chuck\Tests\Fix\TestControllerWithRequest;
 use Chuck\{Router, Route, Request, Response};
 
 uses(TestCase::class);
-
-
-class Middleware
-{
-    public function __invoke(Request $request, callable $next): Request|Response
-    {
-        return $next($request);
-    }
-}
 
 
 test('Matching', function () {
@@ -69,13 +63,63 @@ test('Dispatch without renderer', function () {
 });
 
 
+test('Dispatch wrong view return type', function () {
+    $router = new Router();
+    $index = new Route('index', '/', TestControllerWithRequest::class . '::wrongReturnType');
+    $router->addRoute($index);
+    $router->dispatch($this->request(method: 'GET', url: '/'));
+})->throws(\ValueError::class, 'Cannot determine a handler');
+
+
+test('Dispatch controller with request constructor', function () {
+    $router = new Router();
+    $index = new Route('index', '/', TestControllerWithRequest::class . '::requestOnly');
+    $router->addRoute($index);
+
+    $response = $router->dispatch($this->request(method: 'GET', url: '/'));
+    expect((string)$response->getBody())->toBe('Chuck\Request');
+});
+
+
+test('Dispatch view with route params', function () {
+    $router = new Router();
+    $index = (new Route(
+        'params',
+        '/{string}/{float}-{int}',
+        TestControllerWithRequest::class . '::routeParams'
+    ))->render('json');
+    $router->addRoute($index);
+
+    $response = $router->dispatch($this->request(method: 'GET', url: '/symbolic/7.13-23'));
+    expect((string)$response->getBody())->toBe(
+        '{"string":"symbolic","float":7.13,"int":23,"request":"Chuck\\\\Request"}'
+    );
+});
+
+
+test('Dispatch view with route params including request', function () {
+    $router = new Router();
+    $index = (new Route(
+        'params',
+        '/{int}/{string}-{float}',
+        TestController::class . '::routeParams'
+    ))->render('json');
+    $router->addRoute($index);
+
+    $response = $router->dispatch($this->request(method: 'GET', url: '/17/spiritual-healing-23.31'));
+    expect((string)$response->getBody())->toBe(
+        '{"string":"spiritual-healing","float":23.31,"int":17,"request":"Chuck\\\\Request"}'
+    );
+});
+
+
 test('Middleware add', function () {
     $router = new Router();
 
     $router->middleware(function (Request $request, callable $next): Response|Request {
         return $next($request);
     });
-    $router->middleware(new Middleware());
+    $router->middleware(new TestMiddleware());
 
     expect(count($router->middlewares()))->toBe(2);
 });

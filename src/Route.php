@@ -167,7 +167,7 @@ class Route implements RouteInterface
 
         // convert variables to named group patterns
         //     /evil/{chuck}  to  /evil/(?P<chuck>[\w-]+)
-        $pattern = preg_replace('/\{(\w+?)\}/', '(?P<\1>[\w-]+)', $pattern);
+        $pattern = preg_replace('/\{(\w+?)\}/', '(?P<\1>[.\w-]+)', $pattern);
 
         // convert variables with custom patterns e.g. {evil:\d+}
         //     /evil/{chuck:\d+}  to  /evil/(?P<chuck>\d+)
