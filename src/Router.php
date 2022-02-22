@@ -145,7 +145,7 @@ class Router implements RouterInterface
             [$ctrlName, $method] = explode('::', $view);
 
             if (class_exists($ctrlName)) {
-                $ctrl = new $ctrlName($request);
+                $ctrl = new $ctrlName(...Reflect::controllerConstructorParams($ctrlName, $request));
 
                 if (method_exists($ctrl, $method)) {
                     return $ctrl->$method(...$this->getViewArgs(

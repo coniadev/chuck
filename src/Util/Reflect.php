@@ -7,6 +7,7 @@ namespace Chuck\Util;
 use \Closure;
 use \InvalidArgumentException;
 use \ValueError;
+use \ReflectionClass;
 use \ReflectionFunction;
 use \ReflectionMethod;
 use \ReflectionObject;
@@ -88,18 +89,18 @@ class Reflect
         }
 
         // Check if two parameters are present
-        $reflectionParams = $rf->getParameters();
-        if (count($reflectionParams) !== 2) {
+        $rp = $rf->getParameters();
+        if (count($rp) !== 2) {
             throw new \InvalidArgumentException("Middleware must accept two parameters");
         }
 
         // Check $request parameter
-        if (!self::paramImplementsRequestInterface($reflectionParams[0])) {
+        if (!self::paramImplementsRequestInterface($rp[0])) {
             throw new \InvalidArgumentException("Middleware's first parameter must implement " . RequestInterface::class);
         }
 
         // Check $next parameter
-        $nextType = (string)$reflectionParams[1]->getType();
+        $nextType = (string)$rp[1]->getType();
 
         if ($nextType !== 'callable') {
             throw new \InvalidArgumentException("Middleware's second parameter must be of type 'callable'");
@@ -116,5 +117,25 @@ class Reflect
         }
 
         return $request;
+    }
+
+    public static function controllerConstructorParams(string $class, RequestInterface $request): array
+    {
+        /** @var class-string $class */
+        $rc = new ReflectionClass($class);
+        $constructor = $rc->getConstructor();
+
+        if (empty($constructor)) return [];
+
+        $params = $constructor->getParameters();
+        $args = [];
+
+        foreach ($params as $param) {
+            if (self::paramImplementsRequestInterface($param)) {
+                $args[$param->getName()] = $request;
+            }
+        }
+
+        return $args;
     }
 }
