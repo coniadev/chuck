@@ -10,11 +10,11 @@ use Chuck\Error\HttpNotFound;
 
 class File implements Body
 {
+    protected bool $sendFile = false;
+
     public function __construct(
         protected ResponseInterface $response,
         protected string $file,
-        protected bool $sendFile,
-        protected bool $asDownload,
         protected int $chunkSize,
     ) {
         if (!is_file($file)) {
@@ -29,22 +29,38 @@ class File implements Body
                 $finfo = new \finfo(FILEINFO_MIME_TYPE);
                 $contentType = finfo_file($finfo, $this->file);
             }
-        } catch (\Exception) {
-            throw new HttpNotFound();
+        } catch (\Throwable) {
+            $contentType = 'application/octet-stream';
         }
 
         $response->addHeader('Content-Type', $contentType);
         $finfo = new \finfo(FILEINFO_MIME_ENCODING);
         $response->addHeader('Content-Transfer-Encoding', finfo_file($finfo, $file));
         $response->addHeader('Content-Size', (string)filesize($this->file));
+    }
 
-        if ($sendFile) {
-            $server = strtolower($_SERVER['SERVER_SOFTWARE']);
+    public function sendfile(): self
+    {
+        $this->sendFile = true;
+        $server = strtolower($_SERVER['SERVER_SOFTWARE']);
 
-            if (strpos($server, 'nginx') !== false) {
-            } else {
-            }
+        if (strpos($server, 'nginx') !== false) {
+            $this->response->addHeader('X-Accel-Redirect', $this->file);
+        } else {
+            $this->response->addHeader('X-Sendfile', $this->file);
         }
+
+        return $this;
+    }
+
+    public function download(): self
+    {
+        $this->response->addHeader(
+            'Content-Disposition',
+            'attachment; filename="' . basename($this->file) . '"'
+        );
+
+        return $this;
     }
 
     public function emit(): void

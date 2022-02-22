@@ -133,7 +133,12 @@ class Response implements ResponseInterface
         bool $asDownload = false,
         int $chunkSize = 2 << 20, // 2 MB
     ): void {
-        $this->body = new File($this, $file, $sendFile, $asDownload, $chunkSize);
+        $body = new File($this, $file, $chunkSize);
+
+        if ($sendFile) $body = $body->sendfile();
+        if ($asDownload) $body = $body->download();
+
+        $this->body = $body;
     }
 
     public function emit(): void
