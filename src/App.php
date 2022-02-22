@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use Psr\Log\LoggerInterface;
+
 use Chuck\Error\HandlerInterface;
 use Chuck\Error\Handler;
 
@@ -88,6 +90,11 @@ class App
     public function renderer(string $name, string $class): void
     {
         $this->config->addRenderer($name, $class);
+    }
+
+    public function logger(LoggerInterface $logger): void
+    {
+        $this->config->addLogger($logger);
     }
 
     public function run(bool $emit = true): ResponseInterface

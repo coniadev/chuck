@@ -7,6 +7,8 @@ namespace Chuck;
 use \InvalidArgumentException;
 use \ValueError;
 
+use Psr\Log\LoggerInterface;
+
 use Chuck\Util\Http;
 use Chuck\Util\Path;
 use Chuck\Renderer\RendererInterface;
@@ -21,6 +23,7 @@ class Config implements ConfigInterface
     protected readonly array $pathMap;
     protected array $registryMap;
     protected array $renderers;
+    protected ?LoggerInterface $logger = null;
 
     public function __construct(protected array $pristine)
     {
@@ -293,5 +296,15 @@ class Config implements ConfigInterface
     public function __toString(): string
     {
         return print_r($this->config, return: true);
+    }
+
+    public function addLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
+    }
+
+    public function getLogger(): ?LoggerInterface
+    {
+        return $this->logger;
     }
 }
