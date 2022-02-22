@@ -7,7 +7,7 @@ namespace Chuck\Tests;
 use \PDO;
 
 use Chuck\Config;
-use Chuck\Model\Database;
+use Chuck\Database\Database;
 use Chuck\Tests\TestCase;
 
 

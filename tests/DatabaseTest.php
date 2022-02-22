@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Chuck\Tests\DatabaseCase;
 use Chuck\Tests\Helper;
-use Chuck\Model\Database;
+use Chuck\Database\Database;
 
 uses(DatabaseCase::class);
 

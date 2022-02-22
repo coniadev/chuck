@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Model;
+namespace Chuck\Database;
 
 
 class Folder

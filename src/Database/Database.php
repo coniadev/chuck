@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Model;
+namespace Chuck\Database;
 
 use \PDO;
 
 use Chuck\ConfigInterface;
-use Chuck\Model\DatabaseInterface;
-use Chuck\Model\QueryInterface;
+use Chuck\Database\DatabaseInterface;
+use Chuck\Database\QueryInterface;
 use Chuck\Util\Path;
 
 
