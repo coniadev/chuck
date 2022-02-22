@@ -27,7 +27,7 @@ class Router implements RouterInterface
         return $this->routes;
     }
 
-    public function getRoute(): Route
+    public function getRoute(): RouteInterface
     {
         try {
             return $this->route;

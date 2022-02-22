@@ -16,25 +16,33 @@ class App
     public function __construct(
         protected RequestInterface $request,
         HandlerInterface $errorHandler = null,
-        bool $forceErrorHandler = false,
     ) {
-        $this->config = $request->getConfig();
-
-        if (PHP_SAPI !== 'cli' || $forceErrorHandler) {
+        if (PHP_SAPI !== 'cli') {
             if (!$errorHandler) {
                 $errorHandler = new Handler($request);
             }
             $errorHandler->setup();
         }
 
+        $this->config = $request->getConfig();
         $this->router = $request->getRouter();
     }
 
-    public static function create(array $options): self
-    {
-        $config = new Config($options);
+    public static function create(
+        array|ConfigInterface $options,
+        HandlerInterface $errorHandler = null,
+    ): self {
+        if ($options instanceof ConfigInterface) {
+            $config = $options;
+        } else {
+            $config = new Config($options);
+        }
+
         $router = new Router();
-        $app = new self(new Request($config, $router));
+        /** @var RequestInterface */
+        $request = new ($config->registry(RequestInterface::class))($config, $router);
+
+        $app = new self($request, $errorHandler);
 
         return $app;
     }

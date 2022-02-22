@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+
 interface ConfigInterface
 {
     public function __construct(array $config);

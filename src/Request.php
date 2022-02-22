@@ -75,7 +75,7 @@ class Request implements RequestInterface
         return $response;
     }
 
-    public function getRoute(): Route
+    public function getRoute(): RouteInterface
     {
         return $this->router->getRoute();
     }

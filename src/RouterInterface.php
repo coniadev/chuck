@@ -8,7 +8,7 @@ namespace Chuck;
 interface RouterInterface
 {
     public function getRoutes(): array;
-    public function getRoute(): Route;
+    public function getRoute(): RouteInterface;
     public function addRoute(RouteInterface $route): void;
     public function addStatic(
         string $name,

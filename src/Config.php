@@ -9,9 +9,6 @@ use \ValueError;
 
 use Chuck\Util\Http;
 use Chuck\Util\Path;
-use Chuck\{Response, ResponseInterface};
-use Chuck\{Template, TemplateInterface};
-use Chuck\{Session, SessionInterface};
 use Chuck\Renderer\RendererInterface;
 
 
@@ -37,6 +34,7 @@ class Config implements ConfigInterface
         $this->debug = is_bool($pristine['debug'] ?? null) ? $pristine['debug'] : false;
 
         $this->registryMap = [
+            RequestInterface::class => Request::class,
             ResponseInterface::class => Response::class,
             TemplateInterface::class => Template::class,
             SessionInterface::class => Session::class,
@@ -247,7 +245,7 @@ class Config implements ConfigInterface
         return  $this->pathMap['scripts'];
     }
 
-    public function registry(string $key): string
+    public function registry(string $key, mixed ...$args): string
     {
         return $this->registryMap[$key] ??
             throw new InvalidArgumentException("Undefined registry key \"$key\"");

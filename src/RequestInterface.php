@@ -6,7 +6,6 @@ namespace Chuck;
 
 interface RequestInterface
 {
-    public function redirect(string $url, int $code): ResponseInterface;
     public function getResponse(
         int $statusCode = 200,
         mixed $body = null,
@@ -18,6 +17,5 @@ interface RequestInterface
     public function getRouter(): RouterInterface;
     public function method(): string;
     public function isMethod(string $method): bool;
-    public function jsonBody(): ?array;
     public function addMethod(string $name, callable $callable): void;
 }
