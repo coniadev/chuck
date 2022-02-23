@@ -15,6 +15,14 @@ class Handler
     {
     }
 
+    public function setup(): callable|null
+    {
+        $errorLevel = $this->request->getConfig()->get('errorLevel');
+
+        set_error_handler($this->handleError(...), $errorLevel);
+        return set_exception_handler($this->handleException(...));
+    }
+
     public function handleError(
         int $level,
         string $message,
@@ -32,9 +40,10 @@ class Handler
     {
         $debug = $this->request->getConfig()->debug();
         $response = $this->request->getResponse();
-        $code = $exception->getCode();
 
         if ($exception instanceof HttpError) {
+            /** @var int $code */
+            $code = $exception->getCode();
             $response->setStatusCode($code);
             $body = '<h1>' . htmlspecialchars($exception->getTitle()) . '</h1>';
             $subTitle = $exception->getSubtitle();
@@ -51,7 +60,12 @@ class Handler
         }
 
         $trace = $exception->getTraceAsString();
-        $this->log($code, implode("\n#", explode('#', $trace)));
+        $this->log(
+            Log::ERROR,
+            "Uncaught Exception\n\t" .
+                $exception->getMessage() . "\n\t" .
+                implode("\n\t#", explode('#', $trace))
+        );
 
         if ($debug) {
             $trace = htmlspecialchars($trace);
@@ -63,16 +77,9 @@ class Handler
         $response->emit();
     }
 
-    public function setup(): callable|null
-    {
-        $errorLevel = $this->request->getConfig()->get('errorLevel');
-
-        set_error_handler($this->handleError(...), $errorLevel);
-        return set_exception_handler($this->handleException(...));
-    }
-
     public function log(int $level, string $message): void
     {
-        Log::log($this->request, $level, $message);
+        $logger = new Log($this->request);
+        $logger->log($level, $message);
     }
 }

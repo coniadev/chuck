@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Chuck\Middleware;
 
 use Chuck\RequestInterface;
-use Chuck\Util\Log as LogUtil;
+use Chuck\Util;
 
 
 class Log
 {
     public function __invoke(RequestInterface $request, callable $next): RequestInterface
     {
-        $request->addMethod('log', function (int $level, string $message) use ($request): void {
-            LogUtil::log($request, $level, $message);
+        $request->addMethod('logger', function () use ($request): Util\Log {
+            return new Util\Log($request);
         });
 
         return $next($request);
