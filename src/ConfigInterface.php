@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use Psr\Log\LoggerInterface;
-
 
 interface ConfigInterface
 {
@@ -22,7 +20,4 @@ interface ConfigInterface
     public function scripts(): array;
     public function debug(): bool;
     public function env(): string;
-
-    public function addLogger(LoggerInterface $logger): void;
-    public function getLogger(): ?LoggerInterface;
 }
