@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Chuck;
 
 use \InvalidArgumentException;
-
+use Chuck\Renderer\RendererInterface;
 
 class Registry implements RegistryInterface
 {
     protected array $classes;
     protected array $objects;
+    protected array $renderers;
 
     public function __construct()
     {
@@ -21,6 +22,11 @@ class Registry implements RegistryInterface
             SessionInterface::class => Session::class,
         ];
         $this->objects = [];
+        $this->renderers = [
+            'text' => Renderer\TextRenderer::class,
+            'json' => Renderer\JsonRenderer::class,
+            'template' => Renderer\TemplateRenderer::class,
+        ];
     }
 
     public function add(string $key, string|object $entry): void
@@ -28,6 +34,11 @@ class Registry implements RegistryInterface
         if (is_object($entry)) {
             $this->objects[$key] = $entry;
             $this->classes[$key] = $entry::class;
+            return;
+        }
+
+        if (is_subclass_of($entry, RendererInterface::class)) {
+            $this->renderers[$key] = $entry;
             return;
         }
 
@@ -48,12 +59,17 @@ class Registry implements RegistryInterface
     public function has(string $key): bool
     {
         return array_key_exists($key, $this->classes)
+            || array_key_exists($key, $this->renderers)
             || array_key_exists($key, $this->objects);
     }
 
     public function get(string $key): string
     {
-        return $this->classes[$key] ??
+        if (array_key_exists($key, $this->classes)) {
+            return $this->classes[$key];
+        }
+
+        return $this->renderers[$key] ??
             throw new InvalidArgumentException("Undefined registry key \"$key\"");
     }
 

@@ -59,11 +59,11 @@ test('Register helper', function () {
 });
 
 
-test('Renderer helper', function () {
+test('Register renderer helper', function () {
     $app = App::create($this->options());
-    $app->renderer('test', TestRenderer::class);
+    $app->register('test', TestRenderer::class);
 
-    expect($app->config()->renderer('test'))->toBe(TestRenderer::class);
+    expect($app->registry()->get('test'))->toBe(TestRenderer::class);
 });
 
 

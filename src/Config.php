@@ -9,7 +9,6 @@ use \ValueError;
 
 use Chuck\Util\Http;
 use Chuck\Util\Path;
-use Chuck\Renderer\RendererInterface;
 
 
 class Config implements ConfigInterface
@@ -19,7 +18,6 @@ class Config implements ConfigInterface
 
     protected readonly array $config;
     protected readonly array $pathMap;
-    protected array $renderers;
 
     public function __construct(protected array $pristine)
     {
@@ -31,13 +29,6 @@ class Config implements ConfigInterface
         $pristineEnv = $pristine['env'] ?? null;
         $this->env = (!empty($pristineEnv) && is_string($pristineEnv)) ? $pristineEnv : '';
         $this->debug = is_bool($pristine['debug'] ?? null) ? $pristine['debug'] : false;
-
-        $this->renderers = [
-            'text' => Renderer\TextRenderer::class,
-            'json' => Renderer\JsonRenderer::class,
-            'template' => Renderer\TemplateRenderer::class,
-        ];
-
         [$this->config, $this->pathMap] = $this->read($this->pristine);
     }
 
@@ -235,23 +226,6 @@ class Config implements ConfigInterface
     public function scripts(): array
     {
         return  $this->pathMap['scripts'];
-    }
-
-    public function addRenderer(string $key, string $class): void
-    {
-        if (!(is_subclass_of($class, RendererInterface::class))) {
-            throw new InvalidArgumentException(
-                "The renderer class does not implement " . RendererInterface::class
-            );
-        }
-
-        $this->renderers[$key] = $class;
-    }
-
-    public function renderer(string $key): string
-    {
-        return $this->renderers[$key] ??
-            throw new InvalidArgumentException("Undefined renderer \"$key\"");
     }
 
     public function __toString(): string

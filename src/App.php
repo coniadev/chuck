@@ -84,11 +84,6 @@ class App
         $this->registry->add($interface, $class);
     }
 
-    public function renderer(string $name, string $class): void
-    {
-        $this->config->addRenderer($name, $class);
-    }
-
     public function run(bool $emit = true): ResponseInterface
     {
         $response = $this->router->dispatch($this->request);
