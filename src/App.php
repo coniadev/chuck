@@ -42,7 +42,7 @@ class App
 
         $router = new Router();
         /** @var RequestInterface */
-        $request = new ($config->registry(RequestInterface::class))($config, $router);
+        $request = $config->registry->new(RequestInterface::class, $config, $router);
 
         $app = new self($request, $errorHandler);
 
@@ -84,7 +84,7 @@ class App
 
     public function register(string $interface, string $class): void
     {
-        $this->config->register($interface, $class);
+        $this->config->registry->add($interface, $class);
     }
 
     public function renderer(string $name, string $class): void

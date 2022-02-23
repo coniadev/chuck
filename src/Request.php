@@ -68,7 +68,7 @@ class Request implements RequestInterface
 
     public function redirect(string $url, int $code = 302): ResponseInterface
     {
-        $class = $this->config->registry(ResponseInterface::class);
+        $class = $this->config->registry->get(ResponseInterface::class);
         /** @var ResponseInterface */
         $response = new $class($this, statusCode: $code);
         $response->addHeader('Location', $url, true);
@@ -157,7 +157,7 @@ class Request implements RequestInterface
              * readonly properties which are not initialized in the
              * constructor. Recheck on occasion.
              */
-            $this->response = new ($this->config->registry(ResponseInterface::class))($this);
+            $this->response = $this->config->registry->new(ResponseInterface::class, $this);
         }
 
         $this->response->setStatusCode($statusCode, $reasonPhrase);

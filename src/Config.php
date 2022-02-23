@@ -18,10 +18,10 @@ class Config implements ConfigInterface
 {
     public readonly bool $debug;
     public readonly string $env;
+    public readonly Registry $registry;
 
     protected readonly array $config;
     protected readonly array $pathMap;
-    protected array $registryMap;
     protected array $renderers;
     protected ?LoggerInterface $logger = null;
 
@@ -35,13 +35,7 @@ class Config implements ConfigInterface
         $pristineEnv = $pristine['env'] ?? null;
         $this->env = (!empty($pristineEnv) && is_string($pristineEnv)) ? $pristineEnv : '';
         $this->debug = is_bool($pristine['debug'] ?? null) ? $pristine['debug'] : false;
-
-        $this->registryMap = [
-            RequestInterface::class => Request::class,
-            ResponseInterface::class => Response::class,
-            TemplateInterface::class => Template::class,
-            SessionInterface::class => Session::class,
-        ];
+        $this->registry = new Registry();
 
         $this->renderers = [
             'text' => Renderer\TextRenderer::class,
@@ -173,7 +167,7 @@ class Config implements ConfigInterface
     }
 
     /**
-     * Returns the given $key from the configuration file
+     * Returns the given $key from the configuration
      *
      * Also handles the dotted config file format, e. g. 'db.dsn'
      */
@@ -193,6 +187,21 @@ class Config implements ConfigInterface
             }
 
             throw new InvalidArgumentException("Chuck Error: The configuration key '$key' does not exist");
+        }
+    }
+
+    public function set(string $key, mixed $value): void
+    {
+        [$mainKey, $subKey] = $this->getKeys($key);
+
+        if ($subKey) {
+            if (array_key_exists($mainKey, $this->config)) {
+                $this->config[$mainKey][$subKey] = $value;
+            } else {
+                $this->config[$mainKey] = [$subKey => $value];
+            }
+        } else {
+            $this->config[$key] = $value;
         }
     }
 
@@ -246,34 +255,6 @@ class Config implements ConfigInterface
     public function scripts(): array
     {
         return  $this->pathMap['scripts'];
-    }
-
-    public function registry(string $key, mixed ...$args): string
-    {
-        return $this->registryMap[$key] ??
-            throw new InvalidArgumentException("Undefined registry key \"$key\"");
-    }
-
-    public function register(string $interface, string $class): void
-    {
-        if (!interface_exists($interface)) {
-            throw new InvalidArgumentException("Interface does not exist: $interface");
-        }
-
-        if (!class_exists($class)) {
-            throw new InvalidArgumentException("Class does not exist: $class");
-        }
-
-        if (!(is_subclass_of($class, $interface))) {
-            throw new InvalidArgumentException("The class does not implement the interface");
-        }
-
-        $this->registryMap[$interface] = $class;
-    }
-
-    public function registered(string $key): bool
-    {
-        return array_key_exists($key, $this->registryMap);
     }
 
     public function addRenderer(string $key, string $class): void

@@ -13,9 +13,8 @@ class Session
 {
     public function __invoke(RequestInterface $request, callable $next): RequestInterface|ResponseInterface
     {
-        $class = $request->getConfig()->registry(SessionInterface::class);
         /** @var SessionInterface */
-        $session = new $class($request);
+        $session = $request->getConfig()->registry->new(SessionInterface::class, $request);
         $session->start();
 
         $request->addMethod('session', function () use ($session): SessionInterface {

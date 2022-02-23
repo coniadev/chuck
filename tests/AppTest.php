@@ -55,7 +55,7 @@ test('Register helper', function () {
     $app = App::create($this->options());
     $app->register(TestInterface::class, TestClass::class);
 
-    expect($app->config()->registry(TestInterface::class))->toBe(TestClass::class);
+    expect($app->config()->registry->get(TestInterface::class))->toBe(TestClass::class);
 });
 
 
