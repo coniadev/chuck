@@ -219,10 +219,10 @@ test('All methods matching', function () {
 
 
 test('Route prefix', function () {
-    $route = Route::get('albums', 'albums', fn () => 'chuck')->prefix('api');
+    $route = Route::get('albums', 'albums', fn () => 'chuck')->prefix(url: 'api');
     expect($route->match($this->request(method: 'GET', url: '/api/albums')))->toBe($route);
 
-    $route = Route::get('albums', 'albums', fn () => 'chuck')->prefix('api', 'api::');
+    $route = Route::get('albums', 'albums', fn () => 'chuck')->prefix('api::', 'api');
     expect($route->name())->toBe('api::albums');
 
     $route = Route::get('albums', 'albums', fn () => 'chuck')->prefix(name: 'api::');

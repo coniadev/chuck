@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use \ValueError;
+
 use Chuck\Util\Arrays;
+use Chuck\Util\Reflect;
 
 const LEFT_BRACE = '§§§€§§§';
 const RIGHT_BRACE = '§§§£§§§';
@@ -19,46 +22,47 @@ class Route implements RouteInterface
 
     public function __construct(
         protected string $name,
-        protected string $route,
-        protected string|\Closure $view,
+        protected string $url,
+        string|callable $view,
         protected array $params = [],
     ) {
-        $this->route = '/' . ltrim($route, '/');
+        $this->url = '/' . ltrim($url, '/');
+        $this->view = $view;
     }
 
-    public static function get(string $name, string $route, string|\Closure $view, array $params = []): self
+    public static function get(string $name, string $url, string|callable $view, array $params = []): self
     {
-        return (new self($name, $route, $view, $params))->method('GET');
+        return (new self($name, $url, $view, $params))->method('GET');
     }
 
-    public static function post(string $name, string $route, string|\Closure $view, array $params = []): self
+    public static function post(string $name, string $url, string|callable $view, array $params = []): self
     {
-        return (new self($name, $route, $view, $params))->method('POST');
+        return (new self($name, $url, $view, $params))->method('POST');
     }
 
-    public static function put(string $name, string $route, string|\Closure $view, array $params = []): self
+    public static function put(string $name, string $url, string|callable $view, array $params = []): self
     {
-        return (new self($name, $route, $view, $params))->method('PUT');
+        return (new self($name, $url, $view, $params))->method('PUT');
     }
 
-    public static function patch(string $name, string $route, string|\Closure $view, array $params = []): self
+    public static function patch(string $name, string $url, string|callable $view, array $params = []): self
     {
-        return (new self($name, $route, $view, $params))->method('PATCH');
+        return (new self($name, $url, $view, $params))->method('PATCH');
     }
 
-    public static function delete(string $name, string $route, string|\Closure $view, array $params = []): self
+    public static function delete(string $name, string $url, string|callable $view, array $params = []): self
     {
-        return (new self($name, $route, $view, $params))->method('DELETE');
+        return (new self($name, $url, $view, $params))->method('DELETE');
     }
 
-    public static function head(string $name, string $route, string|\Closure $view, array $params = []): self
+    public static function head(string $name, string $url, string|callable $view, array $params = []): self
     {
-        return (new self($name, $route, $view, $params))->method('HEAD');
+        return (new self($name, $url, $view, $params))->method('HEAD');
     }
 
-    public static function options(string $name, string $route, string|\Closure $view, array $params = []): self
+    public static function options(string $name, string $url, string|callable $view, array $params = []): self
     {
-        return (new self($name, $route, $view, $params))->method('OPTIONS');
+        return (new self($name, $url, $view, $params))->method('OPTIONS');
     }
 
     public function method(string ...$args): self
@@ -68,14 +72,14 @@ class Route implements RouteInterface
         return $this;
     }
 
-    public function prefix(?string $prefix = null, ?string $name = null): self
+    public function prefix(string $name = '', string $url = ''): self
     {
-        if ($prefix) {
-            $this->route = '/' . ltrim(rtrim($prefix, '/'), '/') . $this->route;
+        if (!empty($name)) {
+            $this->name = $name . $this->name;
         }
 
-        if ($name) {
-            $this->name = $name . $this->name;
+        if (!empty($url)) {
+            $this->url = '/' . ltrim(rtrim($url, '/'), '/') . $this->url;
         }
 
         return $this;
@@ -93,9 +97,9 @@ class Route implements RouteInterface
         return $this->renderer;
     }
 
-    public function middleware(callable $middleware): self
+    public function middleware(string|object ...$middlewares): self
     {
-        $this->middlewares[] = $middleware;
+        $this->middlewares = $middlewares;
 
         return $this;
     }
@@ -103,6 +107,15 @@ class Route implements RouteInterface
     public function middlewares(): array
     {
         return $this->middlewares;
+    }
+
+    public function controller(string $controller): void
+    {
+        if (is_string($this->view)) {
+            $this->view = $controller . '::' . $this->view;
+        } else {
+            throw new ValueError('Cannot add controller to view of type Closure');
+        }
     }
 
     public function name(): string
@@ -113,7 +126,7 @@ class Route implements RouteInterface
     protected function hideInnerBraces(string $str): string
     {
         if (strpos($str, '\{') || strpos($str, '\}')) {
-            throw new \ValueError('Escaped braces are not allowed: ' . $this->route);
+            throw new \ValueError('Escaped braces are not allowed: ' . $this->url);
         }
 
         $new = '';
@@ -146,7 +159,7 @@ class Route implements RouteInterface
         }
 
         if ($level !== 0) {
-            throw  new \ValueError('Unbalanced braces in route pattern: ' . $this->route);
+            throw  new \ValueError('Unbalanced braces in route pattern: ' . $this->url);
         }
 
         return $new;
@@ -161,7 +174,7 @@ class Route implements RouteInterface
     {
         // escape forward slashes
         //     /evil/chuck  to \/evil\/chuck
-        $pattern = preg_replace('/\//', '\\/', $this->route);
+        $pattern = preg_replace('/\//', '\\/', $this->url);
 
         $pattern = $this->hideInnerBraces($pattern);
 
@@ -194,7 +207,7 @@ class Route implements RouteInterface
                 }
             }
 
-            $url = $this->route;
+            $url = $this->url;
 
             foreach ($args as $name => $value) {
                 // basic variables
@@ -215,10 +228,10 @@ class Route implements RouteInterface
             return $url;
         }
 
-        return $this->route;
+        return $this->url;
     }
 
-    public function view(): string|\Closure
+    public function view(): string|callable
     {
         return $this->view;
     }
