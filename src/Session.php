@@ -32,7 +32,7 @@ class Session implements SessionInterface
             if (PHP_SAPI === 'cli') {
                 $_SESSION = [];
             } elseif (!headers_sent()) {
-                if ($this->config->registry->has(SessionHandlerInterface::class)) {
+                if ($this->request->getRegistry()->has(SessionHandlerInterface::class)) {
                     $this->setupCustomSessions();
                 }
 
@@ -64,7 +64,7 @@ class Session implements SessionInterface
 
     protected function setupCustomSessions(): void
     {
-        $handler = $this->config->registry->new(SessionHandlerInterface::class);
+        $handler = $this->request->getRegistry()->new(SessionHandlerInterface::class);
 
         session_set_save_handler(
             [$handler, 'open'],

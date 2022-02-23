@@ -7,7 +7,7 @@ namespace Chuck;
 use \InvalidArgumentException;
 
 
-class Registry
+class Registry implements RegistryInterface
 {
     protected array $classes;
     protected array $objects;
@@ -20,16 +20,14 @@ class Registry
             TemplateInterface::class => Template::class,
             SessionInterface::class => Session::class,
         ];
+        $this->objects = [];
     }
 
     public function add(string $key, string|object $entry): void
     {
-        if (!interface_exists($key)) {
-            throw new InvalidArgumentException("Interface does not exist: $key");
-        }
-
         if (is_object($entry)) {
             $this->objects[$key] = $entry;
+            $this->classes[$key] = $entry::class;
             return;
         }
 
@@ -37,6 +35,7 @@ class Registry
             throw new InvalidArgumentException("Class does not exist: $entry");
         }
 
+        /** @var class-string $key */
         if (!(is_subclass_of($entry, $key) || $entry === $key)) {
             throw new InvalidArgumentException(
                 "$entry is no subclass of or does not implement $key"
@@ -48,7 +47,8 @@ class Registry
 
     public function has(string $key): bool
     {
-        return array_key_exists($key, $this->registry);
+        return array_key_exists($key, $this->classes)
+            || array_key_exists($key, $this->objects);
     }
 
     public function get(string $key): string

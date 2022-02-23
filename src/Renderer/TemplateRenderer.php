@@ -35,7 +35,7 @@ class TemplateRenderer extends Renderer
     {
         $request = $this->request;
         $config = $request->getConfig();
-        $class = $config->registry->get(TemplateInterface::class);
+        $class = $request->getRegistry()->get(TemplateInterface::class);
         $template = new $class(
             $this->request,
             defaults: [

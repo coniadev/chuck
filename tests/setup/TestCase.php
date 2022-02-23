@@ -8,6 +8,8 @@ use PHPUnit\Framework\TestCase as BaseTestCase;
 
 use Chuck\Config;
 use Chuck\ConfigInterface;
+use Chuck\Registry;
+use Chuck\RegistryInterface;
 use Chuck\Request;
 use Chuck\Router;
 use Chuck\RouterInterface;
@@ -136,6 +138,7 @@ class TestCase extends BaseTestCase
         array $options = [],
         ?RouterInterface $router = null,
         ?ConfigInterface $config = null,
+        ?RegistryInterface $registry = null,
     ): Request {
         if ($method) {
             $this->setMethod($method);
@@ -161,7 +164,11 @@ class TestCase extends BaseTestCase
             $router = new Router();
         }
 
-        $request = new Request($config, $router);
+        if ($registry === null) {
+            $registry = new Registry();
+        }
+
+        $request = new Request($config, $router, $registry);
 
         return $request;
     }

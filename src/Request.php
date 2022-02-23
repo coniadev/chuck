@@ -14,14 +14,17 @@ class Request implements RequestInterface
 
     protected readonly RouterInterface $router;
     protected readonly ConfigInterface $config;
+    protected readonly RegistryInterface $registry;
     protected array $customMethods = [];
 
     public function __construct(
         ConfigInterface $config,
         RouterInterface $router,
+        RegistryInterface $registry,
     ) {
         $this->router = $router;
         $this->config = $config;
+        $this->registry = $registry;
     }
 
     public function params(): array
@@ -68,7 +71,7 @@ class Request implements RequestInterface
 
     public function redirect(string $url, int $code = 302): ResponseInterface
     {
-        $class = $this->config->registry->get(ResponseInterface::class);
+        $class = $this->registry->get(ResponseInterface::class);
         /** @var ResponseInterface */
         $response = new $class($this, statusCode: $code);
         $response->addHeader('Location', $url, true);
@@ -140,6 +143,11 @@ class Request implements RequestInterface
         return $this->config;
     }
 
+    public function getRegistry(): RegistryInterface
+    {
+        return $this->registry;
+    }
+
     public function getResponse(
         int $statusCode = 200,
         mixed $body = null,
@@ -157,7 +165,7 @@ class Request implements RequestInterface
              * readonly properties which are not initialized in the
              * constructor. Recheck on occasion.
              */
-            $this->response = $this->config->registry->new(ResponseInterface::class, $this);
+            $this->response = $this->registry->new(ResponseInterface::class, $this);
         }
 
         $this->response->setStatusCode($statusCode, $reasonPhrase);
@@ -190,7 +198,8 @@ class Request implements RequestInterface
 
     public function __get(
         string $key
-    ): ResponseInterface | ConfigInterface | RouterInterface | RouteInterface | bool | string {
+    ): ResponseInterface | ConfigInterface | RouterInterface |
+    RouteInterface | RegistryInterface | bool | string {
         return match ($key) {
             /** @var ResponseInterface */
             'response' => $this->getResponse(),
@@ -200,6 +209,8 @@ class Request implements RequestInterface
             'router' => $this->router,
             /** @var RouteInterface */
             'route' => $this->router->getRoute(),
+            /** @var RegistryInterface */
+            'registry' => $this->registry,
             /** @var string */
             'env' => $this->config->env(),
             /** @var bool */

@@ -10,12 +10,14 @@ use Chuck\Error\Handler;
 class App
 {
     protected RouterInterface $router;
+    protected RegistryInterface $registry;
     protected ConfigInterface $config;
 
     public function __construct(protected RequestInterface $request)
     {
         $this->config = $request->getConfig();
         $this->router = $request->getRouter();
+        $this->registry = $request->getRegistry();
     }
 
     public static function create(array|ConfigInterface $options): self
@@ -26,9 +28,10 @@ class App
             $config = new Config($options);
         }
 
+        $registry = new Registry();
         $router = new Router();
         /** @var RequestInterface */
-        $request = $config->registry->new(RequestInterface::class, $config, $router);
+        $request = $registry->new(RequestInterface::class, $config, $router, $registry);
 
         $errorHandler = new Handler($request);
         $errorHandler->setup();
@@ -53,6 +56,11 @@ class App
         return $this->config;
     }
 
+    public function registry(): RegistryInterface
+    {
+        return $this->registry;
+    }
+
     public function route(RouteInterface $route): void
     {
         $this->router->addRoute($route);
@@ -73,7 +81,7 @@ class App
 
     public function register(string $interface, string $class): void
     {
-        $this->config->registry->add($interface, $class);
+        $this->registry->add($interface, $class);
     }
 
     public function renderer(string $name, string $class): void

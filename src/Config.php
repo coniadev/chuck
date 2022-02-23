@@ -16,12 +16,10 @@ class Config implements ConfigInterface
 {
     public readonly bool $debug;
     public readonly string $env;
-    public readonly Registry $registry;
 
     protected readonly array $config;
     protected readonly array $pathMap;
     protected array $renderers;
-    protected ?LoggerInterface $logger = null;
 
     public function __construct(protected array $pristine)
     {
@@ -33,7 +31,6 @@ class Config implements ConfigInterface
         $pristineEnv = $pristine['env'] ?? null;
         $this->env = (!empty($pristineEnv) && is_string($pristineEnv)) ? $pristineEnv : '';
         $this->debug = is_bool($pristine['debug'] ?? null) ? $pristine['debug'] : false;
-        $this->registry = new Registry();
 
         $this->renderers = [
             'text' => Renderer\TextRenderer::class,
@@ -185,21 +182,6 @@ class Config implements ConfigInterface
             }
 
             throw new InvalidArgumentException("Chuck Error: The configuration key '$key' does not exist");
-        }
-    }
-
-    public function set(string $key, mixed $value): void
-    {
-        [$mainKey, $subKey] = $this->getKeys($key);
-
-        if ($subKey) {
-            if (array_key_exists($mainKey, $this->config)) {
-                $this->config[$mainKey][$subKey] = $value;
-            } else {
-                $this->config[$mainKey] = [$subKey => $value];
-            }
-        } else {
-            $this->config[$key] = $value;
         }
     }
 
