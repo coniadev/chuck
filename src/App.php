@@ -64,7 +64,7 @@ class App
         return $this->registry;
     }
 
-    public function route(RouteInterface $route): void
+    public function add(RouteInterface $route): void
     {
         $this->router->addRoute($route);
     }

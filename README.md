@@ -8,7 +8,7 @@ Default:
     use Chuck\{App, Route};
 
     $app = App::create(__DIR__ . '/config.php');
-    $app->route(Route::get('index', '/', function (Request $request) {}));
+    $app->add(Route::get('index', '/', function (Request $request) {}));
     $app->run();
 ```
 
@@ -44,7 +44,7 @@ Add middleware:
     $app->reqister(new Middleware());
 
     // Route specific middleware
-    $app->route(Route::get('index', '/', function (Request $request) {}))->reqister(function (RequestInterface $request, callable $next): $request {
+    $app->add(Route::get('index', '/', function (Request $request) {}))->reqister(function (RequestInterface $request, callable $next): $request {
         return $next($request);
     });
     $app->run();

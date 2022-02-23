@@ -46,7 +46,7 @@ test('Static route helper', function () {
 
 test('Route helper', function () {
     $app = App::create($this->options());
-    $app->route(Route::get('albums', '/albums', 'Chuck\Tests\Fix\TestController::textView'));
+    $app->add(Route::get('albums', '/albums', 'Chuck\Tests\Fix\TestController::textView'));
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
 });
@@ -70,7 +70,7 @@ test('Register renderer helper', function () {
 
 test('App run', function () {
     $app = new App($this->request(method: 'GET', url: '/'));
-    $app->route(Route::get('index', '/', 'Chuck\Tests\Fix\TestController::textView'));
+    $app->add(Route::get('index', '/', 'Chuck\Tests\Fix\TestController::textView'));
     ob_start();
     $response = $app->run();
     $output = ob_get_contents();
