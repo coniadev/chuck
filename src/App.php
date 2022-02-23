@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Chuck;
 
 use Chuck\Error\Handler;
+use Chuck\Routing\GroupInterface;
 use Chuck\Routing\RouteInterface;
 use Chuck\Routing\Router;
 use Chuck\Routing\RouterInterface;
@@ -67,6 +68,11 @@ class App
     public function add(RouteInterface $route): void
     {
         $this->router->addRoute($route);
+    }
+
+    public function group(GroupInterface $group): void
+    {
+        $group->create($this->router);
     }
 
     public function staticRoute(
