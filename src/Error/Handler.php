@@ -6,6 +6,11 @@ namespace Chuck\Error;
 
 use Chuck\RequestInterface;
 use Chuck\Error\HttpError;
+use Chuck\Error\HttpBadRequest;
+use Chuck\Error\HttpForbidden;
+use Chuck\Error\HttpNotFound;
+use Chuck\Error\HttpServerError;
+use Chuck\Error\HttpUnauthorized;
 use Chuck\Log;
 
 
@@ -53,15 +58,24 @@ class Handler
             } else {
                 $body .= '<h2>HTTP Error</h2>';
             }
+
+            $level = match ($exception::class) {
+                HttpNotFound::class => Log::INFO,
+                HttpBadRequest::class => Log::WARNING,
+                HttpForbidden::class => Log::WARNING,
+                HttpUnauthorized::class => Log::WARNING,
+                HttpServerError::class => Log::ERROR,
+            };
         } else {
             $response->setStatusCode(500);
             $body = '<h1>500 Internal Server Error</h1>';
             $body .= '<h2>' . htmlspecialchars($exception->getMessage()) . '</h2>';
+            $level = Log::ERROR;
         }
 
         $trace = $exception->getTraceAsString();
         $this->log(
-            Log::ERROR,
+            $level,
             "Uncaught Exception\n\t" .
                 $exception->getMessage() . "\n\t" .
                 implode("\n\t#", explode('#', $trace))

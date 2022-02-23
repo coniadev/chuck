@@ -20,12 +20,8 @@ test('Initialize handler', function () {
 
     $err = new Handler($this->request());
     $result = $err->setup();
+
     expect(is_callable($result))->toBe(true);
-    // PHP's set_exception_handler returns the
-    // previous handler if a new one was successfully
-    // installed. As we use nunomaduro/collision
-    // which uses filp/whoops it returns the following
-    // expect($result[0]::class)->toBe('Whoops\Run');
 
     restore_error_handler();
     restore_exception_handler();
