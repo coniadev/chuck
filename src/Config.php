@@ -49,6 +49,7 @@ class Config implements ConfigInterface
 
     protected function prepareMainPaths(array $pristine): array
     {
+        // The root directory of the project. The setting is mandatory.
         if (isset($pristine['path.root'])) {
             $root = rtrim(Path::realpath($pristine['path.root']), DIRECTORY_SEPARATOR);
 
@@ -61,6 +62,8 @@ class Config implements ConfigInterface
             throw new ValueError('Configuration error: root path not set');
         }
 
+        // Public directory containing the static assets and index.php
+        // If it is not set look for a directory named 'public' in path.root
         if (!isset($pristine['path.public'])) {
             $public = $this->preparePath($root, 'public');
 
@@ -74,14 +77,35 @@ class Config implements ConfigInterface
             unset($pristine['path.public']);
         }
 
-        return [[
+        $paths = [
             'root' => $root,
             'public' => $public,
             'migrations' => [],
             'scripts' => [],
             'sql' => [],
             'templates' => [],
-        ], $pristine];
+        ];
+
+        // The file where the logger and the error handler write
+        // their messages
+        $logfile = $pristine['path.logfile'] ?? null;
+
+        if ($logfile) {
+            if (!file_exists($logfile)) {
+                touch($logfile);
+            }
+
+            if (!is_writable($logfile)) {
+                throw new ValueError(
+                    'Configuration error: logfile is not writable'
+                );
+            }
+
+            unset($pristine['path.logfile']);
+            $paths['logfile'] = $logfile;
+        }
+
+        return [$paths, $pristine];
     }
 
     protected function getKeys(string $key): array
@@ -188,11 +212,19 @@ class Config implements ConfigInterface
 
     public function path(string $key): string
     {
-        $value = $this->pathMap[$key];
+        $value = $this->pathMap[$key] ?? false;
 
-        if (is_string($value)) {
-            return $value;
-        }
+        if (is_string($value)) return $value;
+
+        throw new InvalidArgumentException('Requested path is not of type string');
+    }
+
+    public function pathOrNull(string $key): ?string
+    {
+        $value = $this->pathMap[$key] ?? false;
+
+        if (!$value) return null;
+        if (is_string($value)) return $value;
 
         throw new InvalidArgumentException('Requested path is not of type string');
     }

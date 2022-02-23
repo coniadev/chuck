@@ -6,7 +6,7 @@ namespace Chuck\Error;
 
 use Chuck\RequestInterface;
 use Chuck\Error\HttpError;
-use Chuck\Util\Log;
+use Chuck\Log;
 
 
 class Handler
@@ -17,7 +17,7 @@ class Handler
 
     public function setup(): callable|null
     {
-        $errorLevel = $this->request->getConfig()->get('errorLevel');
+        $errorLevel = $this->request->getConfig()->get('errorlevel');
 
         set_error_handler($this->handleError(...), $errorLevel);
         return set_exception_handler($this->handleException(...));

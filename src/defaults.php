@@ -5,12 +5,14 @@ namespace Chuck;
 return [
     // 'path.root' => null,                  // The root folder of the application, defaults to where composer.json is located
     // 'path.public' => null,                // Path to the public directory, defaults to <path.root>/public
+    // 'path.logfile' => null,               // Directory inside root. If not set the logger logs to php's error_log settings
 
     'appname' => 'chuckapp',                 // Internal identifier, will be used in `php run` scripts for example
     'env' => null,                           // the current environment, e. g. 'development', 'production'
     'debug' => false,                        // Whether it should show Whoops messages
     'port' => 1983,                          // The develompent server port
-    'errorLevel' => E_ALL,                   // Sets which PHP errors are reported
+    'loglevel' => Log::DEBUG,                // Sets which the lowest message type to be logged (DEBUG, INFO, WARNING, ERROR, ALERT)
+    'errorlevel' => E_ALL,                   // Sets which PHP errors are handled by the error handler
 
     // 'host' => null,                       // www.example.com
     //                                       // Can be used in scripts or your app

@@ -30,17 +30,25 @@ class Migrations extends Chuck\Cli\MigrationsCommand
         $fileName = str_replace('-', '_', $fileName);
         $fileName = $ts . '_' . strtolower($fileName);
         $ext = pathinfo($fileName, PATHINFO_EXTENSION);
+
         if (!$ext) {
             $fileName .= '.sql';
         }
 
-        $migration = $config->path('migrations') .
-            DIRECTORY_SEPARATOR .
-            $fileName;
+        $migrations = $config->migrations();
+        $migrationDir = end($migrations);
 
-        $f = fopen($migration, 'w');
-        fclose($f);
-        echo "\nMigration created:\n$migration\n";
+        if ($migrationDir) {
+            $migration = $migrationDir . DIRECTORY_SEPARATOR . $fileName;
+
+            // $f = fopen($migration, 'w');
+            // fclose($f);
+            echo "\nMigration created:\n$migration\n";
+            echo "CURRENTLY NOT CREATED. HAVE A LOOK AT THE MIGRATION SCRIPT\n";
+            echo "WOULD CREATE THE MIGRATION IN THE LAST DIR OF THE CONFIG FILE.\n";
+        } else {
+            echo "\nNo migration directory available\n";
+        }
     }
 
     protected function migrate(
