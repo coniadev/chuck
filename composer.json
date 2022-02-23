@@ -17,8 +17,7 @@
     },
     "require": {
         "php": ">=8.1",
-        "tgalopin/html-sanitizer": "^1.5",
-        "psr/log": "^3.0"
+        "tgalopin/html-sanitizer": "^1.5"
     },
     "suggest": {
         "league/plates": "If you want to use the Plates template engine"

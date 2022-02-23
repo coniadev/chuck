@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use Psr\Log\LoggerInterface;
-
-use Chuck\Error\HandlerInterface;
 use Chuck\Error\Handler;
 
 
@@ -15,25 +12,14 @@ class App
     protected RouterInterface $router;
     protected ConfigInterface $config;
 
-    public function __construct(
-        protected RequestInterface $request,
-        HandlerInterface $errorHandler = null,
-    ) {
-        if (PHP_SAPI !== 'cli') {
-            if (!$errorHandler) {
-                $errorHandler = new Handler($request);
-            }
-            $errorHandler->setup();
-        }
-
+    public function __construct(protected RequestInterface $request)
+    {
         $this->config = $request->getConfig();
         $this->router = $request->getRouter();
     }
 
-    public static function create(
-        array|ConfigInterface $options,
-        HandlerInterface $errorHandler = null,
-    ): self {
+    public static function create(array|ConfigInterface $options): self
+    {
         if ($options instanceof ConfigInterface) {
             $config = $options;
         } else {
@@ -44,7 +30,10 @@ class App
         /** @var RequestInterface */
         $request = $config->registry->new(RequestInterface::class, $config, $router);
 
-        $app = new self($request, $errorHandler);
+        $errorHandler = new Handler($request);
+        $errorHandler->setup();
+
+        $app = new self($request);
 
         return $app;
     }
@@ -90,11 +79,6 @@ class App
     public function renderer(string $name, string $class): void
     {
         $this->config->addRenderer($name, $class);
-    }
-
-    public function logger(LoggerInterface $logger): void
-    {
-        $this->config->addLogger($logger);
     }
 
     public function run(bool $emit = true): ResponseInterface

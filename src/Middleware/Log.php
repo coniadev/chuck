@@ -4,23 +4,16 @@ declare(strict_types=1);
 
 namespace Chuck\Middleware;
 
-use Psr\Log\LoggerInterface;
-
 use Chuck\RequestInterface;
+use Chuck\Util\Log as LogUtil;
 
 
 class Log
 {
-    public function __construct(protected LoggerInterface $logger)
-    {
-    }
-
     public function __invoke(RequestInterface $request, callable $next): RequestInterface
     {
-        $logger = $this->logger;
-
-        $request->addMethod('log', function () use ($logger): LoggerInterface {
-            return $logger;
+        $request->addMethod('log', function (int $level, string $message) use ($request): void {
+            LogUtil::log($request, $level, $message);
         });
 
         return $next($request);

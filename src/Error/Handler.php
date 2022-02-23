@@ -6,6 +6,7 @@ namespace Chuck\Error;
 
 use Chuck\RequestInterface;
 use Chuck\Error\HttpError;
+use Chuck\Util\Log;
 
 
 class Handler
@@ -31,9 +32,10 @@ class Handler
     {
         $debug = $this->request->getConfig()->debug();
         $response = $this->request->getResponse();
+        $code = $exception->getCode();
 
         if ($exception instanceof HttpError) {
-            $response->setStatusCode($exception->getCode());
+            $response->setStatusCode($code);
             $body = '<h1>' . htmlspecialchars($exception->getTitle()) . '</h1>';
             $subTitle = $exception->getSubtitle();
 
@@ -48,8 +50,11 @@ class Handler
             $body .= '<h2>' . htmlspecialchars($exception->getMessage()) . '</h2>';
         }
 
+        $trace = $exception->getTraceAsString();
+        $this->log($code, implode("\n#", explode('#', $trace)));
+
         if ($debug) {
-            $trace = htmlspecialchars($exception->getTraceAsString());
+            $trace = htmlspecialchars($trace);
             $trace = implode('<br>#', explode('#', $trace));
             $body .= preg_replace('/^<br>/', '', $trace);
         }
@@ -64,5 +69,10 @@ class Handler
 
         set_error_handler($this->handleError(...), $errorLevel);
         return set_exception_handler($this->handleException(...));
+    }
+
+    public function log(int $level, string $message): void
+    {
+        Log::log($this->request, $level, $message);
     }
 }

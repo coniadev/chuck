@@ -14,6 +14,10 @@ uses(TestCase::class);
 
 
 test('Initialize handler', function () {
+    // capture output of error_log calls in a temporary file
+    // to prevent it printed to the console.
+    $default = ini_set('error_log', stream_get_meta_data(tmpfile())['uri']);
+
     $err = new Handler($this->request());
     $result = $err->setup();
     expect(is_callable($result))->toBe(true);
@@ -21,10 +25,11 @@ test('Initialize handler', function () {
     // previous handler if a new one was successfully
     // installed. As we use nunomaduro/collision
     // which uses filp/whoops it returns the following
-    expect($result[0]::class)->toBe('Whoops\Run');
+    // expect($result[0]::class)->toBe('Whoops\Run');
 
     restore_error_handler();
     restore_exception_handler();
+    ini_set('error_log', $default);
 });
 
 
@@ -43,6 +48,7 @@ test('Error handler II', function () {
 
 
 test('Handle HTTP Exceptions', function () {
+    $default = ini_set('error_log', stream_get_meta_data(tmpfile())['uri']);
     $err = new Handler($this->request());
     $err->setup();
 
@@ -78,11 +84,13 @@ test('Handle HTTP Exceptions', function () {
 
     restore_error_handler();
     restore_exception_handler();
+    ini_set('error_log', $default);
 });
 
 
 
 test('Handle PHP Exceptions', function () {
+    $default = ini_set('error_log', stream_get_meta_data(tmpfile())['uri']);
     $err = new Handler($this->request());
     $err->setup();
 
@@ -94,11 +102,13 @@ test('Handle PHP Exceptions', function () {
 
     restore_error_handler();
     restore_exception_handler();
+    ini_set('error_log', $default);
 });
 
 
 
 test('Debug mode traceback', function () {
+    $default = ini_set('error_log', stream_get_meta_data(tmpfile())['uri']);
     $err = new Handler($this->request(config: $this->config(['debug' => true])));
     $err->setup();
 
@@ -111,4 +121,5 @@ test('Debug mode traceback', function () {
 
     restore_error_handler();
     restore_exception_handler();
+    ini_set('error_log', $default);
 });
