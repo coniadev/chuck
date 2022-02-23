@@ -11,8 +11,8 @@ use Chuck\ConfigInterface;
 use Chuck\Registry;
 use Chuck\RegistryInterface;
 use Chuck\Request;
-use Chuck\Router;
-use Chuck\RouterInterface;
+use Chuck\Routing\Router;
+use Chuck\Routing\RouterInterface;
 
 class TestCase extends BaseTestCase
 {

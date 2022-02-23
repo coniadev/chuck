@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\TestCase;
-use Chuck\Response;
-use Chuck\Request;
-use Chuck\Route;
-use Chuck\Router;
 use Chuck\ConfigInterface;
-use Chuck\RouteInterface;
-use Chuck\RouterInterface;
+use Chuck\Request;
+use Chuck\Response;
 use Chuck\ResponseInterface;
+use Chuck\Routing\Route;
+use Chuck\Routing\RouteInterface;
+use Chuck\Routing\Router;
+use Chuck\Routing\RouterInterface;
+use Chuck\Tests\TestCase;
 
 
 uses(TestCase::class);

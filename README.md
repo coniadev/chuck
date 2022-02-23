@@ -49,3 +49,23 @@ Add middleware:
     });
     $app->run();
 ```
+
+
+Routes:
+
+
+```php
+    
+    $app->addRoute([
+        'name' => 'admin:index',
+        'route' => '/admin/',
+        'view' => '\App\Controller\Admin\Home::index',
+        'permission' => 'backend',
+        'renderer' => 'template:admin/index',
+    ]);
+
+
+    $app->group(new Group('admin:', '/admin/', function (Group $group) {
+        $group->add(Route::get(())
+    })->middleware(new Permission('admin'))->render('json')->namespace('\Chuck\');
+```

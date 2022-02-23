@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck;
+namespace Chuck\Routing;
 
 use \Closure;
 use \ValueError;
@@ -10,6 +10,8 @@ use \RuntimeException;
 
 use Chuck\Error\HttpNotFound;
 use Chuck\Error\HttpServerError;
+use Chuck\RequestInterface;
+use Chuck\ResponseInterface;
 use Chuck\Util\Reflect;
 
 
@@ -63,7 +65,7 @@ class Router implements RouterInterface
         }
     }
 
-    public function middleware(object|string $middleware): void
+    public function middleware(callable $middleware): void
     {
         Reflect::validateMiddleware($middleware);
         $this->middlewares[] = $middleware;
@@ -137,7 +139,7 @@ class Router implements RouterInterface
 
         if (is_callable($view)) {
             return $view(...$this->getViewArgs($view, $request));
-        } elseif (is_string($view)) {
+        } else {
             if (!str_contains($view, '::')) {
                 $view .= '::__invoke';
             }
@@ -158,8 +160,6 @@ class Router implements RouterInterface
             } else {
                 throw HttpServerError::withSubTitle("Controller not found ${ctrlName}");
             }
-        } else {
-            throw new ValueError('Wrong view type');
         }
     }
 
@@ -202,7 +202,7 @@ class Router implements RouterInterface
      *   the returned args list.
      * - Only string, float, int and RequestInterface are supported.
      */
-    protected function getViewArgs(object|string $view, RequestInterface $request): array
+    protected function getViewArgs(callable $view, RequestInterface $request): array
     {
         $args = [];
         $rf = Reflect::getReflectionFunction($view, "View callable is not compatible.");

@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 use Chuck\Tests\TestCase;
 use Chuck\Tests\Fix\{TestClass, TestInterface, TestRenderer};
-use Chuck\{App, Route, Request, Response};
+use Chuck\Routing\Route;
+use Chuck\{App, Request, Response};
 
 uses(TestCase::class);
 
@@ -18,7 +19,7 @@ test('Helper methods', function () {
     $app = App::create($this->options());
 
     expect($app->request())->toBeInstanceOf(\Chuck\Request::class);
-    expect($app->router())->toBeInstanceOf(\Chuck\Router::class);
+    expect($app->router())->toBeInstanceOf(\Chuck\Routing\Router::class);
     expect($app->config())->toBeInstanceOf(\Chuck\Config::class);
 });
 

@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Chuck;
+namespace Chuck\Routing;
+
+use Chuck\RequestInterface;
+use Chuck\ResponseInterface;
 
 
 interface RouterInterface
@@ -24,6 +27,6 @@ interface RouterInterface
     ): string;
     public function match(RequestInterface $request): ?Route;
     public function dispatch(RequestInterface $request): ResponseInterface;
-    public function middleware(object|string $middleware): void;
+    public function middleware(callable $middleware): void;
     public function middlewares(): array;
 }

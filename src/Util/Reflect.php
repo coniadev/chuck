@@ -20,14 +20,14 @@ use Chuck\ResponseInterface;
 class Reflect
 {
     public static function getReflectionFunction(
-        object|string $callable,
+        callable $callable,
         string $errorMsg
     ): ReflectionFunction|ReflectionMethod {
         if ($callable instanceof Closure) {
             return new ReflectionFunction($callable);
         } elseif (is_object($callable)) {
             return (new ReflectionObject($callable))->getMethod('__invoke');
-        } elseif (is_callable($callable)) {
+        } elseif (is_string($callable)) {
             return new ReflectionFunction($callable);
         } else {
             throw new InvalidArgumentException($errorMsg);
@@ -55,7 +55,7 @@ class Reflect
         return false;
     }
 
-    public static function validateMiddleware(object|string $middleware): void
+    public static function validateMiddleware(callable $middleware): void
     {
         $rf = self::getReflectionFunction($middleware, "Middleware is not compatible");
 

@@ -2,17 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Chuck;
-
-use Chuck\Util\Reflect;
+namespace Chuck\Routing;
 
 
 class Group
 {
+    /** @psalm-suppress PropertyNotSetInConstructor */
     protected RouterInterface $router;
+
     protected ?string $renderer = null;
     protected ?string $controller = null;
-    protected array $middlewars = [];
+    protected array $middlewares = [];
+
 
     public function __construct(
         protected string $namePrefix,
@@ -43,7 +44,7 @@ class Group
     }
 
 
-    public function add(RouteInterface $route)
+    public function add(RouteInterface $route): void
     {
         $route->prefix($this->namePrefix, $this->urlPrefix);
 
@@ -62,7 +63,7 @@ class Group
         $this->router->addRoute($route);
     }
 
-    public function create(RouterInterface $router)
+    public function create(RouterInterface $router): void
     {
         $this->router = $router;
         ($this->createClosure)($this);

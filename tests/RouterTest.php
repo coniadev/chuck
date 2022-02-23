@@ -6,7 +6,8 @@ use Chuck\Tests\TestCase;
 use Chuck\Tests\Fix\TestMiddleware;
 use Chuck\Tests\Fix\TestController;
 use Chuck\Tests\Fix\TestControllerWithRequest;
-use Chuck\{Router, Route, Request, Response};
+use Chuck\{Request, Response};
+use Chuck\Routing\{Router, Route};
 
 uses(TestCase::class);
 

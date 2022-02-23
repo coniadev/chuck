@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use Chuck\Routing\RouteInterface;
+use Chuck\Routing\RouterInterface;
 use Chuck\Util\Http;
 
 

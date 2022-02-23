@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Chuck;
+namespace Chuck\Routing;
 
+use \Closure;
 use \ValueError;
 
 use Chuck\Util\Arrays;
-use Chuck\Util\Reflect;
+use Chuck\RequestInterface;
+use Chuck\Renderer;
 
 const LEFT_BRACE = '§§§€§§§';
 const RIGHT_BRACE = '§§§£§§§';
@@ -19,48 +21,54 @@ class Route implements RouteInterface
     protected array $methods = [];
     protected ?Renderer\Config $renderer = null;
     protected array $middlewares = [];
+    protected Closure|string $view;
 
     public function __construct(
         protected string $name,
         protected string $url,
-        string|callable $view,
+        callable|string $view,
         protected array $params = [],
     ) {
         $this->url = '/' . ltrim($url, '/');
-        $this->view = $view;
+
+        if (is_callable($view)) {
+            $this->view = Closure::fromCallable($view);
+        } else {
+            $this->view = $view;
+        }
     }
 
-    public static function get(string $name, string $url, string|callable $view, array $params = []): self
+    public static function get(string $name, string $url, callable|string $view, array $params = []): self
     {
         return (new self($name, $url, $view, $params))->method('GET');
     }
 
-    public static function post(string $name, string $url, string|callable $view, array $params = []): self
+    public static function post(string $name, string $url, callable|string $view, array $params = []): self
     {
         return (new self($name, $url, $view, $params))->method('POST');
     }
 
-    public static function put(string $name, string $url, string|callable $view, array $params = []): self
+    public static function put(string $name, string $url, callable|string $view, array $params = []): self
     {
         return (new self($name, $url, $view, $params))->method('PUT');
     }
 
-    public static function patch(string $name, string $url, string|callable $view, array $params = []): self
+    public static function patch(string $name, string $url, callable|string $view, array $params = []): self
     {
         return (new self($name, $url, $view, $params))->method('PATCH');
     }
 
-    public static function delete(string $name, string $url, string|callable $view, array $params = []): self
+    public static function delete(string $name, string $url, callable|string $view, array $params = []): self
     {
         return (new self($name, $url, $view, $params))->method('DELETE');
     }
 
-    public static function head(string $name, string $url, string|callable $view, array $params = []): self
+    public static function head(string $name, string $url, callable|string $view, array $params = []): self
     {
         return (new self($name, $url, $view, $params))->method('HEAD');
     }
 
-    public static function options(string $name, string $url, string|callable $view, array $params = []): self
+    public static function options(string $name, string $url, callable|string $view, array $params = []): self
     {
         return (new self($name, $url, $view, $params))->method('OPTIONS');
     }
@@ -97,7 +105,7 @@ class Route implements RouteInterface
         return $this->renderer;
     }
 
-    public function middleware(string|object ...$middlewares): self
+    public function middleware(callable|string ...$middlewares): self
     {
         $this->middlewares = $middlewares;
 
@@ -231,7 +239,7 @@ class Route implements RouteInterface
         return $this->url;
     }
 
-    public function view(): string|callable
+    public function view(): callable|string
     {
         return $this->view;
     }

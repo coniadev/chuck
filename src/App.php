@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Chuck;
 
 use Chuck\Error\Handler;
+use Chuck\Routing\RouteInterface;
+use Chuck\Routing\Router;
+use Chuck\Routing\RouterInterface;
 
 
 class App
@@ -74,7 +77,7 @@ class App
         $this->router->addStatic($name, $prefix, $path);
     }
 
-    public function middleware(object|string $middleware): void
+    public function middleware(callable $middleware): void
     {
         $this->router->middleware($middleware);
     }

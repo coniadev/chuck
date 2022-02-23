@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Chuck\App;
-use Chuck\Route;
+use Chuck\Routing\Route;
 use Chuck\SessionInterface;
 use Chuck\Middleware\Session;
 use Chuck\Tests\TestCase;
