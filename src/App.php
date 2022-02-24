@@ -93,13 +93,10 @@ class App
         $this->registry->add($interface, $class);
     }
 
-    public function run(bool $emit = true): ResponseInterface
+    public function run(): ResponseInterface
     {
         $response = $this->router->dispatch($this->request);
-
-        if ($emit) {
-            $response->emit();
-        }
+        $response->emit();
 
         return $response;
     }
