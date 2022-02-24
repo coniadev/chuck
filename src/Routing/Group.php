@@ -17,9 +17,17 @@ class Group
 
     public function __construct(
         protected string $namePrefix,
-        protected string $urlPrefix,
+        protected string $patternPrefix,
         protected \Closure $createClosure,
     ) {
+    }
+
+    public static function new(
+        string $namePrefix,
+        string $patternPrefix,
+        \Closure $createClosure,
+    ): self {
+        return new self($namePrefix, $patternPrefix, $createClosure);
     }
 
     public function middleware(string|object ...$middlewares): self
@@ -46,7 +54,7 @@ class Group
 
     public function add(RouteInterface $route): void
     {
-        $route->prefix($this->namePrefix, $this->urlPrefix);
+        $route->prefix($this->namePrefix, $this->patternPrefix);
 
         if ($this->renderer && empty($route->getRenderer())) {
             $route->render($this->renderer);

@@ -65,10 +65,11 @@ class Router implements RouterInterface
         }
     }
 
-    public function middleware(callable $middleware): void
+    public function middleware(callable ...$middlewares): void
     {
-        Reflect::validateMiddleware($middleware);
-        $this->middlewares[] = $middleware;
+        foreach ($middlewares as $middleware) {
+            $this->middlewares[] = $middleware;
+        }
     }
 
     public function middlewares(): array

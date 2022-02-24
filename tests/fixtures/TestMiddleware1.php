@@ -8,7 +8,7 @@ use Chuck\Request;
 use Chuck\Response;
 
 
-class TestMiddleware
+class TestMiddleware1
 {
     public function __invoke(Request $request, callable $next): Request|Response
     {

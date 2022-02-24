@@ -122,10 +122,13 @@ class Route implements RouteInterface
         return $this->middlewares;
     }
 
+    /**
+     * Simply prefixes the current $this->view string with $controller
+     */
     public function controller(string $controller): void
     {
         if (is_string($this->view)) {
-            $this->view = $controller . '::' . $this->view;
+            $this->view = $controller . $this->view;
         } else {
             throw new ValueError('Cannot add controller to view of type Closure');
         }
