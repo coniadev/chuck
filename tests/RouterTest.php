@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Chuck\Tests\TestCase;
-use Chuck\Tests\Fix\TestMiddleware;
+use Chuck\Tests\Fix\TestMiddleware1;
 use Chuck\Tests\Fix\TestController;
 use Chuck\Tests\Fix\TestControllerWithRequest;
 use Chuck\{Request, Response};
@@ -120,7 +120,7 @@ test('Middleware add', function () {
     $router->middleware(function (Request $request, callable $next): Response|Request {
         return $next($request);
     });
-    $router->middleware(new TestMiddleware());
+    $router->middleware(new TestMiddleware1());
 
     expect(count($router->middlewares()))->toBe(2);
 });

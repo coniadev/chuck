@@ -23,14 +23,19 @@ class Route implements RouteInterface
     protected array $middlewares = [];
     protected Closure|string $view;
 
+
+    /**
+     * @param $name The name of the route
+     * @param $pattern The URL pattern of the route.
+     * @param $view The callable view. Can be a closure, an invokable object or any other callable
+     * @param $params Optional arry which is stored alongside the route that can be consumed in the app
+     */
     public function __construct(
         protected string $name,
-        protected string $url,
+        protected string $pattern,
         callable|string $view,
         protected array $params = [],
     ) {
-        $this->url = '/' . ltrim($url, '/');
-
         if (is_callable($view)) {
             $this->view = Closure::fromCallable($view);
         } else {
@@ -38,39 +43,39 @@ class Route implements RouteInterface
         }
     }
 
-    public static function get(string $name, string $url, callable|string $view, array $params = []): self
+    public static function get(string $name, string $pattern, callable|string $view, array $params = []): self
     {
-        return (new self($name, $url, $view, $params))->method('GET');
+        return (new self($name, $pattern, $view, $params))->method('GET');
     }
 
-    public static function post(string $name, string $url, callable|string $view, array $params = []): self
+    public static function post(string $name, string $pattern, callable|string $view, array $params = []): self
     {
-        return (new self($name, $url, $view, $params))->method('POST');
+        return (new self($name, $pattern, $view, $params))->method('POST');
     }
 
-    public static function put(string $name, string $url, callable|string $view, array $params = []): self
+    public static function put(string $name, string $pattern, callable|string $view, array $params = []): self
     {
-        return (new self($name, $url, $view, $params))->method('PUT');
+        return (new self($name, $pattern, $view, $params))->method('PUT');
     }
 
-    public static function patch(string $name, string $url, callable|string $view, array $params = []): self
+    public static function patch(string $name, string $pattern, callable|string $view, array $params = []): self
     {
-        return (new self($name, $url, $view, $params))->method('PATCH');
+        return (new self($name, $pattern, $view, $params))->method('PATCH');
     }
 
-    public static function delete(string $name, string $url, callable|string $view, array $params = []): self
+    public static function delete(string $name, string $pattern, callable|string $view, array $params = []): self
     {
-        return (new self($name, $url, $view, $params))->method('DELETE');
+        return (new self($name, $pattern, $view, $params))->method('DELETE');
     }
 
-    public static function head(string $name, string $url, callable|string $view, array $params = []): self
+    public static function head(string $name, string $pattern, callable|string $view, array $params = []): self
     {
-        return (new self($name, $url, $view, $params))->method('HEAD');
+        return (new self($name, $pattern, $view, $params))->method('HEAD');
     }
 
-    public static function options(string $name, string $url, callable|string $view, array $params = []): self
+    public static function options(string $name, string $pattern, callable|string $view, array $params = []): self
     {
-        return (new self($name, $url, $view, $params))->method('OPTIONS');
+        return (new self($name, $pattern, $view, $params))->method('OPTIONS');
     }
 
     public function method(string ...$args): self
@@ -80,14 +85,14 @@ class Route implements RouteInterface
         return $this;
     }
 
-    public function prefix(string $name = '', string $url = ''): self
+    public function prefix(string $name = '', string $pattern = ''): self
     {
         if (!empty($name)) {
             $this->name = $name . $this->name;
         }
 
-        if (!empty($url)) {
-            $this->url = '/' . ltrim(rtrim($url, '/'), '/') . $this->url;
+        if (!empty($pattern)) {
+            $this->pattern = $pattern . $this->pattern;
         }
 
         return $this;
@@ -131,10 +136,15 @@ class Route implements RouteInterface
         return $this->name;
     }
 
+    public function params(): array
+    {
+        return $this->params;
+    }
+
     protected function hideInnerBraces(string $str): string
     {
         if (strpos($str, '\{') || strpos($str, '\}')) {
-            throw new \ValueError('Escaped braces are not allowed: ' . $this->url);
+            throw new \ValueError('Escaped braces are not allowed: ' . $this->pattern);
         }
 
         $new = '';
@@ -167,7 +177,7 @@ class Route implements RouteInterface
         }
 
         if ($level !== 0) {
-            throw  new \ValueError('Unbalanced braces in route pattern: ' . $this->url);
+            throw  new \ValueError('Unbalanced braces in route pattern: ' . $this->pattern);
         }
 
         return $new;
@@ -180,21 +190,24 @@ class Route implements RouteInterface
 
     protected function pattern(): string
     {
-        // escape forward slashes
+        // Ensure leading slash
+        $pattern = '/' . ltrim($this->pattern, '/');
+
+        // Escape forward slashes
         //     /evil/chuck  to \/evil\/chuck
-        $pattern = preg_replace('/\//', '\\/', $this->url);
+        $pattern = preg_replace('/\//', '\\/', $pattern);
 
         $pattern = $this->hideInnerBraces($pattern);
 
-        // convert variables to named group patterns
+        // Convert variables to named group patterns
         //     /evil/{chuck}  to  /evil/(?P<chuck>[\w-]+)
         $pattern = preg_replace('/\{(\w+?)\}/', '(?P<\1>[.\w-]+)', $pattern);
 
-        // convert variables with custom patterns e.g. {evil:\d+}
+        // Convert variables with custom patterns e.g. {evil:\d+}
         //     /evil/{chuck:\d+}  to  /evil/(?P<chuck>\d+)
         $pattern = preg_replace('/\{(\w+?):(.+?)\}/', '(?P<\1>\2)', $pattern);
 
-        // convert remainder pattern ...slug to (?P<slug>.*)
+        // Convert remainder pattern ...slug to (?P<slug>.*)
         $pattern = preg_replace('/\.\.\.(\w+?)$/', '(?P<\1>.*)', $pattern);
 
         $pattern = '/^' . $pattern . '$/';
@@ -204,6 +217,8 @@ class Route implements RouteInterface
 
     public function url(mixed ...$args): string
     {
+        $url = '/' . ltrim($this->pattern, '/');
+
         if (count($args) > 0) {
             if (is_array($args[0] ?? null)) {
                 $args = $args[0];
@@ -214,8 +229,6 @@ class Route implements RouteInterface
                     );
                 }
             }
-
-            $url = $this->url;
 
             foreach ($args as $name => $value) {
                 // basic variables
@@ -232,11 +245,9 @@ class Route implements RouteInterface
                     $url,
                 );
             }
-
-            return $url;
         }
 
-        return $this->url;
+        return $url;
     }
 
     public function view(): callable|string

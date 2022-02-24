@@ -76,15 +76,15 @@ class Router implements RouterInterface
         return $this->middlewares;
     }
 
-    public function routeUrl(string $name, mixed ...$args): string
+    public function routeUrl(string $__routeName, mixed ...$args): string
     {
-        $route = $this->names[$name] ?? null;
+        $route = $this->names[$__routeName] ?? null;
 
         if ($route) {
             return $route->url(...$args);
         }
 
-        throw new \RuntimeException('Route not found: ' . $name);
+        throw new \RuntimeException('Route not found: ' . $__routeName);
     }
 
     protected function getCacheBuster(string $dir, string $path): string
