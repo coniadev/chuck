@@ -19,5 +19,5 @@ interface RouteInterface
     public function render(string $renderer, mixed ...$args): self;
     public function controller(string $controller): void;
     public function getRenderer(): ?Renderer\Config;
-    public function prefix(string $name, string $url): self;
+    public function prefix(string $name, string $pattern): self;
 }

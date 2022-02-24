@@ -18,7 +18,7 @@ interface RouterInterface
         string $prefix,
         string $dir,
     ): void;
-    public function routeUrl(string $name, array $args): string;
+    public function routeUrl(string $__routeName__, mixed ...$args): string;
     public function staticUrl(
         string $name,
         string $path,
@@ -27,6 +27,6 @@ interface RouterInterface
     ): string;
     public function match(RequestInterface $request): ?Route;
     public function dispatch(RequestInterface $request): ResponseInterface;
-    public function middleware(callable $middleware): void;
+    public function middleware(callable ...$middlewares): void;
     public function middlewares(): array;
 }

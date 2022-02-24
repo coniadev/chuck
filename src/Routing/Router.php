@@ -77,15 +77,15 @@ class Router implements RouterInterface
         return $this->middlewares;
     }
 
-    public function routeUrl(string $__routeName, mixed ...$args): string
+    public function routeUrl(string $__routeName__, mixed ...$args): string
     {
-        $route = $this->names[$__routeName] ?? null;
+        $route = $this->names[$__routeName__] ?? null;
 
         if ($route) {
             return $route->url(...$args);
         }
 
-        throw new \RuntimeException('Route not found: ' . $__routeName);
+        throw new \RuntimeException('Route not found: ' . $__routeName__);
     }
 
     protected function getCacheBuster(string $dir, string $path): string
@@ -279,6 +279,11 @@ class Router implements RouterInterface
                 $this->middlewares,
                 $route->middlewares(),
             );
+
+            foreach ($handlerStack as $middleware) {
+                Reflect::validateMiddleware($middleware);
+            }
+
             // Add the view action to the end of the stack
             $handlerStack[] = function (RequestInterface $req) use ($route): ResponseInterface {
                 return $this->respond($req, $route);
