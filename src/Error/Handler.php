@@ -22,9 +22,7 @@ class Handler
 
     public function setup(): callable|null
     {
-        $errorLevel = $this->request->getConfig()->get('errorlevel');
-
-        set_error_handler($this->handleError(...), $errorLevel);
+        set_error_handler($this->handleError(...), E_ALL);
         return set_exception_handler($this->handleException(...));
     }
 
