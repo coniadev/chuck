@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Tests\Fix;
+namespace Chuck\Tests\Fixtures;
 
 use Chuck\Request;
 use Chuck\Response;
 
 
-class TestMiddleware2
+class TestMiddleware1
 {
     public function __invoke(Request $request, callable $next): Request|Response
     {

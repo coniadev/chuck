@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\TestCase;
+use Chuck\Tests\Setup\TestCase;
 use Chuck\Routing\Route;
 
 uses(TestCase::class);

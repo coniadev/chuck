@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Tests;
+namespace Chuck\Tests\Setup;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
@@ -24,7 +24,7 @@ class TestCase extends BaseTestCase
         parent::__construct($name, $data, $dataName);
 
         $this->root = realpath(
-            __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'fixtures'
+            __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'Fixtures'
         );
     }
 
@@ -120,7 +120,7 @@ class TestCase extends BaseTestCase
             $this->minimalOptions(),
             [
                 'appname' => 'chuck',
-                'templates.default' => __DIR__ . '/../fixtures/templates/default',
+                'templates.default' => __DIR__ . '/../Fixtures/templates/default',
             ],
             $options
         );

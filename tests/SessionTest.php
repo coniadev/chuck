@@ -6,14 +6,14 @@ use Chuck\App;
 use Chuck\Routing\Route;
 use Chuck\SessionInterface;
 use Chuck\Middleware\Session;
-use Chuck\Tests\TestCase;
+use Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
 
 
 test('Session middleware', function () {
     $app = App::create($this->options());
-    $app->add(Route::get('index', '/', 'Chuck\Tests\Fix\TestController::textView'));
+    $app->add(Route::get('index', '/', 'Chuck\Tests\Fixtures\TestController::textView'));
     $app->middleware(new Session());
     ob_start();
     $app->run();

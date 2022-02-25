@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Tests\Fix;
-
-use Chuck\Tests\Fix\TestInterface;
+namespace Chuck\Tests\Fixtures;
 
 
 class TestClass implements TestInterface

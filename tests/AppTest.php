@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\TestCase;
-use Chuck\Tests\Fix\{TestClass, TestInterface, TestRenderer};
+use Chuck\Tests\Setup\TestCase;
+use Chuck\Tests\Fixtures\{TestClass, TestInterface, TestRenderer};
 use Chuck\Routing\Route;
 use Chuck\{App, Request, Response};
 
@@ -38,7 +38,7 @@ test('Middleware helper', function () {
 test('Static route helper', function () {
     $ds = DIRECTORY_SEPARATOR;
     $app = App::create($this->options());
-    $app->staticRoute('static', '/static', __DIR__ . $ds . 'fixtures' . $ds . 'static');
+    $app->staticRoute('static', '/static', __DIR__ . $ds . 'Fixtures' . $ds . 'static');
 
     expect($app->router()->staticUrl('static', 'test.json'))->toBe('/static/test.json');
 });
@@ -46,7 +46,7 @@ test('Static route helper', function () {
 
 test('Route helper', function () {
     $app = App::create($this->options());
-    $app->add(Route::get('albums', '/albums', 'Chuck\Tests\Fix\TestController::textView'));
+    $app->add(Route::get('albums', '/albums', 'Chuck\Tests\Fixtures\TestController::textView'));
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
 });
@@ -70,7 +70,7 @@ test('Register renderer helper', function () {
 
 test('App run', function () {
     $app = new App($this->request(method: 'GET', url: '/'));
-    $app->add(Route::get('index', '/', 'Chuck\Tests\Fix\TestController::textView'));
+    $app->add(Route::get('index', '/', 'Chuck\Tests\Fixtures\TestController::textView'));
     ob_start();
     $response = $app->run();
     $output = ob_get_contents();

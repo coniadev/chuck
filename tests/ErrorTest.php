@@ -8,7 +8,7 @@ use Chuck\Error\HttpForbidden;
 use Chuck\Error\HttpNotFound;
 use Chuck\Error\HttpServerError;
 use Chuck\Error\HttpUnauthorized;
-use Chuck\Tests\TestCase;
+use Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
 

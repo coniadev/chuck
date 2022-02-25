@@ -2,8 +2,7 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\TestCase;
-use Chuck\Tests\Helper;
+use Chuck\Tests\Setup\{TestCase, Helper};
 use Chuck\Memcached;
 
 uses(TestCase::class);

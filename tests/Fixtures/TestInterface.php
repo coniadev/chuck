@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Tests\Fix;
+namespace Chuck\Tests\Fixtures;
 
 
 interface TestInterface

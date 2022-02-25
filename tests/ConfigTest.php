@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\TestCase;
+use Chuck\Tests\Setup\TestCase;
 use Chuck\Config;
 
 uses(TestCase::class);
@@ -12,7 +12,7 @@ test('Defaults', function () {
     $config = new Config($this->minimalOptions());
 
     expect($config->get('port'))->toBe(1983);
-    expect($config->path('root'))->toBe(realpath(__DIR__ . DIRECTORY_SEPARATOR . 'fixtures'));
+    expect($config->path('root'))->toBe(realpath(__DIR__ . DIRECTORY_SEPARATOR . 'Fixtures'));
 });
 
 

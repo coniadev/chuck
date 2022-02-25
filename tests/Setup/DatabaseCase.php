@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Tests;
+namespace Chuck\Tests\Setup;
 
 use \PDO;
 
 use Chuck\Config;
 use Chuck\Database\Database;
-use Chuck\Tests\TestCase;
+use Chuck\Tests\Setup\TestCase;
 
 
 class DatabaseCase extends TestCase
@@ -38,7 +38,7 @@ class DatabaseCase extends TestCase
             array_replace_recursive(
                 [
                     'db.dsn' => $this->getDsn(),
-                    'sql.default' => __DIR__ . $ds . '..' . $ds . 'fixtures' . $ds . 'sql' . $ds . 'default',
+                    'sql.default' => __DIR__ . $ds . '..' . $ds . 'Fixtures' . $ds . 'sql' . $ds . 'default',
                 ],
                 $options,
             )

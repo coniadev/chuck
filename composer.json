@@ -32,7 +32,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Chuck\\Tests\\": "tests",
+            "Chuck\\Tests\\": "tests"
         }
     },
     "config": {

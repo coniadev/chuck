@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\TestCase;
+use Chuck\Tests\Setup\TestCase;
 use Chuck\Renderer\JsonRenderer;
 use Chuck\Renderer\TextRenderer;
 use Chuck\Renderer\TemplateRenderer;

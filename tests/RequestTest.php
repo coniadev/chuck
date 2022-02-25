@@ -10,7 +10,7 @@ use Chuck\Routing\Route;
 use Chuck\Routing\RouteInterface;
 use Chuck\Routing\Router;
 use Chuck\Routing\RouterInterface;
-use Chuck\Tests\TestCase;
+use Chuck\Tests\Setup\TestCase;
 
 
 uses(TestCase::class);
@@ -97,7 +97,7 @@ test('Generate route url', function () {
 test('Static routes', function () {
     $ds = DIRECTORY_SEPARATOR;
     $router = new Router();
-    $router->addStatic('static', '/static', __DIR__ . $ds . 'fixtures' . $ds . 'static');
+    $router->addStatic('static', '/static', __DIR__ . $ds . 'Fixtures' . $ds . 'static');
     $request = $this->request(router: $router);
 
     expect($request->staticUrl('static', 'test.json'))->toBe('http://www.example.com/static/test.json');

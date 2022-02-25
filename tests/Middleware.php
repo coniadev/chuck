@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\TestCase;
+use Chuck\Tests\Setup\TestCase;
 use Chuck\{App, Route, Request, Response};
 
 uses(TestCase::class);
@@ -35,7 +35,7 @@ class ObjectMiddleware
 
 test('Middleware flow', function () {
     $app = App::create($this->options());
-    $app->add(Route::get('index', '/', 'Chuck\Tests\TestController::middlewareView'));
+    $app->add(Route::get('index', '/', 'Chuck\Tests\Fixtures\TestController::middlewareView'));
     $app->middleware('functionMiddleware');
     $app->middleware(new ObjectMiddleware(' second'));
 

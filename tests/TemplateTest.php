@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\TestCase;
+use Chuck\Tests\Setup\TestCase;
 use Chuck\Template;
 
 uses(TestCase::class);
@@ -25,7 +25,7 @@ test('Exists helper', function () {
 
 
 test('Config error :: nonexistent template dir', function () {
-    new Template($this->request(options: ['templates.default' => __DIR__ . '/fixtures/fantasy/path']));
+    new Template($this->request(options: ['templates.default' => __DIR__ . '/Fixtures/fantasy/path']));
 })->throws(\ValueError::class, 'Template directory does not exists');
 
 
@@ -50,7 +50,7 @@ test('Config error :: wrong template format II', function () {
 
 test('Config error :: multiple dirs without namespace', function () {
     $tpl = new Template($this->request(options: [
-        'templates.additional' => __DIR__ . '/fixtures/templates/additional'
+        'templates.additional' => __DIR__ . '/Fixtures/templates/additional'
     ]));
 
     $tpl->render('plain');

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\TestCase;
-use Chuck\Tests\Fix\TestMiddleware1;
-use Chuck\Tests\Fix\TestController;
-use Chuck\Tests\Fix\TestControllerWithRequest;
+use Chuck\Tests\Setup\TestCase;
+use Chuck\Tests\Fixtures\TestMiddleware1;
+use Chuck\Tests\Fixtures\TestController;
+use Chuck\Tests\Fixtures\TestControllerWithRequest;
 use Chuck\{Request, Response};
 use Chuck\Routing\{Router, Route};
 
@@ -39,7 +39,7 @@ test('Generate route url', function () {
 test('Static routes', function () {
     $ds = DIRECTORY_SEPARATOR;
     $router = new Router();
-    $router->addStatic('static', '/static', __DIR__ . $ds . 'fixtures' . $ds . 'static');
+    $router->addStatic('static', '/static', __DIR__ . $ds . 'Fixtures' . $ds . 'static');
 
     expect($router->staticUrl('static', 'test.json'))->toBe('/static/test.json');
     expect($router->staticUrl('static', 'test.json', true))->toMatch('/\?v=[a-f0-9]{6}$/');

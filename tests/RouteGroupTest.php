@@ -2,9 +2,13 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\TestCase;
-use Chuck\Tests\Fix\{TestMiddleware1, TestMiddleware2, TestMiddleware3};
-use Chuck\Tests\Fix\TestController;
+use Chuck\Tests\Setup\TestCase;
+use Chuck\Tests\Fixtures\{
+    TestController,
+    TestMiddleware1,
+    TestMiddleware2,
+    TestMiddleware3
+};
 use Chuck\Routing\{Router, Route, Group};
 
 uses(TestCase::class);
