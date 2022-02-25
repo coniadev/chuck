@@ -59,9 +59,9 @@ class Handler
 
             $level = match ($exception::class) {
                 HttpNotFound::class => Log::INFO,
+                HttpForbidden::class => Log::NOTICE,
+                HttpUnauthorized::class => Log::NOTICE,
                 HttpBadRequest::class => Log::WARNING,
-                HttpForbidden::class => Log::WARNING,
-                HttpUnauthorized::class => Log::WARNING,
                 HttpServerError::class => Log::ERROR,
             };
         } else {
@@ -71,27 +71,26 @@ class Handler
             $level = Log::ERROR;
         }
 
-        $trace = $exception->getTraceAsString();
-        $this->log(
-            $level,
-            "Uncaught Exception\n\t" .
-                $exception->getMessage() . "\n\t" .
-                implode("\n\t#", explode('#', $trace))
-        );
-
         if ($debug) {
-            $trace = htmlspecialchars($trace);
+            $trace = htmlspecialchars($exception->getTraceAsString());
             $trace = implode('<br>#', explode('#', $trace));
             $body .= preg_replace('/^<br>/', '', $trace);
         }
 
         $response->setBody($body);
         $response->emit();
+        $this->log($level, $exception);
     }
 
-    public function log(int $level, string $message): void
+    public function log(int $level, \Throwable $exception): void
     {
         $logger = new Log($this->request);
-        $logger->log($level, $message);
+        $logger->log(
+            $level,
+            "Uncaught Exception:",
+            [
+                'exception' => $exception,
+            ]
+        );
     }
 }
