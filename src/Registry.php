@@ -51,9 +51,15 @@ class Registry implements RegistryInterface
             throw new InvalidArgumentException("Class does not exist: $entry");
         }
 
-        if (!(class_exists($id)) || !(is_subclass_of($entry, $id) || $entry === $id)) {
+        if (interface_exists($id) && !is_subclass_of($entry, $id)) {
             throw new InvalidArgumentException(
-                "$entry is no subclass of or does not implement $id"
+                "$entry does not implement $id"
+            );
+        }
+
+        if (class_exists($id) && !(is_subclass_of($entry, $id) || $entry === $id)) {
+            throw new InvalidArgumentException(
+                "$entry is no subclass of or the same class as $id"
             );
         }
 

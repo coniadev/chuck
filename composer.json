@@ -12,8 +12,11 @@
         "pestphp/pest": "^1",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
         "sirbrillig/phpcs-variable-analysis": "^2.11",
-        "vimeo/psalm": "^4.21.0",
-        "league/plates": "^3.4"
+        "league/plates": "^3.4",
+        "psy/psysh": "^0.11.1",
+        "symfony/console": "6.0.2",
+        "vimeo/psalm": "5.0.0-alpha1",
+        "composer": "^2.2"
     },
     "require": {
         "php": ">=8.1",
