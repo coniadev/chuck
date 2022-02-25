@@ -11,7 +11,9 @@ class Log
     public function __invoke(RequestInterface $request, callable $next): RequestInterface
     {
         $request->addMethod('logger', function () use ($request): \Chuck\Log {
-            return new \Chuck\Log($request);
+            $config = $request->getConfig();
+
+            return new \Chuck\Log($config->get('loglevel'), $config->pathOrNull('logfile'));
         });
 
         return $next($request);

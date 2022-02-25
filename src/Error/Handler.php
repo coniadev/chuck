@@ -84,7 +84,9 @@ class Handler
 
     public function log(int $level, \Throwable $exception): void
     {
-        $logger = new Log($this->request);
+        $config = $this->request->getConfig();
+        $logger = new Log($config->get('loglevel'), $config->pathOrNull('logfile'));
+
         $logger->log(
             $level,
             "Uncaught Exception:",

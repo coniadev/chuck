@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Chuck;
 
 use Psr\Log\{LoggerInterface, InvalidArgumentException};
-use Chuck\RequestInterface;
 
 
 class Log implements LoggerInterface
@@ -19,8 +18,25 @@ class Log implements LoggerInterface
     public const ALERT = 700;
     public const EMERGENCY = 800;
 
-    public function __construct(protected RequestInterface $request)
-    {
+    protected array $levelLabels;
+
+    /**
+     *
+     */
+    public function __construct(
+        protected ?int $minimumLevel = self::DEBUG,
+        protected ?string $logfile = null,
+    ) {
+        $this->levelLabels = [
+            self::DEBUG => 'DEBUG',
+            self::INFO => 'INFO',
+            self::NOTICE => 'NOTICE',
+            self::WARNING => 'WARNING',
+            self::ERROR => 'ERROR',
+            self::CRITICAL => 'CRITICAL',
+            self::ALERT => 'ALERT',
+            self::EMERGENCY => 'EMERGENCY',
+        ];
     }
 
     public function log(
@@ -28,41 +44,30 @@ class Log implements LoggerInterface
         string|\Stringable $message,
         array $context = [],
     ): void {
-        $config = $this->request->getConfig();
         $message = (string)$message;
 
-        if ($level < $config->get('loglevel', self::DEBUG)) {
+        if ($level < $this->minimumLevel) {
             return;
         }
 
         try {
-            $levelStr = [
-                self::DEBUG => 'DEBUG',
-                self::INFO => 'INFO',
-                self::NOTICE => 'NOTICE',
-                self::WARNING => 'WARNING',
-                self::ERROR => 'ERROR',
-                self::CRITICAL => 'CRITICAL',
-                self::ALERT => 'ALERT',
-                self::EMERGENCY => 'EMERGENCY',
-            ][$level];
+            $levelLabel = $this->levelLabels[$level];
         } catch (\Throwable) {
             throw new InvalidArgumentException('Unknown log level: ' . (string)$level);
         }
 
         $message = $this->interpolate(str_replace("\0", '', $message), $context);
-        $logfile = $config->pathOrNull('logfile');
 
-        if ($logfile) {
+        if (is_string($this->logfile)) {
             $time = date("Y-m-d H:i:s D T");
-            error_log("[$time] $levelStr: $message", 3, $logfile);
+            error_log("[$time] $levelLabel: $message", 3, $this->logfile);
 
             if (PHP_SAPI == 'cli') {
                 // print it additionally to stderr
-                error_log("$levelStr: $message");
+                error_log("$levelLabel: $message");
             }
         } else {
-            error_log("$levelStr: $message");
+            error_log("$levelLabel: $message");
         }
     }
 

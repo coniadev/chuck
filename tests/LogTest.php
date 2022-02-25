@@ -2,11 +2,8 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\TestCase;
 use Chuck\Routing\Router;
 use Chuck\Log;
-
-uses(TestCase::class);
 
 
 test('Log to file', function () {
@@ -16,7 +13,7 @@ test('Log to file', function () {
     $tmpfile = tmpfile();
     $logfile = stream_get_meta_data($tmpfile)['uri'];
 
-    $logger = new Log($this->request(options: ['path.logfile' => $logfile]));
+    $logger = new Log(logfile: $logfile);
 
     $logger->debug("Scott");
     $logger->info("Steve");
@@ -47,7 +44,7 @@ test('Log to php sapi', function () {
     $logfile = stream_get_meta_data($tmpfile)['uri'];
     $default = ini_set('error_log', $logfile);
 
-    $logger = new Log($this->request());
+    $logger = new Log(logfile: $logfile);
 
     $logger->debug("Scott");
     $logger->info("Steve");
@@ -72,7 +69,7 @@ test('Log with higher debug level', function () {
     $logfile = stream_get_meta_data($tmpfile)['uri'];
     $default = ini_set('error_log', $logfile);
 
-    $logger = new Log($this->request(options: ['loglevel' => Log::ERROR]));
+    $logger = new Log(Log::ERROR, $logfile);
 
     $logger->debug("Scott");
     $logger->info("Steve");
@@ -103,7 +100,7 @@ test('Message interpolation', function () {
     $logfile = stream_get_meta_data($tmpfile)['uri'];
     $default = ini_set('error_log', $logfile);
 
-    $logger = new Log($this->request());
+    $logger = new Log(logfile: $logfile);
 
     try {
         throw new \Exception('The test exception');
@@ -119,7 +116,7 @@ test('Message interpolation', function () {
                 'float' => 73.23,
                 'datetime' => new \DateTime('1987-05-25T13:31:23'),
                 'array' => [13, 23, 71],
-                'object' => new Router(),
+                'object' => new \stdClass(),
                 'other' => stream_context_create(),
                 'null' => null,
                 'exception' => $e,
@@ -134,7 +131,7 @@ test('Message interpolation', function () {
     expect($output)->toContain('Float: 73.23');
     expect($output)->toContain('DateTime: 1987-05-25 13:31:23');
     expect($output)->toContain('Array: [Array [13,23,71]]');
-    expect($output)->toContain('Object: [Instance of Chuck\Routing\Router]');
+    expect($output)->toContain('Object: [Instance of stdClass]');
     expect($output)->toContain('Other: [resource]');
     expect($output)->toContain('Null: [null]');
     expect($output)->toContain('Exception Message: The test exception');
