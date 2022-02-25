@@ -38,7 +38,7 @@ test('Middleware helper', function () {
 test('Static route helper', function () {
     $ds = DIRECTORY_SEPARATOR;
     $app = App::create($this->options());
-    $app->staticRoute('static', '/static', __DIR__ . $ds . 'Fixtures' . $ds . 'static');
+    $app->static('static', '/static', __DIR__ . $ds . 'Fixtures' . $ds . 'static');
 
     expect($app->router()->staticUrl('static', 'test.json'))->toBe('/static/test.json');
 });
@@ -77,6 +77,6 @@ test('App run', function () {
     ob_end_clean();
 
     expect($output)->toBe('success');
-    expect(in_array('Content-Type: text/html; charset=UTF-8', $response->headersList()))->toBe(true);
-    expect(in_array('HTTP/1.1 200 OK', $response->headersList()))->toBe(true);
+    expect(in_array('Content-Type: text/html; charset=UTF-8', $response->getHeaderList()))->toBe(true);
+    expect(in_array('HTTP/1.1 200 OK', $response->getHeaderList()))->toBe(true);
 });

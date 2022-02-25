@@ -47,7 +47,7 @@ class Handler
         if ($exception instanceof HttpError) {
             /** @var int $code */
             $code = $exception->getCode();
-            $response->setStatusCode($code);
+            $response->statusCode($code);
             $body = '<h1>' . htmlspecialchars($exception->getTitle()) . '</h1>';
             $subTitle = $exception->getSubtitle();
 
@@ -65,7 +65,7 @@ class Handler
                 HttpServerError::class => Logger::ERROR,
             };
         } else {
-            $response->setStatusCode(500);
+            $response->statusCode(500);
             $body = '<h1>500 Internal Server Error</h1>';
             $body .= '<h2>' . htmlspecialchars($exception->getMessage()) . '</h2>';
             $level = Logger::ERROR;
@@ -77,7 +77,7 @@ class Handler
             $body .= preg_replace('/^<br>/', '', $trace);
         }
 
-        $response->setBody($body);
+        $response->body($body);
         $response->emit();
         $this->log($level, $exception);
     }

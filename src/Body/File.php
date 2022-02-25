@@ -33,10 +33,10 @@ class File implements Body
             $contentType = 'application/octet-stream';
         }
 
-        $response->addHeader('Content-Type', $contentType);
+        $response->header('Content-Type', $contentType);
         $finfo = new \finfo(FILEINFO_MIME_ENCODING);
-        $response->addHeader('Content-Transfer-Encoding', finfo_file($finfo, $file));
-        $response->addHeader('Content-Size', (string)filesize($this->file));
+        $response->header('Content-Transfer-Encoding', finfo_file($finfo, $file));
+        $response->header('Content-Size', (string)filesize($this->file));
     }
 
     public function sendfile(): self
@@ -45,9 +45,9 @@ class File implements Body
         $server = strtolower($_SERVER['SERVER_SOFTWARE']);
 
         if (strpos($server, 'nginx') !== false) {
-            $this->response->addHeader('X-Accel-Redirect', $this->file);
+            $this->response->header('X-Accel-Redirect', $this->file);
         } else {
-            $this->response->addHeader('X-Sendfile', $this->file);
+            $this->response->header('X-Sendfile', $this->file);
         }
 
         return $this;
@@ -55,7 +55,7 @@ class File implements Body
 
     public function download(): self
     {
-        $this->response->addHeader(
+        $this->response->header(
             'Content-Disposition',
             'attachment; filename="' . basename($this->file) . '"'
         );

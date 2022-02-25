@@ -79,7 +79,7 @@ class App
         $group->create($this->router);
     }
 
-    public function staticRoute(
+    public function static(
         string $name,
         string $prefix,
         string $path,
@@ -87,9 +87,9 @@ class App
         $this->router->addStatic($name, $prefix, $path);
     }
 
-    public function middleware(callable $middleware): void
+    public function middleware(callable ...$middlewares): void
     {
-        $this->router->middleware($middleware);
+        $this->router->middleware(...$middlewares);
     }
 
     /**

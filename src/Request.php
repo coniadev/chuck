@@ -53,22 +53,19 @@ class Request implements RequestInterface
         return null;
     }
 
-    public function url(): string
+    public function url(bool $stripQuery = false): string
     {
+        if ($stripQuery) {
+            // Returns the path without query string
+            return trim(strtok($_SERVER['REQUEST_URI'], '?'));
+        }
+
         return $_SERVER['REQUEST_URI'];
     }
 
-    public function serverUrl(): string
+    public function serverUrl(bool $stripQuery = false): string
     {
-        return Http::origin() . $this->url();
-    }
-
-    /**
-     * Returns the path without query string
-     */
-    public function urlPath(): string
-    {
-        return trim(strtok($this->url(), '?'));
+        return Http::origin() . $this->url($stripQuery);
     }
 
     public function redirect(string $url, int $code = 302): ResponseInterface
@@ -76,7 +73,7 @@ class Request implements RequestInterface
         $class = $this->registry->get(ResponseInterface::class);
         /** @var ResponseInterface */
         $response = new $class($this, statusCode: $code);
-        $response->addHeader('Location', $url, true);
+        $response->header('Location', $url, true);
         return $response;
     }
 
@@ -105,12 +102,12 @@ class Request implements RequestInterface
         return strtoupper($_SERVER['REQUEST_METHOD']);
     }
 
-    public function isMethod(string $method): bool
+    public function methodIs(string $method): bool
     {
         return strtoupper($method) === $this->method();
     }
 
-    public function jsonBody(string $stream = 'php:://input'): ?array
+    public function body(string $stream = 'php:://input'): string
     {
         if (PHP_SAPI !== 'cli' && func_num_args() > 0) {
             // @codeCoverageIgnoreStart
@@ -118,12 +115,16 @@ class Request implements RequestInterface
             // @codeCoverageIgnoreEnd
         }
 
-        // Get JSON as a string
-        $jsonStr = file_get_contents($stream);
-        print($jsonStr . "\n");
-        $json = json_decode($jsonStr, true);
+        return file_get_contents($stream);
+    }
 
-        return $json;
+    public function json(string $stream = 'php:://input'): mixed
+    {
+        $body = $this->body($stream);
+
+        if (empty($body)) return null;
+
+        return json_decode($body, true);
     }
 
     /**
@@ -170,14 +171,14 @@ class Request implements RequestInterface
             $this->response = $this->registry->new(ResponseInterface::class, $this);
         }
 
-        $this->response->setStatusCode($statusCode, $reasonPhrase);
+        $this->response->statusCode($statusCode, $reasonPhrase);
 
         if ($body) {
-            $this->response->setBody($body);
+            $this->response->body($body);
         }
 
         foreach ($headers as $header) {
-            $this->response->addHeader(
+            $this->response->header(
                 $header['name'],
                 $header['value'],
                 $header['replace'] ?? true
@@ -185,7 +186,7 @@ class Request implements RequestInterface
         }
 
         if ($protocol) {
-            $this->response->setProtocol($protocol);
+            $this->response->protocol($protocol);
         }
 
         return $this->response;

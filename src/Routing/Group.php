@@ -32,7 +32,9 @@ class Group
 
     public function middleware(string|object ...$middlewares): self
     {
-        $this->middlewares = $middlewares;
+        foreach ($middlewares as $middleware) {
+            $this->middlewares[] = $middleware;
+        }
 
         return $this;
     }
@@ -65,7 +67,7 @@ class Group
         }
 
         if (!empty($this->middlewares)) {
-            $route->middleware(...array_merge($this->middlewares, $route->middlewares()));
+            $route->replaceMiddleware(...array_merge($this->middlewares, $route->middlewares()));
         }
 
         $this->router->addRoute($route);

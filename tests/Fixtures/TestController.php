@@ -23,7 +23,7 @@ class TestController
     public function middlewareView(Request $request): Response
     {
         $response = $request->response;
-        $response->setBody($response->getBody() . ' view');
+        $response->body($response->getBody() . ' view');
         return $response;
     }
 

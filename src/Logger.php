@@ -71,6 +71,46 @@ class Logger implements LoggerInterface
         }
     }
 
+    public function debug(string|\Stringable $message, array $context = []): void
+    {
+        $this->log(self::DEBUG, $message, $context);
+    }
+
+    public function info(string|\Stringable $message, array $context = []): void
+    {
+        $this->log(self::INFO, $message, $context);
+    }
+
+    public function notice(string|\Stringable $message, array $context = []): void
+    {
+        $this->log(self::NOTICE, $message, $context);
+    }
+
+    public function warning(string|\Stringable $message, array $context = []): void
+    {
+        $this->log(self::WARNING, $message, $context);
+    }
+
+    public function error(string|\Stringable $message, array $context = []): void
+    {
+        $this->log(self::ERROR, $message, $context);
+    }
+
+    public function critical(string|\Stringable $message, array $context = []): void
+    {
+        $this->log(self::CRITICAL, $message, $context);
+    }
+
+    public function alert(string|\Stringable $message, array $context = []): void
+    {
+        $this->log(self::ALERT, $message, $context);
+    }
+
+    public function emergency(string|\Stringable $message, array $context = []): void
+    {
+        $this->log(self::EMERGENCY, $message, $context);
+    }
+
     protected function interpolate(string $template, array $context): string
     {
         $substitudes = array();
@@ -112,45 +152,5 @@ class Logger implements LoggerInterface
         }
 
         return $message;
-    }
-
-    public function debug(string|\Stringable $message, array $context = []): void
-    {
-        $this->log(self::DEBUG, $message, $context);
-    }
-
-    public function info(string|\Stringable $message, array $context = []): void
-    {
-        $this->log(self::INFO, $message, $context);
-    }
-
-    public function notice(string|\Stringable $message, array $context = []): void
-    {
-        $this->log(self::NOTICE, $message, $context);
-    }
-
-    public function warning(string|\Stringable $message, array $context = []): void
-    {
-        $this->log(self::WARNING, $message, $context);
-    }
-
-    public function error(string|\Stringable $message, array $context = []): void
-    {
-        $this->log(self::ERROR, $message, $context);
-    }
-
-    public function critical(string|\Stringable $message, array $context = []): void
-    {
-        $this->log(self::CRITICAL, $message, $context);
-    }
-
-    public function alert(string|\Stringable $message, array $context = []): void
-    {
-        $this->log(self::ALERT, $message, $context);
-    }
-
-    public function emergency(string|\Stringable $message, array $context = []): void
-    {
-        $this->log(self::EMERGENCY, $message, $context);
     }
 }

@@ -28,7 +28,7 @@ const REASON_PHRASES = [
 class Response implements ResponseInterface
 {
     /** @psalm-suppress PropertyNotSetInConstructor */
-    protected array $headersList = [];
+    protected array $headerList = [];
     protected ?Body $body = null;
 
     public function __construct(
@@ -48,7 +48,7 @@ class Response implements ResponseInterface
         }
     }
 
-    public function setStatusCode(int $statusCode, ?string $reasonPhrase = null): void
+    public function statusCode(int $statusCode, ?string $reasonPhrase = null): void
     {
         $this->statusCode = $statusCode;
 
@@ -57,7 +57,7 @@ class Response implements ResponseInterface
         }
     }
 
-    public function setProtocol(string $protocol): void
+    public function protocol(string $protocol): void
     {
         $this->protocol = $protocol;
     }
@@ -76,7 +76,7 @@ class Response implements ResponseInterface
         }
     }
 
-    public function addHeader(
+    public function header(
         string $name,
         string $value,
         bool $replace = true,
@@ -99,9 +99,9 @@ class Response implements ResponseInterface
         ];
     }
 
-    public function headersList(): array
+    public function getHeaderList(): array
     {
-        return $this->headersList;
+        return $this->headerList;
     }
 
     public function getBody(): ?Body
@@ -109,7 +109,7 @@ class Response implements ResponseInterface
         return $this->body;
     }
 
-    public function setBody(string|Body $body): void
+    public function body(string|Body $body): void
     {
         if (is_string($body)) {
             $this->body = new Text($body);
@@ -118,10 +118,10 @@ class Response implements ResponseInterface
         }
     }
 
-    protected function header(string $value, bool $replace): void
+    protected function writeHeader(string $value, bool $replace): void
     {
         if (PHP_SAPI === 'cli') {
-            $this->headersList[] = $value;
+            $this->headerList[] = $value;
         } else {
             header($value, $replace);
         }
@@ -146,7 +146,7 @@ class Response implements ResponseInterface
         // Fix Content-Type
         $ct = $this->headers['Content-Type']['value'][0] ?? null;
         if (!array_key_exists('Content-Type', $this->headers)) {
-            $this->header('Content-Type: text/html; charset=UTF-8', true);
+            $this->writeHeader('Content-Type: text/html; charset=UTF-8', true);
         } else {
             $ct = $this->headers['Content-Type']['value'][0];
 
@@ -158,12 +158,12 @@ class Response implements ResponseInterface
 
         foreach ($this->headers as $name => $entry) {
             foreach ($entry['value'] as $value) {
-                $this->header(sprintf('%s: %s', $name, $value), $entry['replace']);
+                $this->writeHeader(sprintf('%s: %s', $name, $value), $entry['replace']);
             }
         }
 
         // Emit status line after general headers to overwrite previous status codes
-        $this->header(sprintf(
+        $this->writeHeader(sprintf(
             'HTTP/%s %d %s',
             $this->protocol,
             $this->statusCode,

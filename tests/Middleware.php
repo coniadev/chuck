@@ -10,7 +10,7 @@ uses(TestCase::class);
 
 function functionMiddleware(Request $request, callable $next): Request|Response
 {
-    $request->response->setBody($request->response->getBody() . 'first');
+    $request->response->body($request->response->getBody() . 'first');
     return $next($request);
 }
 
@@ -24,11 +24,11 @@ class ObjectMiddleware
     {
         $response = $request->response;
         // add $text from constructor
-        $response->setBody($response->getBody() . $this->text);
+        $response->body($response->getBody() . $this->text);
         // handle next
         $result = $next($request);
         // add another text to the body
-        $response->setBody($response->getBody() . ' last');
+        $response->body($response->getBody() . ' last');
         return $result;
     }
 }

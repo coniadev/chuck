@@ -23,8 +23,8 @@ test('Helper methods', function () {
     expect($request->getRouter())->toBeInstanceOf(RouterInterface::class);
     expect($request->getResponse())->toBeInstanceOf(ResponseInterface::class);
     expect($request->method())->toBe('GET');
-    expect($request->isMethod('GET'))->toBe(true);
-    expect($request->isMethod('POST'))->toBe(false);
+    expect($request->methodIs('GET'))->toBe(true);
+    expect($request->methodIs('POST'))->toBe(false);
 });
 
 
@@ -79,7 +79,8 @@ test('Url helpers', function () {
     $this->setUrl('albums?from=1988&to=1991');
     expect($request->url())->toBe('/albums?from=1988&to=1991');
     expect($request->serverUrl())->toBe('http://www.example.com/albums?from=1988&to=1991');
-    expect($request->urlPath())->toBe('/albums');
+    expect($request->url(stripQuery: true))->toBe('/albums');
+    expect($request->serverUrl(stripQuery: true))->toBe('http://www.example.com/albums');
 });
 
 
@@ -177,14 +178,14 @@ test('Request::response', function () {
     ob_start();
     $response->emit();
     ob_end_clean();
-    expect($response->headersList())->toBe([
+    expect($response->getHeaderList())->toBe([
         'Content-Type: superior',
         'HTTP/1.2 404 The Plug is Pulled',
     ]);
 });
 
 
-test('Request::jsonBody', function () {
+test('Request::json', function () {
     // Simulates the php://input stream with a temp file
     ob_start();
     $request = $this->request();
@@ -193,7 +194,7 @@ test('Request::jsonBody', function () {
     fwrite($f, '[{"title": "Leprosy", "released": 1988}, {"title": "Human", "released": 1991}]');
     rewind($f);
 
-    expect($request->jsonBody(stream: $streamName))->toBe([
+    expect($request->json(stream: $streamName))->toBe([
         ["title" => "Leprosy", "released" => 1988],
         ["title" => "Human", "released" => 1991]
     ]);

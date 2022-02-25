@@ -110,9 +110,19 @@ class Route implements RouteInterface
         return $this->renderer;
     }
 
-    public function middleware(callable|string ...$middlewares): self
+
+    public function replaceMiddleware(callable|string ...$middlewares): self
     {
         $this->middlewares = $middlewares;
+
+        return $this;
+    }
+
+    public function middleware(callable|string ...$middlewares): self
+    {
+        foreach ($middlewares as $middleware) {
+            $this->middlewares[] = $middleware;
+        }
 
         return $this;
     }
@@ -268,7 +278,7 @@ class Route implements RouteInterface
         return strtok($url, '?');
     }
 
-    protected function isMethodAllowed(RequestInterface $request, string $allowed): bool
+    protected function methodIsAllowed(RequestInterface $request, string $allowed): bool
     {
         return strtoupper($request->method()) === strtoupper($allowed);
     }
@@ -280,7 +290,7 @@ class Route implements RouteInterface
         }
 
         foreach ($this->methods as $method) {
-            if ($this->isMethodAllowed($request, $method)) {
+            if ($this->methodIsAllowed($request, $method)) {
                 return true;
             }
         }
