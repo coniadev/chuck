@@ -11,7 +11,7 @@ use Chuck\Error\HttpForbidden;
 use Chuck\Error\HttpNotFound;
 use Chuck\Error\HttpServerError;
 use Chuck\Error\HttpUnauthorized;
-use Chuck\Log;
+use Chuck\Logger;
 
 
 class Handler
@@ -58,17 +58,17 @@ class Handler
             }
 
             $level = match ($exception::class) {
-                HttpNotFound::class => Log::INFO,
-                HttpForbidden::class => Log::NOTICE,
-                HttpUnauthorized::class => Log::NOTICE,
-                HttpBadRequest::class => Log::WARNING,
-                HttpServerError::class => Log::ERROR,
+                HttpNotFound::class => Logger::INFO,
+                HttpForbidden::class => Logger::NOTICE,
+                HttpUnauthorized::class => Logger::NOTICE,
+                HttpBadRequest::class => Logger::WARNING,
+                HttpServerError::class => Logger::ERROR,
             };
         } else {
             $response->setStatusCode(500);
             $body = '<h1>500 Internal Server Error</h1>';
             $body .= '<h2>' . htmlspecialchars($exception->getMessage()) . '</h2>';
-            $level = Log::ERROR;
+            $level = Logger::ERROR;
         }
 
         if ($debug) {
@@ -84,15 +84,18 @@ class Handler
 
     public function log(int $level, \Throwable $exception): void
     {
-        $config = $this->request->getConfig();
-        $logger = new Log($config->get('loglevel'), $config->pathOrNull('logfile'));
+        $registry = $this->request->getRegistry();
 
-        $logger->log(
-            $level,
-            "Uncaught Exception:",
-            [
-                'exception' => $exception,
-            ]
-        );
+        if ($registry->has('logger')) {
+            $logger = $registry->instance('logger');
+
+            $logger->log(
+                $level,
+                "Uncaught Exception:",
+                [
+                    'exception' => $exception,
+                ]
+            );
+        }
     }
 }

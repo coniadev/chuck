@@ -11,7 +11,7 @@ return [
     'env' => null,                           // the current environment, e. g. 'development', 'production'
     'debug' => false,                        // Whether it should show Whoops messages
     'port' => 1983,                          // The develompent server port
-    'loglevel' => Log::DEBUG,                // Sets which the lowest message type to be logged (DEBUG, INFO, WARNING, ERROR, ALERT)
+    'loglevel' => Logger::DEBUG,             // Sets which the lowest message type to be logged (DEBUG, INFO, WARNING, ERROR, ALERT)
 
     // 'host' => null,                       // www.example.com
     //                                       // Can be used in scripts or your app

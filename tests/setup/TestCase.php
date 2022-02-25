@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase as BaseTestCase;
 
 use Chuck\Config;
 use Chuck\ConfigInterface;
+use Chuck\Logger;
 use Chuck\Registry;
 use Chuck\RegistryInterface;
 use Chuck\Request;
@@ -166,6 +167,7 @@ class TestCase extends BaseTestCase
 
         if ($registry === null) {
             $registry = new Registry();
+            $registry->logger(new Logger($config->get('loglevel'), $config->pathOrNull('logfile')));
         }
 
         $request = new Request($config, $router, $registry);

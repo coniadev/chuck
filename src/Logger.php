@@ -7,7 +7,7 @@ namespace Chuck;
 use Psr\Log\{LoggerInterface, InvalidArgumentException};
 
 
-class Log implements LoggerInterface
+class Logger implements LoggerInterface
 {
     public const DEBUG = 100;
     public const INFO = 200;

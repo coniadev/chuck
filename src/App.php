@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Chuck;
 
 use Chuck\Error\Handler;
+use Chuck\Logger;
 use Chuck\Routing\GroupInterface;
 use Chuck\Routing\RouteInterface;
-use Chuck\Routing\Router;
 use Chuck\Routing\RouterInterface;
 
 
@@ -33,7 +33,11 @@ class App
         }
 
         $registry = new Registry();
-        $router = new Router();
+        $registry->logger(new Logger($config->get('loglevel'), $config->pathOrNull('logfile')));
+
+        /** @var RouterInterface */
+        $router = $registry->new(RouterInterface::class);
+
         /** @var RequestInterface */
         $request = $registry->new(RequestInterface::class, $config, $router, $registry);
 

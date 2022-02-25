@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Chuck;
 
 use \InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 use Chuck\Error\RegistryEntryNotFoundError;
 use Chuck\Renderer\RendererInterface;
+use Chuck\Routing\{Router, RouterInterface};
 
 
 class Registry implements RegistryInterface
@@ -21,6 +23,7 @@ class Registry implements RegistryInterface
         $this->classes = [
             RequestInterface::class => Request::class,
             ResponseInterface::class => Response::class,
+            RouterInterface::class => Router::class,
             TemplateInterface::class => Template::class,
             SessionInterface::class => Session::class,
         ];
@@ -48,8 +51,7 @@ class Registry implements RegistryInterface
             throw new InvalidArgumentException("Class does not exist: $entry");
         }
 
-        /** @var class-string $id */
-        if (!(is_subclass_of($entry, $id) || $entry === $id)) {
+        if (!(class_exists($id)) || !(is_subclass_of($entry, $id) || $entry === $id)) {
             throw new InvalidArgumentException(
                 "$entry is no subclass of or does not implement $id"
             );
@@ -96,5 +98,10 @@ class Registry implements RegistryInterface
     public function renderer(string $id, mixed ...$args): RendererInterface
     {
         return new ($this->renderers[$id])(...$args);
+    }
+
+    public function logger(LoggerInterface $logger): void
+    {
+        $this->instances['logger'] = $logger;
     }
 }

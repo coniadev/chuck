@@ -2,18 +2,17 @@
 
 declare(strict_types=1);
 
-use Chuck\Routing\Router;
-use Chuck\Log;
+use Chuck\Logger;
 
 
-test('Log to file', function () {
+test('Logger to file', function () {
     // capture output of error_log calls in a temporary file
     // to prevent it printed to the console.
     $default = ini_set('error_log', stream_get_meta_data(tmpfile())['uri']);
     $tmpfile = tmpfile();
     $logfile = stream_get_meta_data($tmpfile)['uri'];
 
-    $logger = new Log(logfile: $logfile);
+    $logger = new Logger(logfile: $logfile);
 
     $logger->debug("Scott");
     $logger->info("Steve");
@@ -39,12 +38,12 @@ test('Log to file', function () {
 });
 
 
-test('Log to php sapi', function () {
+test('Logger to php sapi', function () {
     $tmpfile = tmpfile();
     $logfile = stream_get_meta_data($tmpfile)['uri'];
     $default = ini_set('error_log', $logfile);
 
-    $logger = new Log(logfile: $logfile);
+    $logger = new Logger(logfile: $logfile);
 
     $logger->debug("Scott");
     $logger->info("Steve");
@@ -64,12 +63,12 @@ test('Log to php sapi', function () {
 });
 
 
-test('Log with higher debug level', function () {
+test('Logger with higher debug level', function () {
     $tmpfile = tmpfile();
     $logfile = stream_get_meta_data($tmpfile)['uri'];
     $default = ini_set('error_log', $logfile);
 
-    $logger = new Log(Log::ERROR, $logfile);
+    $logger = new Logger(Logger::ERROR, $logfile);
 
     $logger->debug("Scott");
     $logger->info("Steve");
@@ -100,7 +99,7 @@ test('Message interpolation', function () {
     $logfile = stream_get_meta_data($tmpfile)['uri'];
     $default = ini_set('error_log', $logfile);
 
-    $logger = new Log(logfile: $logfile);
+    $logger = new Logger(logfile: $logfile);
 
     try {
         throw new \Exception('The test exception');
