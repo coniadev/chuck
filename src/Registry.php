@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Chuck;
 
 use \InvalidArgumentException;
+use Chuck\Error\RegistryEntryNotFoundError;
 use Chuck\Renderer\RendererInterface;
+
 
 class Registry implements RegistryInterface
 {
     protected array $classes;
-    protected array $objects;
+    protected array $instances;
+    /** @var array<string, class-string<RendererInterface>> */
     protected array $renderers;
 
     public function __construct()
@@ -21,7 +24,7 @@ class Registry implements RegistryInterface
             TemplateInterface::class => Template::class,
             SessionInterface::class => Session::class,
         ];
-        $this->objects = [];
+        $this->instances = [];
         $this->renderers = [
             'text' => Renderer\TextRenderer::class,
             'json' => Renderer\JsonRenderer::class,
@@ -29,16 +32,15 @@ class Registry implements RegistryInterface
         ];
     }
 
-    public function add(string $key, string|object $entry): void
+    public function add(string $id, object|string $entry): void
     {
         if (is_object($entry)) {
-            $this->objects[$key] = $entry;
-            $this->classes[$key] = $entry::class;
+            $this->instances[$id] = $entry;
             return;
         }
 
         if (is_subclass_of($entry, RendererInterface::class)) {
-            $this->renderers[$key] = $entry;
+            $this->renderers[$id] = $entry;
             return;
         }
 
@@ -46,41 +48,53 @@ class Registry implements RegistryInterface
             throw new InvalidArgumentException("Class does not exist: $entry");
         }
 
-        /** @var class-string $key */
-        if (!(is_subclass_of($entry, $key) || $entry === $key)) {
+        /** @var class-string $id */
+        if (!(is_subclass_of($entry, $id) || $entry === $id)) {
             throw new InvalidArgumentException(
-                "$entry is no subclass of or does not implement $key"
+                "$entry is no subclass of or does not implement $id"
             );
         }
 
-        $this->classes[$key] = $entry;
+        $this->classes[$id] = $entry;
     }
 
-    public function has(string $key): bool
+    public function has(string $id): bool
     {
-        return array_key_exists($key, $this->classes)
-            || array_key_exists($key, $this->renderers)
-            || array_key_exists($key, $this->objects);
+        return array_key_exists($id, $this->classes)
+            || array_key_exists($id, $this->renderers)
+            || array_key_exists($id, $this->instances);
     }
 
-    public function get(string $key): string
+    public function get(string $id): mixed
     {
-        if (array_key_exists($key, $this->classes)) {
-            return $this->classes[$key];
+        if (array_key_exists($id, $this->classes)) {
+            return $this->classes[$id];
         }
 
-        return $this->renderers[$key] ??
-            throw new InvalidArgumentException("Undefined registry key \"$key\"");
+        if (array_key_exists($id, $this->instances)) {
+            return $this->instances[$id];
+        }
+
+        if (array_key_exists($id, $this->renderers)) {
+            return $this->renderers[$id];
+        }
+
+        throw new RegistryEntryNotFoundError("Undefined registry key \"$id\"");
     }
 
-    public function new(string $key, mixed ...$args): object
+    public function new(string $id, mixed ...$args): object
     {
-        return new ($this->get($key))(...$args);
+        return new ($this->get($id))(...$args);
     }
 
-    public function obj(string $key): object
+    public function instance(string $id): object
     {
-        return $this->objects[$key] ??
-            throw new InvalidArgumentException("Undefined registry key \"$key\"");
+        return $this->instances[$id] ??
+            throw new InvalidArgumentException("Undefined registry key \"$id\"");
+    }
+
+    public function renderer(string $id, mixed ...$args): RendererInterface
+    {
+        return new ($this->renderers[$id])(...$args);
     }
 }

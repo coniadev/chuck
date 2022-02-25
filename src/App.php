@@ -88,9 +88,13 @@ class App
         $this->router->middleware($middleware);
     }
 
-    public function register(string $interface, string $class): void
+    /**
+     * @param string|class-string $key
+     * @param object|class-string $entry
+     */
+    public function register(string $id, string|object $entry): void
     {
-        $this->registry->add($interface, $class);
+        $this->registry->add($id, $entry);
     }
 
     public function run(): ResponseInterface

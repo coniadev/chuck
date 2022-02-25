@@ -175,7 +175,7 @@ class Router implements RouterInterface
             $renderer = $route->getRenderer();
 
             if ($renderer) {
-                $rendererObj = $registry->new($renderer->type, $request, $result, $renderer->args);
+                $rendererObj = $registry->renderer($renderer->type, $request, $result, $renderer->args);
                 $response = $request->getResponse();
                 $response->setBody($rendererObj->render());
 
