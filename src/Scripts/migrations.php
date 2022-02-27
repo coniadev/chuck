@@ -7,7 +7,7 @@ use Chuck\ConfigInterface;
 class Migrations extends Chuck\Cli\MigrationsCommand
 {
     public static string $group = 'Database';
-    public static string $title = 'Initialize the database tables';
+    public static string $title = 'Apply missing database migrations';
     public static string $desc;
 
     public function run(ConfigInterface $config, string ...$args): void
