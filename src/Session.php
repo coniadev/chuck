@@ -16,8 +16,8 @@ class Session implements SessionInterface
     public function __construct(
         RequestInterface $request,
         ?string $name = null,
-        protected string $flashMessagesField = 'flash_messages',
-        protected string $rememberedUriField = 'remembered_uri',
+        protected string $flashMessagesKey = 'flash_messages',
+        protected string $rememberedUriKey = 'remembered_uri',
     ) {
         // TODO:
         // session_set_cookie_params(['SameSite' => 'Strict']);
@@ -123,11 +123,11 @@ class Session implements SessionInterface
         string $message,
         string $queue = 'default',
     ): void {
-        if (!isset($_SESSION[$this->flashMessagesField])) {
-            $_SESSION[$this->flashMessagesField] = [];
+        if (!isset($_SESSION[$this->flashMessagesKey])) {
+            $_SESSION[$this->flashMessagesKey] = [];
         }
 
-        $_SESSION[$this->flashMessagesField][] = [
+        $_SESSION[$this->flashMessagesKey][] = [
             'message' => htmlspecialchars($message),
             'queue' => htmlspecialchars($queue),
         ];
@@ -136,14 +136,14 @@ class Session implements SessionInterface
     public function popFlashes(?string $queue = null): array
     {
         if ($queue === null) {
-            $flashes = $_SESSION[$this->flashMessagesField];
-            $_SESSION[$this->flashMessagesField] = [];
+            $flashes = $_SESSION[$this->flashMessagesKey];
+            $_SESSION[$this->flashMessagesKey] = [];
         } else {
             $key = 0;
             $keys = [];
             $flashes = [];
 
-            foreach ($_SESSION[$this->flashMessagesField] as $flash) {
+            foreach ($_SESSION[$this->flashMessagesKey] as $flash) {
                 if ($flash['queue'] === $queue) {
                     $flashes[] = $flash;
                     $keys[] = $key;
@@ -153,7 +153,7 @@ class Session implements SessionInterface
             }
 
             foreach (array_reverse($keys) as $key) {
-                unset($_SESSION[$this->flashMessagesField][$key]);
+                unset($_SESSION[$this->flashMessagesKey][$key]);
             }
         }
 
@@ -164,18 +164,18 @@ class Session implements SessionInterface
     {
         if ($queue) {
             return count(array_filter(
-                $_SESSION[$this->flashMessagesField] ?? [],
+                $_SESSION[$this->flashMessagesKey] ?? [],
                 fn (array $f) => $f['queue'] === $queue,
             )) > 0;
         }
 
-        return count($_SESSION[$this->flashMessagesField] ?? []) > 0;
+        return count($_SESSION[$this->flashMessagesKey] ?? []) > 0;
     }
 
     public function rememberRequestUri(
         int $expires = 3600,
     ): void {
-        $_SESSION[$this->rememberedUriField] = [
+        $_SESSION[$this->rememberedUriKey] = [
             'uri' => Http::fullRequestUri(),
             'expires' => time() + $expires,
         ];
@@ -183,19 +183,19 @@ class Session implements SessionInterface
 
     public function getRememberedUri(): string
     {
-        $rememberedUri = $_SESSION[$this->rememberedUriField] ?? null;
+        $rememberedUri = $_SESSION[$this->rememberedUriKey] ?? null;
 
         if ($rememberedUri) {
             if ($rememberedUri['expires'] > time()) {
                 $uri = $rememberedUri['uri'];
-                unset($_SESSION[$this->rememberedUriField]);
+                unset($_SESSION[$this->rememberedUriKey]);
 
                 if (filter_var($uri, FILTER_VALIDATE_URL)) {
                     return $uri;
                 }
             }
 
-            unset($_SESSION[$this->rememberedUriField]);
+            unset($_SESSION[$this->rememberedUriKey]);
         }
 
         return '/';

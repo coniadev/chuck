@@ -4,32 +4,29 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-class Csrf
+class Csrf implements CsrfInterface
 {
-    protected RequestInterface $request;
-    protected ConfigInterface $config;
-
-    public function __construct(RequestInterface $request)
-    {
-        $this->request = $request;
-        $this->config = $request->getConfig();
-
-        if (!isset($_SESSION['csrftokens'])) {
-            $_SESSION['csrftokens'] = [];
+    public function __construct(
+        protected string $sessionKey = 'csrftokens',
+        protected string $postKey = 'csrftoken',
+        protected string $headerKey = 'HTTP_X_CSRF_TOKEN',
+    ) {
+        if (!isset($_SESSION[$this->sessionKey])) {
+            $_SESSION[$this->sessionKey] = [];
         }
     }
 
     protected function set(string $page = 'default'): string
     {
         $token = base64_encode(random_bytes(32));
-        $_SESSION['csrftokens'][$page] = $token;
+        $_SESSION[$this->sessionKey][$page] = $token;
         return $token;
     }
 
 
     public function get(string $page = 'default'): ?string
     {
-        $token = $_SESSION['csrftokens'][$page] ?? $this->set($page);
+        $token = $_SESSION[$this->sessionKey][$page] ?? $this->set($page);
 
         return $token;
     }
@@ -39,12 +36,12 @@ class Csrf
         string $token = null
     ): bool {
         if ($token === null) {
-            $token = $_POST['csrftoken'] ?? null;
+            $token = $_POST[$this->postKey] ?? null;
         }
 
         if ($token === null) {
-            if (isset($_SERVER['HTTP_X_CSRF_TOKEN'])) {
-                $token = $_SERVER['HTTP_X_CSRF_TOKEN'];
+            if (isset($_SERVER[$this->headerKey])) {
+                $token = $_SERVER[$this->headerKey];
             }
         }
 
@@ -59,19 +56,5 @@ class Csrf
         }
 
         return hash_equals($savedToken, $token);
-    }
-
-    public function input(string $page = 'default', string $key = 'csrftoken'): string|false
-    {
-        $token = $this->get($page);
-
-        if (empty($token)) {
-            return false;
-        }
-
-        return '<input type="hidden" id="' .
-            htmlspecialchars($key) .
-            '" name="csrftoken" value="' .
-            htmlspecialchars($token) . '">';
     }
 }

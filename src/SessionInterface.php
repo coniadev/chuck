@@ -6,7 +6,6 @@ namespace Chuck;
 
 interface SessionInterface
 {
-    public function __construct(RequestInterface $request);
     public function start(): void;
     public function forget(): void;
     public function get(string $key): mixed;
@@ -19,7 +18,4 @@ interface SessionInterface
     public function popFlashes(?string $queue): array;
     public function rememberRequestUri(): void;
     public function getRememberedUri(): string;
-    // public function remember(Token $token, int $expire);
-    // public function forgetRemembered(): void;
-    // public function getAuthToken(): ?string;
 }

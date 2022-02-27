@@ -26,6 +26,7 @@ class Registry implements RegistryInterface
             RouterInterface::class => Router::class,
             TemplateInterface::class => Template::class,
             SessionInterface::class => Session::class,
+            CsrfInterface::class => Csrf::class,
         ];
         $this->instances = [];
         $this->renderers = [
