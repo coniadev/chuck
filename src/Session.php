@@ -4,24 +4,27 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use \SessionHandlerInterface;
+use Chuck\Util\Http;
 
 
 class Session implements SessionInterface
 {
-    /** @psalm-suppress PropertyNotSetInConstructor */
-    public readonly Csrf $csrf;
-
     protected RequestInterface $request;
     protected ConfigInterface $config;
+    protected string $name;
 
-    public function __construct(RequestInterface $request)
-    {
+    public function __construct(
+        RequestInterface $request,
+        ?string $name = null,
+        protected string $flashMessagesField = 'flash_messages',
+        protected string $rememberedUriField = 'remembered_uri',
+    ) {
         // TODO:
         // session_set_cookie_params(['SameSite' => 'Strict']);
 
         $this->request = $request;
         $this->config = $request->getConfig();
+        $this->name = $name ?: $this->config->get('appname');
     }
 
     public function start(): void
@@ -31,49 +34,23 @@ class Session implements SessionInterface
             // about headers sent using session_start.
             if (PHP_SAPI === 'cli') {
                 $_SESSION = [];
-            } elseif (!headers_sent()) {
-                if ($this->request->getRegistry()->has(SessionHandlerInterface::class)) {
-                    $this->setupCustomSessions();
-                }
+            }
+            if (!headers_sent()) {
+                session_name($this->name);
 
-                session_name($this->config->get('appname'));
                 if (!session_start()) {
-                    throw new \Exception(__METHOD__ . 'session_start failed.');
+                    // @codeCoverageIgnoreStart
+                    throw new \RuntimeException(__METHOD__ . 'session_start failed.');
+                    // @codeCoverageIgnoreEnd
                 }
             } else {
-                throw new \Exception(
+                // @codeCoverageIgnoreStart
+                throw new \RuntimeException(
                     __METHOD__ . 'Session started after headers sent.'
                 );
+                // @codeCoverageIgnoreEnd
             }
         }
-
-        /**
-         * @psalm-suppress InaccessibleProperty
-         *
-         * TODO: At the time of writing Psalm did not support
-         * readonly properties which are not initialized in the
-         * constructor. Recheck on occasion.
-         */
-        $this->csrf = new Csrf($this->request);
-
-
-        if (!array_key_exists('flash_messages', $_SESSION)) {
-            $_SESSION['flash_messages'] = [];
-        }
-    }
-
-    protected function setupCustomSessions(): void
-    {
-        $handler = $this->request->getRegistry()->new(SessionHandlerInterface::class);
-
-        session_set_save_handler(
-            [$handler, 'open'],
-            [$handler, 'close'],
-            [$handler, 'read'],
-            [$handler, 'write'],
-            [$handler, 'destroy'],
-            [$handler, 'gc']
-        );
     }
 
     public function forget(): void
@@ -81,10 +58,6 @@ class Session implements SessionInterface
         // Unset all of the session variables.
         global $_SESSION;
         $_SESSION = [];
-
-        if (PHP_SAPI === 'cli') {
-            return;
-        }
 
         // If it's desired to kill the session, also delete the session cookie.
         // Note: This will destroy the session, and not just the session data!
@@ -101,13 +74,23 @@ class Session implements SessionInterface
             );
         }
 
+        if (PHP_SAPI === 'cli') {
+            return;
+        }
+
         // Finally, destroy the session.
+        // @codeCoverageIgnoreStart
         session_destroy();
+        // @codeCoverageIgnoreEnd
     }
 
-    public function get(string $key): mixed
+    public function get(string $key, mixed $default = null): mixed
     {
-        return $_SESSION[$key] ?? null;
+        if (!$this->has($key) && func_num_args() > 1) {
+            return $default;
+        }
+
+        return $_SESSION[$key];
     }
 
     public function set(string $key, mixed $value): void
@@ -115,24 +98,14 @@ class Session implements SessionInterface
         $_SESSION[$key] = $value;
     }
 
-    public function flash(string $type, string $message): void
+    public function has(string $key): bool
     {
-        $_SESSION['flash_messages'][] = [
-            'type' => $type,
-            'message' => $message
-        ];
+        return isset($_SESSION[$key]);
     }
 
-    public function popFlash(): array
+    public function unset(string $key): void
     {
-        $flashes = $_SESSION['flash_messages'];
-        $_SESSION['flash_messages'] = [];
-        return $flashes;
-    }
-
-    public function hasFlashes(): bool
-    {
-        return count($_SESSION['flash_messages'] ?? []) > 0;
+        unset($_SESSION[$key]);
     }
 
     public function regenerate(): void
@@ -141,53 +114,90 @@ class Session implements SessionInterface
             return;
         }
 
+        // @codeCoverageIgnoreStart
         session_regenerate_id(true);
+        // @codeCoverageIgnoreEnd
     }
 
-    public function setUser(string|int $userId): void
-    {
-        $_SESSION['user_id'] = $userId;
+    public function flash(
+        string $message,
+        string $queue = 'default',
+    ): void {
+        if (!isset($_SESSION[$this->flashMessagesField])) {
+            $_SESSION[$this->flashMessagesField] = [];
+        }
+
+        $_SESSION[$this->flashMessagesField][] = [
+            'message' => htmlspecialchars($message),
+            'queue' => htmlspecialchars($queue),
+        ];
     }
 
-    public function authenticatedUserId(): mixed
+    public function popFlashes(?string $queue = null): array
     {
-        return $_SESSION['user_id'] ?? null;
+        if ($queue === null) {
+            $flashes = $_SESSION[$this->flashMessagesField];
+            $_SESSION[$this->flashMessagesField] = [];
+        } else {
+            $key = 0;
+            $keys = [];
+            $flashes = [];
+
+            foreach ($_SESSION[$this->flashMessagesField] as $flash) {
+                if ($flash['queue'] === $queue) {
+                    $flashes[] = $flash;
+                    $keys[] = $key;
+                }
+
+                $key++;
+            }
+
+            foreach (array_reverse($keys) as $key) {
+                unset($_SESSION[$this->flashMessagesField][$key]);
+            }
+        }
+
+        return $flashes;
     }
 
-    public function rememberReturnTo(): void
+    public function hasFlashes(?string $queue = null): bool
     {
-        setcookie('return_to', $_SERVER['REQUEST_URI'], time() + 3600, '/');
+        if ($queue) {
+            return count(array_filter(
+                $_SESSION[$this->flashMessagesField] ?? [],
+                fn (array $f) => $f['queue'] === $queue,
+            )) > 0;
+        }
+
+        return count($_SESSION[$this->flashMessagesField] ?? []) > 0;
     }
 
-    public function returnTo(): string
-    {
-        $returnTo = $_COOKIE['return_to'] ?? '/';
-        setcookie('return_to', '',  time() - 3600, '/');
-
-        return $returnTo;
+    public function rememberRequestUri(
+        int $expires = 3600,
+    ): void {
+        $_SESSION[$this->rememberedUriField] = [
+            'uri' => Http::fullRequestUri(),
+            'expires' => time() + $expires,
+        ];
     }
 
-    // public function remember(Token $token, int $expire): void
-    // {
-    // setcookie(
-    // $this->config->get('appname') . '_auth',
-    // $token->get(),
-    // $expire,
-    // '/'
-    // );
-    // }
-
-    public function forgetRemembered(): void
+    public function getRememberedUri(): string
     {
-        setcookie(
-            $this->config->get('appname') . '_auth',
-            '',
-            time() - 60 * 60 * 24
-        );
-    }
+        $rememberedUri = $_SESSION[$this->rememberedUriField] ?? null;
 
-    public function getAuthToken(): ?string
-    {
-        return $_COOKIE[$this->config->get('appname') . '_auth'] ?? null;
+        if ($rememberedUri) {
+            if ($rememberedUri['expires'] > time()) {
+                $uri = $rememberedUri['uri'];
+                unset($_SESSION[$this->rememberedUriField]);
+
+                if (filter_var($uri, FILTER_VALIDATE_URL)) {
+                    return $uri;
+                }
+            }
+
+            unset($_SESSION[$this->rememberedUriField]);
+        }
+
+        return '/';
     }
 }

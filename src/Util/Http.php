@@ -23,6 +23,20 @@ class Http
             default => ':' . $readPort,
         };
 
-        return "$proto://$host$port";
+        $origin = "$proto://$host$port";
+
+        if (!filter_var($origin, FILTER_VALIDATE_URL)) {
+            throw new \ValueError('Invalid origin');
+        }
+
+        return $origin;
+    }
+
+    public static function fullRequestUri(): string|false
+    {
+        return filter_var(
+            self::origin() . $_SERVER['REQUEST_URI'],
+            FILTER_VALIDATE_URL
+        );
     }
 }

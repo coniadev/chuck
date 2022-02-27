@@ -11,15 +11,15 @@ interface SessionInterface
     public function forget(): void;
     public function get(string $key): mixed;
     public function set(string $key, mixed $value): void;
-    public function flash(string $type, string $message): void;
-    public function hasFlashes(): bool;
-    public function popFlash(): array;
+    public function has(string $key): bool;
+    public function unset(string $key): void;
     public function regenerate(): void;
-    public function setUser(string|int $userId): void;
-    public function authenticatedUserId(): mixed;
-    public function rememberReturnTo(): void;
-    public function returnTo(): string;
+    public function flash(string $message, string $queue): void;
+    public function hasFlashes(?string $queue): bool;
+    public function popFlashes(?string $queue): array;
+    public function rememberRequestUri(): void;
+    public function getRememberedUri(): string;
     // public function remember(Token $token, int $expire);
-    public function forgetRemembered(): void;
-    public function getAuthToken(): ?string;
+    // public function forgetRemembered(): void;
+    // public function getAuthToken(): ?string;
 }
