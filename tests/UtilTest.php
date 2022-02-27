@@ -3,12 +3,7 @@
 declare(strict_types=1);
 
 use Chuck\Tests\Setup\TestCase;
-use Chuck\Util\Arrays;
-use Chuck\Util\Http;
-use Chuck\Util\I18n;
-use Chuck\Util\Path;
-use Chuck\Util\Strings;
-use Chuck\Util\Time;
+use Chuck\Util\{Arrays, Crypt, Http, I18n, Path, Strings, Time};
 
 uses(TestCase::class);
 
@@ -183,3 +178,30 @@ test('Http origin', function () {
     $this->setPort('');
     expect(Http::origin())->toBe('http://www.example.com');
 });
+
+
+test('Encryption and decryption', function () {
+    expect(Crypt::decrypt(
+        Crypt::encrypt('Symbolic', 'secret-key'),
+        'secret-key'
+    ))->toBe('Symbolic');
+});
+
+
+test('Encryption and decryption with alternate algo', function () {
+    expect(Crypt::decrypt(
+        Crypt::encrypt('Symbolic', 'secret-key', 'aes-256-cbc'),
+        'secret-key',
+        'aes-256-cbc'
+    ))->toBe('Symbolic');
+});
+
+
+test('Failing encryption', function () {
+    Crypt::encrypt('Symbolic', 'secret-key', 'wrong-algo');
+})->throws(\InvalidArgumentException::class, 'Cipher algorithm');
+
+
+test('Failing decryption', function () {
+    Crypt::decrypt('Symbolic', 'secret-key', 'wrong-algo');
+})->throws(\InvalidArgumentException::class, 'Cipher algorithm');
