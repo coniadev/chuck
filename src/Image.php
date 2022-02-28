@@ -13,56 +13,19 @@ use Chuck\Util\Path;
 class Image
 {
     protected string $path;
-    protected string $assetsPath;
-    protected string $cachePath;
 
-    public function __construct(
-        string $path,
-        string $assetsPath,
-        string $cachePath
-    ) {
-        $realAssetsPath = realpath($assetsPath);
-        $realCachePath = realpath($cachePath);
+    public function __construct(string $path)
+    {
+        $path = realpath($path);
 
-        if ($realAssetsPath === false || !is_dir($realAssetsPath)) {
-            throw new RuntimeException('Assets directory does not exist: ' . $assetsPath);
-        }
-
-        if ($realCachePath === false || !is_dir($realCachePath)) {
-            throw new RuntimeException('Assets cache directory does not exist: ' . $cachePath);
-        }
-
-        if (Path::isAbsolute($path)) {
-            $realPath = realpath($path);
-        } else {
-            $realPath = realpath($realAssetsPath . DIRECTORY_SEPARATOR . $path);
-        }
-
-        if ($realPath === false) {
+        if ($path === false) {
             throw new RuntimeException('Image does not exist: ' . $path);
         }
 
-        if (!Path::inside($realAssetsPath, $realPath)) {
-            throw new RuntimeException('Image is not inside the assets directory: ' . $path);
-        }
-
-        $this->path = $realPath;
-        $this->assetsPath = $realAssetsPath;
-        $this->cachePath = $realCachePath;
+        $this->path = $path;
     }
 
-    public static function fromConfig(string $path, ConfigInterface $config): self
-    {
-        $image = new  self(
-            $path,
-            $config->path('assets.files'),
-            $config->path('assets.cache')
-        );
-
-        return $image;
-    }
-
-    public static function getImage(string $path): GdImage|false
+    public static function getImageFromPath(string $path): GdImage|false
     {
         if (!file_exists($path)) {
             throw new \InvalidArgumentException('File "' . $path . '" not found.');
@@ -91,18 +54,7 @@ class Image
         }
     }
 
-    public function get(): GdImage
-    {
-        $image = self::getImage($this->path);
-
-        if ($image === false) {
-            throw new InvalidArgumentException('Could not read image file');
-        }
-
-        return $image;
-    }
-
-    protected static function writeImage(GdImage $image, string $path): bool
+    public static function writeImageToPath(GdImage $image, string $path): bool
     {
         switch (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
             case 'jfif':
@@ -124,17 +76,16 @@ class Image
         }
     }
 
-    protected static function createThumbnailFromImage(
+
+    protected static function resizeImageToValues(
         GdImage $image,
-        string $dest,
-        int $newWidth
-    ): bool {
-        $origWidth = imagesx($image);
-        $origHeight = imagesy($image);
-
-        // find the "desired height" of this thumbnail, relative to the desired width
-        $newHeight = (int)floor($origHeight * ($newWidth / $origWidth));
-
+        int $origWidth,
+        int $origHeight,
+        int $newWidth,
+        int $newHeight,
+        int $offsetWidth,
+        int $offsetHeight
+    ): GdImage {
         $thumb = imagecreatetruecolor($newWidth, $newHeight);
 
         // copy source image at a resized size
@@ -143,8 +94,8 @@ class Image
             $image,
             0,
             0,
-            0,
-            0,
+            $offsetWidth,
+            $offsetHeight,
             $newWidth,
             $newHeight,
             $origWidth,
@@ -155,29 +106,103 @@ class Image
             return false;
         }
 
-        return self::writeImage($thumb, $dest);
+        return $thumb;
     }
 
-    public static function createThumbnail(string $path, string $dest, int $newWidth): bool
 
-    {
-        $image = self::getImage($path);
+    public static function resizeImage(
+        GdImage $image,
+        int $width = 0,
+        int $height = 0,
+        bool $crop = false,
+    ): GdImage {
+        $origWidth = imagesx($image);
+        $origHeight = imagesy($image);
+        $offsetWidth = 0;
+        $offsetHeight = 0;
+
+        if ($width > 0 && $height > 0) {
+            $calcHeight = (int)floor($origHeight * ($width / $origWidth));
+            $calcWidth = (int)floor($origWidth * ($height / $origHeight));
+
+            $newWidth = $width;
+            $newHeight = $height;
+        } elseif ($width > 0) {
+            $newWidth = $width;
+            $newHeight = (int)floor($origHeight * ($width / $origWidth));
+        } elseif ($height > 0) {
+            $newWidth = (int)floor($origWidth * ($height / $origHeight));
+            $newHeight = $height;
+        } else {
+            throw new \InvalidArgumentException('Height and/or width must be given');
+        }
+
+        return self::resizeImageToValues(
+            $image,
+            $origWidth,
+            $origHeight,
+            $newWidth,
+            $newHeight,
+            $offsetWidth,
+            $offsetHeight,
+        );
+    }
+
+    public static function createThumbnail(
+        string $path,
+        string $dest,
+        int $width = 0,
+        int $height = 0,
+        bool $crop = false,
+    ): bool {
+        $image = self::getImageFromPath($path);
 
         if (!$image) {
             return false;
         }
 
-        return self::createThumbnailFromImage($image, $dest, $newWidth);
+        return self::writeImageToPath(
+            self::resizeImage($image, $width, $height, $crop),
+            $dest
+        );
     }
 
-    public function thumb(string $dest, int $newWidth): bool
+    public function get(): GdImage
     {
-        return $this->createThumbnailFromImage($this->get(), $dest, $newWidth);
+        $image = self::getImageFromPath($this->path);
+
+        if ($image === false) {
+            throw new InvalidArgumentException('Could not read image file');
+        }
+
+        return $image;
+    }
+
+    public function resize(
+        int $width = 0,
+        int $height = 0,
+        bool $crop = false,
+    ): GdImage {
+        return self::resizeImage(
+            $this->get(),
+            $width,
+            $height,
+            $crop,
+        );
+    }
+
+    public function thumb(
+        string $dest,
+        int $width = 0,
+        int $height = 0,
+        bool $crop = false,
+    ): bool {
+        return self::writeImageToPath($this->resize($width, $height, $crop), $dest);
     }
 
     public function centerSquare(string $path, string $dest, int $size): bool
     {
-        $image = self::getImage($path);
+        $image = self::getImageFromPath($path);
 
         if (!$image) {
             return false;
@@ -221,6 +246,6 @@ class Image
             return false;
         }
 
-        return self::writeImage($thumb, $dest);
+        return self::writeImageToPath($thumb, $dest);
     }
 }

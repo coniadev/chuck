@@ -6,12 +6,15 @@ return [
     // 'path.root' => null,                  // The root folder of the application, defaults to where composer.json is located
     // 'path.public' => null,                // Path to the public directory, defaults to <path.root>/public
     // 'path.logfile' => null,               // Directory inside root. If not set the logger logs to php's error_log settings
+    // 'path.assets.files' => null,          // Path to asset files used by Chuck\Image. Must be inside root.
+    // 'path.assets.cache' => null,          // Path to asset cache filled by Chuck\Image. Must be inside root.
 
     'appname' => 'chuckapp',                 // Internal identifier, will be used in `php run` scripts for example
     'env' => null,                           // the current environment, e. g. 'development', 'production'
     'debug' => false,                        // Whether it should show Whoops messages
     'port' => 1983,                          // The develompent server port
     'loglevel' => Logger::DEBUG,             // Sets which the lowest message type to be logged (DEBUG, INFO, WARNING, ERROR, ALERT)
+    'secret' => null                         // Used for password hashing or creating unique keys. Must be retained if you migrate your site.
 
     // 'host' => null,                       // www.example.com
     //                                       // Can be used in scripts or your app
