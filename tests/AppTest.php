@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\TestCase;
+use Chuck\Tests\Setup\{TestCase, C};
 use Chuck\Tests\Fixtures\{TestClass, TestInterface, TestRenderer};
 use Chuck\Routing\Route;
 use Chuck\{App, Request, Response};
@@ -36,9 +36,8 @@ test('Middleware helper', function () {
 
 
 test('Static route helper', function () {
-    $ds = DIRECTORY_SEPARATOR;
     $app = App::create($this->options());
-    $app->static('static', '/static', __DIR__ . $ds . 'Fixtures' . $ds . 'static');
+    $app->static('static', '/static', C::root() . C::DS . 'public' . C::DS . 'static');
 
     expect($app->router()->staticUrl('static', 'test.json'))->toBe('/static/test.json');
 });

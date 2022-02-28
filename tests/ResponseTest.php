@@ -34,7 +34,7 @@ test('Request::response', function () {
 
 test('File body', function () {
     $response = $this->request()->getResponse();
-    $file = C::root() . C::DS . 'static' . C::DS . 'cover.gif';
+    $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.gif';
     $response->file($file);
 
     expect($response->getBody())->toBeInstanceOf(File::class);
@@ -46,21 +46,21 @@ test('File body', function () {
     expect($response->getHeaderList())->toContain('Content-Type: image/gif');
     expect($response->getHeaderList())->toContain('Content-Length: 43');
     expect($response->getHeaderList())->not->toContain(
-        'Content-Disposition: attachment; filename="cover.gif"'
+        'Content-Disposition: attachment; filename="pixel.gif"'
     );
 });
 
 
 test('File body as download', function () {
     $response = $this->request()->getResponse();
-    $file = C::root() . C::DS . 'static' . C::DS . 'cover.gif';
+    $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.gif';
     $response->file($file, asDownload: true);
 
     ob_start();
     $response->emit();
     ob_end_clean();
     expect($response->getHeaderList())->toContain(
-        'Content-Disposition: attachment; filename="cover.gif"'
+        'Content-Disposition: attachment; filename="pixel.gif"'
     );
 });
 
@@ -68,7 +68,7 @@ test('File body as download', function () {
 test('File body with sendfile', function () {
     $_SERVER['SERVER_SOFTWARE'] = 'nginx';
     $response = $this->request()->getResponse();
-    $file = C::root() . C::DS . 'static' . C::DS . 'cover.gif';
+    $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.gif';
     $response->file($file, sendFile: true, asDownload: true);
 
     ob_start();
@@ -79,7 +79,7 @@ test('File body with sendfile', function () {
 
     $_SERVER['SERVER_SOFTWARE'] = 'apache';
     $response = $this->request()->getResponse();
-    $file = C::root() . C::DS . 'static' . C::DS . 'cover.gif';
+    $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.gif';
     $response->file($file, sendFile: true, asDownload: true);
 
     ob_start();
@@ -93,13 +93,13 @@ test('File body with sendfile', function () {
 
 test('File body nonexistent file', function () {
     $response = $this->request()->getResponse();
-    $file = C::root() . C::DS . 'static' . C::DS . 'cover.jpg';
+    $file = C::root() . C::DS . 'static' . C::DS . 'pixel.jpg';
     $response->file($file);
 })->throws(HttpNotFound::class);
 
 
 test('File body nonexistent file with runtime error', function () {
     $response = $this->request()->getResponse();
-    $file = C::root() . C::DS . 'static' . C::DS . 'cover.jpg';
+    $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.jpg';
     $response->file($file, throwNotFound: false);
 })->throws(\RuntimeException::class, 'does not exist');

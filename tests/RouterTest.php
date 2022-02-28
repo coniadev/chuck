@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\TestCase;
+use Chuck\Tests\Setup\{TestCase, C};
 use Chuck\Tests\Fixtures\TestMiddleware1;
 use Chuck\Tests\Fixtures\TestController;
 use Chuck\Tests\Fixtures\TestControllerWithRequest;
@@ -54,9 +54,8 @@ test('Get routes list', function () {
 
 
 test('Static routes', function () {
-    $ds = DIRECTORY_SEPARATOR;
     $router = new Router();
-    $router->addStatic('static', '/static', __DIR__ . $ds . 'Fixtures' . $ds . 'static');
+    $router->addStatic('static', '/static', C::root() . C::DS . 'public' . C::DS . 'static');
 
     expect($router->staticUrl('static', 'test.json'))->toBe('/static/test.json');
     expect($router->staticUrl('static', 'test.json', true))->toMatch('/\?v=[a-f0-9]{6}$/');
@@ -78,8 +77,7 @@ test('Static routes', function () {
 
 
 test('Static routes to nonexistent directory', function () {
-    $ds = DIRECTORY_SEPARATOR;
-    (new Router())->addStatic('static', '/static', __DIR__ . $ds . 'fantasy' . $ds . 'dir');
+    (new Router())->addStatic('static', '/static', C::root() . C::DS . 'fantasy' . C::DS . 'dir');
 })->throws(\InvalidArgumentException::class, 'does not exist');
 
 

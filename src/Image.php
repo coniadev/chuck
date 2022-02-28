@@ -5,11 +5,64 @@ declare(strict_types=1);
 namespace Chuck;
 
 use \GdImage;
+use \InvalidArgumentException;
+use \RuntimeException;
+use Chuck\Util\Path;
 
 
 class Image
 {
-    protected static function getImage(string $path): GdImage|false
+    protected string $path;
+    protected string $assetsPath;
+    protected string $cachePath;
+
+    public function __construct(
+        string $path,
+        string $assetsPath,
+        string $cachePath
+    ) {
+        $realAssetsPath = realpath($assetsPath);
+        $realCachePath = realpath($cachePath);
+
+        if ($realAssetsPath === false || !is_dir($realAssetsPath)) {
+            throw new RuntimeException('Assets directory does not exist: ' . $assetsPath);
+        }
+
+        if ($realCachePath === false || !is_dir($realCachePath)) {
+            throw new RuntimeException('Assets cache directory does not exist: ' . $cachePath);
+        }
+
+        if (Path::isAbsolute($path)) {
+            $realPath = realpath($path);
+        } else {
+            $realPath = realpath($realAssetsPath . DIRECTORY_SEPARATOR . $path);
+        }
+
+        if ($realPath === false) {
+            throw new RuntimeException('Image does not exist: ' . $path);
+        }
+
+        if (!Path::inside($realAssetsPath, $realPath)) {
+            throw new RuntimeException('Image is not inside the assets directory: ' . $path);
+        }
+
+        $this->path = $realPath;
+        $this->assetsPath = $realAssetsPath;
+        $this->cachePath = $realCachePath;
+    }
+
+    public static function fromConfig(string $path, ConfigInterface $config): self
+    {
+        $image = new  self(
+            $path,
+            $config->path('assets.files'),
+            $config->path('assets.cache')
+        );
+
+        return $image;
+    }
+
+    public static function getImage(string $path): GdImage|false
     {
         if (!file_exists($path)) {
             throw new \InvalidArgumentException('File "' . $path . '" not found.');
@@ -38,6 +91,17 @@ class Image
         }
     }
 
+    public function get(): GdImage
+    {
+        $image = self::getImage($this->path);
+
+        if ($image === false) {
+            throw new InvalidArgumentException('Could not read image file');
+        }
+
+        return $image;
+    }
+
     protected static function writeImage(GdImage $image, string $path): bool
     {
         switch (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
@@ -60,15 +124,11 @@ class Image
         }
     }
 
-    public static function thumb(string $path, string $dest, int $newWidth): bool
-
-    {
-        $image = self::getImage($path);
-
-        if (!$image) {
-            return false;
-        }
-
+    protected static function createThumbnailFromImage(
+        GdImage $image,
+        string $dest,
+        int $newWidth
+    ): bool {
         $origWidth = imagesx($image);
         $origHeight = imagesy($image);
 
@@ -98,7 +158,24 @@ class Image
         return self::writeImage($thumb, $dest);
     }
 
-    public static function centerSquare(string $path, string $dest, int $size): bool
+    public static function createThumbnail(string $path, string $dest, int $newWidth): bool
+
+    {
+        $image = self::getImage($path);
+
+        if (!$image) {
+            return false;
+        }
+
+        return self::createThumbnailFromImage($image, $dest, $newWidth);
+    }
+
+    public function thumb(string $dest, int $newWidth): bool
+    {
+        return $this->createThumbnailFromImage($this->get(), $dest, $newWidth);
+    }
+
+    public function centerSquare(string $path, string $dest, int $size): bool
     {
         $image = self::getImage($path);
 
