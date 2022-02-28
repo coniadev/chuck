@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\TestCase;
+use Chuck\Tests\Setup\{TestCase, C};
 use Chuck\Util\{Arrays, Crypt, Http, I18n, Path, Strings, Time};
 
 uses(TestCase::class);
@@ -154,10 +154,10 @@ test('Path is inside root dir', function () {
     $config = $this->config();
     $pathUtil = new Path($config);
 
-    expect($pathUtil->insideRoot("$this->root/../leprosy"))->toBe(false);
-    expect($pathUtil->insideRoot("$this->root/symbolic"))->toBe(true);
-    expect($pathUtil->insideRoot("$this->root/././/./symbolic"))->toBe(true);
-    expect($pathUtil->insideRoot("$this->root/./..//./symbolic"))->toBe(false);
+    expect($pathUtil->insideRoot(C::root() . "/../leprosy"))->toBe(false);
+    expect($pathUtil->insideRoot(C::root() . "/symbolic"))->toBe(true);
+    expect($pathUtil->insideRoot(C::root() . "/././/./symbolic"))->toBe(true);
+    expect($pathUtil->insideRoot(C::root() . "/./..//./symbolic"))->toBe(false);
     expect($pathUtil->insideRoot("/etc/apache"))->toBe(false);
 });
 

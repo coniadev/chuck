@@ -15,17 +15,12 @@ use Chuck\Request;
 use Chuck\Routing\Router;
 use Chuck\Routing\RouterInterface;
 
+
 class TestCase extends BaseTestCase
 {
-    public readonly string $root;
-
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
-
-        $this->root = realpath(
-            __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'Fixtures'
-        );
     }
 
     protected function setUp(): void
@@ -110,7 +105,7 @@ class TestCase extends BaseTestCase
     public function minimalOptions(): array
     {
         return [
-            'path.root' => $this->root,
+            'path.root' => C::root(),
         ];
     }
 
@@ -120,7 +115,7 @@ class TestCase extends BaseTestCase
             $this->minimalOptions(),
             [
                 'appname' => 'chuck',
-                'templates.default' => __DIR__ . '/../Fixtures/templates/default',
+                'templates.default' => C::root() . C::DS . 'templates' . C::DS . 'default',
             ],
             $options
         );

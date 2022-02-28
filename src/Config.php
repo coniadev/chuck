@@ -73,7 +73,7 @@ class Config implements ConfigInterface
                 );
             }
         } else {
-            $public = $pristine['path.public'];
+            $public = $this->preparePath($root, $pristine['path.public']);
             unset($pristine['path.public']);
         }
 
@@ -91,6 +91,7 @@ class Config implements ConfigInterface
         $logfile = $pristine['path.logfile'] ?? null;
 
         if ($logfile) {
+            print("$logfile\n");
             if (!file_exists($logfile)) {
                 touch($logfile);
             }
@@ -142,7 +143,16 @@ class Config implements ConfigInterface
 
             switch ($mainKey) {
                 case 'path':
-                    $pathMap[$subKey] = $this->preparePath($root, $value);
+                    if (is_array($value)) {
+                        $pathMap[$subKey] = array_map(
+                            function ($p) use ($root) {
+                                return $this->preparePath($root, $p);
+                            },
+                            $value,
+                        );
+                    } else {
+                        $pathMap[$subKey] = $this->preparePath($root, $value);
+                    }
                     break;
                 case 'templates':
                     $pathMap['templates'][$subKey] = $this->preparePath($root, $value);
@@ -196,7 +206,9 @@ class Config implements ConfigInterface
                 return $default;
             }
 
-            throw new InvalidArgumentException("Chuck Error: The configuration key '$key' does not exist");
+            throw new InvalidArgumentException(
+                "Chuck Error: The configuration key '$key' does not exist"
+            );
         }
     }
 
@@ -214,30 +226,56 @@ class Config implements ConfigInterface
     {
         $value = $this->pathMap[$key] ?? false;
 
-        if (is_string($value)) return $value;
+        if ($value && is_string($value)) {
+            return $value;
+        }
 
-        throw new InvalidArgumentException('Requested path is not of type string');
+        if ($value && is_array($value)) {
+            throw new InvalidArgumentException(
+                "Path id '$key' contains a list of paths. Use Config::paths(\$key)"
+            );
+        }
+
+        throw new InvalidArgumentException(
+            "Path id '$key' is not present in configuration"
+        );
     }
 
     public function pathOrNull(string $key): ?string
     {
-        $value = $this->pathMap[$key] ?? false;
+        try {
+            return $this->path($key);
+        } catch (\Exception) {
+            return null;
+        }
+    }
 
-        if (!$value) return null;
-        if (is_string($value)) return $value;
-
-        throw new InvalidArgumentException('Requested path is not of type string');
+    public function pathsOrEmpty(string $key): array
+    {
+        try {
+            return $this->paths($key);
+        } catch (\Exception) {
+            return [];
+        }
     }
 
     public function paths(string $key): array
     {
-        $value = $this->pathMap[$key];
+        $value = $this->pathMap[$key] ?? false;
 
-        if (is_array($value)) {
+        if ($value && is_array($value)) {
             return $value;
         }
 
-        throw new InvalidArgumentException('Requested paths are not of type array');
+        if ($value && is_string($value)) {
+            throw new InvalidArgumentException(
+                "Paths id '$key' contains a single path. Use Config::path(\$key)"
+            );
+        }
+
+        throw new InvalidArgumentException(
+            "Paths id '$key' is not present in configuration"
+        );
     }
 
     public function templates(): array
@@ -258,10 +296,5 @@ class Config implements ConfigInterface
     public function scripts(): array
     {
         return  $this->pathMap['scripts'];
-    }
-
-    public function __toString(): string
-    {
-        return print_r($this->config, return: true);
     }
 }

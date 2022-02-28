@@ -2,14 +2,13 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\DatabaseCase;
+use Chuck\Tests\Setup\{DatabaseCase, C};
 use Chuck\Tests\Setup\Helper;
 use Chuck\Database\Database;
 
 uses(DatabaseCase::class);
 
-const ds = DIRECTORY_SEPARATOR;
-const ADDITIONAL_SCRIPTS = __DIR__ . ds . 'Fixtures' . ds . 'sql' . ds . 'expand';
+const ADDITIONAL_SCRIPTS = __DIR__ . C::DS . 'Fixtures' . C::DS . 'sql' . C::DS . 'additional';
 const NUMBER_OF_ALBUMS = 7;
 const NUMBER_OF_MEMBERS = 17;
 
