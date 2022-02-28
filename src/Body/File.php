@@ -16,9 +16,14 @@ class File implements Body
         protected ResponseInterface $response,
         protected string $file,
         protected int $chunkSize,
+        protected bool $throwNotFound = true,
     ) {
         if (!is_file($file)) {
-            throw new HttpNotFound();
+            if ($throwNotFound) {
+                throw new HttpNotFound();
+            }
+
+            throw new \RuntimeException('File for response body does not exist');
         }
 
         $contentType = mime_content_type($this->file) ?: null;
@@ -36,7 +41,7 @@ class File implements Body
         $response->header('Content-Type', $contentType);
         $finfo = new \finfo(FILEINFO_MIME_ENCODING);
         $response->header('Content-Transfer-Encoding', finfo_file($finfo, $file));
-        $response->header('Content-Size', (string)filesize($this->file));
+        $response->header('Content-Length', (string)filesize($this->file));
     }
 
     public function sendfile(): self
@@ -66,8 +71,12 @@ class File implements Body
     public function emit(): void
     {
         if (!$this->sendFile) {
-            // Removes anything in the buffer, as this might corrupt the download
-            ob_end_clean();
+            // @codeCoverageIgnoreStart
+            if (!(PHP_SAPI == 'cli')) {
+                // Removes anything in the buffer, as this might corrupt the download
+                ob_end_clean();
+            }
+            // @codeCoverageIgnoreEnd
 
             $stream = fopen($this->file, 'rb');
 

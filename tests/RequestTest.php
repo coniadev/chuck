@@ -162,29 +162,6 @@ test('Request::addMethod', function () {
 });
 
 
-test('Request::response', function () {
-    $request = $this->request();
-    $response = $request->getResponse(
-        404,
-        'Pull the Plug',
-        [['name' => 'Content-Type', 'value' => 'superior', 'replace' => false]],
-        '1.2',
-        'The Plug is Pulled',
-    );
-
-
-    expect($response->getStatusCode())->toBe(404);
-    expect((string)$response->getBody())->toBe('Pull the Plug');
-    ob_start();
-    $response->emit();
-    ob_end_clean();
-    expect($response->getHeaderList())->toBe([
-        'Content-Type: superior',
-        'HTTP/1.2 404 The Plug is Pulled',
-    ]);
-});
-
-
 test('Request::json', function () {
     // Simulates the php://input stream with a temp file
     ob_start();

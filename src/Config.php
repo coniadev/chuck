@@ -91,7 +91,6 @@ class Config implements ConfigInterface
         $logfile = $pristine['path.logfile'] ?? null;
 
         if ($logfile) {
-            print("$logfile\n");
             if (!file_exists($logfile)) {
                 touch($logfile);
             }

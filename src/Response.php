@@ -132,8 +132,9 @@ class Response implements ResponseInterface
         bool $sendFile = false,
         bool $asDownload = false,
         int $chunkSize = 2 << 20, // 2 MB
+        bool $throwNotFound = true, // 2 MB
     ): void {
-        $body = new File($this, $file, $chunkSize);
+        $body = new File($this, $file, $chunkSize, $throwNotFound);
 
         if ($sendFile) $body = $body->sendfile();
         if ($asDownload) $body = $body->download();
