@@ -7,7 +7,6 @@ namespace Chuck;
 use \GdImage;
 use \InvalidArgumentException;
 use \RuntimeException;
-use Chuck\Util\Path;
 
 
 class Image
@@ -79,14 +78,9 @@ class Image
 
     protected static function resizeImageToValues(
         GdImage $image,
-        int $origWidth,
-        int $origHeight,
-        int $newWidth,
-        int $newHeight,
-        int $offsetWidth,
-        int $offsetHeight
+        ImageSize $size,
     ): GdImage {
-        $thumb = imagecreatetruecolor($newWidth, $newHeight);
+        $thumb = imagecreatetruecolor($size->newWidth, $size->newHeight);
 
         // copy source image at a resized size
         $result = imagecopyresampled(
@@ -94,12 +88,12 @@ class Image
             $image,
             0,
             0,
-            $offsetWidth,
-            $offsetHeight,
-            $newWidth,
-            $newHeight,
-            $origWidth,
-            $origHeight
+            $size->offsetWidth,
+            $size->offsetHeight,
+            $size->newWidth,
+            $size->newHeight,
+            $size->origWidth,
+            $size->origHeight
         );
 
         if (!$result) {
@@ -116,36 +110,18 @@ class Image
         int $height = 0,
         bool $crop = false,
     ): GdImage {
-        $origWidth = imagesx($image);
-        $origHeight = imagesy($image);
-        $offsetWidth = 0;
-        $offsetHeight = 0;
+        $size = new ImageSize(
+            origWidth: imagesx($image),
+            origHeight: imagesy($image),
+            newWidth: $width,
+            newHeight: $height,
+        );
 
-        if ($width > 0 && $height > 0) {
-            $calcHeight = (int)floor($origHeight * ($width / $origWidth));
-            $calcWidth = (int)floor($origWidth * ($height / $origHeight));
-
-            $newWidth = $width;
-            $newHeight = $height;
-        } elseif ($width > 0) {
-            $newWidth = $width;
-            $newHeight = (int)floor($origHeight * ($width / $origWidth));
-        } elseif ($height > 0) {
-            $newWidth = (int)floor($origWidth * ($height / $origHeight));
-            $newHeight = $height;
-        } else {
-            throw new \InvalidArgumentException('Height and/or width must be given');
+        if ($size->alreadyInBoundingBox()) {
+            return $image;
         }
 
-        return self::resizeImageToValues(
-            $image,
-            $origWidth,
-            $origHeight,
-            $newWidth,
-            $newHeight,
-            $offsetWidth,
-            $offsetHeight,
-        );
+        return self::resizeImageToValues($image, $size->newSize($crop));
     }
 
     public static function createThumbnail(
