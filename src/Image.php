@@ -15,13 +15,13 @@ class Image
 
     public function __construct(string $path)
     {
-        $path = realpath($path);
+        $realPath = realpath($path);
 
-        if ($path === false) {
+        if ($realPath === false) {
             throw new RuntimeException('Image does not exist: ' . $path);
         }
 
-        $this->path = $path;
+        $this->path = $realPath;
     }
 
     public static function getImageFromPath(string $path): GdImage|false
@@ -47,7 +47,7 @@ class Image
                 break;
             default:
                 throw new \InvalidArgumentException(
-                    'File "' . $path . '" is not valid jpg, webp, png or gif image.'
+                    'File "' . $path . '" is not a valid jpg, webp, png or gif image.'
                 );
                 break;
         }
@@ -93,11 +93,11 @@ class Image
             $size->newWidth,
             $size->newHeight,
             $size->origWidth,
-            $size->origHeight
+            $size->origHeight,
         );
 
         if (!$result) {
-            return false;
+            throw new RuntimeException('Error processing image: could not be resized');
         }
 
         return $thumb;
@@ -174,54 +174,5 @@ class Image
         bool $crop = false,
     ): bool {
         return self::writeImageToPath($this->resize($width, $height, $crop), $dest);
-    }
-
-    public function centerSquare(string $path, string $dest, int $size): bool
-    {
-        $image = self::getImageFromPath($path);
-
-        if (!$image) {
-            return false;
-        }
-
-        $x = imagesx($image);
-        $y = imagesy($image);
-
-        if ($x > $y) {
-            // horizontal rectangle
-            $square = $y;              // $square: square side length
-            $offsetX = ($x - $y) / 2;  // x offset based on the rectangle
-            $offsetY = 0;              // y offset based on the rectangle
-        } elseif ($y > $x) {
-            // vertical rectangle
-            $square = $x;
-            $offsetX = 0;
-            $offsetY = ($y - $x) / 2;
-        } else {
-            // it's already a square
-            $square = $x;
-            $offsetX = $offsetY = 0;
-        }
-
-        $thumb = imagecreatetruecolor($size, $size);
-
-        $result = imagecopyresampled(
-            $thumb,
-            $image,
-            0,
-            0,
-            (int)$offsetX,
-            (int)$offsetY,
-            $size,
-            $size,
-            (int)$square,
-            (int)$square
-        );
-
-        if (!$result) {
-            return false;
-        }
-
-        return self::writeImageToPath($thumb, $dest);
     }
 }

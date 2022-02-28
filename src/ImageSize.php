@@ -12,8 +12,8 @@ class ImageSize
         public int $origHeight,
         public int $newWidth,
         public int $newHeight,
-        public ?int $offsetWidth = 0,
-        public ?int $offsetHeight = 0,
+        public int $offsetWidth = 0,
+        public int $offsetHeight = 0,
     ) {
     }
 
@@ -25,43 +25,43 @@ class ImageSize
 
     protected function cropSize(): self
     {
-        $offsetWidth = 0;
-        $offsetHeight = 0;
+        $scaleWidth = $this->newWidth / $this->origWidth;
+        $scaleHeight = $this->newHeight / $this->origHeight;
 
-        if ($this->newWidth > 0 && $this->newHeight > 0) {
-            $scaleWidth = $this->newWidth / $this->origWidth;
-            $scaleHeight = $this->newHeight / $this->origHeight;
-
-            if ($scaleWidth < $scaleHeight) {
-                $newWidth = $this->origWidth * $scaleWidth;
-                $newHeight = $this->origHeight * $scaleWidth;
-            } else {
-                $newWidth = $this->origWidth * $scaleHeight;
-                $newHeight = $this->origHeight * $scaleHeight;
-            }
-        } elseif ($this->newWeight > 0) {
-            $newWidth = $this->newWidth;
-            $newHeight = $this->origHeight * ($this->newWidth / $this->origWidth);
-        } elseif ($this->newHeight > 0) {
-            $newWidth = $this->origWidth * ($this->newHeight / $this->origHeight);
-            $newHeight = $this->newHeight;
+        if ($scaleWidth === $scaleHeight) {
+            // Same aspect ratio as original, nothing needs to be cropped
+            $offsetWidth = $offsetHeight = 0;
+        } elseif ($scaleWidth > $scaleHeight) {
+            // Height needs to be cropped
+            $newHeight = $this->origHeight * $scaleWidth;
+            $offsetWidth = 0;
+            $offsetHeight = ($this->newHeight - $newHeight) / 2;
         } else {
-            throw new \InvalidArgumentException('Height and/or width must be given');
+            // Width needs to be cropped
+            $newWidth = $this->origWidth * $scaleHeight;
+            $offsetWidth = ($this->newWidth - $newWidth) / 2;
+            $offsetHeight = 0;
         }
 
         return new self(
             origWidth: $this->origWidth,
             origHeight: $this->origHeight,
-            newWidth: (int)floor($newWidth),
-            newHeight: (int)floor($newHeight),
-            offsetWidth: $offsetWidth,
-            offsetHeight: $offsetHeight,
+            newWidth: $this->newWidth,
+            newHeight: $this->newHeight,
+            offsetWidth: (int)floor($offsetWidth),
+            offsetHeight: (int)floor($offsetHeight),
         );
     }
 
     protected function boundingSize(): self
     {
         if ($this->newWidth > 0 && $this->newHeight > 0) {
+            // Fit complete image into bounding box without cropping
+            //
+            // Check which side needs to be scaled by
+            // a greater factor and use it to calculate
+            // the new size of both sides.
+
             $scaleWidth = $this->newWidth / $this->origWidth;
             $scaleHeight = $this->newHeight / $this->origHeight;
 
@@ -73,9 +73,11 @@ class ImageSize
                 $newHeight = $this->origHeight * $scaleHeight;
             }
         } elseif ($this->newWidth > 0) {
+            // Resize to width, keep aspect ratio
             $newWidth = $this->newWidth;
             $newHeight = (int)floor($this->origHeight * ($this->newWidth / $this->origWidth));
         } elseif ($this->newHeight > 0) {
+            // Resize to height, keep aspect ratio
             $newWidth = (int)floor($this->origWidth * ($this->newHeight / $this->origHeight));
             $newHeight = $this->newHeight;
         } else {
