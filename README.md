@@ -69,3 +69,9 @@ Routes:
         $group->add(Route::get(())
     })->middleware(new Permission('admin'))->render('json')->namespace('\Chuck\');
 ```
+
+
+Docs:
+
+- Middlewares which run code after the $next call should check if the result
+  of $next is a response and return immediately if so.

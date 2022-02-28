@@ -43,7 +43,7 @@ class Router implements RouterInterface
         $name = $route->name();
 
         if (array_key_exists($name, $this->names)) {
-            throw new \ErrorException('Duplicate route name: ' . $name);
+            throw new \RuntimeException('Duplicate route name: ' . $name);
         }
 
         $this->routes[] = $route;
@@ -85,7 +85,7 @@ class Router implements RouterInterface
             return $route->url(...$args);
         }
 
-        throw new \RuntimeException('Route not found: ' . $__routeName__);
+        throw new \InvalidArgumentException('Route not found: ' . $__routeName__);
     }
 
     protected function getCacheBuster(string $dir, string $path): string
@@ -117,7 +117,12 @@ class Router implements RouterInterface
                 $file = $path;
                 $sep = '?';
             }
-            $path .= $sep . 'v=' . $this->getCacheBuster($route['dir'], $file);
+
+            $buster =  $this->getCacheBuster($route['dir'], $file);
+
+            if (!empty($buster)) {
+                $path .= $sep . 'v=' . $buster;
+            }
         }
 
         return ($host ? trim($host, '/') : '') . $route['prefix'] . trim($path, '/');
@@ -209,23 +214,30 @@ class Router implements RouterInterface
         $rf = Reflect::getReflectionFunction($view, "View callable is not compatible.");
         $params = $rf->getParameters();
         $routeArgs = $this->route->args();
+        $errMsg = 'View parameters cannot be resolved. Details: ';
 
         foreach ($params as $param) {
             $name = $param->getName();
 
-            $args[$name] = match ((string)$param->getType()) {
-                'int' => (int)$routeArgs[$name],
-                'float' => (float)$routeArgs[$name],
-                'string' => $routeArgs[$name],
-                default => Reflect::getRequestParamOrError($request, $param, $name),
-            };
+            try {
+                $args[$name] = match ((string)$param->getType()) {
+                    'int' => is_numeric($routeArgs[$name]) ?
+                        (int)$routeArgs[$name] :
+                        throw new RuntimeException($errMsg . "Cannot cast '$name' to int"),
+                    'float' => is_numeric($routeArgs[$name]) ?
+                        (float)$routeArgs[$name] :
+                        throw new RuntimeException($errMsg . "Cannot cast '$name' to float"),
+                    'string' => $routeArgs[$name],
+                    default => Reflect::getRequestParamOrError($request, $param, $name),
+                };
+            } catch (\ErrorException $e) {
+                throw new RuntimeException($errMsg . $e->getMessage());
+            }
         }
 
-        if (count($params) === count($args)) {
-            return $args;
-        }
+        assert(count($params) === count($args));
 
-        throw new ValueError('View parameters can not be resolved');
+        return $args;
     }
 
     /**
@@ -236,12 +248,6 @@ class Router implements RouterInterface
         RequestInterface|ResponseInterface $requestResponse,
         array $handlerStack,
     ): RequestInterface|ResponseInterface {
-        // If a ResponseInterface is passed, the request is considered done.
-        // So the processing exists ahead of time.
-        if ($requestResponse instanceof ResponseInterface) {
-            return $requestResponse;
-        }
-
         if (count($handlerStack) > 1) {
             return $handlerStack[0](
                 $requestResponse,

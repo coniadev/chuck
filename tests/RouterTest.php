@@ -8,6 +8,7 @@ use Chuck\Tests\Fixtures\TestController;
 use Chuck\Tests\Fixtures\TestControllerWithRequest;
 use Chuck\{Request, Response};
 use Chuck\Routing\{Router, Route};
+use Chuck\Error\{HttpNotFound, HttpServerError};
 
 uses(TestCase::class);
 
@@ -21,6 +22,7 @@ test('Matching', function () {
 
     expect($router->match($this->request(method: 'GET', url: '')))->toBe($index);
     expect($router->match($this->request(method: 'GET', url: '/albums')))->toBe($albums);
+    expect($router->match($this->request(method: 'GET', url: '/does-not-exist')))->toBe(null);
 });
 
 
@@ -33,6 +35,21 @@ test('Generate route url', function () {
     $this->enableHttps();
     expect($router->routeUrl('albums', ['from' => 1988, 'to' => 1991]))->toBe('/albums/1988/1991');
     $this->disableHttps();
+});
+
+
+test('Fail to generate route url', function () {
+    $router = new Router();
+    $router->routeUrl('fantasy');
+})->throws(\InvalidArgumentException::class, 'Route not found');
+
+
+test('Get routes list', function () {
+    $router = new Router();
+    $router->addRoute(new Route('index', '/', fn () => null));
+    $router->addRoute(new Route('albums', 'albums', fn () => null));
+
+    expect(count($router->getRoutes()))->toBe(2);
 });
 
 
@@ -50,7 +67,20 @@ test('Static routes', function () {
         host: 'https://chuck.local/',
         bust: true,
     ))->toMatch('/https:\/\/chuck.local\/static\/test.json\?v=[a-f0-9]{6}$/');
+    // Nonexistent files should not have a cachebuster attached
+    expect($router->staticUrl(
+        'static',
+        'does-not-exist.json',
+        host: 'https://chuck.local/',
+        bust: true,
+    ))->toMatch('/https:\/\/chuck.local\/static\/does-not-exist.json$/');
 });
+
+
+test('Static routes to nonexistent directory', function () {
+    $ds = DIRECTORY_SEPARATOR;
+    (new Router())->addStatic('static', '/static', __DIR__ . $ds . 'fantasy' . $ds . 'dir');
+})->throws(\InvalidArgumentException::class, 'does not exist');
 
 
 test('Dispatch without renderer', function () {
@@ -61,15 +91,23 @@ test('Dispatch without renderer', function () {
     $response = $router->dispatch($this->request(method: 'GET', url: '/'));
     expect($response)->toBeInstanceOf(Response::class);
     expect((string)$response->getBody())->toBe('Chuck');
-});
 
-
-test('Dispatch wrong view return type', function () {
+    // Invokable class
     $router = new Router();
-    $index = new Route('index', '/', TestControllerWithRequest::class . '::wrongReturnType');
-    $router->addRoute($index);
-    $router->dispatch($this->request(method: 'GET', url: '/'));
-})->throws(\ValueError::class, 'Cannot determine a handler');
+    class ___InvocableClass
+    {
+        public function __invoke(Request $request)
+        {
+            return new Response($request, 200, 'Schuldiner');
+        }
+    };
+    $object = new Route('object', '/object', '___InvocableClass');
+    $router->addRoute($object);
+
+    $response = $router->dispatch($this->request(method: 'GET', url: '/object'));
+    expect($response)->toBeInstanceOf(Response::class);
+    expect((string)$response->getBody())->toBe('Schuldiner');
+});
 
 
 test('Dispatch controller with request constructor', function () {
@@ -82,20 +120,90 @@ test('Dispatch controller with request constructor', function () {
 });
 
 
+test('Dispatch nonexistent controller view', function () {
+    $router = new Router();
+    $index = new Route('index', '/', TestController::class . '::nonexistentView');
+    $router->addRoute($index);
+
+    $router->dispatch($this->request(method: 'GET', url: '/'));
+})->throws(HttpServerError::class);
+
+
+test('Dispatch nonexistent controller', function () {
+    $router = new Router();
+    $index = new Route('index', '/', NonexisitentTestController::class . '::view');
+    $router->addRoute($index);
+
+    $router->dispatch($this->request(method: 'GET', url: '/'));
+})->throws(HttpServerError::class);
+
+
+test('Dispatch wrong view return type', function () {
+    $router = new Router();
+    $index = new Route('index', '/', TestControllerWithRequest::class . '::wrongReturnType');
+    $router->addRoute($index);
+    $router->dispatch($this->request(method: 'GET', url: '/'));
+})->throws(\ValueError::class, 'Cannot determine a handler');
+
+
+test('Dispatch missing route', function () {
+    $router = new Router();
+    $index = new Route('index', '/', TestControllerWithRequest::class . '::wrongReturnType');
+    $router->addRoute($index);
+    $router->dispatch($this->request(method: 'GET', url: '/wrong'));
+})->throws(HttpNotFound::class);
+
+
 test('Dispatch view with route params', function () {
     $router = new Router();
-    $index = (new Route(
-        'params',
-        '/{string}/{float}-{int}',
-        TestControllerWithRequest::class . '::routeParams'
-    ))->render('json');
+    $index = (new Route('params', '/{string}/{float}-{int}', TestControllerWithRequest::class . '::routeParams'))->render('json');
     $router->addRoute($index);
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/symbolic/7.13-23'));
+    expect($router->getRoute())->toBeInstanceOf(Route::class);
     expect((string)$response->getBody())->toBe(
         '{"string":"symbolic","float":7.13,"int":23,"request":"Chuck\\\\Request"}'
     );
 });
+
+
+test('Dispatch view with wrong route params', function () {
+    $router = new Router();
+    $index = (new Route('params', '/{wrong}/{param}', TestControllerWithRequest::class . '::routeParams'))->render('json');
+    $router->addRoute($index);
+
+    $response = $router->dispatch($this->request(method: 'GET', url: '/symbolic/7.13-23'));
+})->throws(\RuntimeException::class, 'cannot be resolved');
+
+
+test('Dispatch view with wrong type for int param', function () {
+    $router = new Router();
+    $index = (new Route('params', '/{string}/{float}-{int}', TestControllerWithRequest::class . '::routeParams'))->render('json');
+    $router->addRoute($index);
+
+    $response = $router->dispatch($this->request(method: 'GET', url: '/symbolic/7.13-wrong'));
+})->throws(\RuntimeException::class, "Cannot cast 'int' to int");
+
+
+test('Dispatch view with wrong type for float param', function () {
+    $router = new Router();
+    $index = (new Route('params', '/{string}/{float}-{int}', TestControllerWithRequest::class . '::routeParams'))->render('json');
+    $router->addRoute($index);
+
+    $response = $router->dispatch($this->request(method: 'GET', url: '/symbolic/wrong-13'));
+})->throws(\RuntimeException::class, "Cannot cast 'float' to float");
+
+
+test('Access uninitialized route', function () {
+    (new Router())->getRoute();
+})->throws(\RuntimeException::class, 'Route is not initialized');
+
+
+test('Duplicate route name', function () {
+    $router = new Router();
+    $router->addRoute(new Route('index', '/', fn () => null));
+    $router->addRoute(new Route('index', 'albums', fn () => null));
+})->throws(\RuntimeException::class, 'Duplicate route name');
 
 
 test('Dispatch view with route params including request', function () {
