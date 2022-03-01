@@ -192,6 +192,15 @@ test('Dispatch view with wrong type for float param', function () {
 })->throws(\RuntimeException::class, "Cannot cast 'float' to float");
 
 
+test('Dispatch view with unsupported param', function () {
+    $router = new Router();
+    $index = (new Route('params', '/{name}', fn (GdImage $name) => $name))->render('json');
+    $router->addRoute($index);
+
+    $response = $router->dispatch($this->request(method: 'GET', url: '/symbolic'));
+})->throws(\ValueError::class, 'is not supported');
+
+
 test('Access uninitialized route', function () {
     (new Router())->getRoute();
 })->throws(\RuntimeException::class, 'Route is not initialized');

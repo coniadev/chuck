@@ -27,13 +27,11 @@ class Reflect
             return new ReflectionFunction($callable);
         } elseif (is_object($callable)) {
             return (new ReflectionObject($callable))->getMethod('__invoke');
-        } elseif (is_string($callable)) {
-            return new ReflectionFunction($callable);
         } else {
-            throw new InvalidArgumentException($errorMsg);
+            /** @var non-falsy-string $callable */
+            return new ReflectionFunction($callable);
         }
     }
-
 
     public static function paramImplementsRequestInterface(ReflectionParameter $param): bool
     {
