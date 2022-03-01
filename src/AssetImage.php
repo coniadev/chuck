@@ -10,33 +10,19 @@ use Chuck\Util\Path;
 
 class AssetImage extends AbstractImage
 {
-    protected string $relativePath;
-
-    public function __construct(
-        protected string $assets,
-        protected string $cache,
-        string $path
-    ) {
-        if (Path::isAbsolute($path)) {
-            $realPath = realpath($path);
-        } else {
-            $realPath = realpath($assets . DIRECTORY_SEPARATOR . $path);
-        }
-
-        if ($realPath === false) {
-            throw new RuntimeException('Image does not exist: ' . $path);
-        }
-
-        if (!Path::inside($assets, $realPath)) {
-            throw new RuntimeException('Image is not inside the assets directory: ' . $path);
-        }
-
-        $this->path = $realPath;
-        $this->relativePath = trim(substr($realPath, strlen($assets)), DIRECTORY_SEPARATOR);
-        $this->image = new Image($realPath);
+    protected function getRelativePath(): string
+    {
+        return trim(substr($this->path, strlen($this->assets)), DIRECTORY_SEPARATOR);
     }
 
-    public function cacheFilePath(int $width, int $height, bool $crop): string
+    protected function validatePath(string $path): void
+    {
+        if (!Path::inside($this->assets, $path)) {
+            throw new RuntimeException('Image is not inside the assets directory: ' . $path);
+        }
+    }
+
+    protected function cacheFilePath(int $width, int $height, bool $crop): string
     {
         $info = pathinfo($this->relativePath);
         $relativeDir = trim($info['dirname'], '.');
@@ -90,6 +76,6 @@ class AssetImage extends AbstractImage
             $this->createCacheFile($cacheFile, $width, $height, $crop);
         }
 
-        return new CachedImage($cacheFile);
+        return new CachedImage($this->assets, $this->cache, $cacheFile);
     }
 }

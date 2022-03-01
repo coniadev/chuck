@@ -4,12 +4,21 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use \RuntimeException;
+use Chuck\Util\Path;
 
 
 class CachedImage extends AbstractImage
 {
-    public function __construct(protected string $path)
+    protected function validatePath(string $path): void
     {
-        $this->image = new Image($path);
+        if (!Path::inside($this->cache, $path)) {
+            throw new RuntimeException('Image is not inside the assets directory: ' . $path);
+        }
+    }
+
+    protected function getRelativePath(): string
+    {
+        return trim(substr($this->path, strlen($this->cache)), DIRECTORY_SEPARATOR);
     }
 }
