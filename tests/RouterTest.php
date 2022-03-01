@@ -58,14 +58,14 @@ test('Static routes', function () {
     $router->addStatic('static', '/static', C::root() . C::DS . 'public' . C::DS . 'static');
 
     expect($router->staticUrl('static', 'test.json'))->toBe('/static/test.json');
-    expect($router->staticUrl('static', 'test.json', true))->toMatch('/\?v=[a-f0-9]{6}$/');
-    expect($router->staticUrl('static', 'test.json?exists=true', true))->toMatch('/\?exists=true&v=[a-f0-9]{6}$/');
+    expect($router->staticUrl('static', 'test.json', true))->toMatch('/\?v=[a-f0-9]{8}$/');
+    expect($router->staticUrl('static', 'test.json?exists=true', true))->toMatch('/\?exists=true&v=[a-f0-9]{8}$/');
     expect($router->staticUrl(
         'static',
         'test.json',
         host: 'https://chuck.local/',
         bust: true,
-    ))->toMatch('/https:\/\/chuck.local\/static\/test.json\?v=[a-f0-9]{6}$/');
+    ))->toMatch('/https:\/\/chuck.local\/static\/test.json\?v=[a-f0-9]{8}$/');
     // Nonexistent files should not have a cachebuster attached
     expect($router->staticUrl(
         'static',

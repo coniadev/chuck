@@ -76,7 +76,7 @@ class Image
     }
 
 
-    protected static function resizeImageToValues(
+    protected static function resizeImageToBox(
         GdImage $image,
         ImageSize $size,
     ): GdImage {
@@ -121,7 +121,7 @@ class Image
             return $image;
         }
 
-        return self::resizeImageToValues($image, $size->newSize($crop));
+        return self::resizeImageToBox($image, $size->newSize($crop));
     }
 
     public static function createThumbnail(

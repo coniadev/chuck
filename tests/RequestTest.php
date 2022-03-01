@@ -102,10 +102,10 @@ test('Static routes', function () {
 
     expect($request->staticUrl('static', 'test.json'))->toBe('http://www.example.com/static/test.json');
     expect($request->staticUrl('static', 'test.json', true))->toMatch(
-        '/http:\/\/www.example.com\/static\/test\.json\?v=[a-f0-9]{6}$/'
+        '/http:\/\/www.example.com\/static\/test\.json\?v=[a-f0-9]{8}$/'
     );
     expect($request->staticUrl('static', 'test.json?exists=true', true))->toMatch(
-        '/http:\/\/www.example.com\/static\/test\.json\?exists=true&v=[a-f0-9]{6}$/'
+        '/http:\/\/www.example.com\/static\/test\.json\?exists=true&v=[a-f0-9]{8}$/'
     );
 });
 

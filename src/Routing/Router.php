@@ -93,11 +93,11 @@ class Router implements RouterInterface
         $ds = DIRECTORY_SEPARATOR;
         $file = $dir . $ds . ltrim(str_replace('/', $ds, $path), $ds);
 
-        if (file_exists($file)) {
-            return substr(md5((string)filemtime($file)), 0, 6);
+        try {
+            return hash('xxh32', (string)filemtime($file));
+        } catch (\ErrorException) {
+            return '';
         }
-
-        return '';
     }
 
     public function staticUrl(
