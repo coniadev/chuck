@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Chuck;
+namespace Chuck\Assets;
 
 use \RuntimeException;
+use Chuck\ConfigInterface;
 
 
 class Asset
@@ -42,8 +43,8 @@ class Asset
         return $asset;
     }
 
-    public function image(string $path): AssetImage
+    public function image(string $path): Image
     {
-        return new AssetImage($this->assets, $this->cache, $path);
+        return new Image($this->assets, $this->cache, $path);
     }
 }

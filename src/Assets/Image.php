@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Chuck;
+namespace Chuck\Assets;
 
 use \RuntimeException;
 use Chuck\Util\Path;
 
 
-class AssetImage extends AbstractImage
+class Image extends AbstractImage
 {
     protected function getRelativePath(): string
     {

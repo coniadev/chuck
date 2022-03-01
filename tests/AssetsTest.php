@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Chuck\Tests\Setup\{TestCase, C};
-use Chuck\{Asset, AssetImage};
+use Chuck\Assets\{Asset, Image};
 
 
 uses(TestCase::class);
@@ -35,7 +35,7 @@ test('Resize to width', function () {
     $path = $cacheImage->path();
     $image = $cacheImage->get();
 
-    expect($assetImage)->toBeInstanceOf(AssetImage::class);
+    expect($assetImage)->toBeInstanceOf(Image::class);
     expect(str_ends_with(
         $path,
         'assets' . C::DS . 'landscape-w200b.png'

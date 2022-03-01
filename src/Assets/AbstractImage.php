@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Chuck;
+namespace Chuck\Assets;
 
 use \RuntimeException;
+use Chuck\Image;
 use Chuck\Util\Path;
 
 
