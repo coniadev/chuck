@@ -24,33 +24,40 @@ class Image
         $this->path = $realPath;
     }
 
-    public static function getImageFromPath(string $path): GdImage|false
+    public static function getImageFromPath(string $path): GdImage
     {
         if (!file_exists($path)) {
-            throw new \InvalidArgumentException('File "' . $path . '" not found.');
+            throw new \InvalidArgumentException('Image does not exist: ' . $path);
         }
 
-        switch (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
-            case 'jfif':
-            case 'jpeg':
-            case 'jpg':
-                return imagecreatefromjpeg($path);
-                break;
-            case 'png':
-                return imagecreatefrompng($path);
-                break;
-            case 'gif':
-                return imagecreatefromgif($path);
-                break;
-            case 'webp':
-                return imagecreatefromwebp($path);
-                break;
-            default:
-                throw new \InvalidArgumentException(
-                    'File "' . $path . '" is not a valid jpg, webp, png or gif image.'
-                );
-                break;
+        try {
+            switch (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
+                case 'jfif':
+                case 'jpeg':
+                case 'jpg':
+                    $result = imagecreatefromjpeg($path);
+                    break;
+                case 'png':
+                    $result = imagecreatefrompng($path);
+                    break;
+                case 'gif':
+                    $result = imagecreatefromgif($path);
+                    break;
+                case 'webp':
+                    $result = imagecreatefromwebp($path);
+                    break;
+                default:
+                    throw new \InvalidArgumentException(
+                        'File "' . $path . '" is not a valid jpg, webp, png or gif image.'
+                    );
+            }
+        } catch (\ErrorException) {
+            throw new \InvalidArgumentException(
+                'File "' . $path . '" is not a valid jpg, webp, png or gif image.'
+            );
         }
+
+        return $result;
     }
 
     public static function writeImageToPath(GdImage $image, string $path): bool
@@ -76,7 +83,7 @@ class Image
     }
 
 
-    protected static function resizeImageToBox(
+    public static function resizeToBox(
         GdImage $image,
         ImageSize $size,
     ): GdImage {
@@ -96,9 +103,12 @@ class Image
             $size->origHeight,
         );
 
+        // Haven't found a way to provoke this error
+        // @codeCoverageIgnoreStart
         if (!$result) {
             throw new RuntimeException('Error processing image: could not be resized');
         }
+        // @codeCoverageIgnoreEnd
 
         return $thumb;
     }
@@ -121,10 +131,10 @@ class Image
             return $image;
         }
 
-        return self::resizeImageToBox($image, $size->newSize($crop));
+        return self::resizeToBox($image, $size->newSize($crop));
     }
 
-    public static function createThumbnail(
+    public static function createResizedImage(
         string $path,
         string $dest,
         int $width = 0,
@@ -132,10 +142,6 @@ class Image
         bool $crop = false,
     ): bool {
         $image = self::getImageFromPath($path);
-
-        if (!$image) {
-            return false;
-        }
 
         return self::writeImageToPath(
             self::resizeImage($image, $width, $height, $crop),
@@ -147,11 +153,13 @@ class Image
     {
         $image = self::getImageFromPath($this->path);
 
-        if ($image === false) {
-            throw new InvalidArgumentException('Could not read image file');
-        }
-
         return $image;
+    }
+
+
+    public function write(string $path): bool
+    {
+        return self::writeImageToPath($this->get(), $path);
     }
 
     public function resize(
