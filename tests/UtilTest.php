@@ -180,6 +180,23 @@ test('Http origin', function () {
 });
 
 
+test('Http origin failing', function () {
+    $_SERVER['HTTP_HOST'] = '££££@@@@~~~';
+    $thrown = false;
+
+    try {
+        Http::origin();
+    } catch (ValueError $e) {
+        if ($e->getMessage() === 'Invalid origin') {
+            $thrown = true;
+        }
+    }
+
+    unset($_SERVER['HTTP_HOST']);
+    expect($thrown)->toBe(true);
+});
+
+
 test('Encryption and decryption', function () {
     expect(Crypt::decrypt(
         Crypt::encrypt('Symbolic', 'secret-key'),
