@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Chuck\Tests\Setup\{TestCase, C};
-use Chuck\Asset;
+use Chuck\{Asset, AssetImage};
 
 
 uses(TestCase::class);
@@ -14,6 +14,9 @@ beforeEach(function () {
         'path.assets.files' => 'public' . C::DS . 'assets',
         'path.assets.cache' => 'public' . C::DS . 'cache' . C::DS . 'assets',
     ];
+    $this->landscape = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'landscape.png';
+    $this->portrait = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'sub' . C::DS . 'portrait.png';
+    $this->square = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'square.png';
 });
 
 
@@ -22,3 +25,143 @@ test('Create instance from config', function () {
 
     expect($asset)->toBeInstanceOf(Asset::class);
 });
+
+
+test('Resize to width', function () {
+    $asset = Asset::fromConfig($this->config($this->paths));
+
+    $assetImage = $asset->image($this->landscape);
+    $cacheImage = $assetImage->resize(200, 0, false);
+    $path = $cacheImage->path();
+    $image = $cacheImage->get();
+
+    expect($assetImage)->toBeInstanceOf(AssetImage::class);
+    expect(str_ends_with(
+        $path,
+        'assets' . C::DS . 'landscape-w200b.png'
+    ))->toBe(true);
+    expect(file_exists($path))->toBe(true);
+    expect(imagesx($image->get()))->toBe(200);
+
+    $cacheImage->delete();
+
+    expect(file_exists($cacheImage->path()))->toBe(false);
+});
+
+
+test('Resize to height', function () {
+    $asset = Asset::fromConfig($this->config($this->paths));
+
+    $assetImage = $asset->image($this->landscape);
+    $cacheImage = $assetImage->resize(0, 200, false);
+    $path = $cacheImage->path();
+    $image = $cacheImage->get();
+
+    expect(str_ends_with(
+        $path,
+        'assets' . C::DS . 'landscape-h200b.png'
+    ))->toBe(true);
+    expect(file_exists($path))->toBe(true);
+    expect(imagesy($image->get()))->toBe(200);
+
+    $cacheImage->delete();
+
+    expect(file_exists($cacheImage->path()))->toBe(false);
+});
+
+
+test('Resize portrait to bounding box', function () {
+    $asset = Asset::fromConfig($this->config($this->paths));
+
+    $assetImage = $asset->image($this->portrait);
+    $cacheImage = $assetImage->resize(200, 200, false);
+    $path = $cacheImage->path();
+    $image = $cacheImage->get();
+
+    expect(str_ends_with(
+        $path,
+        'assets' . C::DS . 'sub' . C::DS . 'portrait-200x200b.png'
+    ))->toBe(true);
+    expect(file_exists($path))->toBe(true);
+    expect(imagesx($image->get()))->toBe(150);
+    expect(imagesy($image->get()))->toBe(200);
+
+    $cacheImage->delete();
+
+    expect(file_exists($cacheImage->path()))->toBe(false);
+});
+
+
+test('Resize landscape to bounding box', function () {
+    $asset = Asset::fromConfig($this->config($this->paths));
+
+    $assetImage = $asset->image($this->landscape);
+    $cacheImage = $assetImage->resize(200, 200, false);
+    $path = $cacheImage->path();
+    $image = $cacheImage->get();
+
+    expect(str_ends_with(
+        $path,
+        'assets' . C::DS . 'landscape-200x200b.png'
+    ))->toBe(true);
+    expect(file_exists($path))->toBe(true);
+    expect(imagesx($image->get()))->toBe(200);
+    expect(imagesy($image->get()))->toBe(150);
+
+    $cacheImage->delete();
+
+    expect(file_exists($cacheImage->path()))->toBe(false);
+});
+
+
+test('Crop landscape into bounding box', function () {
+    $asset = Asset::fromConfig($this->config($this->paths));
+
+    $assetImage = $asset->image($this->landscape);
+    $cacheImage = $assetImage->resize(200, 200, true);
+    $path = $cacheImage->path();
+    $image = $cacheImage->get();
+
+    expect(str_ends_with(
+        $path,
+        'assets' . C::DS . 'landscape-200x200c.png'
+    ))->toBe(true);
+    expect(file_exists($path))->toBe(true);
+    expect(imagesx($image->get()))->toBe(200);
+    expect(imagesy($image->get()))->toBe(200);
+
+    $cacheImage->delete();
+
+    expect(file_exists($cacheImage->path()))->toBe(false);
+});
+
+
+test('Crop portrait into bounding box', function () {
+    $asset = Asset::fromConfig($this->config($this->paths));
+
+    $assetImage = $asset->image($this->portrait);
+    $cacheImage = $assetImage->resize(200, 200, true);
+    $path = $cacheImage->path();
+    $image = $cacheImage->get();
+    echo $path;
+
+    expect(str_ends_with(
+        $path,
+        'assets' . C::DS . 'sub' . C::DS . 'portrait-200x200c.png'
+    ))->toBe(true);
+    expect(file_exists($path))->toBe(true);
+    expect(imagesx($image->get()))->toBe(200);
+    expect(imagesy($image->get()))->toBe(200);
+
+    $cacheImage->delete();
+
+    expect(file_exists($cacheImage->path()))->toBe(false);
+});
+
+
+test('Resize one side 0', function () {
+    $asset = Asset::fromConfig($this->config($this->paths));
+
+    $assetImage = $asset->image($this->landscape);
+    $assetImage->resize(200, 0, true);
+})->throws(InvalidArgumentException::class);

@@ -10,7 +10,7 @@ uses(TestCase::class);
 
 beforeEach(function () {
     $this->landscape = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'landscape.png';
-    $this->portrait = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'portrait.png';
+    $this->portrait = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'sub' . C::DS . 'portrait.png';
     $this->square = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'square.png';
 });
 

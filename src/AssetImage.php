@@ -1,0 +1,95 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Chuck;
+
+use \RuntimeException;
+use Chuck\Util\Path;
+
+
+class AssetImage extends AbstractImage
+{
+    protected string $relativePath;
+
+    public function __construct(
+        protected string $assets,
+        protected string $cache,
+        string $path
+    ) {
+        if (Path::isAbsolute($path)) {
+            $realPath = realpath($path);
+        } else {
+            $realPath = realpath($assets . DIRECTORY_SEPARATOR . $path);
+        }
+
+        if ($realPath === false) {
+            throw new RuntimeException('Image does not exist: ' . $path);
+        }
+
+        if (!Path::inside($assets, $realPath)) {
+            throw new RuntimeException('Image is not inside the assets directory: ' . $path);
+        }
+
+        $this->path = $realPath;
+        $this->relativePath = trim(substr($realPath, strlen($assets)), DIRECTORY_SEPARATOR);
+        $this->image = new Image($realPath);
+    }
+
+    public function cacheFilePath(int $width, int $height, bool $crop): string
+    {
+        $info = pathinfo($this->relativePath);
+        $relativeDir = trim($info['dirname'], '.');
+        $seg = explode('.', $info['basename']);
+        $cacheDir = $this->cache;
+
+        if (!empty($relativeDir)) {
+            $cacheDir .= DIRECTORY_SEPARATOR . $relativeDir;
+
+            // create cache sub directory if it does not exist
+            if (!is_dir($cacheDir)) {
+                mkdir($cacheDir, 0755, true);
+            }
+        }
+
+        $cacheFile = $cacheDir . DIRECTORY_SEPARATOR . $seg[0] . '-';
+
+        if ($width > 0) {
+            $cacheFile .= ($height === 0) ?
+                'w' . (string)$width :
+                (string)$width . 'x' . (string)$height;
+        } else {
+            $cacheFile .= 'h' . (string)$height;
+        }
+
+        $ext = implode('.', array_slice($seg, 1));
+        $cacheFile .= ($crop ? 'c' : 'b') . (empty($ext) ? '' : '.' . $ext);
+
+        return $cacheFile;
+    }
+
+    protected function createCacheFile(string $cacheFile, int $width, int $height, bool $crop): void
+    {
+        if (!$this->image->thumb($cacheFile, $width, $height, $crop)) {
+            throw new RuntimeException('Could not resize file: ' . $this->path);
+        }
+    }
+
+    public function resize(int $width = 0, int $height = 0, bool $crop = false): CachedImage
+    {
+        $cacheFile = $this->cacheFilePath($width, $height, $crop);
+
+        if (file_exists($cacheFile)) {
+            $fileMtime = filemtime($this->path);
+            $cacheMtime = filemtime($cacheFile);
+
+            if ($fileMtime > $cacheMtime) {
+                $this->createCacheFile($cacheFile, $width, $height, $crop);
+            }
+        } else {
+            $this->createCacheFile($cacheFile, $width, $height, $crop);
+        }
+
+        return new CachedImage($cacheFile);
+    }
+}

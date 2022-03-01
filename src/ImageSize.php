@@ -15,6 +15,20 @@ class ImageSize
         public int $offsetWidth = 0,
         public int $offsetHeight = 0,
     ) {
+        if ($newWidth < 0 || $newHeight < 0) {
+            throw new \InvalidArgumentException(
+                'Image error: width or height must not be smaller than 0 ' .
+                    ' (width = ' . (string)$newWidth . ', height = ' . (string)$newHeight . ').'
+            );
+        }
+
+        // TODO: Arbitrary values. What are sensible values?
+        if ($newWidth > 8192 || $newHeight > 8192) {
+            throw new \InvalidArgumentException(
+                'Image error: width or height must not be larger than 8192px ' .
+                    ' (width = ' . (string)$newWidth . ', height = ' . (string)$newHeight . ').'
+            );
+        }
     }
 
     public function alreadyInBoundingBox(): bool
@@ -27,6 +41,14 @@ class ImageSize
     {
         $scaleWidth = $this->newWidth / $this->origWidth;
         $scaleHeight = $this->newHeight / $this->origHeight;
+
+        if ($this->newWidth === 0 || $this->newHeight === 0) {
+            throw new \InvalidArgumentException(
+                'Image cropping error: width and height must be larger than 0 ' .
+                    ' (width = ' . (string)$this->newWidth . ', height = ' .
+                    (string)$this->newHeight . ').'
+            );
+        }
 
         if ($scaleWidth === $scaleHeight) {
             // Same aspect ratio as original, nothing needs to be cropped
