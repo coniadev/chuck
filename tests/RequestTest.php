@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Chuck\Assets\Assets;
 use Chuck\ConfigInterface;
 use Chuck\Request;
 use Chuck\Response;
@@ -17,11 +18,15 @@ uses(TestCase::class);
 
 
 test('Helper methods', function () {
-    $request = $this->request();
+    $request = $this->request(options: [
+        'path.assets.files' => 'public' . C::DS . 'assets',
+        'path.assets.cache' => 'public' . C::DS . 'cache' . C::DS . 'assets',
+    ]);
 
     expect($request->getConfig())->toBeInstanceOf(ConfigInterface::class);
     expect($request->getRouter())->toBeInstanceOf(RouterInterface::class);
     expect($request->getResponse())->toBeInstanceOf(ResponseInterface::class);
+    expect($request->getAssets())->toBeInstanceOf(Assets::class);
     expect($request->method())->toBe('GET');
     expect($request->methodIs('GET'))->toBe(true);
     expect($request->methodIs('POST'))->toBe(false);
@@ -29,11 +34,17 @@ test('Helper methods', function () {
 
 
 test('Helper properties', function () {
-    $request = $this->request(options: ['env' => 'chuckenv', 'debug' => true]);
+    $request = $this->request(options: [
+        'env' => 'chuckenv',
+        'debug' => true,
+        'path.assets.files' => 'public' . C::DS . 'assets',
+        'path.assets.cache' => 'public' . C::DS . 'cache' . C::DS . 'assets',
+    ]);
 
     expect($request->config)->toBeInstanceOf(ConfigInterface::class);
     expect($request->router)->toBeInstanceOf(RouterInterface::class);
     expect($request->response)->toBeInstanceOf(ResponseInterface::class);
+    expect($request->assets)->toBeInstanceOf(Assets::class);
     expect($request->env)->toBe('chuckenv');
     expect($request->debug)->toBe(true);
 });

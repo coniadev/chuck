@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Chuck\Tests\Setup\{TestCase, C};
-use Chuck\Assets\{Asset, Image};
+use Chuck\Assets\{Assets, Image};
 
 
 uses(TestCase::class);
@@ -21,16 +21,16 @@ beforeEach(function () {
 
 
 test('Create instance from config', function () {
-    $asset = Asset::fromConfig($this->config($this->paths));
+    $assets = Assets::fromConfig($this->config($this->paths));
 
-    expect($asset)->toBeInstanceOf(Asset::class);
+    expect($assets)->toBeInstanceOf(Assets::class);
 });
 
 
 test('Resize to width', function () {
-    $asset = Asset::fromConfig($this->config($this->paths));
+    $assets = Assets::fromConfig($this->config($this->paths));
 
-    $assetImage = $asset->image($this->landscape);
+    $assetImage = $assets->image($this->landscape);
     $cacheImage = $assetImage->resize(200, 0, false);
     $path = $cacheImage->path();
     $image = $cacheImage->get();
@@ -50,9 +50,9 @@ test('Resize to width', function () {
 
 
 test('Resize to height', function () {
-    $asset = Asset::fromConfig($this->config($this->paths));
+    $assets = Assets::fromConfig($this->config($this->paths));
 
-    $assetImage = $asset->image($this->landscape);
+    $assetImage = $assets->image($this->landscape);
     $cacheImage = $assetImage->resize(0, 200, false);
     $path = $cacheImage->path();
     $image = $cacheImage->get();
@@ -71,9 +71,9 @@ test('Resize to height', function () {
 
 
 test('Resize portrait to bounding box', function () {
-    $asset = Asset::fromConfig($this->config($this->paths));
+    $assets = Assets::fromConfig($this->config($this->paths));
 
-    $assetImage = $asset->image($this->portrait);
+    $assetImage = $assets->image($this->portrait);
     $cacheImage = $assetImage->resize(200, 200, false);
     $path = $cacheImage->path();
     $image = $cacheImage->get();
@@ -93,9 +93,9 @@ test('Resize portrait to bounding box', function () {
 
 
 test('Resize landscape to bounding box', function () {
-    $asset = Asset::fromConfig($this->config($this->paths));
+    $assets = Assets::fromConfig($this->config($this->paths));
 
-    $assetImage = $asset->image($this->landscape);
+    $assetImage = $assets->image($this->landscape);
     $cacheImage = $assetImage->resize(200, 200, false);
     $path = $cacheImage->path();
     $image = $cacheImage->get();
@@ -115,9 +115,9 @@ test('Resize landscape to bounding box', function () {
 
 
 test('Crop landscape into bounding box', function () {
-    $asset = Asset::fromConfig($this->config($this->paths));
+    $assets = Assets::fromConfig($this->config($this->paths));
 
-    $assetImage = $asset->image($this->landscape);
+    $assetImage = $assets->image($this->landscape);
     $cacheImage = $assetImage->resize(200, 200, true);
     $path = $cacheImage->path();
     $image = $cacheImage->get();
@@ -137,17 +137,17 @@ test('Crop landscape into bounding box', function () {
 
 
 test('Crop portrait into bounding box', function () {
-    $asset = Asset::fromConfig($this->config($this->paths));
+    $assets = Assets::fromConfig($this->config($this->paths));
 
-    $assetImage = $asset->image($this->portrait);
+    $assetImage = $assets->image($this->portrait);
     $cacheImage = $assetImage->resize(200, 200, true);
     $path = $cacheImage->path();
     $image = $cacheImage->get();
-    echo $path;
 
     expect(str_ends_with(
         $path,
         'assets' . C::DS . 'sub' . C::DS . 'portrait-200x200c.png'
+
     ))->toBe(true);
     expect(file_exists($path))->toBe(true);
     expect(imagesx($image->get()))->toBe(200);
@@ -159,9 +159,8 @@ test('Crop portrait into bounding box', function () {
 });
 
 
-test('Resize one side 0', function () {
-    $asset = Asset::fromConfig($this->config($this->paths));
-
-    $assetImage = $asset->image($this->landscape);
+test('Resize one side 0',  function () {
+    $assets = Assets::fromConfig($this->config($this->paths));
+    $assetImage = $assets->image($this->landscape);
     $assetImage->resize(200, 0, true);
 })->throws(InvalidArgumentException::class);

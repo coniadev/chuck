@@ -8,7 +8,7 @@ use \RuntimeException;
 use Chuck\ConfigInterface;
 
 
-class Asset
+class Assets
 {
 
     protected string $assets;

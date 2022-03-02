@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use Chuck\Assets\Assets;
 use Chuck\Routing\RouteInterface;
 use Chuck\Routing\RouterInterface;
 use Chuck\Util\Http;
@@ -192,6 +193,11 @@ class Request implements RequestInterface
         return $this->response;
     }
 
+    public function getAssets(): Assets
+    {
+        return Assets::fromConfig($this->config);
+    }
+
     public function __call(string $name, array $args)
     {
         $func = $this->customMethods[$name];
@@ -202,7 +208,7 @@ class Request implements RequestInterface
     public function __get(
         string $key
     ): ResponseInterface | ConfigInterface | RouterInterface |
-    RouteInterface | RegistryInterface | bool | string {
+    RouteInterface | RegistryInterface | Assets | bool | string {
         return match ($key) {
             /** @var ResponseInterface */
             'response' => $this->getResponse(),
@@ -214,6 +220,8 @@ class Request implements RequestInterface
             'route' => $this->router->getRoute(),
             /** @var RegistryInterface */
             'registry' => $this->registry,
+            /** @var Assets */
+            'assets' => $this->getAssets(),
             /** @var string */
             'env' => $this->config->env(),
             /** @var bool */
