@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Chuck\Tests\Setup\{TestCase, C};
-use Chuck\{Image, ImageSize};
+use Chuck\Image;
 
 
 uses(TestCase::class);
@@ -84,12 +84,6 @@ test('Failing image', function () {
     $image = new Image($this->failing);
     $image->get();
 })->throws(InvalidArgumentException::class, 'is not a valid');
-
-
-test('Failing static initialization', function () {
-    $image = Image::getImageFromPath($this->nonexistent);
-    $image->get();
-})->throws(InvalidArgumentException::class, 'does not exist');
 
 
 test('Missing width/height', function () {
@@ -179,18 +173,4 @@ test('Already in bounding box', function () {
 
     expect($w)->toBe(800);
     expect($h)->toBe(600);
-});
-
-
-test('Static create resized', function () {
-    $tmpfile = $this->cache . C::DS . 'temp.png';
-
-    expect(file_exists($tmpfile))->toBe(false);
-
-    $success = Image::createResizedImage($this->landscape, $tmpfile, 200);
-
-    expect($success)->toBe(true);
-    expect(file_exists($tmpfile))->toBe(true);
-
-    unlink($tmpfile);
 });
