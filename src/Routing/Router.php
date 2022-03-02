@@ -104,7 +104,7 @@ class Router implements RouterInterface
         string $name,
         string $path,
         bool $bust = false,
-        string $host = null
+        ?string $host = null
     ): string {
         $route = $this->staticRoutes[$name];
 

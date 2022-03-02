@@ -14,15 +14,12 @@ abstract class AbstractImage
     protected Image $image;
     protected string $relativePath;
 
-    public function __construct(
-        protected string $assets,
-        protected string $cache,
-        string $path
-    ) {
+    public function __construct(protected readonly Assets $assets, string $path)
+    {
         if (Path::isAbsolute($path)) {
             $realPath = realpath($path);
         } else {
-            $realPath = realpath($assets . DIRECTORY_SEPARATOR . $path);
+            $realPath = realpath($assets->assets . DIRECTORY_SEPARATOR . $path);
         }
 
         if ($realPath === false) {
@@ -37,6 +34,7 @@ abstract class AbstractImage
 
     abstract protected function getRelativePath(): string;
     abstract protected function validatePath(string $path): void;
+    abstract public function url(bool $bust, ?string $host): string;
 
     public function path(): string
     {
@@ -56,5 +54,22 @@ abstract class AbstractImage
     public function get(): Image
     {
         return $this->image;
+    }
+
+    protected function getUrl(string $staticRouteName, bool $bust, ?string $host): string
+    {
+        if ($this->assets->request === null) {
+            throw new RuntimeException('Assets instance initialized without request');
+        }
+
+        // try {
+        $router = $this->assets->request->getRouter();
+        return $router->staticUrl(
+            $staticRouteName,
+            $this->relativePath,
+            $bust,
+            $host
+        );
+        // } catch {
     }
 }

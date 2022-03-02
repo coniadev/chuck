@@ -12,12 +12,12 @@ class Image extends AbstractImage
 {
     protected function getRelativePath(): string
     {
-        return trim(substr($this->path, strlen($this->assets)), DIRECTORY_SEPARATOR);
+        return trim(substr($this->path, strlen($this->assets->assets)), DIRECTORY_SEPARATOR);
     }
 
     protected function validatePath(string $path): void
     {
-        if (!Path::inside($this->assets, $path)) {
+        if (!Path::inside($this->assets->assets, $path)) {
             throw new RuntimeException('Image is not inside the assets directory: ' . $path);
         }
     }
@@ -27,7 +27,7 @@ class Image extends AbstractImage
         $info = pathinfo($this->relativePath);
         $relativeDir = trim($info['dirname'], '.');
         $seg = explode('.', $info['basename']);
-        $cacheDir = $this->cache;
+        $cacheDir = $this->assets->cache;
 
         if (!empty($relativeDir)) {
             $cacheDir .= DIRECTORY_SEPARATOR . $relativeDir;
@@ -76,6 +76,11 @@ class Image extends AbstractImage
             $this->createCacheFile($cacheFile, $width, $height, $crop);
         }
 
-        return new CachedImage($this->assets, $this->cache, $cacheFile);
+        return new CachedImage($this->assets, $cacheFile);
+    }
+
+    public function url(bool $bust = true, ?string $host = null): string
+    {
+        return $this->getUrl($this->assets->staticRouteAssets, $bust, $host);
     }
 }

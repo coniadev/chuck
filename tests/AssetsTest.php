@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Chuck\Routing\Router;
 use Chuck\Tests\Setup\{TestCase, C};
 use Chuck\Assets\{Assets, Image};
 
@@ -164,3 +165,44 @@ test('Resize one side 0',  function () {
     $assetImage = $assets->image($this->landscape);
     $assetImage->resize(200, 0, true);
 })->throws(InvalidArgumentException::class);
+
+
+test('Static route', function () {
+    $router = new Router();
+    $router->addStatic('assets', '/assets', C::root() . C::DS . 'public' . C::DS . 'assets');
+    $assets = Assets::fromRequest($this->request(options: $this->paths, router: $router));
+    $image = $assets->image($this->portrait);
+
+    expect(file_exists($image->path()))->toBe(true);
+    expect($image->url())->toMatch('/^\/assets\/sub\/portrait\.png\?v=[a-f0-9]{8}$/');
+    expect($image->url(bust: false))->toBe('/assets/sub/portrait.png');
+    expect($image->url(host: 'http://example.com/'))->toMatch(
+        '/^http:\/\/example\.com\/assets\/sub\/portrait\.png\?v=[a-f0-9]{8}$/'
+    );
+    expect($image->url(bust: false, host: 'http://example.com/'))->toBe(
+        'http://example.com/assets/sub/portrait.png'
+    );
+});
+
+
+test('Static cache route', function () {
+    $router = new Router();
+    $router->addStatic('cache', '/cache/assets', C::root() . C::DS .
+        'public' . C::DS . 'cache' . C::DS . 'assets');
+    $assets = Assets::fromRequest($this->request(options: $this->paths, router: $router));
+    $image = $assets->image($this->portrait)->resize(200);
+
+    expect(file_exists($image->path()))->toBe(true);
+    expect($image->url())->toMatch('/^\/cache\/assets\/sub\/portrait-w200b\.png\?v=[a-f0-9]{8}$/');
+    expect($image->url(bust: false))->toBe('/cache/assets/sub/portrait-w200b.png');
+    expect($image->url(host: 'http://example.com/'))->toMatch(
+        '/^http:\/\/example\.com\/cache\/assets\/sub\/portrait-w200b\.png\?v=[a-f0-9]{8}$/'
+    );
+    expect($image->url(bust: false, host: 'http://example.com/'))->toBe(
+        'http://example.com/cache/assets/sub/portrait-w200b.png'
+    );
+
+    $image->delete();
+
+    expect(file_exists($image->path()))->toBe(false);
+});

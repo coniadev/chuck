@@ -12,13 +12,15 @@ use Chuck\RequestInterface;
 class Assets
 {
 
-    protected string $assets;
-    protected string $cache;
+    public readonly string $assets;
+    public readonly string $cache;
 
     public function __construct(
         string $assetsPath,
         string $cachePath,
-        protected ?RequestInterface $request = null,
+        public readonly ?RequestInterface $request = null,
+        public readonly string $staticRouteAssets = 'assets',
+        public readonly string $staticRouteCache = 'cache',
     ) {
         $realAssetsPath = realpath($assetsPath);
         $realCachePath = realpath($cachePath);
@@ -35,18 +37,29 @@ class Assets
         $this->cache = $realCachePath;
     }
 
-    public static function fromConfig(ConfigInterface $config): self
-    {
-        $asset = new  self(
+    public static function fromConfig(
+        ConfigInterface $config,
+        ?RequestInterface $request = null,
+    ): self {
+        $assets = new  self(
             $config->path('assets'),
             $config->path('cache') . DIRECTORY_SEPARATOR . 'assets',
+            $request,
         );
 
-        return $asset;
+        return $assets;
+    }
+
+    public static function fromRequest(RequestInterface $request): self
+    {
+        $config = $request->getConfig();
+        $assets = self::fromConfig($config, $request);
+
+        return $assets;
     }
 
     public function image(string $path): Image
     {
-        return new Image($this->assets, $this->cache, $path);
+        return new Image($this, $path);
     }
 }
