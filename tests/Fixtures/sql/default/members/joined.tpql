@@ -15,7 +15,8 @@ Secret Face :year
 
 <?php endif ?>
     left,
-    joined
+    joined,
+    '<?= in_array($pdodriver, PDO::getAvailableDrivers()) ? $pdodriver : 'evil' ?>' AS driver
 FROM members 
 WHERE 
     joined = :year

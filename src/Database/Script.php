@@ -19,7 +19,14 @@ class Script
 
     protected function evaluateTemplate(string $path, Args $args): string
     {
-        extract($args->get());
+        extract(array_merge(
+            // Add the pdo driver to args to allow dynamic
+            // queries based on the platform.
+            ['pdodriver' => $this->db->pdodriver],
+
+            $args->get()
+        ));
+
         ob_start();
 
         /** @psalm-suppress UnresolvableInclude */
@@ -45,6 +52,8 @@ class Script
         // remove single line comments
         $script = preg_replace(Query::PATTERN_COMMENT_SINGLE, ' ', $script);
 
+        $newArgs = [];
+
         // match everything starting with : and a letter
         // exclude multiple colons, like type casts (::text)
         // (would not find a var if it is at the very beginning of script)
@@ -61,11 +70,9 @@ class Script
                 $a = substr($arg, 2);
                 $newArgs[$a] = $argsArray[$a];
             }
-
-            return $newArgs;
         }
 
-        return [];
+        return $newArgs;
     }
 
     public function invoke(mixed ...$argsArray): Query

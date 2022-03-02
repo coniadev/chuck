@@ -177,10 +177,21 @@ test('Template query', function () {
     ]);
 
     $result = $db->members->joined(['year' => 1983])->one();
-    expect(count($result))->toBe(3);
+    expect(count($result))->toBe(4);
 
     $result = $db->members->joined(['year' => 1983, 'interestedInNames' => true])->one();
-    expect(count($result))->toBe(4);
+    expect(count($result))->toBe(5);
+});
+
+
+test('PDO driver is handed to template query', function () {
+    $db = $this->getDb([
+        'db.fetchMode' => \PDO::FETCH_ASSOC,
+    ]);
+    $result = $db->members->joined(['year' => 1983])->one();
+
+    // The PDO driver is handed to the template
+    expect($result['driver'])->toBe('sqlite');
 });
 
 

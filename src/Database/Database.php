@@ -14,31 +14,46 @@ use Chuck\Util\Path;
 
 class Database implements DatabaseInterface
 {
+    public readonly string $pdodriver;
+
     /** @psalm-suppress PropertyNotSetInConstructor */
     protected PDO $conn;
     protected ?\Chuck\Memcached $memcached = null;
-    protected string $dsn;
-    protected ?string $username;
-    protected ?string $password;
-    protected string $memcachedPrefix;
+    protected readonly string $dsn;
+    protected readonly ?string $username;
+    protected readonly ?string $password;
+    protected readonly ?array $connectionOptions;
+    protected readonly string $memcachedPrefix;
     protected array $scriptPaths = [];
     protected int $fetchMode;
     protected ConfigInterface $config;
     protected bool $shouldPrint = false;
 
 
-
     public function __construct(ConfigInterface $config)
     {
         $this->config = $config;
-        $dbConf = $config->get('db', []);
-        $this->dsn = $dbConf['dsn'] ?? null;
+        $dbConf = $config->get('db');
+        $this->pdodriver = $this->getDriver($dbConf['dsn']);
+        $this->dsn = $dbConf['dsn'];
         $this->memcachedPrefix = $dbConf['memcachedPrefix'] ?? '';
         $this->username = $dbConf['username'] ?? null;
         $this->password = $dbConf['password'] ?? null;
+        $this->connectionOptions = $dbConf['options'] ?? null;
         $this->addScriptDirs($config->sql());
         $this->fetchMode = $dbConf['fetchMode'] ?? PDO::FETCH_BOTH;
         $this->shouldPrint = $dbConf['print'] ?? false;
+    }
+
+    protected function getDriver(string $dsn): string
+    {
+        $driver = explode(':', $dsn)[0];
+
+        if (in_array($driver, PDO::getAvailableDrivers())) {
+            return $driver;
+        }
+
+        throw new \RuntimeException('PDO driver not supported: ' . $driver);
     }
 
     public function defaultFetchMode(int $fetchMode): self
@@ -118,7 +133,12 @@ class Database implements DatabaseInterface
             $this->memcached = \Chuck\Memcached::fromConfig($this->config);
         }
 
-        $this->conn = new PDO($this->dsn, $this->username, $this->password);
+        $this->conn = new PDO(
+            $this->dsn,
+            $this->username,
+            $this->password,
+            $this->connectionOptions,
+        );
 
         // Always throw an exception when an error occures
         $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

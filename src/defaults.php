@@ -55,6 +55,8 @@ return [
     //                                       //     MySQL: https://www.php.net/manual/de/ref.pdo-mysql.connection.php
     //                                       //     Sqlite: https://www.php.net/manual/de/ref.pdo-sqlite.connection.php
     //                                       // and others
+    // 'db.username' => null,                // optional
+    // 'db.password' => null,                // optional
     // 'db.options' => null,                 // optional, array with PDO options passed to new \PDO(...)
     // 'db.fetchMode' => null,               // optional, Defaults to PDO::FETCH_BOTH,
     // 'db.debug' => false,                  // Print interpolated sql to stdout
