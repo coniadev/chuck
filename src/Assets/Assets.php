@@ -38,8 +38,8 @@ class Assets
     public static function fromConfig(ConfigInterface $config): self
     {
         $asset = new  self(
-            $config->path('assets.files'),
-            $config->path('assets.cache'),
+            $config->path('assets'),
+            $config->path('cache') . DIRECTORY_SEPARATOR . 'assets',
         );
 
         return $asset;

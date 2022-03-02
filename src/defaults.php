@@ -6,8 +6,8 @@ return [
     // 'path.root' => null,                  // The root folder of the application, defaults to where composer.json is located
     // 'path.public' => null,                // Path to the public directory, defaults to <path.root>/public
     // 'path.logfile' => null,               // Directory inside root. If not set the logger logs to php's error_log settings
-    // 'path.assets.files' => null,          // Path to asset files used by Chuck\Image. Must be inside root.
-    // 'path.assets.cache' => null,          // Path to asset cache filled by Chuck\Image. Must be inside root.
+    // 'path.assets' => null,                // Path to asset files used Chuck\Assets if set. Should be writable.
+    // 'path.cache' => null,                 // Path to cache files. By default used by Chuck\Assets. Must be writable.
 
     'appname' => 'chuckapp',                 // Internal identifier, will be used in `php run` scripts for example
     'env' => null,                           // the current environment, e. g. 'development', 'production'

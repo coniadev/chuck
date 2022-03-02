@@ -11,8 +11,8 @@ uses(TestCase::class);
 
 beforeEach(function () {
     $this->paths = [
-        'path.assets.files' => 'public' . C::DS . 'assets',
-        'path.assets.cache' => 'public' . C::DS . 'cache' . C::DS . 'assets',
+        'path.assets' => 'public' . C::DS . 'assets',
+        'path.cache' => 'public' . C::DS . 'cache',
     ];
     $this->landscape = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'landscape.png';
     $this->portrait = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'sub' . C::DS . 'portrait.png';

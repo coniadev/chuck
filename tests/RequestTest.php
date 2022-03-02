@@ -19,8 +19,8 @@ uses(TestCase::class);
 
 test('Helper methods', function () {
     $request = $this->request(options: [
-        'path.assets.files' => 'public' . C::DS . 'assets',
-        'path.assets.cache' => 'public' . C::DS . 'cache' . C::DS . 'assets',
+        'path.assets' => 'public' . C::DS . 'assets',
+        'path.cache' => 'public' . C::DS . 'cache',
     ]);
 
     expect($request->getConfig())->toBeInstanceOf(ConfigInterface::class);
@@ -37,8 +37,8 @@ test('Helper properties', function () {
     $request = $this->request(options: [
         'env' => 'chuckenv',
         'debug' => true,
-        'path.assets.files' => 'public' . C::DS . 'assets',
-        'path.assets.cache' => 'public' . C::DS . 'cache' . C::DS . 'assets',
+        'path.assets' => 'public' . C::DS . 'assets',
+        'path.cache' => 'public' . C::DS . 'cache',
     ]);
 
     expect($request->config)->toBeInstanceOf(ConfigInterface::class);
