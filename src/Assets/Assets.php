@@ -6,6 +6,7 @@ namespace Chuck\Assets;
 
 use \RuntimeException;
 use Chuck\ConfigInterface;
+use Chuck\RequestInterface;
 
 
 class Assets
@@ -16,7 +17,8 @@ class Assets
 
     public function __construct(
         string $assetsPath,
-        string $cachePath
+        string $cachePath,
+        protected ?RequestInterface $request = null,
     ) {
         $realAssetsPath = realpath($assetsPath);
         $realCachePath = realpath($cachePath);
@@ -37,7 +39,7 @@ class Assets
     {
         $asset = new  self(
             $config->path('assets.files'),
-            $config->path('assets.cache')
+            $config->path('assets.cache'),
         );
 
         return $asset;

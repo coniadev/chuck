@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Chuck\Assets;
 
 use \RuntimeException;
-use Chuck\Image;
-use Chuck\Util\Path;
+use Chuck\Util\{Image, Path};
 
 
 abstract class AbstractImage
