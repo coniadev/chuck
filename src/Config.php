@@ -5,26 +5,29 @@ declare(strict_types=1);
 namespace Chuck;
 
 use \InvalidArgumentException;
+use \Throwable;
 use \ValueError;
 
 use Chuck\Util\Http;
 use Chuck\Util\Path;
+use Chuck\Config\Templates;
 
 
 class Config implements ConfigInterface
 {
     public readonly bool $debug;
     public readonly string $env;
+    public readonly string $appname;
 
     protected readonly array $config;
     protected readonly array $pathMap;
+    protected readonly Templates $templates;
 
-    public function __construct(protected array $pristine)
+
+    public function __construct(protected array $settings)
     {
-        $pristineEnv = $pristine['env'] ?? null;
-        $this->env = (!empty($pristineEnv) && is_string($pristineEnv)) ? $pristineEnv : '';
-        $this->debug = is_bool($pristine['debug'] ?? null) ? $pristine['debug'] : false;
-        [$this->config, $this->pathMap] = $this->read($this->pristine);
+        $this->templates = new Templates();
+        [$this->config, $this->pathMap] = $this->read($this->settings);
     }
 
     protected function preparePath(string $root, string $path): string
@@ -42,24 +45,24 @@ class Config implements ConfigInterface
         throw new ValueError('Configuration error: paths must be inside the root directory: ' . $root);
     }
 
-    protected function prepareMainPaths(array $pristine): array
+    protected function prepareMainPaths(array $settings): array
     {
         // The root directory of the project. The setting is mandatory.
-        if (isset($pristine['path.root'])) {
-            $root = rtrim(Path::realpath($pristine['path.root']), DIRECTORY_SEPARATOR);
+        if (isset($settings['path.root'])) {
+            $root = rtrim(Path::realpath($settings['path.root']), DIRECTORY_SEPARATOR);
 
             if (!Path::isAbsolute($root)) {
                 throw new ValueError('Configuration error: root path must be an absolute path: ' . $root);
             }
 
-            unset($pristine['path.root']);
+            unset($settings['path.root']);
         } else {
             throw new ValueError('Configuration error: root path not set');
         }
 
         // Public directory containing the static assets and index.php
         // If it is not set look for a directory named 'public' in path.root
-        if (!isset($pristine['path.public'])) {
+        if (!isset($settings['path.public'])) {
             $public = $this->preparePath($root, 'public');
 
             if (!is_dir($public)) {
@@ -68,8 +71,8 @@ class Config implements ConfigInterface
                 );
             }
         } else {
-            $public = $this->preparePath($root, $pristine['path.public']);
-            unset($pristine['path.public']);
+            $public = $this->preparePath($root, $settings['path.public']);
+            unset($settings['path.public']);
         }
 
         $paths = [
@@ -83,7 +86,7 @@ class Config implements ConfigInterface
 
         // The file where the logger and the error handler write
         // their messages
-        $logfile = $pristine['path.logfile'] ?? null;
+        $logfile = $settings['path.logfile'] ?? null;
 
         if ($logfile) {
             if (!file_exists($logfile)) {
@@ -96,11 +99,11 @@ class Config implements ConfigInterface
                 );
             }
 
-            unset($pristine['path.logfile']);
+            unset($settings['path.logfile']);
             $paths['logfile'] = $logfile;
         }
 
-        return [$paths, $pristine];
+        return [$paths, $settings];
     }
 
     protected function getKeys(string $key): array
@@ -120,14 +123,14 @@ class Config implements ConfigInterface
         return [$mainKey, $subKey];
     }
 
-    protected function read(array $pristine): array
+    protected function read(array $settings): array
     {
-        [$pathMap, $pristine] = $this->prepareMainPaths($pristine);
+        [$pathMap, $settings] = $this->prepareMainPaths($settings);
         $config = [];
         $root = $pathMap['root'];
 
 
-        foreach ($pristine as $key => $value) {
+        foreach ($settings as $key => $value) {
             [$mainKey, $subKey] = $this->getKeys($key);
 
             if (!$subKey) {
@@ -206,14 +209,52 @@ class Config implements ConfigInterface
         }
     }
 
+    protected function app(): string
+    {
+        static $app;
+
+        if (!isset($app)) {
+            try {
+                if (preg_match('/^[a-z0-9]]{1,32}$/', $this->settings['app'])) {
+                    $app = $this->settings['app'];
+                } else {
+                    throw new ValueError;
+                }
+            } catch (Throwable) {
+                throw new ValueError(
+                    "The 'app' setting must exist in the config file. It must " .
+                        ' be a nonempty string which consist only of lower case letters ' .
+                        'and numbers. Its length must not be longer than 32 characters.'
+                );
+            }
+        }
+
+        return $app;
+    }
+
     public function debug(): bool
     {
-        return $this->debug;
+        static $debug;
+
+        if (!isset($debug)) {
+            // Debug defaults to false to prevent leaking of unwanted information to production
+            $debug = is_bool($this->settings['debug'] ?? null) ? $this->settings['debug'] : false;
+        }
+
+        return $debug;
     }
 
     public function env(): string
     {
-        return $this->env;
+        static $env;
+
+        if (!isset($env)) {
+            // Make shure env is a string
+            $settingsEnv = $this->settings['env'] ?? null;
+            $env = (!empty($settingsEnv) && is_string($settingsEnv)) ? $settingsEnv : '';
+        }
+
+        return $env;
     }
 
     public function path(string $key, string $default = ''): string
@@ -262,9 +303,9 @@ class Config implements ConfigInterface
         );
     }
 
-    public function templates(): array
+    public function templates(): Templates
     {
-        return  $this->pathMap['templates'];
+        return  $this->templates;
     }
 
     public function migrations(): array
