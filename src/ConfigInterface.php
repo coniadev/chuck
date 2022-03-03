@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use Chuck\Config\Templates;
+
 
 interface ConfigInterface
 {
@@ -11,7 +13,7 @@ interface ConfigInterface
     public function get(string $key, mixed $default = null): mixed;
     public function path(string $key): string;
     public function paths(string $key): array;
-    public function templates(): array;
+    public function templates(): Templates;
     public function migrations(): array;
     public function sql(): array;
     public function scripts(): array;

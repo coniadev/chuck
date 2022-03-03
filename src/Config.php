@@ -10,7 +10,7 @@ use \ValueError;
 
 use Chuck\Util\Http;
 use Chuck\Util\Path;
-use Chuck\Config\Templates;
+use Chuck\Config\{Root, Templates, Log};
 
 
 class Config implements ConfigInterface
@@ -26,7 +26,8 @@ class Config implements ConfigInterface
 
     public function __construct(protected array $settings)
     {
-        $this->templates = new Templates();
+        $root = new Root($settings);
+        $this->templates = new Templates($root);
         [$this->config, $this->pathMap] = $this->read($this->settings);
     }
 
@@ -81,7 +82,6 @@ class Config implements ConfigInterface
             'migrations' => [],
             'scripts' => [],
             'sql' => [],
-            'templates' => [],
         ];
 
         // The file where the logger and the error handler write
@@ -152,7 +152,7 @@ class Config implements ConfigInterface
                     }
                     break;
                 case 'templates':
-                    $pathMap['templates'][$subKey] = $this->preparePath($root, $value);
+                    $this->templates->add($subKey, $this->preparePath($root, $value));
                     break;
                 case 'migrations':
                     $pathMap['migrations'][] = $this->preparePath($root, $value);

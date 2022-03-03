@@ -105,10 +105,8 @@ class TestCase extends BaseTestCase
     public function minimalOptions(): array
     {
         return [
-            'appname' => 'chuckapp',
+            'app' => 'chuckapp',
             'path.root' => C::root(),
-            'log.level' => Logger::DEBUG,
-            'port' => 1983,
         ];
     }
 

@@ -89,6 +89,7 @@ return [
     'path.cache' => null,                 // Path to cache files. By default used by Chuck\Assets. Must be writable.
 
     'appname' => 'chuckapp',              // Internal identifier, will be used in `php run` scripts for example
+                                          // Also used internally for sessions/i18n/memcache prefix or other purposes
     'env' => null,                        // the current environment, e. g. 'development', 'production'
     'debug' => false,                     // Whether it should show Whoops messages
     'port' => 1983,                       // The develompent server port

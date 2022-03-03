@@ -8,20 +8,9 @@ use Chuck\ConfigInterface;
 
 class Path
 {
-    public function __construct(protected ConfigInterface $config)
-    {
-    }
-
     public static function inside(string $parent, string $path): bool
     {
         return str_starts_with(self::realpath($path), self::realpath($parent));
-    }
-
-    public function insideRoot(string $path): bool
-    {
-        $root = $this->config->path('root');
-
-        return self::inside($root, $path);
     }
 
     public static function realpath(string $path, string $separator = DIRECTORY_SEPARATOR): string
