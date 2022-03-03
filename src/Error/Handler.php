@@ -59,6 +59,7 @@ class Handler
 
             $level = match ($exception::class) {
                 HttpNotFound::class => Logger::INFO,
+                HttpMethodNotAllowed::class => Logger::INFO,
                 HttpForbidden::class => Logger::NOTICE,
                 HttpUnauthorized::class => Logger::NOTICE,
                 HttpBadRequest::class => Logger::WARNING,
