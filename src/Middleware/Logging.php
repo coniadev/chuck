@@ -15,7 +15,7 @@ class Logging
         $request->addMethod('logger', function () use ($request): Logger {
             $config = $request->getConfig();
 
-            return new Logger($config->get('loglevel'), $config->pathOrNull('logfile'));
+            return new Logger($config->get('log.level'), $config->pathOrNull('log.file'));
         });
 
         return $next($request);

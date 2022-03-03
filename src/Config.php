@@ -21,11 +21,6 @@ class Config implements ConfigInterface
 
     public function __construct(protected array $pristine)
     {
-        $this->pristine = array_merge(
-            require 'defaults.php',
-            $pristine,
-        );
-
         $pristineEnv = $pristine['env'] ?? null;
         $this->env = (!empty($pristineEnv) && is_string($pristineEnv)) ? $pristineEnv : '';
         $this->debug = is_bool($pristine['debug'] ?? null) ? $pristine['debug'] : false;

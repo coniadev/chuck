@@ -105,7 +105,12 @@ class TestCase extends BaseTestCase
     public function minimalOptions(): array
     {
         return [
+            'appname' => 'chuckapp',
             'path.root' => C::root(),
+            'log.level' => Logger::DEBUG,
+            'debug' => false,
+            'env' => 'production',
+            'port' => 1983,
         ];
     }
 
@@ -162,7 +167,10 @@ class TestCase extends BaseTestCase
 
         if ($registry === null) {
             $registry = new Registry();
-            $registry->logger(new Logger($config->get('loglevel'), $config->pathOrNull('logfile')));
+            $registry->logger(new Logger(
+                $config->get('log.level'),
+                $config->pathOrNull('log.file')
+            ));
         }
 
         $request = new Request($config, $router, $registry);
