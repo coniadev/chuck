@@ -216,7 +216,7 @@ class Config implements ConfigInterface
         return $this->env;
     }
 
-    public function path(string $key): string
+    public function path(string $key, string $default = ''): string
     {
         $value = $this->pathMap[$key] ?? false;
 
@@ -230,30 +230,16 @@ class Config implements ConfigInterface
             );
         }
 
+        if (func_num_args() > 1) {
+            return $default;
+        }
+
         throw new InvalidArgumentException(
             "Path id '$key' is not present in configuration"
         );
     }
 
-    public function pathOrNull(string $key): ?string
-    {
-        try {
-            return $this->path($key);
-        } catch (\Exception) {
-            return null;
-        }
-    }
-
-    public function pathsOrEmpty(string $key): array
-    {
-        try {
-            return $this->paths($key);
-        } catch (\Exception) {
-            return [];
-        }
-    }
-
-    public function paths(string $key): array
+    public function paths(string $key, array $default = []): array
     {
         $value = $this->pathMap[$key] ?? false;
 
@@ -265,6 +251,10 @@ class Config implements ConfigInterface
             throw new InvalidArgumentException(
                 "Paths id '$key' contains a single path. Use Config::path(\$key)"
             );
+        }
+
+        if (func_num_args() > 1) {
+            return $default;
         }
 
         throw new InvalidArgumentException(

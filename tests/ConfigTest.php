@@ -140,17 +140,17 @@ test('Wrong path type', function () {
 })->throws(InvalidArgumentException::class, 'not present');
 
 
-test('Wrong path results in null', function () {
+test('Wrong path results default', function () {
     $config = new Config($this->options());
 
-    expect($config->pathOrNull('anotherone'))->toBe(null);
+    expect($config->path('anotherone', ''))->toBe('');
 });
 
 
 test('Wrong paths results in empty array', function () {
     $config = new Config($this->options());
 
-    expect($config->pathsOrEmpty('anotherone'))->toBe([]);
+    expect($config->paths('anotherone', []))->toBe([]);
 });
 
 

@@ -108,8 +108,6 @@ class TestCase extends BaseTestCase
             'appname' => 'chuckapp',
             'path.root' => C::root(),
             'log.level' => Logger::DEBUG,
-            'debug' => false,
-            'env' => 'production',
             'port' => 1983,
         ];
     }
@@ -169,7 +167,7 @@ class TestCase extends BaseTestCase
             $registry = new Registry();
             $registry->logger(new Logger(
                 $config->get('log.level'),
-                $config->pathOrNull('log.file')
+                $config->path('log.file', '') ?: null,
             ));
         }
 

@@ -33,7 +33,10 @@ class App
         }
 
         $registry = new Registry();
-        $registry->logger(new Logger($config->get('log.level'), $config->pathOrNull('log.file')));
+        $registry->logger(new Logger(
+            $config->get('log.level'),
+            $config->path('log.file', '') ?: null
+        ));
 
         /** @var RouterInterface */
         $router = $registry->new(RouterInterface::class);
