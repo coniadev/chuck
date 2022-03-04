@@ -8,7 +8,7 @@ use \PDO;
 
 use Chuck\Config;
 use Chuck\Database\Database;
-use Chuck\Tests\Setup\TestCase;
+use Chuck\Tests\Setup\{TestCase, C};
 
 
 class DatabaseCase extends TestCase
@@ -32,13 +32,11 @@ class DatabaseCase extends TestCase
 
     public function config(array $options = []): Config
     {
-        $ds = DIRECTORY_SEPARATOR;
-
         return parent::config(
             array_replace_recursive(
                 [
                     'db.dsn' => $this->getDsn(),
-                    'sql.default' => __DIR__ . $ds . '..' . $ds . 'Fixtures' . $ds . 'sql' . $ds . 'default',
+                    'sql' => __DIR__ . C::DS . '..' . C::DS . 'Fixtures' . C::DS . 'sql' . C::DS . 'default',
                 ],
                 $options,
             )

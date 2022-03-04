@@ -9,101 +9,124 @@ use \Throwable;
 use \ValueError;
 
 use Chuck\Util\Http;
-use Chuck\Util\Path;
-use Chuck\Config\{Root, Templates, Log};
+use Chuck\Util\Path as PathUtil;
+use Chuck\Config\{Path, Templates, Log, Database, Connection, Scripts};
 
 
 class Config implements ConfigInterface
 {
     public readonly bool $debug;
     public readonly string $env;
-    public readonly string $appname;
+    public readonly string $app;
+    public readonly Path $path;
 
-    protected readonly array $config;
-    protected readonly array $pathMap;
+    protected readonly Database $database;
     protected readonly Templates $templates;
+    protected readonly Scripts $scripts;
+    protected readonly Log $log;
 
+    protected readonly array $settings;
 
-    public function __construct(protected array $settings)
+    public function __construct(array $settings)
     {
-        $root = new Root($settings);
-        $this->templates = new Templates($root);
-        [$this->config, $this->pathMap] = $this->read($this->settings);
+        $settings = $this->getNested($settings);
+        $this->settings = $this->read($settings);
     }
 
-    protected function preparePath(string $root, string $path): string
+    protected function getNested(array $flat): array
     {
-        $path = Path::realpath($path);
+        $nested = [
+            'port' => 1983,
+        ];
 
-        if (!Path::isAbsolute($path)) {
-            $path = $root . DIRECTORY_SEPARATOR . $path;
-        }
+        foreach ($flat as $key => $value) {
+            $dotpos = strpos($key, '.');
 
-        if (str_starts_with($path, $root)) {
-            return $path;
-        }
+            if ($dotpos === false) {
+                if (isset($nested[$key]['default'])) {
+                    throw new ValueError(
+                        "Configuration error: subkey 'default' for config key '$key' already exists"
+                    );
+                }
 
-        throw new ValueError('Configuration error: paths must be inside the root directory: ' . $root);
-    }
-
-    protected function prepareMainPaths(array $settings): array
-    {
-        // The root directory of the project. The setting is mandatory.
-        if (isset($settings['path.root'])) {
-            $root = rtrim(Path::realpath($settings['path.root']), DIRECTORY_SEPARATOR);
-
-            if (!Path::isAbsolute($root)) {
-                throw new ValueError('Configuration error: root path must be an absolute path: ' . $root);
+                switch ($key) {
+                    case 'sql':
+                        $nested['sql']['default'] = $value;
+                        break;
+                    case 'migrations':
+                        $nested['migrations']['default'] = $value;
+                        break;
+                    case 'templates':
+                        $nested['templates']['default'] = $value;
+                        break;
+                    case 'scripts':
+                        $nested['scripts']['default'] = $value;
+                        break;
+                    case 'db':
+                        $nested['db']['default'] = $value;
+                        break;
+                    default:
+                        $nested[$key] = $value;
+                        break;
+                }
+                continue;
             }
 
-            unset($settings['path.root']);
+            $nested[strtok($key, '.')][substr($key, $dotpos + 1)] = $value;
+        }
+
+        return $nested;
+    }
+
+    protected function read(array $settings): array
+    {
+        if (isset($settings['path']['root'])) {
+            $root = rtrim(PathUtil::realpath($settings['path']['root']), DIRECTORY_SEPARATOR);
+
+            if (!PathUtil::isAbsolute($root)) {
+                throw new ValueError('Configuration error: root path must be an absolute path: ' . $root);
+            }
         } else {
             throw new ValueError('Configuration error: root path not set');
         }
 
-        // Public directory containing the static assets and index.php
-        // If it is not set look for a directory named 'public' in path.root
-        if (!isset($settings['path.public'])) {
-            $public = $this->preparePath($root, 'public');
-
-            if (!is_dir($public)) {
-                throw new ValueError(
-                    'Configuration error: public directory is not set and could not be determined'
-                );
-            }
-        } else {
-            $public = $this->preparePath($root, $settings['path.public']);
-            unset($settings['path.public']);
+        if (!isset($settings['origin'])) {
+            $settings['origin'] = Http::origin();
         }
 
-        $paths = [
-            'root' => $root,
-            'public' => $public,
-            'migrations' => [],
-            'scripts' => [],
-            'sql' => [],
-        ];
-
-        // The file where the logger and the error handler write
-        // their messages
-        $logfile = $settings['path.logfile'] ?? null;
-
-        if ($logfile) {
-            if (!file_exists($logfile)) {
-                touch($logfile);
-            }
-
-            if (!is_writable($logfile)) {
-                throw new ValueError(
-                    'Configuration error: logfile is not writable'
-                );
-            }
-
-            unset($settings['path.logfile']);
-            $paths['logfile'] = $logfile;
+        if (!isset($settings['host'])) {
+            $settings['host'] = $_SERVER['HTTP_HOST'] ?? 'localhost';
         }
 
-        return [$paths, $settings];
+        $this->database = new Database($root);
+
+        foreach ($settings as $key => $value) {
+            switch ($key) {
+                case 'path':
+                    $this->path = new Path($root, $value);
+                    break;
+                case 'log':
+                    $this->log = new Log($root, $value);
+                    break;
+                case 'templates':
+                    $this->templates = new Templates($root, $value);
+                    break;
+                case 'scripts':
+                    $this->scripts = new Scripts($root, $value);
+                    break;
+                case 'sql':
+                    $this->database->setSql($value);
+                    break;
+                case 'db':
+                    $this->database->setConnections($value);
+                    break;
+                case 'migrations':
+                    $this->database->setMigrations($value);
+                    break;
+            }
+        }
+
+        return $settings;
     }
 
     protected function getKeys(string $key): array
@@ -123,66 +146,6 @@ class Config implements ConfigInterface
         return [$mainKey, $subKey];
     }
 
-    protected function read(array $settings): array
-    {
-        [$pathMap, $settings] = $this->prepareMainPaths($settings);
-        $config = [];
-        $root = $pathMap['root'];
-
-
-        foreach ($settings as $key => $value) {
-            [$mainKey, $subKey] = $this->getKeys($key);
-
-            if (!$subKey) {
-                $config[$key] = $value;
-                continue;
-            }
-
-            switch ($mainKey) {
-                case 'path':
-                    if (is_array($value)) {
-                        $pathMap[$subKey] = array_map(
-                            function ($p) use ($root) {
-                                return $this->preparePath($root, $p);
-                            },
-                            $value,
-                        );
-                    } else {
-                        $pathMap[$subKey] = $this->preparePath($root, $value);
-                    }
-                    break;
-                case 'templates':
-                    $this->templates->add($subKey, $this->preparePath($root, $value));
-                    break;
-                case 'migrations':
-                    $pathMap['migrations'][] = $this->preparePath($root, $value);
-                    break;
-                case 'scripts':
-                    $pathMap['scripts'][] = $this->preparePath($root, $value);
-                    break;
-                case 'sql':
-                    $pathMap['sql'][] = $this->preparePath($root, $value);
-                    break;
-                default:
-                    if (!array_key_exists($mainKey, $config)) {
-                        $config[$mainKey] = [];
-                    }
-
-                    $config[$mainKey][$subKey] = $value;
-            }
-        }
-
-        if (!isset($config['origin'])) {
-            $config['origin'] = Http::origin();
-        }
-
-        if (!isset($config['host'])) {
-            $config['host'] = $_SERVER['HTTP_HOST'] ?? 'localhost';
-        }
-
-        return [$config, $pathMap];
-    }
-
     /**
      * Returns the given $key from the configuration
      *
@@ -194,9 +157,9 @@ class Config implements ConfigInterface
 
         try {
             if ($subKey) {
-                return $this->config[$mainKey][$subKey];
+                return $this->settings[$mainKey][$subKey];
             } else {
-                return $this->config[$key];
+                return $this->settings[$key];
             }
         } catch (\ErrorException) {
             if (func_num_args() > 1) {
@@ -209,14 +172,12 @@ class Config implements ConfigInterface
         }
     }
 
-    protected function app(): string
+    public function app(): string
     {
-        static $app;
-
-        if (!isset($app)) {
+        if (!isset($this->app)) {
             try {
                 if (preg_match('/^[a-z0-9]]{1,32}$/', $this->settings['app'])) {
-                    $app = $this->settings['app'];
+                    $this->app = $this->settings['app'];
                 } else {
                     throw new ValueError;
                 }
@@ -229,97 +190,57 @@ class Config implements ConfigInterface
             }
         }
 
-        return $app;
+        return $this->app;
     }
 
     public function debug(): bool
     {
-        static $debug;
-
-        if (!isset($debug)) {
+        if (!isset($this->debug)) {
             // Debug defaults to false to prevent leaking of unwanted information to production
-            $debug = is_bool($this->settings['debug'] ?? null) ? $this->settings['debug'] : false;
+            $this->debug = is_bool($this->settings['debug'] ?? null) ? $this->settings['debug'] : false;
         }
 
-        return $debug;
+        return $this->debug;
     }
 
     public function env(): string
     {
-        static $env;
-
-        if (!isset($env)) {
+        if (!isset($this->env)) {
             // Make shure env is a string
             $settingsEnv = $this->settings['env'] ?? null;
-            $env = (!empty($settingsEnv) && is_string($settingsEnv)) ? $settingsEnv : '';
+            $this->env = (!empty($settingsEnv) && is_string($settingsEnv)) ? $settingsEnv : '';
         }
 
-        return $env;
+        return $this->env;
     }
 
-    public function path(string $key, string $default = ''): string
+    public function db(string $connection, string $sql): Connection
     {
-        $value = $this->pathMap[$key] ?? false;
-
-        if ($value && is_string($value)) {
-            return $value;
-        }
-
-        if ($value && is_array($value)) {
-            throw new InvalidArgumentException(
-                "Path id '$key' contains a list of paths. Use Config::paths(\$key)"
-            );
-        }
-
-        if (func_num_args() > 1) {
-            return $default;
-        }
-
-        throw new InvalidArgumentException(
-            "Path id '$key' is not present in configuration"
-        );
-    }
-
-    public function paths(string $key, array $default = []): array
-    {
-        $value = $this->pathMap[$key] ?? false;
-
-        if ($value && is_array($value)) {
-            return $value;
-        }
-
-        if ($value && is_string($value)) {
-            throw new InvalidArgumentException(
-                "Paths id '$key' contains a single path. Use Config::path(\$key)"
-            );
-        }
-
-        if (func_num_args() > 1) {
-            return $default;
-        }
-
-        throw new InvalidArgumentException(
-            "Paths id '$key' is not present in configuration"
-        );
-    }
-
-    public function templates(): Templates
-    {
-        return  $this->templates;
+        return $this->database->connection($connection, $sql);
     }
 
     public function migrations(): array
     {
-        return  $this->pathMap['migrations'];
+        return $this->database->migrations();
     }
 
-    public function sql(): array
+    public function path(): Path
     {
-        return  $this->pathMap['sql'];
+        return $this->path;
+    }
+
+    public function log(): Log
+    {
+        return $this->log;
+    }
+
+    public function templates(): Templates
+    {
+        return $this->templates;
     }
 
     public function scripts(): array
     {
-        return  $this->pathMap['scripts'];
+        return $this->scripts->get();
     }
 }

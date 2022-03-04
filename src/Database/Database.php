@@ -9,117 +9,46 @@ use \PDO;
 use Chuck\ConfigInterface;
 use Chuck\Database\DatabaseInterface;
 use Chuck\Database\QueryInterface;
-use Chuck\Util\Path;
+use Chuck\Config\Connection;
 
 
 class Database implements DatabaseInterface
 {
-    public readonly string $pdodriver;
-
+    protected ConfigInterface $appConfig;
+    protected Connection $connConfig;
     /** @psalm-suppress PropertyNotSetInConstructor */
     protected PDO $conn;
     protected ?\Chuck\Memcached $memcached = null;
-    protected readonly string $dsn;
-    protected readonly ?string $username;
-    protected readonly ?string $password;
-    protected readonly ?array $connectionOptions;
     protected readonly string $memcachedPrefix;
-    protected array $scriptPaths = [];
-    protected int $fetchMode;
-    protected ConfigInterface $config;
-    protected bool $shouldPrint = false;
+    protected bool $print = false;
 
 
-    public function __construct(ConfigInterface $config)
-    {
-        $this->config = $config;
-        $dbConf = $config->get('db');
-        $this->pdodriver = $this->getDriver($dbConf['dsn']);
-        $this->dsn = $dbConf['dsn'];
-        $this->memcachedPrefix = $dbConf['memcachedPrefix'] ?? '';
-        $this->username = $dbConf['username'] ?? null;
-        $this->password = $dbConf['password'] ?? null;
-        $this->connectionOptions = $dbConf['options'] ?? null;
-        $this->addScriptDirs($config->sql());
-        $this->fetchMode = $dbConf['fetchMode'] ?? PDO::FETCH_BOTH;
-        $this->shouldPrint = $dbConf['print'] ?? false;
+    public function __construct(
+        ConfigInterface $config,
+        protected string $connection = 'default',
+        protected string $sql = 'default',
+    ) {
+        $this->appConfig = $config;
+        $this->connConfig = $config->db($connection, $sql);
+        $this->print = $this->connConfig->print;
+        $this->memcachedPrefix = $config->app() . '/sql/';
     }
 
-    protected function getDriver(string $dsn): string
+    public function setPrint(bool $print): self
     {
-        $driver = explode(':', $dsn)[0];
-
-        if (in_array($driver, PDO::getAvailableDrivers())) {
-            return $driver;
-        }
-
-        throw new \RuntimeException('PDO driver not supported: ' . $driver);
-    }
-
-    public function defaultFetchMode(int $fetchMode): self
-    {
-        $this->fetchMode = $fetchMode;
+        $this->print = $print;
 
         return $this;
     }
 
-    /**
-     * Adds the sql script paths from configuration.
-     *
-     * Script paths are ordered last in first out (LIFO).
-     * Which means the last path added is the first one searched
-     * for a SQL script.
-     */
-    protected function addScriptDirs(array $dirs): self
+    public function shouldPrint(): bool
     {
-        // Paths need not to be checked, Config already did
-        foreach ($dirs as $dir) {
-            array_unshift($this->scriptPaths, $dir);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Adds a single directory with sql scripts
-     */
-    public function addScriptDir(string $dir): self
-    {
-        $pathUtil = new Path($this->config);
-
-        $dir = Path::realpath($dir);
-
-        if (!$pathUtil->insideRoot($dir)) {
-            throw new \InvalidArgumentException('SQL script path is outside of project root');
-        }
-
-        array_unshift($this->scriptPaths, $dir);
-
-        return $this;
-    }
-
-    public function setPrintQuery(bool $shouldPrint): self
-    {
-        $this->shouldPrint = $shouldPrint;
-
-        return $this;
-    }
-
-    public function shouldPrintQuery(): bool
-    {
-        return $this->shouldPrint;
-    }
-
-    public function getScriptDirs(): array
-    {
-
-        return $this->scriptPaths;
+        return $this->print;
     }
 
     public function getFetchmode(): int
     {
-
-        return $this->fetchMode;
+        return $this->connConfig->fetchMode;
     }
 
     public function connect(): self
@@ -129,15 +58,15 @@ class Database implements DatabaseInterface
             return $this;
         }
 
-        if ($this->config->get('memcached', false)) {
-            $this->memcached = \Chuck\Memcached::fromConfig($this->config);
+        if ($this->appConfig->get('memcached', false)) {
+            $this->memcached = \Chuck\Memcached::fromConfig($this->appConfig);
         }
 
         $this->conn = new PDO(
-            $this->dsn,
-            $this->username,
-            $this->password,
-            $this->connectionOptions,
+            $this->connConfig->dsn,
+            $this->connConfig->username,
+            $this->connConfig->password,
+            $this->connConfig->options,
         );
 
         // Always throw an exception when an error occures
@@ -193,7 +122,7 @@ class Database implements DatabaseInterface
     {
         $exists = false;
 
-        foreach ($this->scriptPaths as $path) {
+        foreach ($this->connConfig->sqlPaths as $path) {
             $exists = is_dir($path . DIRECTORY_SEPARATOR . $key);
 
             if ($exists) break;

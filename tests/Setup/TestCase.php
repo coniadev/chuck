@@ -164,8 +164,8 @@ class TestCase extends BaseTestCase
         if ($registry === null) {
             $registry = new Registry();
             $registry->logger(new Logger(
-                $config->get('log.level'),
-                $config->path('log.file', '') ?: null,
+                $config->log()->level,
+                $config->log()->file,
             ));
         }
 

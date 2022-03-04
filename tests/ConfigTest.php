@@ -12,7 +12,8 @@ test('Defaults', function () {
     $config = new Config($this->minimalOptions());
 
     expect($config->get('port'))->toBe(1983);
-    expect($config->path('root'))->toBe(C::root());
+    expect($config->path->root)->toBe(C::root());
+    expect($config->path()->root)->toBe(C::root());
 });
 
 
@@ -39,7 +40,7 @@ test('Public set', function () {
         'path.public' => 'www'
     ]);
 
-    expect($config->path('public'))->toBe(realpath(
+    expect($config->path->public)->toBe(realpath(
         C::root() . C::DS . 'altroot' . C::DS . 'www'
     ));
 });
@@ -88,7 +89,7 @@ test('Additional path', function () {
     ]));
     $compare = C::root() . C::DS . 'templates';
 
-    expect($config->path('anotherone'))->toBe($compare);
+    expect($config->path->get('anotherone'))->toBe($compare);
 });
 
 
@@ -99,7 +100,7 @@ test('List of paths', function () {
     $prefix = C::root() . C::DS;
     $compare = [$prefix . 'templates', $prefix . 'sql'];
 
-    expect($config->paths('list'))->toBe($compare);
+    expect($config->path->list('list'))->toBe($compare);
 });
 
 
@@ -108,15 +109,15 @@ test('List of paths wrong method', function () {
         'path.list' => ['templates', 'sql'],
     ]));
 
-    $config->path('list');
+    $config->path->get('list');
 })->throws(InvalidArgumentException::class, 'contains a list');
 
 
 test('Single path wrong method', function () {
     $config = new Config($this->minimalOptions());
 
-    $config->paths('root');
-})->throws(InvalidArgumentException::class, 'contains a single');
+    $config->path->list('root');
+})->throws(InvalidArgumentException::class, 'contains a single')->only();
 
 
 test('Wrong path', function () {
@@ -168,7 +169,7 @@ test('Template paths', function () {
 
 test('Migrations paths', function () {
     $config = new Config($this->options([
-        'migrations.absolute' => C::root() . C::DS . 'migrations' . C::DS . 'default',
+        'migrations' => C::root() . C::DS . 'migrations' . C::DS . 'default',
         'migrations.relative' => 'migrations' . C::DS . 'additional',
     ]));
     $prefix = C::root() . C::DS . 'migrations' . C::DS;
@@ -182,7 +183,7 @@ test('Migrations paths', function () {
 
 test('Script paths', function () {
     $config = new Config($this->options([
-        'scripts.default' => C::root() . C::DS . 'scripts' . C::DS . 'default',
+        'scripts' => C::root() . C::DS . 'scripts' . C::DS . 'default',
         'scripts.relative' => 'scripts' . C::DS . 'additional',
     ]));
     $prefix = C::root() . C::DS . 'scripts' . C::DS;
@@ -195,14 +196,22 @@ test('Script paths', function () {
 
 
 test('SQL paths', function () {
+    $prefix = C::root() . C::DS . 'sql' . C::DS;
     $config = new Config($this->options([
-        'sql.default' => C::root() . C::DS . 'sql' . C::DS . 'default',
+        'db' => ['dsn' => 'sqlite:...'],
+        'sql' => [
+            'all' => $prefix . 'default',
+            'sqlite' => $prefix . 'sqlite',
+        ],
         'sql.relative' => 'sql' . C::DS . 'additional',
     ]));
-    $prefix = C::root() . C::DS . 'sql' . C::DS;
 
-    expect($config->sql())->toBe([
+    expect($config->db('default', 'default')->sqlDirs)->toBe([
+        $prefix . 'sqlite',
         $prefix . 'default',
+    ]);
+
+    expect($config->db('default', 'relative')->sqlDirs)->toBe([
         $prefix . 'additional',
     ]);
 });
@@ -210,10 +219,10 @@ test('SQL paths', function () {
 
 test('Log file creation', function () {
     $logfile = C::root() . C::DS . 'log' . C::DS . bin2hex(random_bytes(4)) . '.log';
-    $config = new Config($this->options(['path.logfile' => $logfile]));
+    $config = new Config($this->options(['log.file' => $logfile]));
 
-    expect($config->path('logfile'))->toBe($logfile);
-    expect(file_exists($config->path('logfile')))->toBe(true);
+    expect($config->log()->file)->toBe($logfile);
+    expect(file_exists($config->log()->file))->toBe(true);
 
     @unlink($logfile);
 });
@@ -226,7 +235,7 @@ test('Log file not writeable', function () {
     $thrown = false;
 
     try {
-        $config = new Config($this->options(['path.logfile' => $logfile]));
+        $config = new Config($this->options(['log.file' => $logfile]));
     } catch (ValueError $e) {
         if (str_contains($e->getMessage(), 'is not writable')) {
             $thrown = true;

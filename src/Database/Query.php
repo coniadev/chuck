@@ -44,7 +44,7 @@ class Query implements QueryInterface
             $this->stmt = $this->db->getConn()->query($query);
         }
 
-        if ($db->shouldPrintQuery()) {
+        if ($db->shouldPrint()) {
             $msg = "\n\n-----------------------------------------------\n\n" .
                 $this->interpolate() .
                 "\n------------------------------------------------\n";

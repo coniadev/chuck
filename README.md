@@ -83,13 +83,14 @@ Config
 namespace Chuck;
 
 return [
+    'app' => 'chuckapp',                  // Internal identifier, will be used in `php run` scripts for example
+                                          // Also used internally for sessions/i18n/memcache prefix or other purposes
+
     'path.root' => null,                  // The root folder of the application, defaults to where composer.json is located
     'path.public' => null,                // Path to the public directory, defaults to <path.root>/public
     'path.assets' => null,                // Path to asset files used Chuck\Assets if set. Should be writable.
     'path.cache' => null,                 // Path to cache files. By default used by Chuck\Assets. Must be writable.
 
-    'appname' => 'chuckapp',              // Internal identifier, will be used in `php run` scripts for example
-                                          // Also used internally for sessions/i18n/memcache prefix or other purposes
     'env' => null,                        // the current environment, e. g. 'development', 'production'
     'debug' => false,                     // Whether it should show Whoops messages
     'port' => 1983,                       // The develompent server port
@@ -114,56 +115,59 @@ return [
     'password.entropy' => 40.0,           // Password strength entropy. 40.0 is aproximately a password with
                                           // at least 12 mixed characters.
 
-
     'session.name' => null,               // Cookie name sent to the browser
     'session.expire' => 60 * 60 * 24 * 7, // This value will be added to the current time()
 
-
-    // Special paths:
-    // <id> is a custom identifier, usually your apps name (appname) or the name of a lib/plugin
-    // should be absolute, like __DIR__ . '/path/to/files',
-    
-    'scripts.<id>' => null,               // Additional custom `php run` script paths:
+    'templates' => null,                  // Path to templates
     'templates.<id>' => null,             // Path to templates
    
-    // Database paths:
-
-    'sql.<platform>' => '/path/to/sql',   // Platform can be "all" or the PDO driver like "pgsql", "mysql"
-                                          // or "sqlite". You can add multiple platforms. Example:
-    'sql.all' => '/path/to/sql/scripts/all',
-    'sql.pgsql' => '/path/to/sql/scripts/pgsql',
+    // Default SQL scripts    -> new Database($config);
+    'sql' => [
+        'all' => '/path/to/sql/scripts/all',
+        'pgsql' => '/path/to/sql',
+        'mysql' => '/path/to/sql/scripts/pgsql',
+    ],
+    // Additonal namespace SQL scripts    -> new Database($config, sql: 'myapp');
+    'sql.myapp' => [
+        'all' => '/path/to/sql/scripts/all',
+        'pgsql' => '/path/to/sql/scripts/pgsql'
+    ],
     
-    'sql.<id>.<platform>' => null,        // Add an ID if you write a lib or have multiple directories
-                                             Example:
-         'sql.myapp.all' => '/path/to/sql/scripts/all',
-         'sql.myapp.pgsql' => '/path/to/sql/scripts/pgsql',
-    
-    'migrations' => null                  // If you only use a single migrations path
-    'migrations.<id>' => null,            // Paths to database migrations with an added id, if you
-                                             plan to have multiple migration directories.
+    'migrations' => null,                 // Paths to database migrations. There should be only one without id
+    'migrations.<id>' => null,            // If you want to use multiple directories you must provide ids
 
-
-    'db.default.dsn' => 'sqlite:...',     // The PDO connection string. See:
+    // The default database connection   -> new Database($config);
+    'db' => [
+        'dsn' => 'sqlite => ...',         // The PDO connection string. See:
                                           //     PostgreSQL: https://www.php.net/manual/de/ref.pdo-pgsql.connection.php
                                           //     MySQL: https://www.php.net/manual/de/ref.pdo-mysql.connection.php
                                           //     Sqlite: https://www.php.net/manual/de/ref.pdo-sqlite.connection.php
                                           // and others
-    'db.default.username' => null,        // optional
-    'db.default.password' => null,        // optional
-    'db.default.options' => null,         // optional, array with PDO options passed to new \PDO(...)
-    'db.default.fetchMode' => null,       // optional, Defaults to PDO::FETCH_BOTH,
-    'db.default.debug' => false,          // Print interpolated sql to stdout
-    'db.default.memcachedPrefix' => null, // Should be set to a application version number or the like
-    
-     Additional database connections:
-    'db.<name>.dsn' => null,              // The PDO connection string. See:
-    'db.<name>.username' => null,         // optional
-    'db.<name>.password' => null,         // optional
+        'username' => null,               // optional
+        'password' => null,               // optional
+        'options' => null,                // optional, array with PDO options passed to new \PDO(...)
+        'fetchmode' => null,              // optional, Defaults to PDO::FETCH_BOTH,
+        'print' => false,                 // Print interpolated sql to stdout
+        'sql' => []                       // TODO: connection specific sql paths. Overwrites general settings
+        'migrations' => []                // TODO: connection specific migrations. Overwrites general settings
+    ],
 
-
-    'memcached.implementation' => null,   // optional, either 'Memcached' or 'Memcache'
+    // Optional: additional database connections   -> new Database($config, connection: 'mycon');
+    'db.mycon' => [
+        'dsn' => 'psql => ...',
+        'username' => null,
+        'password' => null,
+    ],
+                                          
+    'memcached' => [
+        'implementation' => 'hans',       // optional, either 'Memcached' or 'Memcache'
                                           // if not given uses what is available or throws error
-    'memcached.host' => null,             // optional, defaults to 'localhost'
-    'memcached.port' => null,             // optional, defaults to 11211
-    'memcached.expire' => null,           // optional, defaults to 0 which means never expire
+        'host' => null,                   // optional, defaults to 'localhost'
+        'port' => null,                   // optional, defaults to 11211
+        'expire' => null,                 // optional, defaults to 0 which means never expire
+    ]
+
+    'scripts' => null,                    // Path to scripts executed by `php run`
 ];
+```
+

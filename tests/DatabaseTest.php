@@ -8,7 +8,6 @@ use Chuck\Database\Database;
 
 uses(DatabaseCase::class);
 
-const ADDITIONAL_SCRIPTS = __DIR__ . C::DS . 'Fixtures' . C::DS . 'sql' . C::DS . 'additional';
 const NUMBER_OF_ALBUMS = 7;
 const NUMBER_OF_MEMBERS = 17;
 
@@ -29,16 +28,16 @@ test('Add script dir outside of root directory', function () {
 test('Set whether it should print sql to stdout', function () {
     $db = $this->getDb();
 
-    expect($db->shouldPrintQuery())->toBe(false);
-    $db->setPrintQuery(true);
-    expect($db->shouldPrintQuery())->toBe(true);
+    expect($db->shouldPrint())->toBe(false);
+    $db->setPrint(true);
+    expect($db->shouldPrint())->toBe(true);
 });
 
 
 test('Database init set fetch mode via method', function () {
     $db = new Database($this->config());
 
-    $result = $db->defaultFetchMode(\PDO::FETCH_ASSOC);
+    $result = $db->setFetchMode(\PDO::FETCH_ASSOC);
 
     expect($db->getFetchmode())->toBe(\PDO::FETCH_ASSOC);
     expect($result)->toBeInstanceOf(Database::class);
@@ -215,7 +214,7 @@ test('Template query with no SQL args', function () {
 
 test('Expand script dirs :: query from default', function () {
     $db = new Database($this->config());
-    $db->addScriptDir(ADDITIONAL_SCRIPTS);
+    // $db->addScriptDir(ADDITIONAL_SCRIPTS);
 
     $result = $db->members->list()->all();
     expect(count($result))->toBe(NUMBER_OF_MEMBERS);
@@ -232,7 +231,7 @@ test('Script instance', function () {
 
 test('Query printing named parameters', function () {
     $db = $this->getDb();
-    $db->setPrintQuery(true);
+    $db->setPrint(true);
 
     ob_start();
     $result = $db->members->joined([
@@ -254,7 +253,7 @@ test('Query printing named parameters', function () {
 
 test('Query printing positional parameters', function () {
     $db = $this->getDb();
-    $db->setPrintQuery(true);
+    $db->setPrint(true);
 
     ob_start();
     $result = $db->members->left(2001)->one();
@@ -272,7 +271,7 @@ test('Query printing positional parameters', function () {
 
 test('Expand script dirs :: query from expanded', function () {
     $db = new Database($this->config());
-    $db->addScriptDir(ADDITIONAL_SCRIPTS);
+    // $db->addScriptDir(ADDITIONAL_SCRIPTS);
 
     $result = $db->members->byName(['name' => 'Rick Rozz'])->one();
     expect($result['member'])->toBe(2);
@@ -281,7 +280,7 @@ test('Expand script dirs :: query from expanded', function () {
 
 test('Expand script dirs :: query from expanded new namespace', function () {
     $db = new Database($this->config());
-    $db->addScriptDir(ADDITIONAL_SCRIPTS);
+    // $db->addScriptDir(ADDITIONAL_SCRIPTS);
 
     $result = $db->albums->list()->all();
     expect(count($result))->toBe(7);
@@ -342,10 +341,15 @@ test('Script dir shadowing', function () {
     expect($result['name'])->toBe('Rick Rozz');
     expect($result['left'])->toBe(1989);
 
-    // The query in the expand dir uses named parameters
+    // The query in the sqlite specific dir uses named parameters
     // and additionally returns the field `joined` in contrast
     // to the default dir, which returns the field `left`.
-    $db->addScriptDir(ADDITIONAL_SCRIPTS);
+    $db = $this->getDb([
+        'sql' => [
+            'sqlite' => __DIR__ . C::DS . 'Fixtures' . C::DS . 'sql' . C::DS . 'additional',
+            'all' => __DIR__ . C::DS . '..' . C::DS . 'Fixtures' . C::DS . 'sql' . C::DS . 'default',
+        ]
+    ]);
     // Named parameter queries also support positional arguments
     $result = $db->members->byId(3)->one();
     expect($result['name'])->toBe('Chris Reifert');

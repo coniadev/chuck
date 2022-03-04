@@ -4,19 +4,18 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use Chuck\Config\Templates;
+use Chuck\Config\{Path, Templates, Log, Connection};
 
 
 interface ConfigInterface
 {
-    public function __construct(array $config);
-    public function get(string $key, mixed $default = null): mixed;
-    public function path(string $key): string;
-    public function paths(string $key): array;
-    public function templates(): Templates;
-    public function migrations(): array;
-    public function sql(): array;
-    public function scripts(): array;
+    public function app(): string;
     public function debug(): bool;
     public function env(): string;
+    public function get(string $key, mixed $default = null): mixed;
+    public function path(): Path;
+    public function templates(): Templates;
+    public function db(string $connection, string $sql): Connection;
+    public function log(): Log;
+    public function scripts(): array;
 }
