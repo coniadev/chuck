@@ -10,7 +10,7 @@ uses(TestCase::class);
 
 
 test('Csrf get creates token', function () {
-    $session = new Session($this->request());
+    $session = new Session($this->request()->config->app());
     $csrf = new Csrf();
     $token = $csrf->get();
 
@@ -77,7 +77,6 @@ test('Csrf verify token null', function () {
 
 
 test('Csrf get/verify different page', function () {
-    $session = new Session($this->request());
     $csrf = new Csrf();
     $tokenDefault = $csrf->get();
     $tokenAlbums = $csrf->get('albums');

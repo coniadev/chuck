@@ -14,7 +14,7 @@ uses(TestCase::class);
 test('Session middleware', function () {
     $app = App::create($this->options());
     $app->add(Route::get('index', '/', 'Chuck\Tests\Fixtures\TestController::textView'));
-    $app->middleware(new Session());
+    $app->middleware(new Session($this->request()->config->app()));
     ob_start();
     $app->run();
     ob_end_clean();

@@ -9,22 +9,11 @@ use Chuck\Util\Http;
 
 class Session implements SessionInterface
 {
-    protected RequestInterface $request;
-    protected ConfigInterface $config;
-    protected string $name;
-
     public function __construct(
-        RequestInterface $request,
-        ?string $name = null,
+        protected string $name,
         protected string $flashMessagesKey = 'flash_messages',
         protected string $rememberedUriKey = 'remembered_uri',
     ) {
-        // TODO:
-        // session_set_cookie_params(['SameSite' => 'Strict']);
-
-        $this->request = $request;
-        $this->config = $request->getConfig();
-        $this->name = $name ?: $this->config->app();
     }
 
     public function start(): void
