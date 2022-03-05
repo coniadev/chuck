@@ -176,7 +176,7 @@ class Config implements ConfigInterface
     {
         if (!isset($this->app)) {
             try {
-                if (preg_match('/^[a-z0-9]]{1,32}$/', $this->settings['app'])) {
+                if (preg_match('/^[a-z0-9]{1,32}$/', $this->settings['app'])) {
                     $this->app = $this->settings['app'];
                 } else {
                     throw new ValueError;
@@ -231,12 +231,16 @@ class Config implements ConfigInterface
 
     public function log(): Log
     {
+        if (!isset($this->log)) {
+            $this->log = new Log($this->path->root, []);
+        }
+
         return $this->log;
     }
 
-    public function templates(): Templates
+    public function templates(): array
     {
-        return $this->templates;
+        return $this->templates->get();
     }
 
     public function scripts(): array

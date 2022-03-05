@@ -11,7 +11,7 @@ use Chuck\Util\Path;
 class Template implements TemplateInterface
 {
     protected RequestInterface $request;
-    protected array $folders = [];
+    protected readonly array $folders;
     protected Path $pathUtil;
 
     public function __construct(
@@ -19,25 +19,7 @@ class Template implements TemplateInterface
         protected array $defaults = [],
     ) {
         $this->request = $request;
-        $config = $request->getConfig();
-
-        $this->pathUtil = new Path($config);
-        $this->addFolders($config->templates());
-    }
-
-    protected function addFolders(array $folders): void
-    {
-        foreach ($folders as $key => $dir) {
-            if (!$this->pathUtil->insideRoot($dir)) {
-                throw new ValueError("Template paths is not inside the project root directory: $dir");
-            }
-
-            if (!is_dir($dir)) {
-                throw new ValueError("Template directory does not exists: $dir");
-            }
-
-            $this->folders[$key] = $dir;
-        }
+        $this->folders = $request->config->templates();
     }
 
     public function render(string $template, array $context = []): string
@@ -86,27 +68,20 @@ class Template implements TemplateInterface
         if ($namespace) {
             $path = Path::realpath($this->folders[$namespace] . $ds . $file . '.php');
         } else {
-            if (count($this->folders) === 1) {
+            try {
                 $path = Path::realpath(
-                    $this->folders[array_key_first($this->folders)] . $ds . $file . '.php'
+                    $this->folders['default'] . $ds . $file . '.php'
                 );
-            } else {
-                throw new ValueError(
-                    "There must be a template namespace provided as there " .
-                        "are more than one template paths."
-                );
+            } catch (\Exception) {
+                throw new ValueError("No default template directory present.");
             }
         }
 
-        if ($this->pathUtil->insideRoot($path)) {
-            if (file_exists($path)) {
-                return $path;
-            }
-
-            throw new ValueError("Template '$path' does not exists");
+        if (file_exists($path)) {
+            return $path;
         }
 
-        throw new ValueError("Template '$path' is outside of the project root directory");
+        throw new ValueError("Template '$path' not found inside the project root directory");
     }
 
     protected static function load(string $template, array $context = []): void

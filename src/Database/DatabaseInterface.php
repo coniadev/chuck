@@ -14,6 +14,8 @@ interface DatabaseInterface
     public function __construct(ConfigInterface $config);
 
     public function getFetchMode(): int;
+    public function getSqlDirs(): array;
+    public function getPdoDriver(): string;
 
     public function setPrint(bool $shouldPrint): self;
     public function shouldPrint(): bool;

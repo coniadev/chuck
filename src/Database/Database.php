@@ -46,9 +46,19 @@ class Database implements DatabaseInterface
         return $this->print;
     }
 
-    public function getFetchmode(): int
+    public function getFetchMode(): int
     {
         return $this->connConfig->fetchMode;
+    }
+
+    public function getPdoDriver(): string
+    {
+        return $this->connConfig->driver;
+    }
+
+    public function getSqlDirs(): array
+    {
+        return $this->connConfig->sqlDirs;
     }
 
     public function connect(): self
@@ -122,7 +132,7 @@ class Database implements DatabaseInterface
     {
         $exists = false;
 
-        foreach ($this->connConfig->sqlPaths as $path) {
+        foreach ($this->connConfig->sqlDirs as $path) {
             $exists = is_dir($path . DIRECTORY_SEPARATOR . $key);
 
             if ($exists) break;

@@ -32,11 +32,17 @@ class DatabaseCase extends TestCase
 
     public function config(array $options = []): Config
     {
+        $prefix = __DIR__ . C::DS . '..' . C::DS . 'Fixtures' . C::DS . 'sql' . C::DS;
+
         return parent::config(
             array_replace_recursive(
                 [
-                    'db.dsn' => $this->getDsn(),
-                    'sql' => __DIR__ . C::DS . '..' . C::DS . 'Fixtures' . C::DS . 'sql' . C::DS . 'default',
+                    'db' => ['dsn' => $this->getDsn()],
+                    'sql' => $prefix . 'default',
+                    'sql.additional' => [
+                        'sqlite' =>  $prefix . 'additional',
+                        'all' => $prefix . 'default',
+                    ]
                 ],
                 $options,
             )
@@ -134,8 +140,8 @@ class DatabaseCase extends TestCase
         }
     }
 
-    public function getDb(?array $options = []): Database
+    public function getDb(?array $options = [], string $sql = 'default'): Database
     {
-        return new Database($this->config($options));
+        return new Database($this->config($options), sql: $sql);
     }
 }

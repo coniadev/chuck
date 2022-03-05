@@ -101,7 +101,7 @@ class Query implements QueryInterface
         return $value ?: null;
     }
 
-    public function one(int $fetchMode = null): ?array
+    public function one(?int $fetchMode = null): ?array
     {
         $this->db->connect();
 
@@ -115,9 +115,8 @@ class Query implements QueryInterface
         return $result;
     }
 
-    public function all(
-        int $fetchMode = null,
-    ): iterable {
+    public function all(?int $fetchMode = null): iterable
+    {
         $this->db->connect();
         $this->stmt->execute();
         $result = $this->stmt->fetchAll($fetchMode ?? $this->db->getFetchMode());

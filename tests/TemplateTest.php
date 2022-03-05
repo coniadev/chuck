@@ -48,31 +48,22 @@ test('Config error :: wrong template format II', function () {
 })->throws(\InvalidArgumentException::class, 'No template');
 
 
-test('Config error :: multiple dirs without namespace', function () {
-    $tpl = new Template($this->request(options: [
-        'templates.additional' => __DIR__ . '/Fixtures/templates/additional'
-    ]));
-
-    $tpl->render('plain');
-})->throws(\ValueError::class, 'more than one');
-
-
 test('Render error :: missing template', function () {
     $tpl = new Template($this->request());
 
-    $tpl->render('default:nonexistent');
-})->throws(\ValueError::class, 'does not exist');
+    $tpl->render('nonexistent');
+})->throws(\ValueError::class, 'inside the project root');
 
 
 test('Render error :: template outside root directory', function () {
     $tpl = new Template($this->request());
 
-    $tpl->render('default:../../../../../etc/passwd');
-})->throws(\ValueError::class, 'outside of the project root directory');
+    $tpl->render('../../../../../etc/passwd');
+})->throws(\ValueError::class, 'inside the project root');
 
 
 test('Render error :: parse error', function () {
     $tpl = new Template($this->request());
 
-    $tpl->render('default:failing');
+    $tpl->render('failing');
 })->throws(\ParseError::class);

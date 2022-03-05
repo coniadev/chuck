@@ -12,11 +12,7 @@ class TextRenderer extends Renderer
 {
     public function render(): string
     {
-        if (!is_string($this->data)) {
-            return print_r($this->data, true);
-        }
-
-        return $this->data;
+        return (string)$this->data;
     }
 
     public function body(): Body

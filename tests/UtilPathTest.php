@@ -25,9 +25,9 @@ test('Path is inside root dir', function () {
     $config = $this->config();
     $pathUtil = new Path($config);
 
-    expect($pathUtil->insideRoot(C::root() . "/../leprosy"))->toBe(false);
-    expect($pathUtil->insideRoot(C::root() . "/symbolic"))->toBe(true);
-    expect($pathUtil->insideRoot(C::root() . "/././/./symbolic"))->toBe(true);
-    expect($pathUtil->insideRoot(C::root() . "/./..//./symbolic"))->toBe(false);
-    expect($pathUtil->insideRoot("/etc/apache"))->toBe(false);
+    expect($pathUtil->inside($config->path->root, C::root() . "/../leprosy"))->toBe(false);
+    expect($pathUtil->inside($config->path->root, C::root() . "/symbolic"))->toBe(true);
+    expect($pathUtil->inside($config->path->root, C::root() . "/././/./symbolic"))->toBe(true);
+    expect($pathUtil->inside($config->path->root, C::root() . "/./..//./symbolic"))->toBe(false);
+    expect($pathUtil->inside($config->path->root, "/etc/apache"))->toBe(false);
 });

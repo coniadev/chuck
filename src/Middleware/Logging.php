@@ -13,11 +13,12 @@ class Logging
     public function __invoke(RequestInterface $request, callable $next): RequestInterface|ResponseInterface
     {
         $request->addMethod('logger', function () use ($request): Logger {
-            $config = $request->getConfig();
+            $logConfig = $request->getConfig()->log();
+
 
             return new Logger(
-                $config->get('log.level'),
-                $config->path('log.file', '') ?: null,
+                $logConfig->level,
+                $logConfig->file,
             );
         });
 

@@ -20,7 +20,7 @@ class Folder
     {
         $ext = $isTemplate ? '.tpql' : '.sql';
 
-        foreach ($this->db->getScriptDirs() as $path) {
+        foreach ($this->db->getSqlDirs() as $path) {
             $result = $path . DIRECTORY_SEPARATOR .
                 $this->folder . DIRECTORY_SEPARATOR .
                 $key . $ext;

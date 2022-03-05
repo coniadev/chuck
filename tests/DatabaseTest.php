@@ -2,8 +2,7 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\{DatabaseCase, C};
-use Chuck\Tests\Setup\Helper;
+use Chuck\Tests\Setup\DatabaseCase;
 use Chuck\Database\Database;
 
 uses(DatabaseCase::class);
@@ -19,28 +18,12 @@ test('Database connection', function () {
 });
 
 
-test('Add script dir outside of root directory', function () {
-    $db = $this->getDb();
-    $db->addScriptDir('/etc');
-})->throws(\InvalidArgumentException::class);
-
-
 test('Set whether it should print sql to stdout', function () {
     $db = $this->getDb();
 
     expect($db->shouldPrint())->toBe(false);
     $db->setPrint(true);
     expect($db->shouldPrint())->toBe(true);
-});
-
-
-test('Database init set fetch mode via method', function () {
-    $db = new Database($this->config());
-
-    $result = $db->setFetchMode(\PDO::FETCH_ASSOC);
-
-    expect($db->getFetchmode())->toBe(\PDO::FETCH_ASSOC);
-    expect($result)->toBeInstanceOf(Database::class);
 });
 
 
@@ -171,14 +154,12 @@ test('Query with invalid type parameters', function () {
 
 
 test('Template query', function () {
-    $db = $this->getDb([
-        'db.fetchMode' => \PDO::FETCH_ASSOC,
-    ]);
+    $db = $this->getDb();
 
-    $result = $db->members->joined(['year' => 1983])->one();
+    $result = $db->members->joined(['year' => 1983])->one(\PDO::FETCH_ASSOC);
     expect(count($result))->toBe(4);
 
-    $result = $db->members->joined(['year' => 1983, 'interestedInNames' => true])->one();
+    $result = $db->members->joined(['year' => 1983, 'interestedInNames' => true])->one(\PDO::FETCH_ASSOC);
     expect(count($result))->toBe(5);
 });
 
@@ -213,8 +194,7 @@ test('Template query with no SQL args', function () {
 
 
 test('Expand script dirs :: query from default', function () {
-    $db = new Database($this->config());
-    // $db->addScriptDir(ADDITIONAL_SCRIPTS);
+    $db = new Database($this->config(), sql: 'additional');
 
     $result = $db->members->list()->all();
     expect(count($result))->toBe(NUMBER_OF_MEMBERS);
@@ -270,8 +250,7 @@ test('Query printing positional parameters', function () {
 
 
 test('Expand script dirs :: query from expanded', function () {
-    $db = new Database($this->config());
-    // $db->addScriptDir(ADDITIONAL_SCRIPTS);
+    $db = new Database($this->config(), sql: 'additional');
 
     $result = $db->members->byName(['name' => 'Rick Rozz'])->one();
     expect($result['member'])->toBe(2);
@@ -279,8 +258,7 @@ test('Expand script dirs :: query from expanded', function () {
 
 
 test('Expand script dirs :: query from expanded new namespace', function () {
-    $db = new Database($this->config());
-    // $db->addScriptDir(ADDITIONAL_SCRIPTS);
+    $db = new Database($this->config(), sql: 'additional');
 
     $result = $db->albums->list()->all();
     expect(count($result))->toBe(7);
@@ -332,7 +310,7 @@ test('Databse::execute with args', function () {
 });
 
 
-test('Script dir shadowing', function () {
+test('Script dir shadowing and driver specific', function () {
     $db = $this->getDb();
 
     // The query in the default dir uses positional parameters
@@ -344,12 +322,7 @@ test('Script dir shadowing', function () {
     // The query in the sqlite specific dir uses named parameters
     // and additionally returns the field `joined` in contrast
     // to the default dir, which returns the field `left`.
-    $db = $this->getDb([
-        'sql' => [
-            'sqlite' => __DIR__ . C::DS . 'Fixtures' . C::DS . 'sql' . C::DS . 'additional',
-            'all' => __DIR__ . C::DS . '..' . C::DS . 'Fixtures' . C::DS . 'sql' . C::DS . 'default',
-        ]
-    ]);
+    $db = $this->getDb(sql: 'additional');
     // Named parameter queries also support positional arguments
     $result = $db->members->byId(3)->one();
     expect($result['name'])->toBe('Chris Reifert');
@@ -371,19 +344,3 @@ test('Accessing non-existent script/query', function () {
     $db = $this->getDb();
     $db->members->doesNotExist;
 })->throws(\UnexpectedValueException::class);
-
-
-test('With Memcached', function () {
-    $db = $this->getDb([
-        'memcached.host' => 'localhost',
-        'memcached.port' => 11211,
-        'memcached.expire' => 1,
-        'db.memcachedPrefix' => 'chucksql',
-    ]);
-
-    $db->members->list()->all();
-    $mc = $db->getMemcached();
-    $db->members->list()->all();
-    expect($mc->getConn())->toBeInstanceOf(\Memcached::class);
-    expect($mc->get('chucksql/members/list'))->toBe("SELECT member, name, joined, left FROM members;\n");
-})->skip(!Helper::memcachedExtensionLoaded());

@@ -114,44 +114,39 @@ test('List of paths wrong method', function () {
 
 
 test('Single path wrong method', function () {
-    $config = new Config($this->minimalOptions());
+    $config = new Config($this->options([
+        'path.single' => 'templates',
+    ]));
 
-    $config->path->list('root');
-})->throws(InvalidArgumentException::class, 'contains a single')->only();
+    $config->path->list('single');
+})->throws(InvalidArgumentException::class, 'contains a single');
 
 
 test('Wrong path', function () {
     $config = new Config($this->options());
 
-    $config->path('anotherone');
+    $config->path->get('anotherone');
 })->throws(InvalidArgumentException::class, 'not present');
 
 
 test('Wrong paths', function () {
     $config = new Config($this->options());
 
-    $config->paths('anotherone');
-})->throws(InvalidArgumentException::class, 'not present');
-
-
-test('Wrong path type', function () {
-    $config = new Config($this->options());
-
-    $config->path('anotherone');
+    $config->path->list('anotherone');
 })->throws(InvalidArgumentException::class, 'not present');
 
 
 test('Wrong path results default', function () {
     $config = new Config($this->options());
 
-    expect($config->path('anotherone', ''))->toBe('');
+    expect($config->path->get('anotherone', ''))->toBe('');
 });
 
 
 test('Wrong paths results in empty array', function () {
     $config = new Config($this->options());
 
-    expect($config->paths('anotherone', []))->toBe([]);
+    expect($config->path->list('anotherone', []))->toBe([]);
 });
 
 
@@ -235,7 +230,7 @@ test('Log file not writeable', function () {
     $thrown = false;
 
     try {
-        $config = new Config($this->options(['log.file' => $logfile]));
+        new Config($this->options(['log.file' => $logfile]));
     } catch (ValueError $e) {
         if (str_contains($e->getMessage(), 'is not writable')) {
             $thrown = true;

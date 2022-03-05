@@ -10,7 +10,7 @@ class Server extends Chuck\Cli\Command
 
     public function run(Chuck\ConfigInterface $config, string ...$args): void
     {
-        $publicDir = $config->path('public');
+        $publicDir = $config->path->public;
         $port = (string)$config->get('port', '1983');
 
         if (isset($args[0]) && preg_match('/^[0-9]+$/', $args[0])) {

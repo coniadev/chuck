@@ -15,8 +15,9 @@ class Connection
     public readonly ?string $username;
     public readonly ?string $password;
     public readonly array $options;
-    public readonly int $fetchmode;
+    public readonly int $fetchMode;
     public readonly bool $debug;
+    public readonly bool $memcached;
     public readonly array $sqlDirs;
 
     public function __construct(
@@ -27,8 +28,9 @@ class Connection
         $this->username = $connection['username'] ?? null;
         $this->password = $connection['password'] ?? null;
         $this->options = $connection['options'] ?? [];
-        $this->fetchmode = $connection['fetchmode'] ?? PDO::FETCH_BOTH;
+        $this->fetchMode = $connection['fetchmode'] ?? PDO::FETCH_BOTH;
         $this->print = $connection['print'] ?? false;
+        $this->memcached = $connection['memcached'] ?? false;
         $this->driver = $this->getDriver($this->dsn);
         $this->sqlDirs = $this->getDirs();
     }

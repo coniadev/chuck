@@ -22,7 +22,7 @@ class Script
         extract(array_merge(
             // Add the pdo driver to args to allow dynamic
             // queries based on the platform.
-            ['pdodriver' => $this->db->pdodriver],
+            ['pdodriver' => $this->db->getPdoDriver()],
 
             $args->get()
         ));

@@ -9,7 +9,7 @@ class UpdateCatalog extends Chuck\Cli\Command
 
     public function run(Chuck\ConfigInterface $config, string ...$args): void
     {
-        $rootDir = $config->path('root');
+        $rootDir = $config->path->root;
         $command = $args[0] ?? null;
 
         if ($command === 'theme') {

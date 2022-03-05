@@ -115,8 +115,7 @@ class TestCase extends BaseTestCase
         return array_merge(
             $this->minimalOptions(),
             [
-                'appname' => 'chuck',
-                'templates.default' => C::root() . C::DS . 'templates' . C::DS . 'default',
+                'templates' => C::root() . C::DS . 'templates' . C::DS . 'default',
             ],
             $options
         );
