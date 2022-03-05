@@ -35,6 +35,7 @@ class Migrations extends Chuck\Cli\MigrationsCommand
             $fileName .= '.sql';
         }
 
+        /** TODO: USE THE CORRECT CONNECTION */
         $migrations = $config->migrations();
         $migrationDir = end($migrations);
 
