@@ -8,8 +8,10 @@ use \ValueError;
 use Chuck\Logger;
 
 
-class Log extends AbstractPath
+class Log
 {
+    use PathTrait;
+
     public readonly int $level;
     public readonly ?string $file;
 

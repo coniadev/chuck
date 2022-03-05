@@ -8,8 +8,10 @@ use \InvalidArgumentException;
 use \ValueError;
 
 
-class Path extends AbstractPath
+class Path
 {
+    use PathTrait;
+
     public readonly string $root;
     public readonly string $public;
     protected readonly array $paths;

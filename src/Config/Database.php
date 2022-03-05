@@ -8,8 +8,10 @@ use \ValueError;
 use Chuck\Util\Arrays;
 
 
-class Database extends AbstractPath
+class Database
 {
+    use PathTrait;
+
     protected array $connections = [];
     protected array $sql = [];
     protected array $migrations = [];

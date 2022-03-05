@@ -8,7 +8,7 @@ use \ValueError;
 use Chuck\Util\Path as PathUtil;
 
 
-abstract class AbstractPath
+trait PathTrait
 {
     public function insideRoot(string $path): bool
     {

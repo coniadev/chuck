@@ -7,8 +7,10 @@ namespace Chuck\Config;
 use \ValueError;
 
 
-class Templates extends AbstractPath
+class Templates
 {
+    use PathTrait;
+
     protected readonly array $dirs;
 
     public function __construct(string $root, array $values)

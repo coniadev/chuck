@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Chuck\Config;
 
 
-class Scripts extends AbstractPath
+class Scripts
 {
+    use PathTrait;
+
     protected readonly array $dirs;
     public function __construct(string $root, array $values)
     {
