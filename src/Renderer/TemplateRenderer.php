@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Chuck\Renderer;
 
-use Chuck\AbstractTemplate;
 use Chuck\Body\Body;
 use Chuck\Body\Text;
 use Chuck\RequestInterface;
+use Chuck\Template\AbstractTemplate;
 
 
 class TemplateRenderer extends Renderer

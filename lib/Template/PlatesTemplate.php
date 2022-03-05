@@ -6,7 +6,7 @@ namespace Chuck\Lib\Templates;
 
 use League\Plates\Engine;
 
-use Chuck\AbstractTemplate;
+use Chuck\Template\AbstractTemplate;
 
 
 class PlatesTemplate implements AbstractTemplate

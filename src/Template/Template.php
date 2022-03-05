@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck;
+namespace Chuck\Template;
 
 use \ValueError;
 use Chuck\Util\Path;
@@ -20,14 +20,24 @@ class Template extends AbstractTemplate
             throw new \InvalidArgumentException('No template path given');
         }
 
-        $context = array_merge($this->defaults, $context);
         $error = null;
         $path = $this->getPath($template);
+
+        $load =  function (string $template, array $context = []): void {
+            // Hide $template. Could be overwritten if $context['template'] exists.
+            $____template____ = $template;
+
+            extract($context);
+
+            /** @psalm-suppress UnresolvableInclude */
+            include $____template____;
+        };
+        $load = $load->bindTo(new Context($context));
 
         ob_start();
 
         try {
-            $this->load($path, $context);
+            $load($path, $this->defaults);
         } catch (\Throwable $e) {
             $error = $e;
         }
@@ -74,17 +84,6 @@ class Template extends AbstractTemplate
         }
 
         throw new ValueError("Template '$path' not found inside the project root directory");
-    }
-
-    protected static function load(string $template, array $context = []): void
-    {
-        // Hide $template. Could be overwritten if $context['template'] exists.
-        $____template____ = $template;
-
-        extract($context);
-
-        /** @psalm-suppress UnresolvableInclude */
-        include $____template____;
     }
 
     public function exists(string $template): bool

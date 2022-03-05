@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck;
+namespace Chuck\Template;
 
 abstract class AbstractTemplate
 {
