@@ -24,7 +24,7 @@ class Registry implements RegistryInterface
             RequestInterface::class => Request::class,
             ResponseInterface::class => Response::class,
             RouterInterface::class => Router::class,
-            TemplateInterface::class => Template::class,
+            AbstractTemplate::class => Template::class,
             SessionInterface::class => Session::class,
             CsrfInterface::class => Csrf::class,
         ];

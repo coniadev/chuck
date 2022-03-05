@@ -6,28 +6,22 @@ namespace Chuck\Lib\Templates;
 
 use League\Plates\Engine;
 
-use Chuck\RequestInterface;
-use Chuck\TemplateInterface;
+use Chuck\AbstractTemplate;
 
 
-class PlatesTemplate implements TemplateInterface
+class PlatesTemplate implements AbstractTemplate
 {
-    protected RequestInterface $request;
     protected array $defaults;
     protected string $path;
     protected Engine $engine;
 
-    public function __construct(
-        RequestInterface $request,
-        array $defaults = [],
-    ) {
-        $this->request = $request;
-        $config = $request->config;
+    public function __construct(array $dirs, array $defaults = [],)
+    {
         $this->defaults = $defaults;
 
         $this->engine = new Engine();
 
-        foreach ($config->templates() as $key => $dir) {
+        foreach ($dirs as $key => $dir) {
             $this->engine->addFolder($key, $dir);
         }
     }

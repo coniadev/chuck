@@ -8,18 +8,14 @@ use \ValueError;
 use Chuck\Util\Path;
 
 
-class Template implements TemplateInterface
+class Template extends AbstractTemplate
 {
     protected RequestInterface $request;
     protected readonly array $folders;
     protected Path $pathUtil;
 
-    public function __construct(
-        RequestInterface $request,
-        protected array $defaults = [],
-    ) {
-        $this->request = $request;
-        $this->folders = $request->config->templates();
+    public function __construct(protected array $dirs, protected array $defaults = [])
+    {
     }
 
     public function render(string $template, array $context = []): string
@@ -66,11 +62,11 @@ class Template implements TemplateInterface
         $ds = DIRECTORY_SEPARATOR;
 
         if ($namespace) {
-            $path = Path::realpath($this->folders[$namespace] . $ds . $file . '.php');
+            $path = Path::realpath($this->dirs[$namespace] . $ds . $file . '.php');
         } else {
             try {
                 $path = Path::realpath(
-                    $this->folders['default'] . $ds . $file . '.php'
+                    $this->dirs['default'] . $ds . $file . '.php'
                 );
             } catch (\Exception) {
                 throw new ValueError("No default template directory present.");

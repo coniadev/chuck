@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Chuck\Renderer;
 
+use Chuck\AbstractTemplate;
 use Chuck\Body\Body;
 use Chuck\Body\Text;
 use Chuck\RequestInterface;
-use Chuck\TemplateInterface;
 
 
 class TemplateRenderer extends Renderer
@@ -35,9 +35,9 @@ class TemplateRenderer extends Renderer
     {
         $request = $this->request;
         $config = $request->getConfig();
-        $class = $request->getRegistry()->get(TemplateInterface::class);
+        $class = $request->getRegistry()->get(AbstractTemplate::class);
         $template = new $class(
-            $this->request,
+            $config->templates(),
             defaults: [
                 'config' => $config,
                 'request' => $request,
