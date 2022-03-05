@@ -9,7 +9,7 @@ use Psr\Log\LoggerInterface;
 use Chuck\Error\RegistryEntryNotFoundError;
 use Chuck\Renderer\RendererInterface;
 use Chuck\Routing\{Router, RouterInterface};
-use Chuck\Template\{Temlate, AbstractTemplate};
+use Chuck\Template\{Template, AbstractTemplate};
 
 
 class Registry implements RegistryInterface

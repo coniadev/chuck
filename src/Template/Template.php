@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Template;
 
+use \RuntimeException;
 use \ValueError;
 use Chuck\Util\Path;
 
@@ -32,7 +33,12 @@ class Template extends AbstractTemplate
             /** @psalm-suppress UnresolvableInclude */
             include $____template____;
         };
+
         $load = $load->bindTo(new Context($context));
+
+        if (!$load) {
+            throw new RuntimeException('Unable to bind context to template');
+        }
 
         ob_start();
 

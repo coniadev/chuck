@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Chuck\Template;
 
+use Chuck\Util\Html;
+
+
 class Context
 {
     public function __construct(protected array $context)
@@ -12,12 +15,31 @@ class Context
 
     public function __get(string $name): mixed
     {
-        $value = $this->context[$name];
+        return Wrapper::wrap($this->context[$name]);
+    }
 
-        if (!is_string($value) && !method_exists($value, '__toString')) {
-            return $value;
-        }
+    public function escape(string $value): string
+    {
+        return htmlspecialchars($value);
+    }
 
-        return new Value($value);
+    public function e(string $value): string
+    {
+        return htmlspecialchars($value);
+    }
+
+    public function clean(array $extensions = []): string
+    {
+        return Html::clean($this->value, $extensions);
+    }
+
+    public function raw(string $name): mixed
+    {
+        return $this->context[$name];
+    }
+
+    public function url(string $value): string
+    {
+        return filter_var($value, FILTER_SANITIZE_URL);
     }
 }

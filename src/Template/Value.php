@@ -9,7 +9,7 @@ use Chuck\Util\Html;
 
 class Value
 {
-    public function __construct(protected mixed $value)
+    public function __construct(protected string $value)
     {
     }
 

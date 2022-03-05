@@ -46,6 +46,78 @@ test('Clean rendering', function () {
 });
 
 
+test('Array rendering', function () {
+    $config = $this->config();
+    $tpl = new Template($config->templates());
+
+    expect(trim($tpl->render('iter', [
+        'arr' => ['<b>1</b>', '<b>2</b>', '<b>3</b>']
+    ])))->toBe('&lt;b&gt;1&lt;/b&gt;&lt;b&gt;2&lt;/b&gt;&lt;b&gt;3&lt;/b&gt;');
+});
+
+
+test('Iterator rendering', function () {
+    $config = $this->config();
+    $tpl = new Template($config->templates());
+
+    $iter = function () {
+        $a = ['<b>2</b>', '<b>3</b>', '<b>4</b>'];
+        foreach ($a as $i) {
+            yield $i;
+        }
+    };
+
+    expect(trim($tpl->render('iter', [
+        'arr' => $iter()
+    ])))->toBe('&lt;b&gt;2&lt;/b&gt;&lt;b&gt;3&lt;/b&gt;&lt;b&gt;4&lt;/b&gt;');
+});
+
+
+test('Complex nested rendering', function () {
+    $config = $this->config();
+    $request = $this->request(url: '/albums');
+
+    $tpl = new Template(
+        $config->templates(),
+        ['config' => $config, 'request' => $request]
+    );
+
+    $iter = function () {
+        $a = [13.73, "String II", 1];
+        foreach ($a as $i) {
+            yield $i;
+        }
+    };
+
+    $context = [
+        'title' => 'Chuck App',
+        'headline' => 'Chuck App',
+        'url' => 'https://example.com/chuck     /app    ',
+        'array' => [
+            '<b>sanitize</b>' => [
+                1, "String", new class()
+                {
+                    public function __toString(): string
+                    {
+                        return '<p>Object</p>';
+                    }
+                }
+            ],
+            666 => $iter(),
+        ],
+        'html' => '<p>HTML</p>',
+    ];
+    $result = trim(preg_replace('/> </', '><', preg_replace('/\s+/', ' ', $tpl->render('complex', $context))));
+    $compare = '<!DOCTYPE html><html lang="en"><head><title>Chuck App</title><link rel="stylesheet" ' .
+        'href="https://example.com/chuck/app"><link rel=“canonical“ href=“/albums“ /><meta name="keywords" ' .
+        'content="chuck"></head><body><h1>Chuck App</h1><table><tr><td>&lt;b&gt;sanitize&lt;/b&gt;</td>' .
+        '<td>1</td><td>String</td><td>&lt;p&gt;Object&lt;/p&gt;</td></tr><tr><td>666</td><td>13.73</td>' .
+        '<td>String II</td><td>1</td></tr></table><p>HTML</p></body></html>';
+
+    expect($result)->toBe($compare);
+});
+
+
 test('Exists helper', function () {
     $tpl = new Template($this->config()->templates());
 
