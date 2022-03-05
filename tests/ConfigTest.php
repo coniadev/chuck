@@ -11,7 +11,7 @@ uses(TestCase::class);
 test('Defaults', function () {
     $config = new Config($this->minimalOptions());
 
-    expect($config->get('port'))->toBe(1983);
+    expect($config->get('app'))->toBe('chuck');
     expect($config->path->root)->toBe(C::root());
     expect($config->path()->root)->toBe(C::root());
 });
@@ -51,7 +51,8 @@ test('Custom options', function () {
         'album' => 'Symbolic',
     ]));
 
-    expect($config->get('port'))->toBe(1983);
+    expect($config->get('app'))->toBe('chuck');
+    expect($config->app())->toBe('chuck');
     expect($config->get('album'))->toBe('Symbolic');
 });
 
@@ -230,7 +231,7 @@ test('Log file not writeable', function () {
     $thrown = false;
 
     try {
-        new Config($this->options(['log.file' => $logfile]));
+        (new Config($this->options(['log.file' => $logfile])))->log();
     } catch (ValueError $e) {
         if (str_contains($e->getMessage(), 'is not writable')) {
             $thrown = true;

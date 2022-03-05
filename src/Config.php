@@ -15,29 +15,43 @@ use Chuck\Config\{Path, Templates, Log, Database, Connection, Scripts};
 
 class Config implements ConfigInterface
 {
+    public readonly string $root;
     public readonly bool $debug;
     public readonly string $env;
     public readonly string $app;
     public readonly Path $path;
-
-    protected readonly Database $database;
-    protected readonly Templates $templates;
-    protected readonly Scripts $scripts;
-    protected readonly Log $log;
 
     protected readonly array $settings;
 
     public function __construct(array $settings)
     {
         $settings = $this->getNested($settings);
+        $this->root = $this->getRoot($settings);
         $this->settings = $this->read($settings);
+        $this->path = new Path(
+            $this->root,
+            $this->settings['path'] ?? []
+        );
+    }
+
+    public function getRoot(array $settings): string
+    {
+        if (isset($settings['path']['root'])) {
+            $root = rtrim(PathUtil::realpath($settings['path']['root']), DIRECTORY_SEPARATOR);
+
+            if (!PathUtil::isAbsolute($root)) {
+                throw new ValueError('Configuration error: root path must be an absolute path: ' . $root);
+            }
+
+            return $root;
+        } else {
+            throw new ValueError('Configuration error: root path not set');
+        }
     }
 
     protected function getNested(array $flat): array
     {
-        $nested = [
-            'port' => 1983,
-        ];
+        $nested = [];
 
         foreach ($flat as $key => $value) {
             $dotpos = strpos($key, '.');
@@ -80,50 +94,12 @@ class Config implements ConfigInterface
 
     protected function read(array $settings): array
     {
-        if (isset($settings['path']['root'])) {
-            $root = rtrim(PathUtil::realpath($settings['path']['root']), DIRECTORY_SEPARATOR);
-
-            if (!PathUtil::isAbsolute($root)) {
-                throw new ValueError('Configuration error: root path must be an absolute path: ' . $root);
-            }
-        } else {
-            throw new ValueError('Configuration error: root path not set');
-        }
-
         if (!isset($settings['origin'])) {
             $settings['origin'] = Http::origin();
         }
 
         if (!isset($settings['host'])) {
             $settings['host'] = $_SERVER['HTTP_HOST'] ?? 'localhost';
-        }
-
-        $this->database = new Database($root);
-
-        foreach ($settings as $key => $value) {
-            switch ($key) {
-                case 'path':
-                    $this->path = new Path($root, $value);
-                    break;
-                case 'log':
-                    $this->log = new Log($root, $value);
-                    break;
-                case 'templates':
-                    $this->templates = new Templates($root, $value);
-                    break;
-                case 'scripts':
-                    $this->scripts = new Scripts($root, $value);
-                    break;
-                case 'sql':
-                    $this->database->setSql($value);
-                    break;
-                case 'db':
-                    $this->database->setConnections($value);
-                    break;
-                case 'migrations':
-                    $this->database->setMigrations($value);
-                    break;
-            }
         }
 
         return $settings;
@@ -214,14 +190,24 @@ class Config implements ConfigInterface
         return $this->env;
     }
 
+    protected function getDatabaseConfig(): Database
+    {
+        return new Database(
+            $this->root,
+            $this->settings['db'] ?? [],
+            $this->settings['sql'] ?? [],
+            $this->settings['migrations'] ?? [],
+        );
+    }
+
     public function db(string $connection = 'default', string $sql = 'default'): Connection
     {
-        return $this->database->connection($connection, $sql);
+        return $this->getDatabaseConfig()->connection($connection, $sql);
     }
 
     public function migrations(): array
     {
-        return $this->database->migrations();
+        return $this->getDatabaseConfig()->migrations();
     }
 
     public function path(): Path
@@ -231,24 +217,22 @@ class Config implements ConfigInterface
 
     public function log(): Log
     {
-        if (!isset($this->log)) {
-            $this->log = new Log($this->path->root, []);
-        }
-
-        return $this->log;
+        return new Log($this->root, $this->settings['log'] ?? []);
     }
 
     public function templates(): array
     {
-        return $this->templates->get();
+        return (new Templates(
+            $this->root,
+            $this->settings['templates'] ?? []
+        ))->get();
     }
 
     public function scripts(): array
     {
-        if (!isset($this->scripts)) {
-            $this->scripts = new Scripts($this->path->root, []);
-        }
-
-        return $this->scripts->get();
+        return (new Scripts(
+            $this->root,
+            $this->settings['scripts'] ?? []
+        ))->get();
     }
 }

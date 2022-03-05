@@ -12,20 +12,19 @@ class Database
 {
     use PathTrait;
 
-    protected array $connections = [];
     protected array $sql = [];
-    protected array $migrations = [];
 
-    public function __construct(protected readonly string $root)
-    {
+    public function __construct(
+        protected readonly string $root,
+        protected array $connections,
+        array $sql,
+        protected array $migrations,
+    ) {
+        $this->sql = $this->getSQL($sql);
     }
 
-    public function setConnections(array $connections): void
-    {
-        $this->connections = $connections;
-    }
 
-    public function setSql(array $sql): void
+    public function getSql(array $sql): array
     {
         $clean = [];
 
@@ -47,12 +46,7 @@ class Database
             }
         }
 
-        $this->sql = $clean;
-    }
-
-    public function setMigrations(array $migrations): void
-    {
-        $this->migrations = $migrations;
+        return $clean;
     }
 
     public function connection(string $connection, string $sql): Connection
