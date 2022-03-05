@@ -14,8 +14,9 @@ interface ConfigInterface
     public function env(): string;
     public function get(string $key, mixed $default = null): mixed;
     public function path(): Path;
-    public function db(string $connection, string $sql): Connection;
+    public function db(string $connection = 'default', string $sql = 'default'): Connection;
     public function log(): Log;
     public function templates(): array;
+    public function migrations(): array;
     public function scripts(): array;
 }
