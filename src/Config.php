@@ -25,28 +25,21 @@ class Config implements ConfigInterface
 
     public function __construct(array $settings)
     {
-        $settings = $this->getNested($settings);
+        $settings = $this->initDefaults($this->getNested($settings));
+        $this->app = $this->getApp($settings);
+
+        $settingsEnv = $settings['env'] ?? null;
+        $this->env = (!empty($settingsEnv) && is_string($settingsEnv)) ? $settingsEnv : '';
+
+        // Debug defaults to false to prevent leaking of unwanted information to production
+        $this->debug = is_bool($settings['debug'] ?? null) ? $settings['debug'] : false;
+
         $this->root = $this->getRoot($settings);
-        $this->settings = $this->read($settings);
         $this->path = new Path(
             $this->root,
-            $this->settings['path'] ?? []
+            $settings['path'] ?? []
         );
-    }
-
-    public function getRoot(array $settings): string
-    {
-        if (isset($settings['path']['root'])) {
-            $root = rtrim(PathUtil::realpath($settings['path']['root']), DIRECTORY_SEPARATOR);
-
-            if (!PathUtil::isAbsolute($root)) {
-                throw new ValueError('Configuration error: root path must be an absolute path: ' . $root);
-            }
-
-            return $root;
-        } else {
-            throw new ValueError('Configuration error: root path not set');
-        }
+        $this->settings = $settings;
     }
 
     protected function getNested(array $flat): array
@@ -92,7 +85,7 @@ class Config implements ConfigInterface
         return $nested;
     }
 
-    protected function read(array $settings): array
+    protected function initDefaults(array $settings): array
     {
         if (!isset($settings['origin'])) {
             $settings['origin'] = Http::origin();
@@ -103,6 +96,38 @@ class Config implements ConfigInterface
         }
 
         return $settings;
+    }
+
+    protected function getRoot(array $settings): string
+    {
+        if (isset($settings['path']['root'])) {
+            $root = rtrim(PathUtil::realpath($settings['path']['root']), DIRECTORY_SEPARATOR);
+
+            if (!PathUtil::isAbsolute($root)) {
+                throw new ValueError('Configuration error: root path must be an absolute path: ' . $root);
+            }
+
+            return $root;
+        } else {
+            throw new ValueError('Configuration error: root path not set');
+        }
+    }
+
+    protected function getApp(array $settings): string
+    {
+        try {
+            if (preg_match('/^[a-z0-9]{1,32}$/', $settings['app'])) {
+                return $settings['app'];
+            } else {
+                throw new ValueError;
+            }
+        } catch (Throwable) {
+            throw new ValueError(
+                "The 'app' setting must exist in the config file. It must " .
+                    ' be a nonempty string which consist only of lower case letters ' .
+                    'and numbers. Its length must not be longer than 32 characters.'
+            );
+        }
     }
 
     protected function getKeys(string $key): array
@@ -150,43 +175,16 @@ class Config implements ConfigInterface
 
     public function app(): string
     {
-        if (!isset($this->app)) {
-            try {
-                if (preg_match('/^[a-z0-9]{1,32}$/', $this->settings['app'])) {
-                    $this->app = $this->settings['app'];
-                } else {
-                    throw new ValueError;
-                }
-            } catch (Throwable) {
-                throw new ValueError(
-                    "The 'app' setting must exist in the config file. It must " .
-                        ' be a nonempty string which consist only of lower case letters ' .
-                        'and numbers. Its length must not be longer than 32 characters.'
-                );
-            }
-        }
-
         return $this->app;
     }
 
     public function debug(): bool
     {
-        if (!isset($this->debug)) {
-            // Debug defaults to false to prevent leaking of unwanted information to production
-            $this->debug = is_bool($this->settings['debug'] ?? null) ? $this->settings['debug'] : false;
-        }
-
         return $this->debug;
     }
 
     public function env(): string
     {
-        if (!isset($this->env)) {
-            // Make shure env is a string
-            $settingsEnv = $this->settings['env'] ?? null;
-            $this->env = (!empty($settingsEnv) && is_string($settingsEnv)) ? $settingsEnv : '';
-        }
-
         return $this->env;
     }
 

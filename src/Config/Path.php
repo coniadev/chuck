@@ -37,7 +37,7 @@ class Path
                     return $this->preparePath($path);
                 }
 
-                return array_map(fn ($p) => $this->preparePath($p), $path);
+                return array_map(fn (string $p) => $this->preparePath($p), $path);
             },
             array_filter(
                 $paths,

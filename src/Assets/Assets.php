@@ -42,8 +42,8 @@ class Assets
         ?RequestInterface $request = null,
     ): self {
         $assets = new  self(
-            $config->path->get('assets'),
-            $config->path->get('cache') . DIRECTORY_SEPARATOR . 'assets',
+            $config->path()->get('assets'),
+            $config->path()->get('cache') . DIRECTORY_SEPARATOR . 'assets',
             $request,
         );
 

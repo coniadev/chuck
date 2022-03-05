@@ -17,8 +17,13 @@ test('Defaults', function () {
 });
 
 
-test('Root path not set', function () {
+test('App name/id not set', function () {
     new Config([]);
+})->throws(ValueError::class, "The 'app' setting must exist");
+
+
+test('Root path not set', function () {
+    new Config(['app' => 'chuck']);
 })->throws(ValueError::class, 'path not set');
 
 
@@ -36,6 +41,7 @@ test('Public not determinable', function () {
 
 test('Public set', function () {
     $config = new Config([
+        'app' => 'chuck',
         'path.root' => C::root() . C::DS . 'altroot',
         'path.public' => 'www'
     ]);
