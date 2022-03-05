@@ -112,13 +112,20 @@ class Request implements RequestInterface
         return file_get_contents($stream);
     }
 
-    public function json(string $stream = 'php:://input'): mixed
-    {
+    public function json(
+        string $stream = 'php:://input',
+        int $flags = JSON_OBJECT_AS_ARRAY,
+    ): mixed {
         $body = $this->body($stream);
 
         if (empty($body)) return null;
 
-        return json_decode($body, true);
+        return json_decode(
+            $body,
+            true,
+            512, // PHP default value
+            $flags,
+        );
     }
 
     /**
