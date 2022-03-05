@@ -70,6 +70,7 @@ class Database implements DatabaseInterface
             return $this;
         }
 
+        /** @psalm-suppress InaccessibleProperty */
         $this->conn = new PDO(
             $this->dsn,
             $this->username,
