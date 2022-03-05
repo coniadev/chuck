@@ -16,7 +16,7 @@ class Database
     protected array $sql = [];
     protected array $migrations = [];
 
-    public function __construct(protected string $root)
+    public function __construct(protected readonly string $root)
     {
     }
 

@@ -12,14 +12,11 @@ class Path
 {
     use PathTrait;
 
-    public readonly string $root;
     public readonly string $public;
     protected readonly array $paths;
 
-    public function __construct(string $root, array $paths)
+    public function __construct(public readonly string $root, array $paths)
     {
-        $this->root = $root;
-
         // Public directory containing the static assets and index.php
         // If it is not set look for a directory named 'public' in path.root
         if (!isset($paths['public'])) {

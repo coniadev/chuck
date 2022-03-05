@@ -15,9 +15,8 @@ class Log
     public readonly int $level;
     public readonly ?string $file;
 
-    public function __construct(string $root, array $values)
+    public function __construct(protected readonly string $root, array $values)
     {
-        $this->root = $root;
         $this->level = $values['level'] ?? Logger::DEBUG;
 
         if ($values['file'] ?? null) {

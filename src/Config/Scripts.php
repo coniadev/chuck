@@ -10,9 +10,8 @@ class Scripts
     use PathTrait;
 
     protected readonly array $dirs;
-    public function __construct(string $root, array $values)
+    public function __construct(protected readonly string $root, array $values)
     {
-        $this->root = $root;
         $this->dirs = array_map(
             fn ($dir) => $this->preparePath($dir),
             array_values($values),

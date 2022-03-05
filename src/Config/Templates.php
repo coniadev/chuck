@@ -13,10 +13,8 @@ class Templates
 
     protected readonly array $dirs;
 
-    public function __construct(string $root, array $values)
+    public function __construct(protected readonly string $root, array $values)
     {
-        $this->root = $root;
-
         $dirs = [];
 
         foreach ($values as $id => $dir) {
