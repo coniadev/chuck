@@ -18,8 +18,6 @@ class Database implements DatabaseInterface
     protected Connection $connConfig;
     /** @psalm-suppress PropertyNotSetInConstructor */
     protected PDO $conn;
-    protected ?\Chuck\Memcached $memcached = null;
-    protected readonly string $memcachedPrefix;
     protected bool $print = false;
 
 
@@ -31,7 +29,6 @@ class Database implements DatabaseInterface
         $this->appConfig = $config;
         $this->connConfig = $config->db($connection, $sql);
         $this->print = $this->connConfig->print;
-        $this->memcachedPrefix = $config->app() . '/sql/';
     }
 
     public function setPrint(bool $print): self
@@ -66,10 +63,6 @@ class Database implements DatabaseInterface
         /** @psalm-suppress RedundantPropertyInitializationCheck */
         if (isset($this->conn)) {
             return $this;
-        }
-
-        if ($this->appConfig->get('memcached', false)) {
-            $this->memcached = \Chuck\Memcached::fromConfig($this->appConfig);
         }
 
         $this->conn = new PDO(
@@ -111,16 +104,6 @@ class Database implements DatabaseInterface
     {
         $this->connect();
         return $this->conn;
-    }
-
-    public function getMemcached(): ?\Chuck\Memcached
-    {
-        return $this->memcached;
-    }
-
-    public function getMemcachedPrefix(): string
-    {
-        return $this->memcachedPrefix;
     }
 
     public function execute(string $query, mixed ...$args): QueryInterface

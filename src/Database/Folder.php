@@ -44,33 +44,9 @@ class Folder
         return false;
     }
 
-    protected function fromCache(
-        \Chuck\Memcached $mc,
-        string $key,
-    ): string|false {
-        $memKey = $this->db->getMemcachedPrefix() . '/' . $this->folder . '/' . $key;
-        $stmt = $mc->get($memKey);
-
-        if (!$stmt) {
-            $stmt = $this->readScript($key);
-
-            if ($stmt) {
-                $mc->set($memKey, $stmt,);
-            }
-        }
-
-        return $stmt;
-    }
-
     protected function getScript(string $key): Script
     {
-        $mc = $this->db->getMemcached();
-
-        if ($mc) {
-            $stmt = $this->fromCache($mc, $key);
-        } else {
-            $stmt = $this->readScript($key);
-        }
+        $stmt = $this->readScript($key);
 
         if ($stmt) {
             return new Script($this->db, $stmt, false);
