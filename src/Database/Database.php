@@ -6,7 +6,6 @@ namespace Chuck\Database;
 
 use \PDO;
 
-use Chuck\ConfigInterface;
 use Chuck\Database\DatabaseInterface;
 use Chuck\Database\QueryInterface;
 use Chuck\Config\Connection;
@@ -14,21 +13,27 @@ use Chuck\Config\Connection;
 
 class Database implements DatabaseInterface
 {
-    protected ConfigInterface $appConfig;
-    protected Connection $connConfig;
     /** @psalm-suppress PropertyNotSetInConstructor */
-    protected PDO $conn;
+    protected readonly PDO $conn;
+    protected readonly string $dsn;
+    protected readonly ?string $username;
+    protected readonly ?string $password;
+    protected readonly array $options;
+    protected readonly int $fetchMode;
+    protected readonly string $driver;
+    protected readonly array $sqlDirs;
     protected bool $print = false;
 
-
-    public function __construct(
-        ConfigInterface $config,
-        protected string $connection = 'default',
-        protected string $sql = 'default',
-    ) {
-        $this->appConfig = $config;
-        $this->connConfig = $config->db($connection, $sql);
-        $this->print = $this->connConfig->print;
+    public function __construct(protected Connection $config)
+    {
+        $this->dsn = $config->dsn;
+        $this->username = $config->username;
+        $this->password = $config->password;
+        $this->options = $config->options;
+        $this->fetchMode = $config->fetchMode;
+        $this->print = $config->print;
+        $this->driver = $config->driver;
+        $this->sqlDirs = $config->sqlDirs;
     }
 
     public function setPrint(bool $print): self
@@ -45,17 +50,17 @@ class Database implements DatabaseInterface
 
     public function getFetchMode(): int
     {
-        return $this->connConfig->fetchMode;
+        return $this->fetchMode;
     }
 
     public function getPdoDriver(): string
     {
-        return $this->connConfig->driver;
+        return $this->driver;
     }
 
     public function getSqlDirs(): array
     {
-        return $this->connConfig->sqlDirs;
+        return $this->sqlDirs;
     }
 
     public function connect(): self
@@ -66,10 +71,10 @@ class Database implements DatabaseInterface
         }
 
         $this->conn = new PDO(
-            $this->connConfig->dsn,
-            $this->connConfig->username,
-            $this->connConfig->password,
-            $this->connConfig->options,
+            $this->dsn,
+            $this->username,
+            $this->password,
+            $this->options,
         );
 
         // Always throw an exception when an error occures
@@ -115,7 +120,7 @@ class Database implements DatabaseInterface
     {
         $exists = false;
 
-        foreach ($this->connConfig->sqlDirs as $path) {
+        foreach ($this->sqlDirs as $path) {
             $exists = is_dir($path . DIRECTORY_SEPARATOR . $key);
 
             if ($exists) break;

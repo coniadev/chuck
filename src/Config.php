@@ -214,7 +214,7 @@ class Config implements ConfigInterface
         return $this->env;
     }
 
-    public function db(string $connection, string $sql): Connection
+    public function db(string $connection = 'default', string $sql = 'default'): Connection
     {
         return $this->database->connection($connection, $sql);
     }

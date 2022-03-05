@@ -142,6 +142,6 @@ class DatabaseCase extends TestCase
 
     public function getDb(?array $options = [], string $sql = 'default'): Database
     {
-        return new Database($this->config($options), sql: $sql);
+        return new Database($this->config($options)->db('default', $sql));
     }
 }

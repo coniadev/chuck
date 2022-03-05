@@ -14,20 +14,13 @@ class Request implements RequestInterface
 {
     /** @psalm-suppress PropertyNotSetInConstructor */
     protected readonly ResponseInterface $response;
-
-    protected readonly RouterInterface $router;
-    protected readonly ConfigInterface $config;
-    protected readonly RegistryInterface $registry;
     protected array $customMethods = [];
 
     public function __construct(
-        ConfigInterface $config,
-        RouterInterface $router,
-        RegistryInterface $registry,
+        protected ConfigInterface $config,
+        protected RouterInterface $router,
+        protected RegistryInterface $registry,
     ) {
-        $this->router = $router;
-        $this->config = $config;
-        $this->registry = $registry;
     }
 
     public function params(): array

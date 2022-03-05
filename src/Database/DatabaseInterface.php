@@ -6,13 +6,9 @@ namespace Chuck\Database;
 
 use \PDO;
 
-use Chuck\ConfigInterface;
-
 
 interface DatabaseInterface
 {
-    public function __construct(ConfigInterface $config);
-
     public function getFetchMode(): int;
     public function getSqlDirs(): array;
     public function getPdoDriver(): string;

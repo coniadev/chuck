@@ -11,28 +11,34 @@ use \RuntimeException;
 class Connection
 {
     public readonly string $driver;
-    public readonly string $dsn;
-    public readonly ?string $username;
-    public readonly ?string $password;
-    public readonly array $options;
-    public readonly int $fetchMode;
-    public readonly bool $debug;
-    public readonly bool $memcached;
     public readonly array $sqlDirs;
 
     public function __construct(
-        protected array $connection,
-        protected string|array $sql
+        protected string|array $sql,
+        public readonly string $dsn,
+        public readonly ?string $username = null,
+        public readonly ?string $password = null,
+        public readonly array $options = [],
+        public readonly int $fetchMode = PDO::FETCH_BOTH,
+        public readonly bool $print = false
     ) {
-        $this->dsn = $connection['dsn'];
-        $this->username = $connection['username'] ?? null;
-        $this->password = $connection['password'] ?? null;
-        $this->options = $connection['options'] ?? [];
-        $this->fetchMode = $connection['fetchmode'] ?? PDO::FETCH_BOTH;
-        $this->print = $connection['print'] ?? false;
-        $this->memcached = $connection['memcached'] ?? false;
         $this->driver = $this->getDriver($this->dsn);
         $this->sqlDirs = $this->getDirs();
+    }
+
+    public static function fromArray(
+        array $connection,
+        string|array $sql
+    ): self {
+        return new self(
+            $sql,
+            $connection['dsn'],
+            $connection['username'] ?? null,
+            $connection['password'] ?? null,
+            $connection['options'] ?? [],
+            $connection['fetchmode'] ?? PDO::FETCH_BOTH,
+            $connection['print'] ?? false,
+        );
     }
 
     protected function getDriver(string $dsn): string

@@ -57,7 +57,7 @@ class Database
 
     public function connection(string $connection, string $sql): Connection
     {
-        return new Connection(
+        return Connection::fromArray(
             $this->connections[$connection],
             $this->sql[$sql]
         );

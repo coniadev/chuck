@@ -12,7 +12,7 @@ const NUMBER_OF_MEMBERS = 17;
 
 
 test('Database connection', function () {
-    $db = new Database($this->config());
+    $db = new Database($this->config()->db());
 
     expect($db->getConn())->toBeInstanceOf(\PDO::class);
 });
@@ -194,7 +194,7 @@ test('Template query with no SQL args', function () {
 
 
 test('Expand script dirs :: query from default', function () {
-    $db = new Database($this->config(), sql: 'additional');
+    $db = new Database($this->config()->db(sql: 'additional'));
 
     $result = $db->members->list()->all();
     expect(count($result))->toBe(NUMBER_OF_MEMBERS);
@@ -250,7 +250,7 @@ test('Query printing positional parameters', function () {
 
 
 test('Expand script dirs :: query from expanded', function () {
-    $db = new Database($this->config(), sql: 'additional');
+    $db = new Database($this->config()->db(sql: 'additional'));
 
     $result = $db->members->byName(['name' => 'Rick Rozz'])->one();
     expect($result['member'])->toBe(2);
@@ -258,7 +258,7 @@ test('Expand script dirs :: query from expanded', function () {
 
 
 test('Expand script dirs :: query from expanded new namespace', function () {
-    $db = new Database($this->config(), sql: 'additional');
+    $db = new Database($this->config()->db(sql: 'additional'));
 
     $result = $db->albums->list()->all();
     expect(count($result))->toBe(7);
@@ -266,7 +266,7 @@ test('Expand script dirs :: query from expanded new namespace', function () {
 
 
 test('Multiple Query->one calls', function () {
-    $db = new Database($this->config());
+    $db = new Database($this->config()->db());
     $query = $db->members->activeFromTo([
         'from' => 1990,
         'to' => 1995,
@@ -284,7 +284,7 @@ test('Multiple Query->one calls', function () {
 
 
 test('Databse::execute', function () {
-    $db = new Database($this->config());
+    $db = new Database($this->config()->db());
     $query = 'SELECT * FROM albums';
 
     expect(count($db->execute($query)->all()))->toBe(7);
@@ -292,7 +292,7 @@ test('Databse::execute', function () {
 
 
 test('Databse::execute with args', function () {
-    $db = new Database($this->config());
+    $db = new Database($this->config()->db());
     $queryQmark = 'SELECT name FROM members WHERE joined = ? AND left = ?';
     $queryNamed = 'SELECT name FROM members WHERE joined = :joined AND left = :left';
 
