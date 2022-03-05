@@ -10,10 +10,6 @@ use Chuck\Util\Path;
 
 class Template extends AbstractTemplate
 {
-    protected RequestInterface $request;
-    protected readonly array $folders;
-    protected Path $pathUtil;
-
     public function __construct(protected array $dirs, protected array $defaults = [])
     {
     }
