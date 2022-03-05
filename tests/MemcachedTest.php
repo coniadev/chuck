@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Chuck\Tests\Setup\{TestCase, Helper};
-use Chuck\Memcached;
+use Chuck\Memcached\Memcached;
 
 uses(TestCase::class);
 
