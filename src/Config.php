@@ -245,6 +245,10 @@ class Config implements ConfigInterface
 
     public function scripts(): array
     {
+        if (!isset($this->scripts)) {
+            $this->scripts = new Scripts($this->path->root, []);
+        }
+
         return $this->scripts->get();
     }
 }

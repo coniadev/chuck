@@ -20,7 +20,7 @@ class Templates extends AbstractPath
         foreach ($values as $id => $dir) {
             $preparedDir = $this->preparePath($dir);
 
-            if (!is_dir($dir)) {
+            if (!is_dir($preparedDir)) {
                 throw new ValueError("Template directory does not exists: $dir");
             }
 

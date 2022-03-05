@@ -1,1 +1,1 @@
-<h2><?= $config->get('appname') ?></h2>
+<h2><?= $config->app() ?></h2>

@@ -53,13 +53,7 @@ class Runner
 
         // add the custom script dir first to allow
         // overriding of builtin scripts.
-        if ($config->get('appname', false)) {
-            $customDir = $config->scripts();
-
-            if ($customDir) {
-                $scriptDirs[] = $customDir;
-            }
-        }
+        $scriptDirs[] = $config->scripts();
 
         $scriptDirs[] = __DIR__ . '/../Scripts';
 

@@ -105,7 +105,7 @@ class TestCase extends BaseTestCase
     public function minimalOptions(): array
     {
         return [
-            'app' => 'chuckapp',
+            'app' => 'chuck',
             'path.root' => C::root(),
         ];
     }

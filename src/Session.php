@@ -24,7 +24,7 @@ class Session implements SessionInterface
 
         $this->request = $request;
         $this->config = $request->getConfig();
-        $this->name = $name ?: $this->config->get('appname');
+        $this->name = $name ?: $this->config->app();
     }
 
     public function start(): void
