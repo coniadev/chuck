@@ -41,17 +41,6 @@ test('JSON Renderer', function () {
 
 
 test('String Renderer', function () {
-    // $renderer = new TextRenderer($this->request(), [1, 2, 3], []);
-    // $hasContentType = false;
-    // foreach ($renderer->headers() as $header) {
-    // if ($header['name'] === 'Content-Type' && $header['value'] === 'text/plain') {
-    // $hasContentType = true;
-    // }
-    // }
-    //
-    // expect($hasContentType)->toBe(true);
-    // expect($renderer->render())->toBe("Array\n(\n    [0] => 1\n    [1] => 2\n    [2] => 3\n)\n");
-
     $renderer = new TextRenderer($this->request(), '<h1>Symbolic</h1>', ['contentType' => 'text/html']);
     $hasContentType = false;
     foreach ($renderer->headers() as $header) {
@@ -63,6 +52,11 @@ test('String Renderer', function () {
     expect($hasContentType)->toBe(true);
     expect($renderer->render())->toBe("<h1>Symbolic</h1>");
 });
+
+
+test('String Renderer - wrong type', function () {
+    new TextRenderer($this->request(), [1, 2, 3], []);
+})->throws(ValueError::class, 'Wrong type [array]');
 
 
 test('Template Renderer', function () {
