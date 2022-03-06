@@ -170,15 +170,16 @@ test('Template paths', function () {
 
 
 test('Migrations paths', function () {
+    // NOTICE: we're reusing the existing template paths for the test
     $config = new Config($this->options([
-        'migrations' => C::root() . C::DS . 'migrations' . C::DS . 'default',
-        'migrations.relative' => 'migrations' . C::DS . 'additional',
+        'migrations' => C::root() . C::DS . 'migrations',
+        'migrations.relative' => 'templates' . C::DS . 'additional',
     ]));
-    $prefix = C::root() . C::DS . 'migrations' . C::DS;
+    $prefix = C::root() . C::DS;
 
     expect($config->migrations())->toBe([
-        $prefix . 'default',
-        $prefix . 'additional',
+        $prefix . 'migrations',
+        $prefix . 'templates' . C::DS . 'additional',
     ]);
 });
 

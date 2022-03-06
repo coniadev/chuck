@@ -13,6 +13,7 @@ $ds = DIRECTORY_SEPARATOR;
 Runner::run(new Config([
     'app' => 'chuck',
     'path.root' => __DIR__ . $ds . 'tests' . $ds . 'Fixtures',
+    'migrations' => __DIR__ . $ds . 'tests' . $ds . 'Fixtures' . $ds . 'migrations',
 ]));
 
 // vim: ft=php

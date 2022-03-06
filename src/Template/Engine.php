@@ -95,7 +95,7 @@ class Engine extends TemplateEngine
         $file = trim(strtr($file, '\\', '/'), '/');
         $ext = '';
 
-        if (empty(pathinfo($file)['extension'])) {
+        if (empty(pathinfo($file, PATHINFO_EXTENSION))) {
             $ext = '.php';
         }
 

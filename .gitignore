@@ -3,5 +3,9 @@
 .env
 .php_cs.cache
 .phpunit.result.cache
+/tmp
 /vendor
+/tests/Fixtures/migrations/*.php
+/tests/Fixtures/migrations/*.sql
+/tests/Fixtures/migrations/*.tpql
 /tests/Fixtures/public/cache
