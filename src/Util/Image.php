@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Chuck\Util;
 
+use \ErrorException;
 use \GdImage;
+use \InvalidArgumentException;
 use \RuntimeException;
 
 
@@ -26,7 +28,7 @@ class Image
     public static function getImageFromPath(string $path): GdImage
     {
         if (!file_exists($path)) {
-            throw new \InvalidArgumentException('Image does not exist: ' . $path);
+            throw new InvalidArgumentException('Image does not exist: ' . $path);
         }
 
         try {
@@ -46,12 +48,12 @@ class Image
                     $result = imagecreatefromwebp($path);
                     break;
                 default:
-                    throw new \InvalidArgumentException(
+                    throw new InvalidArgumentException(
                         'File "' . $path . '" is not a valid jpg, webp, png or gif image.'
                     );
             }
-        } catch (\ErrorException) {
-            throw new \InvalidArgumentException(
+        } catch (ErrorException) {
+            throw new InvalidArgumentException(
                 'File "' . $path . '" is not a valid jpg, webp, png or gif image.'
             );
         }
@@ -112,14 +114,12 @@ class Image
                 return imagewebp($image, $path);
                 break;
             default:
-                throw new \InvalidArgumentException('Image with given extension not supported: ' . $path);
+                throw new InvalidArgumentException('Image with given extension not supported: ' . $path);
         }
     }
 
-    public static function resizeToBox(
-        GdImage $image,
-        ImageSize $size,
-    ): GdImage {
+    public static function resizeToBox(GdImage $image, ImageSize $size): GdImage
+    {
         $thumb = imagecreatetruecolor($size->newWidth, $size->newHeight);
 
         // copy source image at a resized size
@@ -136,12 +136,13 @@ class Image
             $size->origHeight,
         );
 
-        // Haven't found a way to provoke this error
-        // @codeCoverageIgnoreStart
-        if (!$result) {
-            throw new RuntimeException('Error processing image: could not be resized');
+        // TODO: This is here to satisfy psalm.
+        //       We have not yet found a way to provoke this error.
+        if ($result === false) {
+            // @codeCoverageIgnoreStart
+            throw new RuntimeException('Error processing image: cannot resize');
+            // @codeCoverageIgnoreEnd
         }
-        // @codeCoverageIgnoreEnd
 
         return $thumb;
     }

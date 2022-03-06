@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Template;
 
-use \ValueError;
+use \RuntimeException;
 use Chuck\Util\Html;
 
 
@@ -34,9 +34,9 @@ class Template
         return htmlspecialchars($value);
     }
 
-    public function clean(array $extensions = []): string
+    public function clean(string $value, array $extensions = []): string
     {
-        return Html::clean($this->value, $extensions);
+        return Html::clean($value, $extensions);
     }
 
     public function raw(string $name): mixed
@@ -60,9 +60,9 @@ class Template
             $this->layout = $moniker;
 
             return;
+        } else {
+            throw new RuntimeException('Template error: layout already set');
         }
-
-        throw new ValueError('Template error: layout already set');
     }
 
     public function hasLayout(): bool
@@ -76,7 +76,7 @@ class Template
             return $this->layout;
         }
 
-        throw new ValueError('Template error: layout not set');
+        throw new RuntimeException('Template error: layout not set');
     }
 
     /**

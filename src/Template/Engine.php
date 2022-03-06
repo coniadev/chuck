@@ -40,8 +40,12 @@ class Engine extends TemplateEngine
         $template = new Template($this, $moniker, $context);
         $load = $load->bindTo($template);
 
+        // TODO: This is here to satisfy psalm.
+        //       We have not yet found a way to provoke this error.
         if (!$load) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException('Unable to bind context to template');
+            // @codeCoverageIgnoreEnd
         }
 
         ob_start();
@@ -55,17 +59,17 @@ class Engine extends TemplateEngine
         $content = ob_get_contents();
         ob_end_clean();
 
+        if ($error !== null) {
+            throw $error;
+        }
+
         if ($template->hasLayout()) {
             $layout = $template->getLayout();
             $context[$this->getBodyId($layout)] = $content;
             $content = $this->render($layout, $context);
         }
 
-        if ($error === null) {
-            return $content;
-        }
-
-        throw $error;
+        return $content;
     }
 
     public function getBodyId(string $moniker): string
@@ -110,12 +114,7 @@ class Engine extends TemplateEngine
     public function exists(string $moniker): bool
     {
         try {
-            $path = $this->getPath($moniker);
-
-            if (empty($path)) {
-                return false;
-            }
-
+            $this->getPath($moniker);
             return true;
         } catch (ValueError) {
             return false;

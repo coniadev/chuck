@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\TestCase;
-use Chuck\Template\Engine;
+use Chuck\Config;
+use Chuck\Tests\Setup\{TestCase, C};
+use Chuck\Template\{Engine, Template};
 
 uses(TestCase::class);
 
@@ -12,7 +13,9 @@ test('Simple rendering', function () {
     $config = $this->config();
     $tpl = new Engine($config->templates(), ['config' => $config]);
 
-    expect($tpl->render('index', ['text' => 'rules']))->toBe("<h1>chuck</h1>\n<p>rules</p>\n");
+    expect(
+        $this->fullTrim($tpl->render('index', ['text' => 'rules']))
+    )->toBe('<h1>chuck</h1><p>rules</p>');
 });
 
 
@@ -20,9 +23,9 @@ test('Non string rendering', function () {
     $config = $this->config();
     $tpl = new Engine($config->templates());
 
-    expect($tpl->render('nonstring', [
+    expect($this->fullTrim($tpl->render('nonstring', [
         'request' => $this->request(url: '/albums')
-    ]))->toBe("<p>/albums</p>\n");
+    ])))->toBe('<p>/albums</p>');
 });
 
 
@@ -53,6 +56,16 @@ test('Array rendering', function () {
     expect(trim($tpl->render('iter', [
         'arr' => ['<b>1</b>', '<b>2</b>', '<b>3</b>']
     ])))->toBe('&lt;b&gt;1&lt;/b&gt;&lt;b&gt;2&lt;/b&gt;&lt;b&gt;3&lt;/b&gt;');
+});
+
+
+test('Helper function rendering', function () {
+    $config = $this->config();
+    $tpl = new Engine($config->templates(), ['config' => $config]);
+
+    expect($this->fullTrim($tpl->render('helper')))->toBe(
+        '&lt;script&gt;&lt;script&gt;<strong>clean</strong>'
+    );
 });
 
 
@@ -118,14 +131,15 @@ test('Complex nested rendering', function () {
 });
 
 
-test('Layout rendering', function () {
-    $config = $this->config();
-    $tpl = new Engine($config->templates());
+test('Multilple layout error', function () {
+    (new Engine($this->config()->templates()))->render('multilayout');
+})->throws(RuntimeException::class, 'layout already set');
 
-    expect($this->fullTrim($tpl->render('uselayout', [
-        'text' => 'chuck'
-    ])))->toBe('<div><p>chuck</p>chuck</div>');
-});
+
+test('Get nonexistent layout error', function () {
+    $engine = new Engine($this->config()->templates());
+    (new Template($engine, 'moniker', []))->getLayout('nonexistent');
+})->throws(RuntimeException::class, 'layout not set');
 
 
 test('Section rendering', function () {
@@ -168,44 +182,53 @@ test('Exists helper', function () {
 
 test('Config error :: nonexistent template dir', function () {
     new Engine($this->config(['templates' => __DIR__ . '/Fixtures/fantasy/path'])->templates());
-})->throws(\ValueError::class, 'Template directory does not exists');
+})->throws(ValueError::class, 'Template directory does not exists');
 
 
 test('Config error :: outside root', function () {
     new Engine($this->config(['templates' => __DIR__ . '../../../etc'])->templates());
-})->throws(\ValueError::class, 'paths must be inside the root directory');
+})->throws(ValueError::class, 'paths must be inside the root directory');
 
 
 test('Config error :: wrong template format I', function () {
     $tpl = new Engine($this->config()->templates());
 
     $tpl->render('default:sub:index');
-})->throws(\ValueError::class, 'Invalid template format');
+})->throws(ValueError::class, 'Invalid template format');
 
 
 test('Config error :: wrong template format II', function () {
     $tpl = new Engine($this->config()->templates());
 
     $tpl->render('');
-})->throws(\InvalidArgumentException::class, 'No template');
+})->throws(InvalidArgumentException::class, 'No template');
 
 
 test('Render error :: missing template', function () {
     $tpl = new Engine($this->config()->templates());
 
     $tpl->render('nonexistent');
-})->throws(\ValueError::class, 'inside the project root');
+})->throws(ValueError::class, 'inside the project root');
 
 
 test('Render error :: template outside root directory', function () {
     $tpl = new Engine($this->config()->templates());
 
     $tpl->render('../../../../../etc/passwd');
-})->throws(\ValueError::class, 'inside the project root');
+})->throws(ValueError::class, 'inside the project root');
 
 
 test('Render error :: parse error', function () {
     $tpl = new Engine($this->config()->templates());
 
     $tpl->render('failing');
-})->throws(\ParseError::class);
+})->throws(ParseError::class);
+
+
+test('Render error :: not default template dir', function () {
+    $config = new Config(array_merge($this->minimalOptions(), [
+        'template.notdefault' => C::root() . C::DS . 'templates' . C::DS . 'default',
+    ]));
+    $tpl = new Engine($config->templates());
+    $tpl->render('index');
+})->throws(ValueError::class, 'No default template directory');

@@ -101,8 +101,11 @@ class Request implements RequestInterface
         return strtoupper($method) === $this->method();
     }
 
-    public function body(string $stream = 'php:://input'): string
+    public function body(string $stream = 'php://input'): string
     {
+        // TODO: Code to allow testing. Maybe code smell.
+        //       Allows to overwrite the stream as php://input
+        //       can not be populated. See if we can get rid of it.
         if (PHP_SAPI !== 'cli' && func_num_args() > 0) {
             // @codeCoverageIgnoreStart
             throw new \InvalidArgumentException('Changing the stream is only allowed in cli SAPI');
