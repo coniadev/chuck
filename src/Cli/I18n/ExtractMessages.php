@@ -2,7 +2,13 @@
 
 declare(strict_types=1);
 
-class ExtractMessages extends Chuck\Cli\Command
+namespace Chuck\Cli\I18n;
+
+use Chuck\Cli\Command;
+use Chuck\ConfigInterface;
+
+
+class ExtractMessages extends Command
 {
     public static string $group = 'I18N';
     public static string $title = 'Extract gettext() calls from source files';
@@ -28,7 +34,7 @@ class ExtractMessages extends Chuck\Cli\Command
     }
 
 
-    public function run(Chuck\ConfigInterface $config, string ...$args): void
+    public function run(ConfigInterface $config, string ...$args): void
     {
         $rootDir = $config->path()->root;
         $command = $args[0] ?? null;
@@ -50,5 +56,3 @@ class ExtractMessages extends Chuck\Cli\Command
         }
     }
 }
-
-return new ExtractMessages();

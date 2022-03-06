@@ -2,9 +2,15 @@
 
 declare(strict_types=1);
 
+namespace Chuck\Cli\Migrations;
+
+use \PDO;
+use \PDOException;
+use \Throwable;
 use Chuck\ConfigInterface;
 
-class Migrations extends Chuck\Cli\MigrationsCommand
+
+class Migrations extends Command
 {
     public static string $group = 'Database';
     public static string $title = 'Apply missing database migrations';
@@ -128,7 +134,7 @@ class Migrations extends Chuck\Cli\MigrationsCommand
             $migObj->run($db);
             $this->logMigration($db, $migration);
             $this->showMessage($migration);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $this->showMessage($migration, $e, $showStacktrace);
         }
     }
@@ -155,5 +161,3 @@ class Migrations extends Chuck\Cli\MigrationsCommand
             "'\033[0m successfully applied\n";
     }
 }
-
-return new Migrations();

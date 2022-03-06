@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Cli;
+namespace Chuck\Cli\Migrations;
 
 use \PDO;
+use Chuck\Cli\Command as BaseCommand;
 use Chuck\ConfigInterface;
 
-abstract class MigrationsCommand extends \Chuck\Cli\Command
+
+abstract class Command extends BaseCommand
 {
     protected function getMigrations(ConfigInterface $config): array
     {
@@ -38,7 +40,7 @@ abstract class MigrationsCommand extends \Chuck\Cli\Command
             'INSERT INTO migrations (migration) VALUES (:migration)'
         );
         $name = basename($migration);
-        $stmt->bindParam(':migration', $name, \PDO::PARAM_STR);
+        $stmt->bindParam(':migration', $name, PDO::PARAM_STR);
         $stmt->execute();
     }
 }

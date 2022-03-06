@@ -2,13 +2,19 @@
 
 declare(strict_types=1);
 
-class CompileCatalog extends Chuck\Cli\Command
+namespace Chuck\Cli\I18n;
+
+use Chuck\Cli\Command;
+use Chuck\ConfigInterface;
+
+
+class CompileCatalog extends Command
 {
     public static string $group = 'I18N';
     public static string $title = 'Compile *.po files to *.mo files';
     public static string $desc = '';
 
-    public function run(Chuck\ConfigInterface  $config,  string  ...$args): void
+    public function run(ConfigInterface  $config,  string  ...$args): void
     {
         $rootDir = $config->path()->root;
         $command = $args[0] ?? null;
@@ -57,5 +63,3 @@ class CompileCatalog extends Chuck\Cli\Command
         };
     }
 }
-
-return  new  CompileCatalog();

@@ -13,7 +13,7 @@ class Runner
         foreach ($scriptDirs as $scriptDir) {
             $scripts = array_merge(
                 $scripts,
-                array_filter(glob("$scriptDir/*.php"), 'is_file')
+                array_filter(glob($scriptDir . DIRECTORY_SEPARATOR . '*.php'), 'is_file')
             );
         }
 
@@ -49,13 +49,12 @@ class Runner
     public static function run(
         \Chuck\ConfigInterface $config,
     ): void {
-        $scriptDirs = [];
+        $ds = DIRECTORY_SEPARATOR;
 
         // add the custom script dir first to allow
         // overriding of builtin scripts.
-        $scriptDirs[] = $config->scripts();
-
-        $scriptDirs[] = __DIR__ . '/../Scripts';
+        $scriptDirs = $config->scripts();
+        $scriptDirs[] = realpath(__DIR__ . $ds . '..' . $ds . '..' . $ds . 'bin');
 
         if (isset($_SERVER['argv'][1])) {
             $script = $_SERVER['argv'][1] . '.php';

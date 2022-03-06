@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use \ErrorException;
 use \InvalidArgumentException;
 use \Throwable;
 use \ValueError;
@@ -148,6 +147,18 @@ class Config implements ConfigInterface
         return [$mainKey, $subKey];
     }
 
+
+    public function has(string $key): bool
+    {
+        [$mainKey, $subKey] = $this->getKeys($key);
+
+        if ($subKey) {
+            return !empty($this->settings[$mainKey][$subKey]);
+        } else {
+            return !empty($this->settings[$key]);
+        }
+    }
+
     /**
      * Returns the given $key from the configuration
      *
@@ -161,9 +172,10 @@ class Config implements ConfigInterface
             if ($subKey) {
                 return $this->settings[$mainKey][$subKey];
             } else {
+
                 return $this->settings[$key];
             }
-        } catch (ErrorException) {
+        } catch (Throwable) {
             if (func_num_args() > 1) {
                 return $default;
             }

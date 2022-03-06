@@ -12,6 +12,7 @@ interface ConfigInterface
     public function app(): string;
     public function debug(): bool;
     public function env(): string;
+    public function has(string $key): bool;
     public function get(string $key, mixed $default = null): mixed;
     public function path(): Path;
     public function db(string $connection = 'default', string $sql = 'default'): Connection;

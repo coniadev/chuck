@@ -35,6 +35,10 @@ class DatabaseCase extends TestCase
 
         $commands = [
             "
+                CREATE TABLE migrations (
+                    migration TEXT PRIMARY KEY
+                )
+            ", "
                 CREATE TABLE members (
                     member INTEGER PRIMARY KEY,
                     name TEXT NOT NULL,

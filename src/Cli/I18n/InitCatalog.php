@@ -2,13 +2,19 @@
 
 declare(strict_types=1);
 
-class InitCatalog extends Chuck\Cli\Command
+namespace Chuck\Cli\I18n;
+
+use Chuck\Cli\Command;
+use Chuck\ConfigInterface;
+
+
+class InitCatalog extends Command
 {
     public static string $group = 'I18N';
     public static string $title = 'Extract gettext() calls from source files';
     public static string $desc = 'pass the locale e. g. `php run init-catalog en`';
 
-    public function run(Chuck\ConfigInterface $config, string ...$args): void
+    public function run(ConfigInterface $config, string ...$args): void
     {
         $rootDir = $config->path()->root;
         $command = $args[0] ?? null;

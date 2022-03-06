@@ -2,12 +2,18 @@
 
 declare(strict_types=1);
 
-class UpdateCatalog extends Chuck\Cli\Command
+namespace Chuck\Cli\I18n;
+
+use Chuck\Cli\Command;
+use Chuck\ConfigInterface;
+
+
+class UpdateCatalog extends Command
 {
     public static string $group = 'General';
     public static string $title = 'Run test suite';
 
-    public function run(Chuck\ConfigInterface $config, string ...$args): void
+    public function run(ConfigInterface $config, string ...$args): void
     {
         $rootDir = $config->path()->root;
         $command = $args[0] ?? null;
@@ -35,5 +41,3 @@ class UpdateCatalog extends Chuck\Cli\Command
         };
     }
 }
-
-return new UpdateCatalog();
