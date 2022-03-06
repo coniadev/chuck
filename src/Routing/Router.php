@@ -285,8 +285,10 @@ class Router implements RouterInterface
                 $route->middlewares(),
             );
 
-            foreach ($handlerStack as $middleware) {
-                Reflect::validateMiddleware($middleware);
+            if ($request->getConfig()->debug()) {
+                foreach ($handlerStack as $middleware) {
+                    Reflect::validateMiddleware($middleware);
+                }
             }
 
             // Add the view action to the end of the stack

@@ -9,6 +9,24 @@ use Chuck\{Request, Response};
 uses(TestCase::class);
 
 
+test('Reflect function', function () {
+    $rf = Reflect::getReflectionFunction(function () {
+    });
+    expect($rf)->toBeInstanceOf(ReflectionFunction::class);
+
+    $rf = Reflect::getReflectionFunction(new class
+    {
+        public function __invoke(): string
+        {
+            return '';
+        }
+    });
+    expect($rf)->toBeInstanceOf(ReflectionMethod::class);
+
+    $rf = Reflect::getReflectionFunction('is_string');
+});
+
+
 test('Middleware :: no return type', function () {
     Reflect::validateMiddleware(function (Request $request, callable $next) {
         return $next($request);
