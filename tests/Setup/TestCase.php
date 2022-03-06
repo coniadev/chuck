@@ -172,4 +172,19 @@ class TestCase extends BaseTestCase
 
         return $request;
     }
+
+    public function fullTrim(string $text): string
+    {
+        return trim(
+            preg_replace(
+                '/> </',
+                '><',
+                preg_replace(
+                    '/\s+/',
+                    ' ',
+                    preg_replace('/\n/', '', $text)
+                )
+            )
+        );
+    }
 }

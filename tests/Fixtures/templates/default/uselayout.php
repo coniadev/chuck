@@ -1,2 +1,2 @@
-<?php $this->layout('layout', 'main'); ?>
+<?php $this->layout('layout'); ?>
 <p><?= $this->text ?></p>

@@ -78,4 +78,19 @@ class Template
     {
         return (string)$this->raw($this->engine->getBodyId($this->moniker));
     }
+
+    public function begin(string $name): void
+    {
+        $this->engine->beginSection($name);
+    }
+
+    public function end(): void
+    {
+        $this->engine->endSection();
+    }
+
+    public function section(string $name): string
+    {
+        return $this->engine->getSection($name);
+    }
 }

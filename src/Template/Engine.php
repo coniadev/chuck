@@ -11,6 +11,9 @@ use Chuck\Util\Path;
 
 class Engine extends TemplateEngine
 {
+    protected array $captured;
+    protected array $sections;
+
     public function __construct(protected array $dirs, protected array $defaults = [])
     {
     }
@@ -117,5 +120,23 @@ class Engine extends TemplateEngine
         } catch (ValueError) {
             return false;
         }
+    }
+
+    public function beginSection($name): void
+    {
+        $this->capture[] = $name;
+        ob_start();
+    }
+
+    public function endSection(): void
+    {
+        $content = ob_get_clean();
+        $name = array_pop($this->capture);
+        $this->sections[$name] = $content;
+    }
+
+    public function getSection(string $name): string
+    {
+        return $this->sections[$name];
     }
 }

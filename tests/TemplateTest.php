@@ -107,7 +107,7 @@ test('Complex nested rendering', function () {
         ],
         'html' => '<p>HTML</p>',
     ];
-    $result = trim(preg_replace('/> </', '><', preg_replace('/\s+/', ' ', $tpl->render('complex', $context))));
+    $result = $this->fullTrim($tpl->render('complex', $context));
     $compare = '<!DOCTYPE html><html lang="en"><head><title>Chuck App</title><link rel="stylesheet" ' .
         'href="https://example.com/chuck/app"><link rel=“canonical“ href=“/albums“ /><meta name="keywords" ' .
         'content="chuck"></head><body><h1>Chuck App</h1><table><tr><td>&lt;b&gt;sanitize&lt;/b&gt;</td>' .
@@ -122,10 +122,20 @@ test('Layout rendering', function () {
     $config = $this->config();
     $tpl = new Engine($config->templates());
 
-    expect(trim(preg_replace('/\n/', '', $tpl->render('uselayout', [
+    expect($this->fullTrim($tpl->render('uselayout', [
         'text' => 'chuck'
-    ]))))->toBe('<div><p>chuck</p>chuck</div>');
-})->only();
+    ])))->toBe('<div><p>chuck</p>chuck</div>');
+});
+
+
+test('Section rendering', function () {
+    $config = $this->config();
+    $tpl = new Engine($config->templates());
+
+    expect($this->fullTrim($tpl->render('addsection', [
+        'text' => 'chuck'
+    ])))->toBe('<div><p>chuck</p>chuck</div><ul><li>chuck</li></ul>');
+});
 
 
 test('Exists helper', function () {
