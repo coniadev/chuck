@@ -20,7 +20,7 @@ abstract class Command
         return $_SERVER['argv'][$index] ?? null;
     }
 
-    public function run(ConfigInterface $config, string ...$args): void
+    public function run(ConfigInterface $config, string ...$args): mixed
     {
         throw new ErrorException('Not implemented');
     }

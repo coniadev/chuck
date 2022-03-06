@@ -48,7 +48,7 @@ class Runner
 
     public static function run(
         \Chuck\ConfigInterface $config,
-    ): void {
+    ): mixed {
         $ds = DIRECTORY_SEPARATOR;
 
         // add the custom script dir first to allow
@@ -72,11 +72,11 @@ class Runner
                     if (file_exists($file)) {
                         $cmd = require $file;
 
-                        $cmd->run($config, ...array_slice($_SERVER['argv'], 2));
-                        return;
+                        return $cmd->run($config, ...array_slice($_SERVER['argv'], 2));
                     }
                 }
                 echo "\nphp run: Command not found.\n";
+                return null;
             }
         } else {
             self::showHelp($scriptDirs);

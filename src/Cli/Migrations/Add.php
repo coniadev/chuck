@@ -13,12 +13,12 @@ class Add extends Command
     public static string $title = 'Initialize a new migrations';
     public static string $desc;
 
-    public function run(ConfigInterface $config, string ...$args): void
+    public function run(ConfigInterface $config, string ...$args): mixed
     {
-        $this->add($config, $args);
+        return $this->add($config, $args);
     }
 
-    protected function add(ConfigInterface $config, array $args): void
+    protected function add(ConfigInterface $config, array $args): ?string
     {
         if (count($args) > 0) {
             $fileName = $args[0];
@@ -36,7 +36,7 @@ class Add extends Command
         } else {
             if (!in_array($ext, ['sql', 'php', 'tpql'])) {
                 echo "Wrong file extension '$ext'. Use 'sql', 'php' or 'tpql' instead.\nAborting.\n";
-                return;
+                return null;
             }
         }
 
@@ -44,9 +44,9 @@ class Add extends Command
         // Get the last migrations directory from the list
         $migrationDir = end($migrations);
 
-        if (strpos($migrationDir, '/vendor') !== false) {
+        if ($migrationDir !== false && strpos($migrationDir, '/vendor') !== false) {
             echo "The migrations directory is inside './vendor'.\n  -> $migrationDir\nAborting.\n";
-            return;
+            return null;
         }
 
         $ts = date('ymd-His', time());
@@ -63,8 +63,12 @@ class Add extends Command
 
             fclose($f);
             echo "Migration created:\n$migration\n";
+
+            return $migration;
         } else {
             echo "No migration directory available or not writable\n  -> $migrationDir\nAborting. \n";
+
+            return null;
         }
     }
 
