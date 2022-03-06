@@ -11,6 +11,11 @@ const NUMBER_OF_ALBUMS = 7;
 const NUMBER_OF_MEMBERS = 17;
 
 
+beforeAll(function () {
+    DatabaseCase::createTestDb();
+});
+
+
 test('Database connection', function () {
     $db = new Database($this->config()->db());
 
@@ -44,7 +49,6 @@ test('Get row count :: Query::len()', function () {
 
     expect($result)->toBe(0);
 });
-
 
 test('Fetch one :: Query::one()', function () {
     $db = $this->getDb();

@@ -13,51 +13,25 @@ use Chuck\Tests\Setup\{TestCase, C};
 
 class DatabaseCase extends TestCase
 {
-    public function __construct(?string $name = null, array $data = [], $dataName = '')
-    {
-        parent::__construct($name, $data, $dataName);
-
-        $this->createTestDb();
-    }
-
-    protected function getDbFile(): string
+    protected static function getDbFile(): string
     {
         return sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'chuck_test_db.sqlite3';
     }
 
-    protected function getDsn(): string
+    protected static function getDsn(): string
     {
-        return 'sqlite:' . $this->getDbFile();
+        return 'sqlite:' . self::getDbFile();
     }
 
-    public function config(array $options = []): Config
+    public static function createTestDb(): void
     {
-        $prefix = __DIR__ . C::DS . '..' . C::DS . 'Fixtures' . C::DS . 'sql' . C::DS;
-
-        return parent::config(
-            array_replace_recursive(
-                [
-                    'db' => ['dsn' => $this->getDsn()],
-                    'sql' => $prefix . 'default',
-                    'sql.additional' => [
-                        'sqlite' =>  $prefix . 'additional',
-                        'all' => $prefix . 'default',
-                    ]
-                ],
-                $options,
-            )
-        );
-    }
-
-    public function createTestDb(): void
-    {
-        $dbfile = $this->getDbFile();
+        $dbfile = self::getDbFile();
 
         if (file_exists($dbfile)) {
             unlink($dbfile);
         }
 
-        $db = new PDO($this->getDsn());
+        $db = new PDO(self::getDsn());
 
         $commands = [
             "
@@ -138,6 +112,25 @@ class DatabaseCase extends TestCase
         foreach ($commands as $command) {
             $db->exec($command);
         }
+    }
+
+    public function config(array $options = []): Config
+    {
+        $prefix = __DIR__ . C::DS . '..' . C::DS . 'Fixtures' . C::DS . 'sql' . C::DS;
+
+        return parent::config(
+            array_replace_recursive(
+                [
+                    'db' => ['dsn' => $this->getDsn()],
+                    'sql' => $prefix . 'default',
+                    'sql.additional' => [
+                        'sqlite' =>  $prefix . 'additional',
+                        'all' => $prefix . 'default',
+                    ]
+                ],
+                $options,
+            )
+        );
     }
 
     public function getDb(?array $options = [], string $sql = 'default'): Database
