@@ -49,6 +49,11 @@ class Template
         return filter_var($value, FILTER_SANITIZE_URL);
     }
 
+    /**
+     * Defines a layout template that will be wrapped around this instance.
+     *
+     * Typically it’s placed at the top of the file.
+     */
     public function layout(string $moniker): void
     {
         if ($this->layout === null) {
@@ -74,9 +79,26 @@ class Template
         throw new ValueError('Template error: layout not set');
     }
 
+    /**
+     * Used in the layout template to get the content of the wrapped template
+     */
     public function body(): string
     {
         return (string)$this->raw($this->engine->getBodyId($this->moniker));
+    }
+
+    /**
+     * Includes another template into the current template
+     *
+     * If no context is passed it shares the context of the calling template.
+     */
+    public function insert(string $moniker, array $context = []): void
+    {
+        if (func_num_args() > 1) {
+            echo $this->engine->render($moniker, $context);
+        } else {
+            echo $this->engine->render($moniker, $this->context);
+        }
     }
 
     public function begin(string $name): void

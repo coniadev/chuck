@@ -138,6 +138,16 @@ test('Section rendering', function () {
 });
 
 
+test('Insert rendering', function () {
+    $config = $this->config();
+    $tpl = new Engine($config->templates());
+
+    expect($this->fullTrim($tpl->render('insert', [
+        'text' => 'Chuck'
+    ])))->toBe('<p>Chuck</p><p>Schuldiner</p>');
+});
+
+
 test('Exists helper', function () {
     $tpl = new Engine($this->config()->templates());
 
