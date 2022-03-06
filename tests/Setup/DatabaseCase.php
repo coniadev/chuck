@@ -27,7 +27,7 @@ class DatabaseCase extends TestCase
     {
         $dbfile = self::getDbFile();
 
-        if (file_exists($dbfile)) {
+        if (is_file($dbfile)) {
             unlink($dbfile);
         }
 

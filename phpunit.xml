@@ -13,6 +13,8 @@
             <directory suffix=".php">src</directory>
             <exclude>
                 <directory suffix=".php">src/Scripts</directory>
+                <directory suffix=".php">bin</directory>
+                <file>src/Cli/Server/Router.php</file>
             </exclude>
         </whitelist>
     </filter>

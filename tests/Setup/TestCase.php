@@ -6,6 +6,7 @@ namespace Chuck\Tests\Setup;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
+use \ValueError;
 use Chuck\Config;
 use Chuck\ConfigInterface;
 use Chuck\Logger;
@@ -42,6 +43,7 @@ class TestCase extends BaseTestCase
         unset($_SERVER['REQUEST_URI']);
         unset($_SERVER['SERVER_PORT']);
         unset($_SERVER['SERVER_PROTOCOL']);
+        unset($_SERVER['argv']);
         global $_GET;
         $_GET = [];
         global $_POST;
@@ -116,6 +118,7 @@ class TestCase extends BaseTestCase
             $this->minimalOptions(),
             [
                 'templates' => C::root() . C::DS . 'templates' . C::DS . 'default',
+                'migrations' => C::root() . C::DS . 'migrations',
             ],
             $options
         );

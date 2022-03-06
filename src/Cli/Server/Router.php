@@ -32,7 +32,7 @@ logit($_SERVER['REQUEST_URI']);
 
 // serve existing files as-is
 if ($publicDir) {
-    if (file_exists($publicDir . $url)) {
+    if (is_file($publicDir . $url)) {
         return false;
     }
 

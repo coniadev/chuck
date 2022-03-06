@@ -69,7 +69,7 @@ class Runner
 
                     $file = $scriptDir . DIRECTORY_SEPARATOR . $script;
 
-                    if (file_exists($file)) {
+                    if (is_file($file)) {
                         $cmd = require $file;
 
                         return $cmd->run($config, ...array_slice($_SERVER['argv'], 2));
