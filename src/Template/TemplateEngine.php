@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Template;
 
-abstract class AbstractTemplate
+abstract class TemplateEngine
 {
     abstract public function __construct(
         array $dirs,

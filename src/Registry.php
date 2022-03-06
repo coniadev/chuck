@@ -9,7 +9,7 @@ use Psr\Log\LoggerInterface;
 use Chuck\Error\RegistryEntryNotFoundError;
 use Chuck\Renderer\RendererInterface;
 use Chuck\Routing\{Router, RouterInterface};
-use Chuck\Template\{Template, AbstractTemplate};
+use Chuck\Template\{Engine, TemplateEngine};
 
 
 class Registry implements RegistryInterface
@@ -25,9 +25,9 @@ class Registry implements RegistryInterface
             RequestInterface::class => Request::class,
             ResponseInterface::class => Response::class,
             RouterInterface::class => Router::class,
-            AbstractTemplate::class => Template::class,
             SessionInterface::class => Session::class,
             CsrfInterface::class => Csrf::class,
+            TemplateEngine::class => Engine::class,
         ];
         $this->instances = [];
         $this->renderers = [

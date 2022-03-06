@@ -16,9 +16,9 @@ class Wrapper
         } elseif (is_numeric($value)) {
             return $value;
         } elseif (is_array($value)) {
-            return new ArrayWrapper($value);
+            return new ArrayValue($value);
         } elseif ($value instanceof Traversable) {
-            return new IteratorWrapper($value);
+            return new IteratorValue($value);
         } elseif (is_object($value) && method_exists($value, '__toString')) {
             return new Value((string)$value);
         } else {

@@ -4,106 +4,42 @@ declare(strict_types=1);
 
 namespace Chuck\Template;
 
-use \RuntimeException;
-use \ValueError;
-use Chuck\Util\Path;
+use Chuck\Util\Html;
 
 
-class Template extends AbstractTemplate
+class Template
 {
-    public function __construct(protected array $dirs, protected array $defaults = [])
+    public function __construct(protected array $context)
     {
     }
 
-    public function render(string $template, array $context = []): string
+    public function __get(string $name): mixed
     {
-        if (empty($template)) {
-            throw new \InvalidArgumentException('No template path given');
-        }
-
-        $error = null;
-        $path = $this->getPath($template);
-
-        $load =  function (string $template, array $context = []): void {
-            // Hide $template. Could be overwritten if $context['template'] exists.
-            $____template____ = $template;
-
-            extract($context);
-
-            /** @psalm-suppress UnresolvableInclude */
-            include $____template____;
-        };
-
-        $load = $load->bindTo(new Context($context));
-
-        if (!$load) {
-            throw new RuntimeException('Unable to bind context to template');
-        }
-
-        ob_start();
-
-        try {
-            $load($path, $this->defaults);
-        } catch (\Throwable $e) {
-            $error = $e;
-        }
-
-        $content = ob_get_contents();
-        ob_end_clean();
-
-        if ($error === null) {
-            return $content;
-        }
-
-        throw $error;
+        return Wrapper::wrap($this->context[$name]);
     }
 
-    protected function getPath(string $template): string
+    public function escape(string $value): string
     {
-        $segments = explode(':', $template);
-
-        [$namespace, $file] = match (count($segments)) {
-            1 => [null, $segments[0]],
-            2 => [$segments[0], $segments[1]],
-            default => throw new ValueError(
-                "Invalid template format: '$template'. Use 'namespace:template/path or template/path'."
-            ),
-        };
-
-        $file = trim(strtr($file, '\\', '/'), '/');
-        $ds = DIRECTORY_SEPARATOR;
-
-        if ($namespace) {
-            $path = Path::realpath($this->dirs[$namespace] . $ds . $file . '.php');
-        } else {
-            try {
-                $path = Path::realpath(
-                    $this->dirs['default'] . $ds . $file . '.php'
-                );
-            } catch (\Exception) {
-                throw new ValueError("No default template directory present.");
-            }
-        }
-
-        if (file_exists($path)) {
-            return $path;
-        }
-
-        throw new ValueError("Template '$path' not found inside the project root directory");
+        return htmlspecialchars($value);
     }
 
-    public function exists(string $template): bool
+    public function e(string $value): string
     {
-        try {
-            $path = $this->getPath($template);
+        return htmlspecialchars($value);
+    }
 
-            if (empty($path)) {
-                return false;
-            }
+    public function clean(array $extensions = []): string
+    {
+        return Html::clean($this->value, $extensions);
+    }
 
-            return true;
-        } catch (ValueError) {
-            return false;
-        }
+    public function raw(string $name): mixed
+    {
+        return $this->context[$name];
+    }
+
+    public function url(string $value): string
+    {
+        return filter_var($value, FILTER_SANITIZE_URL);
     }
 }

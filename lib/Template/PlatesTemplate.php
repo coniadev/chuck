@@ -6,10 +6,10 @@ namespace Chuck\Lib\Templates;
 
 use League\Plates\Engine;
 
-use Chuck\Template\AbstractTemplate;
+use Chuck\Template\TemplateEngine;
 
 
-class PlatesTemplate implements AbstractTemplate
+class PlatesEngine implements TemplateEngine
 {
     protected array $defaults;
     protected string $path;

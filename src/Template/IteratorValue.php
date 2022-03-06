@@ -16,7 +16,7 @@ use \IteratorIterator;
  *
  * @template-extends IteratorIterator<TKey, TValue, TIterator>
  */
-class IteratorWrapper extends IteratorIterator
+class IteratorValue extends IteratorIterator
 {
     public function current(): mixed
     {
