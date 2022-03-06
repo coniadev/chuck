@@ -14,8 +14,16 @@ test('Simple rendering', function () {
     $tpl = new Engine($config->templates(), ['config' => $config]);
 
     expect(
-        $this->fullTrim($tpl->render('index', ['text' => 'rules']))
+        $this->fullTrim($tpl->render('simple', ['text' => 'rules']))
     )->toBe('<h1>chuck</h1><p>rules</p>');
+});
+
+
+test('Extension given', function () {
+    $config = $this->config();
+    $tpl = new Engine($config->templates(), ['config' => $config]);
+
+    expect($this->fullTrim($tpl->render('extension.tpl')))->toBe('<p></p>');
 });
 
 
@@ -175,7 +183,7 @@ test('Insert rendering', function () {
 test('Exists helper', function () {
     $tpl = new Engine($this->config()->templates());
 
-    expect($tpl->exists('index'))->toBe(true);
+    expect($tpl->exists('simple'))->toBe(true);
     expect($tpl->exists('wrongindex'))->toBe(false);
 });
 

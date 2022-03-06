@@ -93,14 +93,20 @@ class Engine extends TemplateEngine
         };
 
         $file = trim(strtr($file, '\\', '/'), '/');
+        $ext = '';
+
+        if (empty(pathinfo($file)['extension'])) {
+            $ext = '.php';
+        }
+
         $ds = DIRECTORY_SEPARATOR;
 
         if ($namespace) {
-            $path = Path::realpath($this->dirs[$namespace] . $ds . $file . '.php');
+            $path = Path::realpath($this->dirs[$namespace] . $ds . $file . $ext);
         } else {
             try {
                 $path = Path::realpath(
-                    $this->dirs['default'] . $ds . $file . '.php'
+                    $this->dirs['default'] . $ds . $file . $ext
                 );
             } catch (Exception) {
                 throw new ValueError("No default template directory present.");
