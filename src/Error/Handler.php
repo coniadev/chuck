@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck\Error;
 
+use \ErrorException;
+use \Throwable;
 use Chuck\RequestInterface;
 use Chuck\Error\HttpError;
 use Chuck\Error\HttpBadRequest;
@@ -33,13 +35,13 @@ class Handler
         int $line = 0,
     ): bool {
         if ($level & error_reporting()) {
-            throw new \ErrorException($message, $level, $level, $file, $line);
+            throw new ErrorException($message, $level, $level, $file, $line);
         }
 
         return false;
     }
 
-    public function handleException(\Throwable $exception): void
+    public function handleException(Throwable $exception): void
     {
         $debug = $this->request->getConfig()->debug();
         $response = $this->request->getResponse();

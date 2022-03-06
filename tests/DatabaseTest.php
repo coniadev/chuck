@@ -14,7 +14,7 @@ const NUMBER_OF_MEMBERS = 17;
 test('Database connection', function () {
     $db = new Database($this->config()->db());
 
-    expect($db->getConn())->toBeInstanceOf(\PDO::class);
+    expect($db->getConn())->toBeInstanceOf(PDO::class);
 });
 
 
@@ -150,16 +150,16 @@ test('Query with invalid type parameters', function () {
     $db->types->test([
         'val' => $obj,
     ]);
-})->throws(\InvalidArgumentException::class);
+})->throws(InvalidArgumentException::class);
 
 
 test('Template query', function () {
     $db = $this->getDb();
 
-    $result = $db->members->joined(['year' => 1983])->one(\PDO::FETCH_ASSOC);
+    $result = $db->members->joined(['year' => 1983])->one(PDO::FETCH_ASSOC);
     expect(count($result))->toBe(4);
 
-    $result = $db->members->joined(['year' => 1983, 'interestedInNames' => true])->one(\PDO::FETCH_ASSOC);
+    $result = $db->members->joined(['year' => 1983, 'interestedInNames' => true])->one(PDO::FETCH_ASSOC);
     expect(count($result))->toBe(5);
 });
 
@@ -179,7 +179,7 @@ test('Template query with positional args', function () {
     $db = $this->getDb();
 
     $db->members->joined(1983);
-})->throws(\InvalidArgumentException::class);
+})->throws(InvalidArgumentException::class);
 
 
 test('Template query with no SQL args', function () {
@@ -337,10 +337,10 @@ test('Script dir shadowing and driver specific', function () {
 test('Accessing non-existent namespace (Folder)', function () {
     $db = $this->getDb();
     $db->doesNotExist;
-})->throws(\UnexpectedValueException::class);
+})->throws(RuntimeException::class);
 
 
 test('Accessing non-existent script/query', function () {
     $db = $this->getDb();
     $db->members->doesNotExist;
-})->throws(\UnexpectedValueException::class);
+})->throws(RuntimeException::class);

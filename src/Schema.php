@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use \Closure;
+use \RuntimeException;
+use \TypeError;
+use \ValueError;
 use Chuck\Util\Arrays;
 use Chuck\Util\Html;
 
@@ -22,12 +26,12 @@ class Validator
     public string $name;
     public string $message;
     public bool $skipNull;
-    protected \Closure $validator;
+    protected Closure $validator;
 
     public function __construct(
         string $name,
         string $message,
-        \Closure $validator,
+        Closure $validator,
         bool $skipNull
     ) {
         $this->name = $name;
@@ -72,7 +76,7 @@ abstract class Schema implements SchemaInterface
         string ...$validators
     ): void {
         if (!$field) {
-            throw new \InvalidArgumentException(
+            throw new ValueError(
                 'Schema definition error: field must not be empty'
             );
         }
@@ -306,7 +310,7 @@ abstract class Schema implements SchemaInterface
                         $typeName = 'schema';
                         $typeArgs = [];
                     } else {
-                        throw new \ErrorException(
+                        throw new RuntimeException(
                             'Sub schema must implement SchemaInterface'
                         );
                     }
@@ -341,7 +345,7 @@ abstract class Schema implements SchemaInterface
                         $valObj = $this->toSubValues($value, $schema);
                         break;
                     default:
-                        throw new \ErrorException('Wrong schema type');
+                        throw new ValueError('Wrong schema type');
                 }
 
                 if ($valObj->error !== null) {
@@ -369,7 +373,7 @@ abstract class Schema implements SchemaInterface
             if (!isset($values[$field])) {
                 try {
                     $type = explode(':', $rule['type'])[0];
-                } catch (\TypeError) {
+                } catch (TypeError) {
                     $type = 'schema';
                 }
 

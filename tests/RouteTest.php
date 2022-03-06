@@ -82,21 +82,21 @@ test('Parameter matching brace error I', function () {
     // Invalid escaped left braces
     $route = new Route('contrib', '/contributed/{from:\{\d+}', fn () => null);
     $route->match($this->request(method: 'GET', url: '/'));
-})->throws(\ValueError::class);
+})->throws(ValueError::class);
 
 
 test('Parameter matching brace error II', function () {
     // Invalid escaped right braces
     $route = new Route('contrib', '/contributed/{from:\d+\}}', fn () => null);
     $route->match($this->request(method: 'GET', url: '/'));
-})->throws(\ValueError::class);
+})->throws(ValueError::class);
 
 
 test('Parameter matching brace error III', function () {
     // Invalid unbalanced braces
     $route = new Route('contrib', '/contributed/{from:\d+{1,2}{}', fn () => null);
     $route->match($this->request(method: 'GET', url: '/'));
-})->throws(\ValueError::class);
+})->throws(ValueError::class);
 
 
 test('Url construction :: regular parameters', function () {
@@ -119,7 +119,7 @@ test('Url construction :: invalid call', function () {
     $route = new Route('albums', '/albums', fn () => null);
 
     expect($route->url(1, 2))->toBe('/albums');
-})->throws(\InvalidArgumentException::class);
+})->throws(InvalidArgumentException::class);
 
 
 test('GET matching', function () {

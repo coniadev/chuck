@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck\Util;
 
+use \ValueError;
+
 
 class Crypt
 {
@@ -20,7 +22,7 @@ class Crypt
         int $taglen = 16
     ): string|false {
         if (!in_array($cipherAlgo, openssl_get_cipher_methods())) {
-            throw new \InvalidArgumentException("Cipher algorithm '$cipherAlgo' is not available");
+            throw new ValueError("Cipher algorithm '$cipherAlgo' is not available");
         }
 
         $cipherAlgo = strtolower($cipherAlgo);
@@ -46,7 +48,7 @@ class Crypt
         int $taglen = 16
     ): string|false {
         if (!in_array($cipherAlgo, openssl_get_cipher_methods())) {
-            throw new \InvalidArgumentException("Cipher algorithm '$cipherAlgo' is not available");
+            throw new ValueError("Cipher algorithm '$cipherAlgo' is not available");
         }
 
         $ivlen = openssl_cipher_iv_length($cipherAlgo);

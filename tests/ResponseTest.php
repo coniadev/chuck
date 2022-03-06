@@ -102,4 +102,4 @@ test('File body nonexistent file with runtime error', function () {
     $response = $this->request()->getResponse();
     $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.jpg';
     $response->file($file, throwNotFound: false);
-})->throws(\RuntimeException::class, 'does not exist');
+})->throws(RuntimeException::class, 'does not exist');

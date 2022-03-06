@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Database;
 
+use \InvalidArgumentException;
 use \PDO;
 
 
@@ -85,7 +86,7 @@ class Query implements QueryInterface
                     $this->stmt->bindValue($arg, json_encode($value), PDO::PARAM_STR);
                     break;
                 default:
-                    throw new \InvalidArgumentException(
+                    throw new InvalidArgumentException(
                         'Only the types bool, int, string, null and array are supported'
                     );
             }

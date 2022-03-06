@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Chuck\Database;
 
 use \PDO;
+use \RuntimeException;
 
 use Chuck\Database\DatabaseInterface;
 use Chuck\Database\QueryInterface;
@@ -128,7 +129,7 @@ class Database implements DatabaseInterface
         }
 
         if (!$exists) {
-            throw new \UnexpectedValueException('The SQL folder does not exist: ' . $key);
+            throw new RuntimeException('The SQL folder does not exist: ' . $key);
         }
 
         return new Folder($this, $key);

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck\Util;
 
+use \ValueError;
+
 
 class ImageSize
 {
@@ -16,7 +18,7 @@ class ImageSize
         public int $offsetHeight = 0,
     ) {
         if ($newWidth < 0 || $newHeight < 0) {
-            throw new \InvalidArgumentException(
+            throw new ValueError(
                 'Image error: width or height must not be smaller than 0 ' .
                     ' (width = ' . (string)$newWidth . ', height = ' . (string)$newHeight . ').'
             );
@@ -24,7 +26,7 @@ class ImageSize
 
         // TODO: Arbitrary values. What are sensible values?
         if ($newWidth > 8192 || $newHeight > 8192) {
-            throw new \InvalidArgumentException(
+            throw new ValueError(
                 'Image error: width or height must not be larger than 8192px ' .
                     ' (width = ' . (string)$newWidth . ', height = ' . (string)$newHeight . ').'
             );
@@ -43,7 +45,7 @@ class ImageSize
         $scaleHeight = $this->newHeight / $this->origHeight;
 
         if ($this->newWidth === 0 || $this->newHeight === 0) {
-            throw new \InvalidArgumentException(
+            throw new ValueError(
                 'Image cropping error: width and height must be larger than 0 ' .
                     ' (width = ' . (string)$this->newWidth . ', height = ' .
                     (string)$this->newHeight . ').'
@@ -103,7 +105,7 @@ class ImageSize
             $newWidth = (int)floor($this->origWidth * ($this->newHeight / $this->origHeight));
             $newHeight = $this->newHeight;
         } else {
-            throw new \InvalidArgumentException('Height and/or width must be given');
+            throw new ValueError('Height and/or width must be given');
         }
 
         return new self(

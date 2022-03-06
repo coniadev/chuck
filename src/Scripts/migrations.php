@@ -128,7 +128,7 @@ class Migrations extends Chuck\Cli\MigrationsCommand
             $migObj->run($db);
             $this->logMigration($db, $migration);
             $this->showMessage($migration);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->showMessage($migration, $e, $showStacktrace);
         }
     }

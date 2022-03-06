@@ -65,20 +65,20 @@ test('Route property :: uninitialized', function () {
     $request = $this->request();
 
     expect($request->route)->toBeInstanceOf(RouteInterface::class);
-})->throws(\RuntimeException::class, 'Route is not initialized');
+})->throws(RuntimeException::class, 'Route is not initialized');
 
 
 test('Route method :: uninitialized', function () {
     $request = $this->request();
 
     expect($request->getRoute())->toBeInstanceOf(RouteInterface::class);
-})->throws(\RuntimeException::class, 'Route is not initialized');
+})->throws(RuntimeException::class, 'Route is not initialized');
 
 
 test('Undefined property', function () {
     $request = $this->request();
     $request->doesnotexist;
-})->throws(\RuntimeException::class, "Undefined request property 'doesnotexist'");
+})->throws(RuntimeException::class, "Undefined request property 'doesnotexist'");
 
 
 test('Url helpers', function () {

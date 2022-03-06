@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use \RuntimeException;
 use Chuck\Util\Http;
 
 
@@ -29,12 +30,12 @@ class Session implements SessionInterface
 
                 if (!session_start()) {
                     // @codeCoverageIgnoreStart
-                    throw new \RuntimeException(__METHOD__ . 'session_start failed.');
+                    throw new RuntimeException(__METHOD__ . 'session_start failed.');
                     // @codeCoverageIgnoreEnd
                 }
             } else {
                 // @codeCoverageIgnoreStart
-                throw new \RuntimeException(
+                throw new RuntimeException(
                     __METHOD__ . 'Session started after headers sent.'
                 );
                 // @codeCoverageIgnoreEnd

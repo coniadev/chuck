@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Chuck\Template;
 
+use \Exception;
+use \InvalidArgumentException;
 use \RuntimeException;
+use \Throwable;
 use \ValueError;
 use Chuck\Util\Path;
 
@@ -21,7 +24,7 @@ class Engine extends TemplateEngine
     public function render(string $moniker, array $context = []): string
     {
         if (empty($moniker)) {
-            throw new \InvalidArgumentException('No template path given');
+            throw new InvalidArgumentException('No template path given');
         }
 
         $error = null;
@@ -52,7 +55,7 @@ class Engine extends TemplateEngine
 
         try {
             $load($path, $this->defaults);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $error = $e;
         }
 
@@ -99,7 +102,7 @@ class Engine extends TemplateEngine
                 $path = Path::realpath(
                     $this->dirs['default'] . $ds . $file . '.php'
                 );
-            } catch (\Exception) {
+            } catch (Exception) {
                 throw new ValueError("No default template directory present.");
             }
         }

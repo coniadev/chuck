@@ -61,7 +61,7 @@ class TestCase extends BaseTestCase
             if (strtoupper($method) === 'POST') {
                 $_POST[$key] = $value;
             } else {
-                throw new \ValueError("Invalid method '$method'");
+                throw new ValueError("Invalid method '$method'");
             }
         }
     }

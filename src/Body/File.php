@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Chuck\Body;
 
+use \finfo;
+use \RuntimeException;
+use \Throwable;
 use Chuck\ResponseInterface;
 use Chuck\Error\HttpNotFound;
 
@@ -23,7 +26,7 @@ class File implements Body
                 throw new HttpNotFound();
             }
 
-            throw new \RuntimeException('File for response body does not exist');
+            throw new RuntimeException('File for response body does not exist');
         }
 
         $contentType = mime_content_type($this->file) ?: null;
@@ -31,15 +34,15 @@ class File implements Body
         // Should be a binary file
         try {
             if (!$contentType) {
-                $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                $finfo = new finfo(FILEINFO_MIME_TYPE);
                 $contentType = finfo_file($finfo, $this->file);
             }
-        } catch (\Throwable) {
+        } catch (Throwable) {
             $contentType = 'application/octet-stream';
         }
 
         $response->header('Content-Type', $contentType);
-        $finfo = new \finfo(FILEINFO_MIME_ENCODING);
+        $finfo = new finfo(FILEINFO_MIME_ENCODING);
         $response->header('Content-Transfer-Encoding', finfo_file($finfo, $file));
         $response->header('Content-Length', (string)filesize($this->file));
     }

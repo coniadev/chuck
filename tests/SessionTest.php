@@ -34,7 +34,7 @@ test('Session unset', function () {
 test('Session throws when missing', function () {
     $session = new Session($this->request()->config->app());
     $session->get('To exist in this world may be a mistake');
-})->throws(\Exception::class, 'Undefined array key');
+})->throws(Exception::class, 'Undefined array key');
 
 
 test('Flash messages all', function () {

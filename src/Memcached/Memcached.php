@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck\Memcached;
 
+use \InvalidArgumentException;
+use \RuntimeException;
 use Chuck\ConfigInterface;
 
 
@@ -27,7 +29,7 @@ class Memcached implements MemcachedInterface
                     $this->impl = new MemcacheWrapper($server, $port);
                     break;
                 default:
-                    throw new \InvalidArgumentException('Memcached implementation does not exist');
+                    throw new InvalidArgumentException('Memcached implementation does not exist');
             }
         } else {
             if (class_exists('\Memcached', false) && $preferMemcached) {
@@ -37,7 +39,7 @@ class Memcached implements MemcachedInterface
                     $this->impl = new MemcacheWrapper($server, $port);
                 } else {
                     // @codeCoverageIgnoreStart
-                    throw new \RuntimeException('No memcached extension available');
+                    throw new RuntimeException('No memcached extension available');
                     // @codeCoverageIgnoreEnd
                 }
             }

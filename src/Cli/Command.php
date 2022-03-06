@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Chuck\Cli;
 
+use \ErrorException;
+use \PDO;
+use Chuck\ConfigInterface;
+
 
 abstract class Command
 {
@@ -16,12 +20,12 @@ abstract class Command
         return $_SERVER['argv'][$index] ?? null;
     }
 
-    public function run(\Chuck\ConfigInterface $config, string ...$args): void
+    public function run(ConfigInterface $config, string ...$args): void
     {
-        throw new \ErrorException('Not implemented');
+        throw new ErrorException('Not implemented');
     }
 
-    protected function db(\Chuck\ConfigInterface $config): \PDO
+    protected function db(ConfigInterface $config): PDO
     {
         $db = $config->get('db');
         $dbms = $db['dbms'];
@@ -31,16 +35,16 @@ abstract class Command
         $username = $db['user'];
         $password = $db['pass'];
 
-        $conn = new \PDO(
+        $conn = new PDO(
             "$dbms:host=$host;port=$port;dbname=$dbname",
             $username,
             $password
         );
 
         // Always throw an exception when an error occures
-        $conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         // Allow getting the number of rows
-        $conn->setAttribute(\PDO::ATTR_CURSOR, \PDO::CURSOR_SCROLL);
+        $conn->setAttribute(PDO::ATTR_CURSOR, PDO::CURSOR_SCROLL);
 
         return $conn;
     }

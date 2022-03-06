@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use \Throwable;
 use Psr\Log\{LoggerInterface, InvalidArgumentException};
 
 
@@ -52,7 +53,7 @@ class Logger implements LoggerInterface
 
         try {
             $levelLabel = $this->levelLabels[$level];
-        } catch (\Throwable) {
+        } catch (Throwable) {
             throw new InvalidArgumentException('Unknown log level: ' . (string)$level);
         }
 

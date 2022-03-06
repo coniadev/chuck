@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use \InvalidArgumentException;
 use Chuck\Body\Body;
 use Chuck\Body\File;
 use Chuck\Body\Text;
@@ -70,7 +71,7 @@ class Response implements ResponseInterface
     protected function validateHeaderName(string $name): void
     {
         if (preg_match("/^[0-9A-Za-z-]+$/", $name) !== 1) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Header name must consist only of the characters a-zA-Z0-9 and -.'
             );
         }

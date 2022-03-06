@@ -41,7 +41,7 @@ test('Generate route url', function () {
 test('Fail to generate route url', function () {
     $router = new Router();
     $router->routeUrl('fantasy');
-})->throws(\InvalidArgumentException::class, 'Route not found');
+})->throws(RuntimeException::class, 'Route not found');
 
 
 test('Get routes list', function () {
@@ -78,7 +78,7 @@ test('Static routes', function () {
 
 test('Static routes to nonexistent directory', function () {
     (new Router())->addStatic('static', '/static', C::root() . C::DS . 'fantasy' . C::DS . 'dir');
-})->throws(\InvalidArgumentException::class, 'does not exist');
+})->throws(RuntimeException::class, 'does not exist');
 
 
 test('Dispatch without renderer', function () {
@@ -141,7 +141,7 @@ test('Dispatch wrong view return type', function () {
     $index = new Route('index', '/', TestControllerWithRequest::class . '::wrongReturnType');
     $router->addRoute($index);
     $router->dispatch($this->request(method: 'GET', url: '/'));
-})->throws(\ValueError::class, 'Cannot determine a handler');
+})->throws(RuntimeException::class, 'Cannot determine a handler');
 
 
 test('Dispatch missing route', function () {
@@ -171,7 +171,7 @@ test('Dispatch view with wrong route params', function () {
     $router->addRoute($index);
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/symbolic/7.13-23'));
-})->throws(\RuntimeException::class, 'cannot be resolved');
+})->throws(RuntimeException::class, 'cannot be resolved');
 
 
 test('Dispatch view with wrong type for int param', function () {
@@ -180,7 +180,7 @@ test('Dispatch view with wrong type for int param', function () {
     $router->addRoute($index);
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/symbolic/7.13-wrong'));
-})->throws(\RuntimeException::class, "Cannot cast 'int' to int");
+})->throws(RuntimeException::class, "Cannot cast 'int' to int");
 
 
 test('Dispatch view with wrong type for float param', function () {
@@ -189,7 +189,7 @@ test('Dispatch view with wrong type for float param', function () {
     $router->addRoute($index);
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/symbolic/wrong-13'));
-})->throws(\RuntimeException::class, "Cannot cast 'float' to float");
+})->throws(RuntimeException::class, "Cannot cast 'float' to float");
 
 
 test('Dispatch view with unsupported param', function () {
@@ -198,19 +198,19 @@ test('Dispatch view with unsupported param', function () {
     $router->addRoute($index);
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/symbolic'));
-})->throws(\ValueError::class, 'is not supported');
+})->throws(RuntimeException::class, 'is not supported');
 
 
 test('Access uninitialized route', function () {
     (new Router())->getRoute();
-})->throws(\RuntimeException::class, 'Route is not initialized');
+})->throws(RuntimeException::class, 'Route is not initialized');
 
 
 test('Duplicate route name', function () {
     $router = new Router();
     $router->addRoute(new Route('index', '/', fn () => null));
     $router->addRoute(new Route('index', 'albums', fn () => null));
-})->throws(\RuntimeException::class, 'Duplicate route name');
+})->throws(RuntimeException::class, 'Duplicate route name');
 
 
 test('Dispatch view with route params including request', function () {

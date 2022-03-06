@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Util\Sanitizer;
 
+use \DOMNode;
 use HtmlSanitizer\Extension\ExtensionInterface;
 use HtmlSanitizer\Model\Cursor;
 use HtmlSanitizer\Node\AbstractTagNode;
@@ -33,7 +34,7 @@ class AsideNodeVisitor extends AbstractNodeVisitor implements NamedNodeVisitorIn
         return 'aside';
     }
 
-    protected function createNode(\DOMNode $domNode, Cursor $cursor): NodeInterface
+    protected function createNode(DOMNode $domNode, Cursor $cursor): NodeInterface
     {
         return new AsideNode($cursor->node);
     }
@@ -59,7 +60,7 @@ class ArticleNodeVisitor extends AbstractNodeVisitor implements NamedNodeVisitor
         return 'article';
     }
 
-    protected function createNode(\DOMNode $domNode, Cursor $cursor): NodeInterface
+    protected function createNode(DOMNode $domNode, Cursor $cursor): NodeInterface
     {
         return new ArticleNode($cursor->node);
     }
@@ -85,7 +86,7 @@ class SectionNodeVisitor extends AbstractNodeVisitor implements NamedNodeVisitor
         return 'section';
     }
 
-    protected function createNode(\DOMNode $domNode, Cursor $cursor): NodeInterface
+    protected function createNode(DOMNode $domNode, Cursor $cursor): NodeInterface
     {
         return new SectionNode($cursor->node);
     }

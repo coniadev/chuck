@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck\Util;
 
+use \ValueError;
+
 
 class Http
 {
@@ -26,7 +28,7 @@ class Http
         $origin = "$proto://$host$port";
 
         if (!filter_var($origin, FILTER_VALIDATE_URL)) {
-            throw new \ValueError('Invalid origin');
+            throw new ValueError('Invalid origin');
         }
 
         return $origin;

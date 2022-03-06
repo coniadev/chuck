@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Chuck\Routing;
 
 use \Closure;
-use \ValueError;
 use \RuntimeException;
-
+use \Throwable;
 use Chuck\Error\HttpNotFound;
 use Chuck\Error\HttpServerError;
 use Chuck\RequestInterface;
@@ -33,7 +32,7 @@ class Router implements RouterInterface
     {
         try {
             return $this->route;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             throw new RuntimeException('Route is not initialized');
         }
     }
@@ -43,7 +42,7 @@ class Router implements RouterInterface
         $name = $route->name();
 
         if (array_key_exists($name, $this->names)) {
-            throw new \RuntimeException('Duplicate route name: ' . $name);
+            throw new RuntimeException('Duplicate route name: ' . $name);
         }
 
         $this->routes[] = $route;
@@ -61,7 +60,7 @@ class Router implements RouterInterface
                 'dir' => $dir,
             ];
         } else {
-            throw new \InvalidArgumentException("The static directory does not exist: $dir");
+            throw new RuntimeException("The static directory does not exist: $dir");
         }
     }
 
@@ -85,7 +84,7 @@ class Router implements RouterInterface
             return $route->url(...$args);
         }
 
-        throw new \InvalidArgumentException('Route not found: ' . $__routeName__);
+        throw new RuntimeException('Route not found: ' . $__routeName__);
     }
 
     protected function getCacheBuster(string $dir, string $path): string
@@ -95,7 +94,7 @@ class Router implements RouterInterface
 
         try {
             return hash('xxh32', (string)filemtime($file));
-        } catch (\ErrorException) {
+        } catch (Throwable) {
             return '';
         }
     }
@@ -195,7 +194,7 @@ class Router implements RouterInterface
                 return $request->getResponse(body: $result);
             }
 
-            throw new ValueError('Cannot determine a handler for the return type of the view');
+            throw new RuntimeException('Cannot determine a handler for the return type of the view');
         }
     }
 
@@ -211,7 +210,7 @@ class Router implements RouterInterface
     protected function getViewArgs(callable $view, RequestInterface $request): array
     {
         $args = [];
-        $rf = Reflect::getReflectionFunction($view, "View callable is not compatible.");
+        $rf = Reflect::getReflectionFunction($view);
         $params = $rf->getParameters();
         $routeArgs = $this->route->args();
         $errMsg = 'View parameters cannot be resolved. Details: ';
@@ -230,7 +229,7 @@ class Router implements RouterInterface
                     'string' => $routeArgs[$name],
                     default => Reflect::getRequestParamOrError($request, $param, $name),
                 };
-            } catch (\ErrorException $e) {
+            } catch (Throwable $e) {
                 throw new RuntimeException($errMsg . $e->getMessage());
             }
         }

@@ -108,7 +108,7 @@ test('Failing image', function () {
 test('Missing width/height', function () {
     $image = new Image($this->landscape);
     $image->resize();
-})->throws(\InvalidArgumentException::class, 'Height and/or width');
+})->throws(ValueError::class, 'Height and/or width');
 
 
 test('Resize width, place in bounding box', function () {

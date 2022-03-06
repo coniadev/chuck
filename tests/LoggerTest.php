@@ -102,8 +102,8 @@ test('Message interpolation', function () {
     $logger = new Logger(logfile: $logfile);
 
     try {
-        throw new \Exception('The test exception');
-    } catch (\Exception $e) {
+        throw new Exception('The test exception');
+    } catch (Exception $e) {
         $logger->warning(
             'String: {string}, Integer: {integer} ' .
                 'DateTime: {datetime}, Array: {array}' .
@@ -113,9 +113,9 @@ test('Message interpolation', function () {
                 'string' => 'Scream Bloody Gore',
                 'integer' => 13,
                 'float' => 73.23,
-                'datetime' => new \DateTime('1987-05-25T13:31:23'),
+                'datetime' => new DateTime('1987-05-25T13:31:23'),
                 'array' => [13, 23, 71],
-                'object' => new \stdClass(),
+                'object' => new stdClass(),
                 'other' => stream_context_create(),
                 'null' => null,
                 'exception' => $e,

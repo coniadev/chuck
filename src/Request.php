@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use \InvalidArgumentException;
+use \RuntimeException;
 use Chuck\Assets\Assets;
 use Chuck\Routing\RouteInterface;
 use Chuck\Routing\RouterInterface;
@@ -108,7 +110,7 @@ class Request implements RequestInterface
         //       can not be populated. See if we can get rid of it.
         if (PHP_SAPI !== 'cli' && func_num_args() > 0) {
             // @codeCoverageIgnoreStart
-            throw new \InvalidArgumentException('Changing the stream is only allowed in cli SAPI');
+            throw new InvalidArgumentException('Changing the stream is only allowed in cli SAPI');
             // @codeCoverageIgnoreEnd
         }
 
@@ -229,7 +231,7 @@ class Request implements RequestInterface
             'env' => $this->config->env(),
             /** @var bool */
             'debug' => $this->config->debug(),
-            default => throw new \RuntimeException("Undefined request property '$key'")
+            default => throw new RuntimeException("Undefined request property '$key'")
         };
     }
 }

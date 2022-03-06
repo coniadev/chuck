@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck\Database;
 
+use \RuntimeException;
+
 
 class Folder
 {
@@ -60,7 +62,7 @@ class Folder
             return new Script($this->db, $dynStmt, true);
         }
 
-        throw new \UnexpectedValueException('SQL script does not exist');
+        throw new RuntimeException('SQL script does not exist');
     }
 
     public function __get(string $key): Script

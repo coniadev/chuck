@@ -13,7 +13,7 @@ const prefix = '___CHUCK__TEST___';
 test('Memcached connection', function () {
     $mc = new Memcached();
 
-    expect($mc->getConn())->toBeInstanceOf(\Memcached::class);
+    expect($mc->getConn())->toBeInstanceOf(Memcached::class);
 })->skip(!Helper::memcachedExtensionLoaded());
 
 

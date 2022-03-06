@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck\Tests\Setup;
 
+use \Exception;
+
 
 class Helper
 {
@@ -22,7 +24,7 @@ class Helper
             }
 
             return false;
-        } catch (\Exception) {
+        } catch (Exception) {
             return false;
         }
 
@@ -48,7 +50,7 @@ class Helper
             }
 
             return false;
-        } catch (\Exception) {
+        } catch (Exception) {
             return false;
         }
     }

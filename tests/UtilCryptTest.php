@@ -27,9 +27,9 @@ test('Encryption and decryption with alternate algo', function () {
 
 test('Failing encryption', function () {
     Crypt::encrypt('Symbolic', 'secret-key', 'wrong-algo');
-})->throws(\InvalidArgumentException::class, 'Cipher algorithm');
+})->throws(ValueError::class, 'Cipher algorithm');
 
 
 test('Failing decryption', function () {
     Crypt::decrypt('Symbolic', 'secret-key', 'wrong-algo');
-})->throws(\InvalidArgumentException::class, 'Cipher algorithm');
+})->throws(ValueError::class, 'Cipher algorithm');

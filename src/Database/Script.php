@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Chuck\Database;
 
+use \InvalidArgumentException;
+
+
 class Script
 {
     protected $db;
@@ -81,7 +84,7 @@ class Script
 
         if ($this->isTemplate) {
             if ($args->type() === ArgType::Positional) {
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     'Template queries `*.sql.php` allow named parameters only'
                 );
             }

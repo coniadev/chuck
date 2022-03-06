@@ -8,7 +8,7 @@ class MemcachedWrapper extends BaseWrapper implements WrapperInterface
 {
     protected function connect(): void
     {
-        $this->conn = new \Memcached();
+        $this->conn = new Memcached();
         $this->conn->addServer($this->server, $this->port);
     }
 

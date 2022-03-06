@@ -40,7 +40,7 @@ test('Error handler II', function () {
     $err = new Handler($this->request());
 
     expect($err->handleError(E_WARNING, 'Chuck Test'))->toBe(false);
-})->throws(\ErrorException::class, 'Chuck Test');
+})->throws(ErrorException::class, 'Chuck Test');
 
 
 test('Handle HTTP Exceptions', function () {
@@ -91,7 +91,7 @@ test('Handle PHP Exceptions', function () {
     $err->setup();
 
     ob_start();
-    $err->handleException(new \DivisionByZeroError('Division by zero'));
+    $err->handleException(new DivisionByZeroError('Division by zero'));
     $output = ob_get_contents();
     ob_end_clean();
     expect($output)->toBe('<h1>500 Internal Server Error</h1><h2>Division by zero</h2>');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use \ErrorException;
 use \InvalidArgumentException;
 use \Throwable;
 use \ValueError;
@@ -162,7 +163,7 @@ class Config implements ConfigInterface
             } else {
                 return $this->settings[$key];
             }
-        } catch (\ErrorException) {
+        } catch (ErrorException) {
             if (func_num_args() > 1) {
                 return $default;
             }

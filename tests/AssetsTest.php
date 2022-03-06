@@ -164,7 +164,7 @@ test('Resize one side 0',  function () {
     $assets = Assets::fromConfig($this->config($this->paths));
     $assetImage = $assets->image($this->landscape);
     $assetImage->resize(200, 0, true);
-})->throws(InvalidArgumentException::class);
+})->throws(ValueError::class);
 
 
 test('Static route', function () {

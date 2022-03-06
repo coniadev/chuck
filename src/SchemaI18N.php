@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use \ValueError;
+use \RuntimeException;
+
 
 abstract class SchemaI18N implements SchemaInterface
 {
@@ -28,7 +31,7 @@ abstract class SchemaI18N implements SchemaInterface
         string ...$validators
     ): void {
         if (!$field) {
-            throw new \ErrorException(
+            throw new ValueError(
                 'Schema definition error: field must not be empty'
             );
         }
@@ -52,7 +55,7 @@ abstract class SchemaI18N implements SchemaInterface
         $this->rules();
 
         if (count($this->langs) === 0) {
-            throw new \ErrorException(
+            throw new ValueError(
                 'There must be at least one language defined in SchemaI18N objects'
             );
         }
@@ -129,7 +132,7 @@ abstract class SchemaI18N implements SchemaInterface
     protected function rules(): void
     {
         // Must be implemented in child classes
-        throw new \ErrorException('not implemented');
+        throw new RuntimeException('not implemented');
     }
 
     public function values(): array

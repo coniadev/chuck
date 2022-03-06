@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Util\Sanitizer;
 
+use \DOMNode;
 use HtmlSanitizer\Extension\ExtensionInterface;
 use HtmlSanitizer\Model\Cursor;
 use HtmlSanitizer\Node\AbstractTagNode;
@@ -33,7 +34,7 @@ class NavNodeVisitor extends AbstractNodeVisitor implements NamedNodeVisitorInte
         return 'nav';
     }
 
-    protected function createNode(\DOMNode $domNode, Cursor $cursor): NodeInterface
+    protected function createNode(DOMNode $domNode, Cursor $cursor): NodeInterface
     {
         return new NavNode($cursor->node);
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Chuck\Routing;
 
 use \Closure;
+use \InvalidArgumentException;
 use \ValueError;
 
 use Chuck\Util\Arrays;
@@ -157,7 +158,7 @@ class Route implements RouteInterface
     protected function hideInnerBraces(string $str): string
     {
         if (strpos($str, '\{') || strpos($str, '\}')) {
-            throw new \ValueError('Escaped braces are not allowed: ' . $this->pattern);
+            throw new ValueError('Escaped braces are not allowed: ' . $this->pattern);
         }
 
         $new = '';
@@ -190,7 +191,7 @@ class Route implements RouteInterface
         }
 
         if ($level !== 0) {
-            throw  new \ValueError('Unbalanced braces in route pattern: ' . $this->pattern);
+            throw  new ValueError('Unbalanced braces in route pattern: ' . $this->pattern);
         }
 
         return $new;
@@ -237,7 +238,7 @@ class Route implements RouteInterface
                 $args = $args[0];
             } else {
                 if (!Arrays::isAssoc($args)) {
-                    throw new \InvalidArgumentException(
+                    throw new InvalidArgumentException(
                         'Route::url: either pass an associative array or named arguments'
                     );
                 }

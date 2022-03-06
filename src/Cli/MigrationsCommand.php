@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Cli;
 
+use \PDO;
 use Chuck\ConfigInterface;
 
 abstract class MigrationsCommand extends \Chuck\Cli\Command
@@ -31,7 +32,7 @@ abstract class MigrationsCommand extends \Chuck\Cli\Command
         return $migrations;
     }
 
-    protected function logMigration(\PDO $db, string $migration): void
+    protected function logMigration(PDO $db, string $migration): void
     {
         $stmt = $db->prepare(
             'INSERT INTO migrations (migration) VALUES (:migration)'
