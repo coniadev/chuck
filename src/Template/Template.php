@@ -115,4 +115,9 @@ class Template
     {
         return $this->engine->getSection($name);
     }
+
+    public function hasSection(string $name): bool
+    {
+        return $this->engine->hasSection($name);
+    }
 }

@@ -138,6 +138,16 @@ test('Section rendering', function () {
 });
 
 
+test('Missing section rendering', function () {
+    $config = $this->config();
+    $tpl = new Engine($config->templates());
+
+    expect($this->fullTrim($tpl->render('nosection', [
+        'text' => 'chuck'
+    ])))->toBe('<div><p>chuck</p>chuck</div><p>no list</p>');
+});
+
+
 test('Insert rendering', function () {
     $config = $this->config();
     $tpl = new Engine($config->templates());

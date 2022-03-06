@@ -139,4 +139,9 @@ class Engine extends TemplateEngine
     {
         return $this->sections[$name];
     }
+
+    public function hasSection(string $name): bool
+    {
+        return isset($this->sections[$name]);
+    }
 }
