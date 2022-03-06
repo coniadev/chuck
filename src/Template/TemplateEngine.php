@@ -10,6 +10,6 @@ abstract class TemplateEngine
         array $dirs,
         array $defaults = [],
     );
-    abstract public function render(string $template, array $context = []): string;
-    abstract public function exists(string $template): bool;
+    abstract public function render(string $moniker, array $context = []): string;
+    abstract public function exists(string $moniker): bool;
 }

@@ -11,8 +11,8 @@ use Chuck\Util\Path;
 
 class Engine extends TemplateEngine
 {
-    protected array $captured;
-    protected array $sections;
+    protected array $capture = [];
+    protected array $sections = [];
 
     public function __construct(protected array $dirs, protected array $defaults = [])
     {
@@ -107,10 +107,10 @@ class Engine extends TemplateEngine
         throw new ValueError("Template '$path' not found inside the project root directory");
     }
 
-    public function exists(string $template): bool
+    public function exists(string $moniker): bool
     {
         try {
-            $path = $this->getPath($template);
+            $path = $this->getPath($moniker);
 
             if (empty($path)) {
                 return false;
@@ -122,7 +122,7 @@ class Engine extends TemplateEngine
         }
     }
 
-    public function beginSection($name): void
+    public function beginSection(string $name): void
     {
         $this->capture[] = $name;
         ob_start();
