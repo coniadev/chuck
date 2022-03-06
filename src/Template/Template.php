@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 namespace Chuck\Template;
 
+use \ValueError;
 use Chuck\Util\Html;
 
 
 class Template
 {
-    public function __construct(protected array $context)
-    {
+    protected ?string $layout = null;
+
+    public function __construct(
+        protected Engine $engine,
+        protected string $moniker,
+        protected array $context
+    ) {
     }
 
     public function __get(string $name): mixed
@@ -41,5 +47,35 @@ class Template
     public function url(string $value): string
     {
         return filter_var($value, FILTER_SANITIZE_URL);
+    }
+
+    public function layout(string $moniker): void
+    {
+        if ($this->layout === null) {
+            $this->layout = $moniker;
+
+            return;
+        }
+
+        throw new ValueError('Template error: layout already set');
+    }
+
+    public function hasLayout(): bool
+    {
+        return $this->layout !== null;
+    }
+
+    public function getLayout(): string
+    {
+        if ($this->layout !== null) {
+            return $this->layout;
+        }
+
+        throw new ValueError('Template error: layout not set');
+    }
+
+    public function body(): string
+    {
+        return (string)$this->raw($this->engine->getBodyId($this->moniker));
     }
 }

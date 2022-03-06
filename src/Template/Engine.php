@@ -15,26 +15,27 @@ class Engine extends TemplateEngine
     {
     }
 
-    public function render(string $template, array $context = []): string
+    public function render(string $moniker, array $context = []): string
     {
-        if (empty($template)) {
+        if (empty($moniker)) {
             throw new \InvalidArgumentException('No template path given');
         }
 
         $error = null;
-        $path = $this->getPath($template);
+        $path = $this->getPath($moniker);
 
-        $load =  function (string $template, array $context = []): void {
-            // Hide $template. Could be overwritten if $context['template'] exists.
-            $____template____ = $template;
+        $load =  function (string $templatePath, array $context = []): void {
+            // Hide $templatePath. Could be overwritten if $context['templatePath'] exists.
+            $____template_path____ = $templatePath;
 
             extract($context);
 
             /** @psalm-suppress UnresolvableInclude */
-            include $____template____;
+            include $____template_path____;
         };
 
-        $load = $load->bindTo(new Template($context));
+        $template = new Template($this, $moniker, $context);
+        $load = $load->bindTo($template);
 
         if (!$load) {
             throw new RuntimeException('Unable to bind context to template');
@@ -51,11 +52,22 @@ class Engine extends TemplateEngine
         $content = ob_get_contents();
         ob_end_clean();
 
+        if ($template->hasLayout()) {
+            $layout = $template->getLayout();
+            $context[$this->getBodyId($layout)] = $content;
+            $content = $this->render($layout, $context);
+        }
+
         if ($error === null) {
             return $content;
         }
 
         throw $error;
+    }
+
+    public function getBodyId(string $moniker): string
+    {
+        return hash('xxh32', $moniker);
     }
 
     protected function getPath(string $template): string

@@ -118,6 +118,16 @@ test('Complex nested rendering', function () {
 });
 
 
+test('Layout rendering', function () {
+    $config = $this->config();
+    $tpl = new Engine($config->templates());
+
+    expect(trim(preg_replace('/\n/', '', $tpl->render('uselayout', [
+        'text' => 'chuck'
+    ]))))->toBe('<div><p>chuck</p>chuck</div>');
+})->only();
+
+
 test('Exists helper', function () {
     $tpl = new Engine($this->config()->templates());
 
