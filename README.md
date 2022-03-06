@@ -84,7 +84,7 @@ namespace Chuck;
 
 return [
     'app' => 'chuckapp',                  // Internal identifier, will be used in `php run` scripts for example
-                                          // Also used internally for sessions/i18n/memcache prefix or other purposes
+                                          // Also used internally for sessions/i18n prefix or other purposes
 
     'path.root' => null,                  // The root folder of the application, defaults to where composer.json is located
     'path.public' => null,                // Path to the public directory, defaults to <path.root>/public
@@ -159,14 +159,6 @@ return [
         'password' => null,
     ],
                                           
-    'memcached' => [
-        'implementation' => 'hans',       // optional, either 'Memcached' or 'Memcache'
-                                          // if not given uses what is available or throws error
-        'host' => null,                   // optional, defaults to 'localhost'
-        'port' => null,                   // optional, defaults to 11211
-        'expire' => null,                 // optional, defaults to 0 which means never expire
-    ]
-
     'scripts' => null,                    // Path to scripts executed by `php run`
 ];
 ```
