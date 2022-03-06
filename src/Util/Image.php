@@ -27,7 +27,7 @@ class Image
 
     public static function getImageFromPath(string $path): GdImage
     {
-        if (!file_exists($path)) {
+        if (!is_file($path)) {
             throw new InvalidArgumentException('Image does not exist: ' . $path);
         }
 

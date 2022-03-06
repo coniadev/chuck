@@ -225,7 +225,7 @@ test('Log file creation', function () {
     $config = new Config($this->options(['log.file' => $logfile]));
 
     expect($config->log()->file)->toBe($logfile);
-    expect(file_exists($config->log()->file))->toBe(true);
+    expect(is_file($config->log()->file))->toBe(true);
 
     @unlink($logfile);
 });

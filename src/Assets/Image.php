@@ -65,7 +65,7 @@ class Image extends AbstractImage
     {
         $cacheFile = $this->cacheFilePath($width, $height, $crop);
 
-        if (file_exists($cacheFile)) {
+        if (is_file($cacheFile)) {
             $fileMtime = filemtime($this->path);
             $cacheMtime = filemtime($cacheFile);
 

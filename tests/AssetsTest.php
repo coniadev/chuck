@@ -41,12 +41,12 @@ test('Resize to width', function () {
         $path,
         'assets' . C::DS . 'landscape-w200b.png'
     ))->toBe(true);
-    expect(file_exists($path))->toBe(true);
+    expect(is_file($path))->toBe(true);
     expect(imagesx($image->get()))->toBe(200);
 
     $cacheImage->delete();
 
-    expect(file_exists($cacheImage->path()))->toBe(false);
+    expect(is_file($cacheImage->path()))->toBe(false);
 });
 
 
@@ -62,12 +62,12 @@ test('Resize to height', function () {
         $path,
         'assets' . C::DS . 'landscape-h200b.png'
     ))->toBe(true);
-    expect(file_exists($path))->toBe(true);
+    expect(is_file($path))->toBe(true);
     expect(imagesy($image->get()))->toBe(200);
 
     $cacheImage->delete();
 
-    expect(file_exists($cacheImage->path()))->toBe(false);
+    expect(is_file($cacheImage->path()))->toBe(false);
 });
 
 
@@ -83,13 +83,13 @@ test('Resize portrait to bounding box', function () {
         $path,
         'assets' . C::DS . 'sub' . C::DS . 'portrait-200x200b.png'
     ))->toBe(true);
-    expect(file_exists($path))->toBe(true);
+    expect(is_file($path))->toBe(true);
     expect(imagesx($image->get()))->toBe(150);
     expect(imagesy($image->get()))->toBe(200);
 
     $cacheImage->delete();
 
-    expect(file_exists($cacheImage->path()))->toBe(false);
+    expect(is_file($cacheImage->path()))->toBe(false);
 });
 
 
@@ -105,13 +105,13 @@ test('Resize landscape to bounding box', function () {
         $path,
         'assets' . C::DS . 'landscape-200x200b.png'
     ))->toBe(true);
-    expect(file_exists($path))->toBe(true);
+    expect(is_file($path))->toBe(true);
     expect(imagesx($image->get()))->toBe(200);
     expect(imagesy($image->get()))->toBe(150);
 
     $cacheImage->delete();
 
-    expect(file_exists($cacheImage->path()))->toBe(false);
+    expect(is_file($cacheImage->path()))->toBe(false);
 });
 
 
@@ -127,13 +127,13 @@ test('Crop landscape into bounding box', function () {
         $path,
         'assets' . C::DS . 'landscape-200x200c.png'
     ))->toBe(true);
-    expect(file_exists($path))->toBe(true);
+    expect(is_file($path))->toBe(true);
     expect(imagesx($image->get()))->toBe(200);
     expect(imagesy($image->get()))->toBe(200);
 
     $cacheImage->delete();
 
-    expect(file_exists($cacheImage->path()))->toBe(false);
+    expect(is_file($cacheImage->path()))->toBe(false);
 });
 
 
@@ -150,13 +150,13 @@ test('Crop portrait into bounding box', function () {
         'assets' . C::DS . 'sub' . C::DS . 'portrait-200x200c.png'
 
     ))->toBe(true);
-    expect(file_exists($path))->toBe(true);
+    expect(is_file($path))->toBe(true);
     expect(imagesx($image->get()))->toBe(200);
     expect(imagesy($image->get()))->toBe(200);
 
     $cacheImage->delete();
 
-    expect(file_exists($cacheImage->path()))->toBe(false);
+    expect(is_file($cacheImage->path()))->toBe(false);
 });
 
 
@@ -173,7 +173,7 @@ test('Static route', function () {
     $assets = Assets::fromRequest($this->request(options: $this->paths, router: $router));
     $image = $assets->image($this->portrait);
 
-    expect(file_exists($image->path()))->toBe(true);
+    expect(is_file($image->path()))->toBe(true);
     expect($image->url())->toMatch('/^\/assets\/sub\/portrait\.png\?v=[a-f0-9]{8}$/');
     expect($image->url(bust: false))->toBe('/assets/sub/portrait.png');
     expect($image->url(host: 'http://example.com/'))->toMatch(
@@ -192,7 +192,7 @@ test('Static cache route', function () {
     $assets = Assets::fromRequest($this->request(options: $this->paths, router: $router));
     $image = $assets->image($this->portrait)->resize(200);
 
-    expect(file_exists($image->path()))->toBe(true);
+    expect(is_file($image->path()))->toBe(true);
     expect($image->url())->toMatch('/^\/cache\/assets\/sub\/portrait-w200b\.png\?v=[a-f0-9]{8}$/');
     expect($image->url(bust: false))->toBe('/cache/assets/sub/portrait-w200b.png');
     expect($image->url(host: 'http://example.com/'))->toMatch(
@@ -204,5 +204,5 @@ test('Static cache route', function () {
 
     $image->delete();
 
-    expect(file_exists($image->path()))->toBe(false);
+    expect(is_file($image->path()))->toBe(false);
 });

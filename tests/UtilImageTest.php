@@ -30,12 +30,12 @@ test('Failing static initialization', function () {
 test('Static create resized', function () {
     $tmpfile = $this->cache . C::DS . 'temp.png';
 
-    expect(file_exists($tmpfile))->toBe(false);
+    expect(is_file($tmpfile))->toBe(false);
 
     $success = Image::createResizedImage($this->landscape, $tmpfile, 200);
 
     expect($success)->toBe(true);
-    expect(file_exists($tmpfile))->toBe(true);
+    expect(is_file($tmpfile))->toBe(true);
 
     unlink($tmpfile);
 });
@@ -46,7 +46,7 @@ test('Initialize PNG', function () {
     $image = new Image($this->landscape);
     expect($image->get())->toBeInstanceOf(GdImage::class);
     $image->write($tmpfile);
-    expect(file_exists($tmpfile))->toBe(true);
+    expect(is_file($tmpfile))->toBe(true);
     unlink($tmpfile);
 });
 
@@ -56,7 +56,7 @@ test('Initialize JPG', function () {
     $image = new Image($this->jpeg);
     expect($image->get())->toBeInstanceOf(GdImage::class);
     $image->write($tmpfile);
-    expect(file_exists($tmpfile))->toBe(true);
+    expect(is_file($tmpfile))->toBe(true);
     unlink($tmpfile);
 });
 
@@ -66,7 +66,7 @@ test('Initialize WEBP', function () {
     $image = new Image($this->webp);
     expect($image->get())->toBeInstanceOf(GdImage::class);
     $image->write($tmpfile);
-    expect(file_exists($tmpfile))->toBe(true);
+    expect(is_file($tmpfile))->toBe(true);
     unlink($tmpfile);
 });
 
@@ -76,7 +76,7 @@ test('Initialize GIF', function () {
     $image = new Image($this->gif);
     expect($image->get())->toBeInstanceOf(GdImage::class);
     $image->write($tmpfile);
-    expect(file_exists($tmpfile))->toBe(true);
+    expect(is_file($tmpfile))->toBe(true);
     unlink($tmpfile);
 });
 

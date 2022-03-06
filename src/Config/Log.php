@@ -26,7 +26,7 @@ class Log
         }
 
         if ($file) {
-            if (!file_exists($file)) {
+            if (!is_file($file)) {
                 touch($file);
             }
 

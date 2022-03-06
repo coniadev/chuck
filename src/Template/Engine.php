@@ -113,7 +113,7 @@ class Engine extends TemplateEngine
             }
         }
 
-        if (file_exists($path)) {
+        if (is_file($path)) {
             return $path;
         }
 

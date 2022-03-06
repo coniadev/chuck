@@ -27,7 +27,7 @@ class Folder
                 $this->folder . DIRECTORY_SEPARATOR .
                 $key . $ext;
 
-            if (file_exists($result)) {
+            if (is_file($result)) {
                 return $result;
             }
         }
