@@ -7,11 +7,15 @@ namespace Chuck\Cli\Migrations;
 use \PDO;
 use \PDOException;
 use \Throwable;
+use Chuck\Cli\Command;
 use Chuck\ConfigInterface;
 
 
 class Migrations extends Command
 {
+    use GetsMigrations;
+    use LogsMigrations;
+
     public static string $group = 'Database';
     public static string $title = 'Apply missing database migrations';
     public static string $desc;

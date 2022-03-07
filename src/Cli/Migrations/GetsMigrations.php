@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Chuck\Cli\Migrations;
 
-use \PDO;
-use Chuck\Cli\Command as BaseCommand;
 use Chuck\ConfigInterface;
 
 
-abstract class Command extends BaseCommand
+trait GetsMigrations
 {
     protected function getMigrations(ConfigInterface $config): array
     {
@@ -18,8 +16,9 @@ abstract class Command extends BaseCommand
         foreach ($config->migrations() as $path) {
             $migrations = array_merge(
                 $migrations,
-                array_filter(glob("$path/*.sql"), 'is_file'),
                 array_filter(glob("$path/*.php"), 'is_file'),
+                array_filter(glob("$path/*.sql"), 'is_file'),
+                array_filter(glob("$path/*.tpql"), 'is_file'),
             );
         }
 
@@ -32,15 +31,5 @@ abstract class Command extends BaseCommand
         });
 
         return $migrations;
-    }
-
-    protected function logMigration(PDO $db, string $migration): void
-    {
-        $stmt = $db->prepare(
-            'INSERT INTO migrations (migration) VALUES (:migration)'
-        );
-        $name = basename($migration);
-        $stmt->bindParam(':migration', $name, PDO::PARAM_STR);
-        $stmt->execute();
     }
 }

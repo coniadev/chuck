@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Cli\Migrations;
 
+use Chuck\Cli\Command;
 use Chuck\ConfigInterface;
 
 
