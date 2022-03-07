@@ -30,6 +30,7 @@ class Runner
         );
 
         asort($list);
+
         return $list;
     }
 
@@ -86,6 +87,7 @@ class Runner
             }
         } else {
             self::showHelp($scriptDirs);
+            return null;
         }
     }
 }
