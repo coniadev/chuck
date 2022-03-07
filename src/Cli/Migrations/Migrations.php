@@ -16,7 +16,7 @@ class Migrations extends Command
     public static string $title = 'Apply missing database migrations';
     public static string $desc;
 
-    public function run(ConfigInterface $config, string ...$args): void
+    public function run(ConfigInterface $config, string ...$args): mixed
     {
         $command = $args[0] ?? null;
 
@@ -25,6 +25,8 @@ class Migrations extends Command
         } else {
             $this->migrate($config, $command === 'stacktrace', $command === 'dry');
         }
+
+        return 1;
     }
 
     protected function add(ConfigInterface $config): void

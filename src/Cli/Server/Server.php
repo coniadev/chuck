@@ -14,7 +14,7 @@ class Server extends Command
     public static string $title = 'Start the development server';
     public static string $desc = 'php run serve [<port>]';
 
-    public function run(ConfigInterface $config, string ...$args): void
+    public function run(ConfigInterface $config, string ...$args): mixed
     {
         $publicDir = $config->path()->public;
 
@@ -34,5 +34,7 @@ class Server extends Command
                 __DIR__ . DIRECTORY_SEPARATOR . 'support' .
                 DIRECTORY_SEPARATOR . 'server.php'
         );
+
+        return 1;
     }
 }
