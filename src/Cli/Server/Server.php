@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace Chuck\Cli\Server;
 
 use Chuck\ConfigInterface;
-use Chuck\Cli\Command;
+use Chuck\Cli\CommandInterface;
 
 
-class Server extends Command
+class Server implements CommandInterface
 {
     public static string $group = 'General';
     public static string $title = 'Start the development server';
     public static string $desc = 'php run serve [<port>]';
 
-    public function run(ConfigInterface $config, string ...$args): mixed
+    public function run(ConfigInterface $config, array $args): mixed
     {
         $publicDir = $config->path()->public;
 

@@ -7,9 +7,11 @@ namespace Chuck\Cli\Migrations;
 use \PDOException;
 use \Throwable;
 use Chuck\Database\Database;
-use Chuck\Cli\CommandInterface;
+use Chuck\Cli\{CommandInterface, GetsOpts};
 use Chuck\ConfigInterface;
 
+ini_set('register_argc_argv', true);
+global $argv;
 
 class Migrations implements CommandInterface
 {
@@ -20,11 +22,16 @@ class Migrations implements CommandInterface
     public static string $title = 'Apply missing database migrations';
     public static string $desc;
 
-    public function run(ConfigInterface $config, string ...$args): mixed
-    {
-        $command = $args[0] ?? null;
+    protected string $conn;
+    protected string $sql;
 
-        return $this->migrate($config, $command === 'stacktrace', $command === 'apply');
+
+    public function run(ConfigInterface $config, array $args): mixed
+    {
+        print_r($args);
+
+        exit(0);
+        // return $this->migrate($config, $command === 'stacktrace', $command === 'apply');
     }
 
     protected function migrate(
@@ -112,7 +119,7 @@ class Migrations implements CommandInterface
 
     protected function db(ConfigInterface $config): Database
     {
-        return new Database($config->db());
+        return new Database($config->db($this->conn, $this->sql));
     }
 
     protected function showMessage(

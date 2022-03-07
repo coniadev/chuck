@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Chuck\Cli\Migrations;
 
-use Chuck\Cli\Command;
+use Chuck\Cli\CommandInterface;
 use Chuck\ConfigInterface;
 
 
-class Add extends Command
+class Add implements CommandInterface
 {
     public static string $group = 'Database';
     public static string $title = 'Initialize a new migrations';
     public static string $desc;
 
-    public function run(ConfigInterface $config, string ...$args): mixed
+    public function run(ConfigInterface $config, array $args): mixed
     {
         return $this->add($config, $args);
     }
