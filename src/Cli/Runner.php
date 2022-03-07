@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Chuck\Cli;
 
+use Chuck\ConfigInterface;
+
+
 class Runner
 {
     public static function getScripts(array $scriptDirs): array
@@ -46,9 +49,14 @@ class Runner
         }
     }
 
-    public static function run(
-        \Chuck\ConfigInterface $config,
-    ): mixed {
+    protected static function runCommand(ConfigInterface $config, CommandInterface $cmd): mixed
+    {
+        return $cmd->run($config, ...array_slice($_SERVER['argv'], 2));
+    }
+
+
+    public static function run(ConfigInterface $config): mixed
+    {
         $ds = DIRECTORY_SEPARATOR;
 
         // add the custom script dir first to allow
@@ -70,9 +78,7 @@ class Runner
                     $file = $scriptDir . DIRECTORY_SEPARATOR . $script;
 
                     if (is_file($file)) {
-                        $cmd = require $file;
-
-                        return $cmd->run($config, ...array_slice($_SERVER['argv'], 2));
+                        return self::runCommand($config, require $file);
                     }
                 }
                 echo "\nphp run: Command not found.\n";

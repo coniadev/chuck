@@ -9,7 +9,7 @@ use \PDO;
 use Chuck\ConfigInterface;
 
 
-abstract class Command
+abstract class Command implements CommandInterface
 {
     public static string $group;
     public static string $title;
