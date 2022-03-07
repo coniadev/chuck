@@ -136,4 +136,20 @@ class Migrations implements CommandInterface
             basename($migration) .
             "'\033[0m successfully applied\n";
     }
+
+    protected function checkIfMigrationsTableExists(Database $db): bool
+    {
+        $query = match ($db->getPdoDriver()) {
+            'sqlite' => "SELECT count(*) AS available FROM sqlite_master WHERE type='table' AND name='migrations';",
+            'mysql' => "SELECT count(*) AS available FROM information_schema.tables WHERE table_name='migrations';",
+            'pgsql' => 'SELECT',
+        };
+
+        return true;
+    }
+
+    protected function printCreateMigrationDDL(Database $db): void
+    {
+        echo 'CREATE TABLE migrations';
+    }
 }
