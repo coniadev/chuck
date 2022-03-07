@@ -20,51 +20,14 @@ class Migrations extends Command
     {
         $command = $args[0] ?? null;
 
-        if ($command === 'add') {
-            $this->add($config);
-        } else {
-            $this->migrate($config, $command === 'stacktrace', $command === 'dry');
-        }
-
-        return 1;
-    }
-
-    protected function add(ConfigInterface $config): void
-    {
-        $ts = date('YmdHis', time());
-        $fileName = readline('Name of the migration: ');
-        // fopen("testfile.txt", "w")
-        $fileName = str_replace(' ', '_', $fileName);
-        $fileName = str_replace('-', '_', $fileName);
-        $fileName = $ts . '_' . strtolower($fileName);
-        $ext = pathinfo($fileName, PATHINFO_EXTENSION);
-
-        if (!$ext) {
-            $fileName .= '.sql';
-        }
-
-        /** TODO: USE THE CORRECT CONNECTION */
-        $migrations = $config->migrations();
-        $migrationDir = end($migrations);
-
-        if ($migrationDir) {
-            $migration = $migrationDir . DIRECTORY_SEPARATOR . $fileName;
-
-            // $f = fopen($migration, 'w');
-            // fclose($f);
-            echo "\nMigration created:\n$migration\n";
-            echo "CURRENTLY NOT CREATED. HAVE A LOOK AT THE MIGRATION SCRIPT\n";
-            echo "WOULD CREATE THE MIGRATION IN THE LAST DIR OF THE CONFIG FILE.\n";
-        } else {
-            echo "\nNo migration directory available\n";
-        }
+        return $this->migrate($config, $command === 'stacktrace', $command === 'dry');
     }
 
     protected function migrate(
         ConfigInterface $config,
         bool $showStacktrace,
         bool $dryRun
-    ): void {
+    ): bool {
         $db = $this->db($config);
         $db->beginTransaction();
 
@@ -94,7 +57,10 @@ class Migrations extends Command
 
         if ($applied === 0) {
             echo "No migrations to apply\n";
+            return false;
         }
+
+        return true;
     }
 
     protected function getAppliedMigrations(PDO $db): array
