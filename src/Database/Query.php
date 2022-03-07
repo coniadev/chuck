@@ -116,7 +116,7 @@ class Query implements QueryInterface
         return $result;
     }
 
-    public function all(?int $fetchMode = null): iterable
+    public function all(?int $fetchMode = null): array
     {
         $this->db->connect();
         $this->stmt->execute();
