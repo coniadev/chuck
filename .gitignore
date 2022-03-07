@@ -3,7 +3,7 @@
 .env
 .php_cs.cache
 .phpunit.result.cache
-/tmp
+tmp/
 /vendor
 /tests/Fixtures/migrations/*.php
 /tests/Fixtures/migrations/*.sql

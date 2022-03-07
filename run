@@ -8,16 +8,19 @@ use \Chuck\Config;
 use \Chuck\Cli\Runner;
 
 $ds = DIRECTORY_SEPARATOR;
+$configFile = getenv('CHUCKCONFIG');
 
-
-Runner::run(new Config([
+$config = [
     'app' => 'chuck',
     'path.root' => __DIR__ . $ds . 'tests' . $ds . 'Fixtures',
-    'migrations' => __DIR__ . $ds . 'tests' . $ds . 'Fixtures' . $ds . 'migrations',
-    'sql' => __DIR__ . $ds . 'tests' . $ds . 'Fixtures' . $ds . 'sql' . $ds . 'default',
-    'db' => [
-        'dsn' => 'sqlite:' . sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'chuck_test_db.sqlite3',
-    ],
-]));
+];
+
+if ($configFile && realpath($configFile)) {
+    if (str_starts_with(realpath($configFile), __DIR__)) {
+        $config = require $configFile;
+    }
+}
+
+Runner::run(new Config($config));
 
 // vim: ft=php
