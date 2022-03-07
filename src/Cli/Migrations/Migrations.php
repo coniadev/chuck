@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Chuck\Cli\Migrations;
 
-use \PDO;
 use \PDOException;
 use \Throwable;
-use Chuck\Cli\Command;
+use Chuck\Database\Database;
+use Chuck\Cli\CommandInterface;
 use Chuck\ConfigInterface;
 
 
-class Migrations extends Command
+class Migrations implements CommandInterface
 {
     use GetsMigrations;
     use LogsMigrations;
@@ -24,16 +24,16 @@ class Migrations extends Command
     {
         $command = $args[0] ?? null;
 
-        return $this->migrate($config, $command === 'stacktrace', $command === 'dry');
+        return $this->migrate($config, $command === 'stacktrace', $command === 'apply');
     }
 
     protected function migrate(
         ConfigInterface $config,
         bool $showStacktrace,
-        bool $dryRun
+        bool $apply
     ): bool {
         $db = $this->db($config);
-        $db->beginTransaction();
+        $db->begin();
 
         $appliedMigrations = $this->getAppliedMigrations($db);
 
@@ -53,10 +53,10 @@ class Migrations extends Command
             $applied += 1;
         }
 
-        if ($dryRun) {
-            $db->rollback();
-        } else {
+        if ($apply) {
             $db->commit();
+        } else {
+            $db->rollback();
         }
 
         if ($applied === 0) {
@@ -67,15 +67,14 @@ class Migrations extends Command
         return true;
     }
 
-    protected function getAppliedMigrations(PDO $db): array
+    protected function getAppliedMigrations(Database $db): array
     {
-        $stmt = $db->prepare('SELECT migration FROM migrations;');
-        $stmt->execute();
-        return array_map(fn (array $mig): array => $mig['migration'], $stmt->fetchAll());
+        $migrations = $db->execute('SELECT migration FROM migrations;')->all();
+        return array_map(fn (array $mig): array => $mig['migration'], $migrations);
     }
 
     protected function migrateSQL(
-        PDO $db,
+        Database $db,
         string $migration,
         bool $showStacktrace
     ): void {
@@ -85,7 +84,7 @@ class Migrations extends Command
         }
 
         try {
-            $db->exec($script);
+            $db->execute($script)->run();
             $this->logMigration($db, $migration);
             $this->showMessage($migration);
         } catch (PDOException $e) {
@@ -96,7 +95,7 @@ class Migrations extends Command
     }
 
     protected function migratePHP(
-        PDO $db,
+        Database $db,
         string $migration,
         bool $showStacktrace
     ): void {
@@ -109,6 +108,11 @@ class Migrations extends Command
         } catch (Throwable $e) {
             $this->showMessage($migration, $e, $showStacktrace);
         }
+    }
+
+    protected function db(ConfigInterface $config): Database
+    {
+        return new Database($config->db());
     }
 
     protected function showMessage(
