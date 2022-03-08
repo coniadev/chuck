@@ -6,10 +6,8 @@ namespace Chuck\Cli\Migrations;
 
 use \Throwable;
 use Chuck\Database\DatabaseInterface;
-use Chuck\Cli\Opts;
 use Chuck\ConfigInterface;
 
-use const Chuck\STANDARD;
 
 ini_set('register_argc_argv', true);
 global $argv;
@@ -25,42 +23,33 @@ class CreateMigrationsTable extends Command
 
     public function run(ConfigInterface $config): mixed
     {
-        $opts = new Opts();
-        $conn = $opts->get('--conn', STANDARD);
-        $sql = $opts->get('--sql', STANDARD);
-        $stacktrace = $opts->has('--stacktrace');
+        $this->init($config);
 
-        $db = $this->db($config, $conn, $sql);
-        $driver = $db->getPdoDriver();
-        $convenience = in_array($driver, ['sqlite', 'mysql', 'pgsql']);
-        $table = $config->get('migrationstable.name', 'migrations');
-        $column = $config->get('migrationstable.name', 'migration');
-
-        if (!$convenience) {
-            echo "PDO driver '$driver' not supported. Aborting\n";
+        if (!$this->convenience) {
+            echo "PDO driver '$this->driver' not supported. Aborting\n";
             return false;
         }
 
-        if ($this->checkIfMigrationsTableExists($db)) {
-            echo "Table '$table' already exists. Aborting\n";
+        if ($this->checkIfMigrationsTableExists($this->db)) {
+            echo "Table '$this->table' already exists. Aborting\n";
             return false;
         } else {
-            $ddl = $this->getMigrationsTableDDL($driver, $table, $column);
+            $ddl = $this->getMigrationsTableDDL($this->driver, $this->table, $this->column);
 
             if ($ddl) {
                 try {
-                    $db->execute($ddl)->run();
-                    echo "\033[1;32mSuccess\033[0m: created table '$table'.\n";
+                    $this->db->execute($ddl)->run();
+                    echo "\033[1;32mSuccess\033[0m: created table '$this->table'.\n";
                 } catch (Throwable $e) {
-                    echo "\033[1;31mError\033[0m: while trying to create table '$table'.\n";
+                    echo "\033[1;31mError\033[0m: while trying to create table '$this->table'.\n";
                     echo $e->getMessage() . PHP_EOL;
 
-                    if ($stacktrace) {
+                    if ($this->showStacktrace) {
                         echo $e->getTraceAsString() . PHP_EOL;
                     }
                 }
             } else {
-                echo "Driver '$driver' is not supported.\n";
+                echo "Driver '$this->driver' is not supported.\n";
             }
 
             return false;

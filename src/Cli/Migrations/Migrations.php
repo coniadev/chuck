@@ -6,14 +6,9 @@ namespace Chuck\Cli\Migrations;
 
 use \PDOException;
 use \Throwable;
-use Chuck\Database\DatabaseInterface;
 use Chuck\Cli\Opts;
+use Chuck\Database\DatabaseInterface;
 use Chuck\ConfigInterface;
-
-use const Chuck\STANDARD;
-
-ini_set('register_argc_argv', true);
-global $argv;
 
 
 class Migrations extends Command
@@ -27,32 +22,20 @@ class Migrations extends Command
     public function run(ConfigInterface $config): mixed
     {
         $opts = new Opts();
-        // The `db` section from the config file.
-        // If there is a plain 'db' entry in the config file, it is used
-        // by default. If there are named additional connetions you want to
-        // use, pass the identifier after the dot,
-        // e. g. 'db.myconn' in the config must be '--conn myconn'
-        $conn = $opts->get('--conn', STANDARD);
-        // The `sql` section from the config file which points to sql file dirs.
-        // The same idea applies to 'sql' as to 'db' above. 'sql' is used by default.
-        // e. g. 'sql.otherscripts' in the config must be '--sql otherscripts'
-        $sql = $opts->get('--sql', STANDARD);
-        $db = $this->db($config, $conn, $sql);
-        $driver = $db->getPdoDriver();
-        $noconvenience = !in_array($driver, ['sqlite', 'mysql', 'pgsql']);
+        $this->init($config);
 
-        if ($noconvenience || $this->checkIfMigrationsTableExists($db)) {
-            return $this->migrate($db, $config, $opts->has('--stacktrace'), $opts->has('--apply'));
+        if (!$this->convenience || $this->checkIfMigrationsTableExists($this->db)) {
+            return $this->migrate($this->db, $config, $opts->has('--stacktrace'), $opts->has('--apply'));
         } else {
-            $ddl = $this->getMigrationsTableDDL($driver);
+            $ddl = $this->getMigrationsTableDDL($this->driver);
 
             if ($ddl) {
-                echo "Migrations table does not exist. For '$driver' it should look like:\n\n";
+                echo "Migrations table does not exist. For '$this->driver' it should look like:\n\n";
                 echo $ddl;
                 echo "\n\nIf you want to create the table above, simply run\n\n";
                 echo "    php run create-migrations-table\n";
             } else {
-                echo "Driver '$driver' is not supported.\n";
+                echo "Driver '$this->driver' is not supported.\n";
             }
 
             return false;

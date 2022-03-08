@@ -5,13 +5,45 @@ declare(strict_types=1);
 namespace Chuck\Cli\Migrations;
 
 use \PDO;
-use Chuck\Cli\CommandInterface;
+use Chuck\Cli\{CommandInterface, Opts};
 use Chuck\ConfigInterface;
 use Chuck\Database\{Database, DatabaseInterface};
+
+use const Chuck\STANDARD;
 
 
 abstract class Command implements CommandInterface
 {
+    protected string $conn;
+    protected string $sql;
+    protected string $driver;
+    protected string $table;
+    protected string $column;
+    protected bool $showStacktrace;
+    protected bool $convenience;
+    protected DatabaseInterface $db;
+
+    public function init(ConfigInterface $config)
+    {
+        $opts = new Opts();
+        // The `db` section from the config file.
+        // If there is a plain 'db' entry in the config file, it is used
+        // by default. If there are named additional connetions you want to
+        // use, pass the identifier after the dot,
+        // e. g. 'db.myconn' in the config must be '--conn myconn'
+        $this->conn = $opts->get('--conn', STANDARD);
+        // The `sql` section from the config file which points to sql file dirs.
+        // The same idea applies to 'sql' as to 'db' above. 'sql' is used by default.
+        // e. g. 'sql.otherscripts' in the config must be '--sql otherscripts'
+        $this->sql = $opts->get('--sql', STANDARD);
+
+        $this->showStacktrace = $opts->has('--stacktrace');
+        $this->db = $this->db($config, $this->conn, $this->sql);
+        $this->driver = $this->db->getPdoDriver();
+        $this->convenience = in_array($this->driver, ['sqlite', 'mysql', 'pgsql']);
+        $this->table = $config->get('migrationstable.name', 'migrations');
+        $this->column = $config->get('migrationstable.name', 'migration');
+    }
     protected function db(ConfigInterface $config, string $conn, string $sql): DatabaseInterface
     {
         return new Database($config->db($conn, $sql));
