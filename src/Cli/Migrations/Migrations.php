@@ -10,8 +10,11 @@ use Chuck\Database\Database;
 use Chuck\Cli\Opts;
 use Chuck\ConfigInterface;
 
+use const Chuck\STANDARD;
+
 ini_set('register_argc_argv', true);
 global $argv;
+
 
 class Migrations extends Command
 {
@@ -31,11 +34,11 @@ class Migrations extends Command
         // by default. If there are named additional connetions you want to
         // use, pass the identifier after the dot,
         // e. g. 'db.myconn' in the config must be '--conn myconn'
-        $this->conn = $opts->get('--conn', 'default');
+        $this->conn = $opts->get('--conn', STANDARD);
         // The `sql` section from the config file which points to sql file dirs.
         // The same idea applies to 'sql' as to 'db' above. 'sql' is used by default.
         // e. g. 'sql.otherscripts' in the config must be '--sql otherscripts'
-        $this->sql = $opts->get('--sql', 'default');
+        $this->sql = $opts->get('--sql', STANDARD);
 
         return $this->migrate($config, $opts->has('--stacktrace'), $opts->has('--apply'));
     }

@@ -12,6 +12,8 @@ use Chuck\Util\Http;
 use Chuck\Util\Path as PathUtil;
 use Chuck\Config\{Path, Templates, Log, Database, Connection, Scripts};
 
+const STANDARD = 'STANDARD';
+
 
 class Config implements ConfigInterface
 {
@@ -50,27 +52,28 @@ class Config implements ConfigInterface
             $dotpos = strpos($key, '.');
 
             if ($dotpos === false) {
-                if (isset($nested[$key]['default'])) {
+                if (isset($nested[$key][STANDARD])) {
                     throw new ValueError(
-                        "Configuration error: subkey 'default' for config key '$key' already exists"
+                        "Configuration error: subkey '" . STANDARD .
+                            "' for config key '$key' already exists"
                     );
                 }
 
                 switch ($key) {
                     case 'sql':
-                        $nested['sql']['default'] = $value;
+                        $nested['sql'][STANDARD] = $value;
                         break;
                     case 'migrations':
-                        $nested['migrations']['default'] = $value;
+                        $nested['migrations'][STANDARD] = $value;
                         break;
                     case 'templates':
-                        $nested['templates']['default'] = $value;
+                        $nested['templates'][STANDARD] = $value;
                         break;
                     case 'scripts':
-                        $nested['scripts']['default'] = $value;
+                        $nested['scripts'][STANDARD] = $value;
                         break;
                     case 'db':
-                        $nested['db']['default'] = $value;
+                        $nested['db'][STANDARD] = $value;
                         break;
                     default:
                         $nested[$key] = $value;
@@ -211,7 +214,7 @@ class Config implements ConfigInterface
         );
     }
 
-    public function db(string $connection = 'default', string $sql = 'default'): Connection
+    public function db(string $connection = STANDARD, string $sql = STANDARD): Connection
     {
         return $this->getDatabaseConfig()->connection($connection, $sql);
     }

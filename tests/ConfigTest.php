@@ -5,6 +5,8 @@ declare(strict_types=1);
 use Chuck\Tests\Setup\{TestCase, C};
 use Chuck\Config;
 
+use const Chuck\STANDARD;
+
 uses(TestCase::class);
 
 
@@ -164,7 +166,7 @@ test('Template paths', function () {
     ]));
     $prefix = C::root() . C::DS . 'templates' . C::DS;
 
-    expect($config->templates()['default'])->toBe($prefix . 'default');
+    expect($config->templates()[STANDARD])->toBe($prefix . 'default');
     expect($config->templates()['relative'])->toBe($prefix . 'additional');
 });
 
@@ -209,12 +211,12 @@ test('SQL paths', function () {
         'sql.relative' => 'sql' . C::DS . 'additional',
     ]));
 
-    expect($config->db('default', 'default')->sqlDirs)->toBe([
+    expect($config->db(STANDARD, STANDARD)->sqlDirs)->toBe([
         $prefix . 'sqlite',
         $prefix . 'default',
     ]);
 
-    expect($config->db('default', 'relative')->sqlDirs)->toBe([
+    expect($config->db(STANDARD, 'relative')->sqlDirs)->toBe([
         $prefix . 'additional',
     ]);
 });

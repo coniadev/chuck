@@ -10,6 +10,8 @@ use Chuck\Config;
 use Chuck\Database\Database;
 use Chuck\Tests\Setup\{TestCase, C};
 
+use const Chuck\STANDARD;
+
 
 class DatabaseCase extends TestCase
 {
@@ -137,8 +139,8 @@ class DatabaseCase extends TestCase
         );
     }
 
-    public function getDb(?array $options = [], string $sql = 'default'): Database
+    public function getDb(?array $options = [], string $sql = STANDARD): Database
     {
-        return new Database($this->config($options)->db('default', $sql));
+        return new Database($this->config($options)->db(STANDARD, $sql));
     }
 }
