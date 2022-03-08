@@ -20,11 +20,11 @@ class Database
         array $sql,
         protected array $migrations,
     ) {
-        $this->sql = $this->getSQL($sql);
+        $this->sql = $this->getSql($sql);
     }
 
 
-    public function getSql(array $sql): array
+    protected function getSql(array $sql): array
     {
         $clean = [];
 
@@ -49,11 +49,12 @@ class Database
         return $clean;
     }
 
-    public function connection(string $connection, string $sql): Connection
+    public function connection(string $connection = 'default', string $sql = 'default'): Connection
     {
         return Connection::fromArray(
             $this->connections[$connection],
-            $this->sql[$sql]
+            // Allow only an empty list of sql dirs if the default section is used
+            $sql === 'default' ? $this->sql['default'] ?? [] : $this->sql[$sql],
         );
     }
 

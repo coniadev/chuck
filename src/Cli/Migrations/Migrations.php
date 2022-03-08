@@ -15,9 +15,6 @@ global $argv;
 
 class Migrations extends Command
 {
-    use GetsMigrations;
-    use LogsMigrations;
-
     public static string $group = 'Database';
     public static string $title = 'Apply missing database migrations';
     public static string $desc;

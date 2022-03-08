@@ -9,14 +9,17 @@ use \Chuck\Cli\Runner;
 
 $ds = DIRECTORY_SEPARATOR;
 $configFile = getenv('CHUCKCONFIG');
-
 $config = [
     'app' => 'chuck',
     'path.root' => __DIR__ . $ds . 'tests' . $ds . 'Fixtures',
 ];
 
+print("$configFile\n");
+echo(__DIR__ . PHP_EOL);
+
 if ($configFile && realpath($configFile)) {
     if (str_starts_with(realpath($configFile), __DIR__)) {
+        print("daua\n");
         $config = require $configFile;
     }
 }
