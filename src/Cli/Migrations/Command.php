@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Cli\Migrations;
 
+use \PDO;
 use Chuck\Cli\CommandInterface;
 use Chuck\ConfigInterface;
 use Chuck\Database\{Database, DatabaseInterface};
@@ -47,5 +48,79 @@ abstract class Command implements CommandInterface
         });
 
         return $migrations;
+    }
+
+    protected function checkIfMigrationsTableExists(
+        DatabaseInterface $db,
+        string $table = 'migrations',
+    ): bool {
+        $driver = $db->getPdoDriver();
+
+        if ($driver === 'pqsql' && strpos($table, '.') !== false) {
+            [$schema, $table] = explode('.', $table);
+        } else {
+            $schema = 'public';
+        }
+
+        $query = match ($driver) {
+            'sqlite' => "
+                SELECT count(*) AS available
+                FROM sqlite_master
+                WHERE type='table'
+                AND name='migrations';",
+
+            'mysql' => "
+                SELECT count(*) AS available
+                FROM information_schema.tables
+                WHERE table_name='$table';",
+
+            'pgsql' => "
+                SELECT count(*) AS available
+                FROM pg_tables
+                WHERE schemaname = '$schema'
+                AND tablename = '$table';",
+            default => false,
+        };
+
+        if ($query && $db->execute($query)->one(PDO::FETCH_ASSOC)['available'] ?? 0 === 1) {
+            return true;
+        }
+
+        return false;
+    }
+
+    protected function getMigrationsTableDDL(
+        string $driver,
+        string $table = 'migrations',
+        string $column = 'migration',
+    ): string|false {
+        if ($driver === 'pqsql' && strpos($table, '.') !== false) {
+            [$schema, $table] = explode('.', $table);
+        } else {
+            $schema = 'public';
+        }
+
+        switch ($driver) {
+            case 'sqlite':
+                return "CREATE TABLE $table (
+    $column text NOT NULL,
+    executed timestamp DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY ($column)
+);";
+            case 'pgsql':
+                return "CREATE TABLE $schema.$table (
+    $column text NOT NULL,
+    executed timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT pk_$table PRIMARY KEY ($column)
+);";
+            case 'mysql':
+                return "CREATE TABLE $table (
+    $column varchar(255) NOT NULL,
+    executed timestamp DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY ($column)
+);";
+            default:
+                return false;
+        }
     }
 }

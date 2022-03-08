@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Chuck\Cli\Migrations;
 
+use \PDO;
 use \PDOException;
 use \Throwable;
-use Chuck\Database\Database;
+use Chuck\Database\DatabaseInterface;
 use Chuck\Cli\Opts;
 use Chuck\ConfigInterface;
 
@@ -22,9 +23,7 @@ class Migrations extends Command
     public static string $title = 'Apply missing database migrations';
     public static string $desc;
 
-    protected string $conn;
-    protected string $sqldir;
-
+    protected DatabaseInterface $db;
 
     public function run(ConfigInterface $config): mixed
     {
@@ -34,21 +33,39 @@ class Migrations extends Command
         // by default. If there are named additional connetions you want to
         // use, pass the identifier after the dot,
         // e. g. 'db.myconn' in the config must be '--conn myconn'
-        $this->conn = $opts->get('--conn', STANDARD);
+        $conn = $opts->get('--conn', STANDARD);
         // The `sql` section from the config file which points to sql file dirs.
         // The same idea applies to 'sql' as to 'db' above. 'sql' is used by default.
         // e. g. 'sql.otherscripts' in the config must be '--sql otherscripts'
-        $this->sql = $opts->get('--sql', STANDARD);
+        $sql = $opts->get('--sql', STANDARD);
+        $db = $this->db($config, $conn, $sql);
+        $driver = $db->getPdoDriver();
+        $noconvenience = !in_array($driver, ['sqlite', 'mysql', 'pgsql']);
 
-        return $this->migrate($config, $opts->has('--stacktrace'), $opts->has('--apply'));
+        if ($noconvenience || $this->checkIfMigrationsTableExists($db)) {
+            return $this->migrate($db, $config, $opts->has('--stacktrace'), $opts->has('--apply'));
+        } else {
+            $ddl = $this->getMigrationsTableDDL($driver);
+
+            if ($ddl) {
+                echo "Migrations table does not exist. For '$driver' it should look like:\n\n";
+                echo $ddl;
+                echo "\n\nIf you want to create the table above, simply run\n\n";
+                echo "    php run create-migrations-table\n";
+            } else {
+                echo "Driver '$driver' is not supported.\n";
+            }
+
+            return false;
+        }
     }
 
     protected function migrate(
+        DatabaseInterface $db,
         ConfigInterface $config,
         bool $showStacktrace,
         bool $apply
     ): bool {
-        $db = $this->db($config, $this->conn, $this->sql);
         $db->begin();
 
         $appliedMigrations = $this->getAppliedMigrations($db);
@@ -88,14 +105,14 @@ class Migrations extends Command
         return true;
     }
 
-    protected function getAppliedMigrations(Database $db): array
+    protected function getAppliedMigrations(DatabaseInterface $db): array
     {
         $migrations = $db->execute('SELECT migration FROM migrations;')->all();
         return array_map(fn (array $mig): array => $mig['migration'], $migrations);
     }
 
     protected function migrateSQL(
-        Database $db,
+        DatabaseInterface $db,
         string $migration,
         bool $showStacktrace
     ): void {
@@ -117,7 +134,7 @@ class Migrations extends Command
     }
 
     protected function migrateTPQL(
-        Database $db,
+        DatabaseInterface $db,
         string $migration,
         bool $showStacktrace
     ): void {
@@ -133,7 +150,7 @@ class Migrations extends Command
     }
 
     protected function migratePHP(
-        Database $db,
+        DatabaseInterface $db,
         string $migration,
         bool $showStacktrace
     ): void {
@@ -168,21 +185,5 @@ class Migrations extends Command
         echo "\033[1;32mSuccess\033[0m: Migration '\033[1;33m" .
             basename($migration) .
             "'\033[0m successfully applied\n";
-    }
-
-    protected function checkIfMigrationsTableExists(Database $db): bool
-    {
-        $query = match ($db->getPdoDriver()) {
-            'sqlite' => "SELECT count(*) AS available FROM sqlite_master WHERE type='table' AND name='migrations';",
-            'mysql' => "SELECT count(*) AS available FROM information_schema.tables WHERE table_name='migrations';",
-            'pgsql' => 'SELECT',
-        };
-
-        return true;
-    }
-
-    protected function printCreateMigrationDDL(Database $db): void
-    {
-        echo 'CREATE TABLE migrations';
     }
 }
