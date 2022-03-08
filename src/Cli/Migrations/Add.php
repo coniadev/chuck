@@ -25,7 +25,9 @@ class Add implements CommandInterface
         $fileName = $opts->get('-f', $opts->get('--file', ''));
 
         if (empty($fileName)) {
+            // @codeCoverageIgnoreStart
             $fileName = readline('Name of the migration: ');
+            // @codeCoverageIgnoreEnd
         }
 
         $fileName = str_replace(' ', '-', $fileName);

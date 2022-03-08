@@ -7,7 +7,7 @@ namespace Chuck\Routing;
 use \Closure;
 use \RuntimeException;
 use \Throwable;
-use Chuck\Error\HttpNotFound;
+use Chuck\Error\{HttpNotFound, HttpMethodNotAllowed};
 use Chuck\Error\HttpServerError;
 use Chuck\RequestInterface;
 use Chuck\ResponseInterface;
@@ -127,15 +127,33 @@ class Router implements RouterInterface
         return ($host ? trim($host, '/') : '') . $route['prefix'] . trim($path, '/');
     }
 
+    protected function removeQueryString(string $url): string
+    {
+        return strtok($url, '?');
+    }
+
+
     public function match(RequestInterface $request): ?Route
     {
+        $url = $this->removeQueryString($_SERVER['REQUEST_URI']);
+        $method = $request->method();
+        $wrongMethod = false;
+
         foreach ($this->routes as $route) {
-            if ($route->match($request)) {
-                return $route;
+            if ($route->match($url)) {
+                if ($route->methodAllowed($method)) {
+                    return $route;
+                }
+
+                $wrongMethod = true;
             }
         }
 
-        return null;
+        if ($wrongMethod) {
+            throw new HttpMethodNotAllowed();
+        }
+
+        throw new HttpNotFound();
     }
 
     protected function getViewResult(RouteInterface $route, RequestInterface $request): mixed
@@ -269,44 +287,39 @@ class Router implements RouterInterface
      */
     public function dispatch(RequestInterface $request): ResponseInterface
     {
-        $route = $this->match($request);
+        /**
+         * @psalm-suppress InaccessibleProperty
+         *
+         * TODO: At the time of writing Psalm did not support
+         * readonly properties which are not initialized in the
+         * constructor. Recheck on occasion.
+         */
+        $this->route = $this->match($request);
 
-        if ($route) {
-            /**
-             * @psalm-suppress InaccessibleProperty
-             *
-             * TODO: At the time of writing Psalm did not support
-             * readonly properties which are not initialized in the
-             * constructor. Recheck on occasion.
-             */
-            $this->route = $route;
-            $handlerStack = array_merge(
-                $this->middlewares,
-                $route->middlewares(),
-            );
+        $handlerStack = array_merge(
+            $this->middlewares,
+            $this->route->middlewares(),
+        );
 
-            if ($request->getConfig()->debug()) {
-                foreach ($handlerStack as $middleware) {
-                    Reflect::validateMiddleware($middleware);
-                }
+        if ($request->getConfig()->debug()) {
+            foreach ($handlerStack as $middleware) {
+                Reflect::validateMiddleware($middleware);
             }
-
-            // Add the view action to the end of the stack
-            $handlerStack[] = function (RequestInterface $req) use ($route): ResponseInterface {
-                return $this->respond($req, $route);
-            };
-
-            /**
-             * @psalm-suppress InvalidReturnStatement
-             *
-             * workOffStack is guaranteed to return a Response in the end.
-             * The union type is necessarry to allow recursive calls where
-             * the callables deeper down mostly return a Request. But the
-             * result at the end should always be a Response.
-             */
-            return $this->workOffStack($request, $handlerStack);
-        } else {
-            throw new HttpNotFound();
         }
+
+        // Add the view action to the end of the stack
+        $handlerStack[] = function (RequestInterface $req): ResponseInterface {
+            return $this->respond($req, $this->route);
+        };
+
+        /**
+         * @psalm-suppress InvalidReturnStatement
+         *
+         * workOffStack is guaranteed to return a Response in the end.
+         * The union type is necessarry to allow recursive calls where
+         * the callables deeper down mostly return a Request. But the
+         * result at the end should always be a Response.
+         */
+        return $this->workOffStack($request, $handlerStack);
     }
 }

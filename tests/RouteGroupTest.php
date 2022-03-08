@@ -62,7 +62,7 @@ test('Renderer', function () {
     expect($route->getRenderer()->type)->toBe('json');
 });
 
-test('Controller', function () {
+test('Controller prefixing', function () {
     $router = new Router();
     $index = new Route('index', '/', fn () => null);
     $router->addRoute($index);
@@ -76,6 +76,17 @@ test('Controller', function () {
     expect($route->name())->toBe('albums-list');
     expect($route->view())->toBe(TestController::class . '::albumList');
 });
+
+
+test('Controller prefixing error', function () {
+    $router = new Router();
+
+    $group = Group::new('albums-', '/albums', function (Group $group) {
+        $group->add(Route::get('list', '-list', function () {
+        }));
+    })->controller(TestController::class);
+    $group->create($router);
+})->throws(ValueError::class, 'Cannot add controller');
 
 
 test('Middleware', function () {

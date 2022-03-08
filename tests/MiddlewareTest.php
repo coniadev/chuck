@@ -82,3 +82,13 @@ test('Early response', function () {
 
     expect($output)->toBe('immediate response');
 });
+
+
+test('Middleware validation', function () {
+    // debug => true activated middleware validation
+    $app = App::create($this->options(['debug' => true]));
+    $app->add(Route::get('index', '/', 'Chuck\Tests\Fixtures\TestController::middlewareView'));
+    $app->middleware(function () {
+    });
+    $app->run();
+})->throws(TypeError::class, 'return type must implement');

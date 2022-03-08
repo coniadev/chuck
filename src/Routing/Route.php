@@ -9,7 +9,6 @@ use \InvalidArgumentException;
 use \ValueError;
 
 use Chuck\Util\Arrays;
-use Chuck\RequestInterface;
 use Chuck\Renderer;
 
 const LEFT_BRACE = '§§§€§§§';
@@ -274,24 +273,14 @@ class Route implements RouteInterface
         return $this->args;
     }
 
-    protected function removeQueryString(string $url): string
-    {
-        return strtok($url, '?');
-    }
-
-    protected function methodIsAllowed(RequestInterface $request, string $allowed): bool
-    {
-        return strtoupper($request->method()) === strtoupper($allowed);
-    }
-
-    protected function checkMethod(RequestInterface $request): bool
+    public function methodAllowed(string $requestMethod): bool
     {
         if (count($this->methods) === 0) {
             return true;
         }
 
         foreach ($this->methods as $method) {
-            if ($this->methodIsAllowed($request, $method)) {
+            if (strtoupper($requestMethod) === strtoupper($method)) {
                 return true;
             }
         }
@@ -299,21 +288,22 @@ class Route implements RouteInterface
         return false;
     }
 
-    public function match(RequestInterface $request): ?Route
+    public function match(string $url): ?Route
     {
-        $url = $this->removeQueryString($_SERVER['REQUEST_URI']);
 
         if (preg_match($this->pattern(), $url, $matches)) {
             // Remove integer indexes from array
-            $matches = array_filter($matches, fn ($_, $k) => !is_int($k), ARRAY_FILTER_USE_BOTH);
+            $matches = array_filter(
+                $matches,
+                fn ($_, $k) => !is_int($k),
+                ARRAY_FILTER_USE_BOTH
+            );
 
             foreach ($matches as $key => $match) {
                 $this->args[$key] = $match;
             }
 
-            if ($this->checkMethod($request)) {
-                return $this;
-            }
+            return $this;
         }
 
         return null;

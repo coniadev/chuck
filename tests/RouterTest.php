@@ -8,7 +8,7 @@ use Chuck\Tests\Fixtures\TestController;
 use Chuck\Tests\Fixtures\TestControllerWithRequest;
 use Chuck\{Request, Response};
 use Chuck\Routing\{Router, Route};
-use Chuck\Error\{HttpNotFound, HttpServerError};
+use Chuck\Error\{HttpNotFound, HttpServerError, HttpMethodNotAllowed};
 
 uses(TestCase::class);
 
@@ -22,8 +22,10 @@ test('Matching', function () {
 
     expect($router->match($this->request(method: 'GET', url: '')))->toBe($index);
     expect($router->match($this->request(method: 'GET', url: '/albums')))->toBe($albums);
-    expect($router->match($this->request(method: 'GET', url: '/does-not-exist')))->toBe(null);
-});
+    expect($router->match($this->request(method: 'GET', url: '/albums?q=Symbolic')))->toBe($albums);
+
+    $router->match($this->request(method: 'GET', url: '/does-not-exist'));
+})->throws(HttpNotFound::class);
 
 
 test('Generate route url', function () {
@@ -238,4 +240,124 @@ test('Middleware add', function () {
     $router->middleware(new TestMiddleware1());
 
     expect(count($router->middlewares()))->toBe(2);
+});
+
+
+test('GET matching', function () {
+    $router = new Router();
+    $route = Route::get('index', '/', fn () => null);
+    $router->addRoute($route);
+
+    expect($router->match($this->request(method: 'GET', url: '/')))->toBe($route);
+});
+
+
+test('HEAD matching', function () {
+    $router = new Router();
+    $route = Route::head('index', '/', fn () => null);
+    $router->addRoute($route);
+
+    expect($router->match($this->request(method: 'HEAD', url: '/')))->toBe($route);
+});
+
+
+test('PUT matching', function () {
+    $router = new Router();
+    $route = Route::put('index', '/', fn () => null);
+    $router->addRoute($route);
+
+    expect($router->match($this->request(method: 'PUT', url: '/')))->toBe($route);
+});
+
+
+test('POST matching', function () {
+    $router = new Router();
+    $route = Route::post('index', '/', fn () => null);
+    $router->addRoute($route);
+
+    expect($router->match($this->request(method: 'POST', url: '/')))->toBe($route);
+});
+
+
+test('PATCH matching', function () {
+    $router = new Router();
+    $route = Route::patch('index', '/', fn () => null);
+    $router->addRoute($route);
+
+    expect($router->match($this->request(method: 'PATCH', url: '/')))->toBe($route);
+});
+
+
+test('DELETE matching', function () {
+    $router = new Router();
+    $route = Route::delete('index', '/', fn () => null);
+    $router->addRoute($route);
+
+    expect($router->match($this->request(method: 'DELETE', url: '/')))->toBe($route);
+});
+
+
+test('OPTIONS matching', function () {
+    $router = new Router();
+    $route = Route::options('index', '/', fn () => null);
+    $router->addRoute($route);
+
+    expect($router->match($this->request(method: 'OPTIONS', url: '/')))->toBe($route);
+});
+
+
+test('Matching wrong method', function () {
+    $router = new Router();
+    $route = Route::get('index', '/', fn () => null);
+    $router->addRoute($route);
+
+    expect($router->match($this->request(method: 'POST', url: '/')))->toBe($route);
+})->throws(HttpMethodNotAllowed::class);
+
+
+test('Multiple methods matching I', function () {
+    $router = new Router();
+    $route = Route::get('index', '/', fn () => null)->method('post');
+    $router->addRoute($route);
+
+    expect($router->match($this->request(method: 'GET', url: '/')))->toBe($route);
+    expect($router->match($this->request(method: 'POST', url: '/')))->toBe($route);
+    $router->match($this->request(method: 'PUT', url: '/'));
+})->throws(HttpMethodNotAllowed::class);
+
+
+test('Multiple methods matching II', function () {
+    $router = new Router();
+    $route = (new Route('index', '/', fn () => null))->method('gEt',  'Put');
+    $router->addRoute($route);
+
+    expect($router->match($this->request(method: 'GET', url: '/')))->toBe($route);
+    expect($router->match($this->request(method: 'PUT', url: '/')))->toBe($route);
+    $router->match($this->request(method: 'POST', url: '/'));
+})->throws(HttpMethodNotAllowed::class);
+
+
+test('Multiple methods matching III', function () {
+    $router = new Router();
+    $route = (new Route('index', '/', fn () => null))->method('get')->method('head');
+    $router->addRoute($route);
+
+    expect($router->match($this->request(method: 'GET', url: '/')))->toBe($route);
+    expect($router->match($this->request(method: 'HEAD', url: '/')))->toBe($route);
+    $router->match($this->request(method: 'POST', url: '/'));
+})->throws(HttpMethodNotAllowed::class);
+
+
+test('All methods matching', function () {
+    $router = new Router();
+    $route = new Route('index', '/', fn () => null);
+    $router->addRoute($route);
+
+    expect($router->match($this->request(method: 'GET', url: '/')))->toBe($route);
+    expect($router->match($this->request(method: 'HEAD', url: '/')))->toBe($route);
+    expect($router->match($this->request(method: 'POST', url: '/')))->toBe($route);
+    expect($router->match($this->request(method: 'PUT', url: '/')))->toBe($route);
+    expect($router->match($this->request(method: 'PATCH', url: '/')))->toBe($route);
+    expect($router->match($this->request(method: 'DELETE', url: '/')))->toBe($route);
+    expect($router->match($this->request(method: 'OPTIONS', url: '/')))->toBe($route);
 });
