@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Cli;
 
+use \ErrorException;
 use Chuck\ConfigInterface;
 
 
@@ -50,6 +51,22 @@ class Runner
         }
     }
 
+    private static function setupErrorHandler(): void
+    {
+        set_error_handler(function (
+            int $level,
+            string $message,
+            string $file = '',
+            int $line = 0,
+        ): bool {
+            if ($level & error_reporting()) {
+                throw new ErrorException($message, $level, $level, $file, $line);
+            }
+
+            return false;
+        }, E_ALL);
+    }
+
     protected static function runCommand(ConfigInterface $config, CommandInterface $cmd): mixed
     {
         return $cmd->run($config);
@@ -57,6 +74,7 @@ class Runner
 
     public static function run(ConfigInterface $config): mixed
     {
+        self::setupErrorHandler();
         $ds = DIRECTORY_SEPARATOR;
 
         // add the custom script dir first to allow
