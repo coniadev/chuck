@@ -38,11 +38,10 @@ class Query implements QueryInterface
         protected string $query,
         protected Args $args
     ) {
+        $this->stmt = $this->db->getConn()->prepare($query);
+
         if ($args->count() > 0) {
-            $this->stmt = $this->db->getConn()->prepare($query);
             $this->bindArgs($args->get(), $args->type());
-        } else {
-            $this->stmt = $this->db->getConn()->query($query);
         }
 
         if ($db->shouldPrint()) {
