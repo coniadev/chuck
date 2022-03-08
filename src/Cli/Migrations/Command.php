@@ -4,11 +4,27 @@ declare(strict_types=1);
 
 namespace Chuck\Cli\Migrations;
 
+use Chuck\Cli\CommandInterface;
 use Chuck\ConfigInterface;
+use Chuck\Database\{Database, DatabaseInterface};
 
 
-trait GetsMigrations
+abstract class Command implements CommandInterface
 {
+    protected function db(ConfigInterface $config, string $conn, string $sql): DatabaseInterface
+    {
+        return new Database($config->db($conn, $sql));
+    }
+
+    protected function logMigration(DatabaseInterface $db, string $migration): void
+    {
+        $name = basename($migration);
+        $db->execute(
+            'INSERT INTO migrations (migration) VALUES (:migration)',
+            ['migration' => $name]
+        )->run();
+    }
+
     protected function getMigrations(ConfigInterface $config): array
     {
         $migrations = [];

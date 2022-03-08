@@ -7,13 +7,13 @@ namespace Chuck\Cli\Migrations;
 use \PDOException;
 use \Throwable;
 use Chuck\Database\Database;
-use Chuck\Cli\{CommandInterface, Opts};
+use Chuck\Cli\Opts;
 use Chuck\ConfigInterface;
 
 ini_set('register_argc_argv', true);
 global $argv;
 
-class Migrations implements CommandInterface
+class Migrations extends Command
 {
     use GetsMigrations;
     use LogsMigrations;
@@ -23,14 +23,24 @@ class Migrations implements CommandInterface
     public static string $desc;
 
     protected string $conn;
-    protected string $sql;
+    protected string $sqldir;
 
 
     public function run(ConfigInterface $config): mixed
     {
+        $opts = new Opts();
+        // The `db` section from the config file.
+        // If there is a plain 'db' entry in the config file, it is used
+        // by default. If there are named additional connetions you want to
+        // use, pass the identifier after the dot,
+        // e. g. 'db.myconn' in the config must be '--conn myconn'
+        $this->conn = $opts->get('--conn', 'default');
+        // The `sql` section from the config file which points to sql file dirs.
+        // The same idea applies to 'sql' as to 'db' above. 'sql' is used by default.
+        // e. g. 'sql.otherscripts' in the config must be '--sql otherscripts'
+        $this->sql = $opts->get('--sql', 'default');
 
-        exit(0);
-        // return $this->migrate($config, $command === 'stacktrace', $command === 'apply');
+        return $this->migrate($config, $opts->has('--stacktrace'), $opts->has('--apply'));
     }
 
     protected function migrate(
@@ -38,7 +48,7 @@ class Migrations implements CommandInterface
         bool $showStacktrace,
         bool $apply
     ): bool {
-        $db = $this->db($config);
+        $db = $this->db($config, $this->conn, $this->sql);
         $db->begin();
 
         $appliedMigrations = $this->getAppliedMigrations($db);
@@ -49,11 +59,16 @@ class Migrations implements CommandInterface
                 continue;
             }
 
-            $ext = pathinfo($migration, PATHINFO_EXTENSION);
-            if ($ext == 'sql') {
-                $this->migrateSQL($db, $migration, $showStacktrace);
-            } else {
-                $this->migratePHP($db, $migration, $showStacktrace);
+            switch (pathinfo($migration, PATHINFO_EXTENSION)) {
+                case 'sql';
+                    $this->migrateSQL($db, $migration, $showStacktrace);
+                    break;
+                case 'tpql';
+                    $this->migrateTPQL($db, $migration, $showStacktrace);
+                    break;
+                case 'php';
+                    $this->migratePHP($db, $migration, $showStacktrace);
+                    break;
             }
 
             $applied += 1;
@@ -85,7 +100,8 @@ class Migrations implements CommandInterface
         bool $showStacktrace
     ): void {
         $script = file_get_contents($migration);
-        if (!$script) {
+
+        if (empty(trim($script))) {
             return;
         }
 
@@ -97,6 +113,22 @@ class Migrations implements CommandInterface
             $db->rollback();
             $this->showMessage($migration, $e, $showStacktrace);
             exit(1);
+        }
+    }
+
+    protected function migrateTPQL(
+        Database $db,
+        string $migration,
+        bool $showStacktrace
+    ): void {
+        try {
+            /** @psalm-suppress UnresolvableInclude */
+            $migObj = require $migration;
+            $migObj->run($db);
+            $this->logMigration($db, $migration);
+            $this->showMessage($migration);
+        } catch (Throwable $e) {
+            $this->showMessage($migration, $e, $showStacktrace);
         }
     }
 
@@ -114,11 +146,6 @@ class Migrations implements CommandInterface
         } catch (Throwable $e) {
             $this->showMessage($migration, $e, $showStacktrace);
         }
-    }
-
-    protected function db(ConfigInterface $config): Database
-    {
-        return new Database($config->db($this->conn, $this->sql));
     }
 
     protected function showMessage(
