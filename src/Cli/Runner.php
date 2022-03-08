@@ -50,42 +50,9 @@ class Runner
         }
     }
 
-    /**
-     * PHP native `getopt` stops after the first "non-option" argument
-     * which in our case is the command: `php run <command>`
-     */
-    protected static function getopts(): array
-    {
-        $opts = [];
-        $key = null;
-
-        foreach ($_SERVER['argv'] as $arg) {
-            if (str_starts_with($arg, '-')) {
-                $key = ltrim($arg, '-');
-
-                if (!isset($opts[$key])) {
-                    $opts[$key] = true;
-                }
-            } else {
-                if ($key) {
-                    if ($opts[$key] === true) {
-                        $opts[$key] = $arg;
-                    } else {
-                        if (!is_array($opts[$key])) {
-                            $opts[$key] = [$opts[$key]];
-                        }
-                        $opts[$key][] = $arg;
-                    }
-                }
-            }
-        }
-
-        return $opts;
-    }
-
     protected static function runCommand(ConfigInterface $config, CommandInterface $cmd): mixed
     {
-        return $cmd->run($config, self::getopts());
+        return $cmd->run($config);
     }
 
     public static function run(ConfigInterface $config): mixed

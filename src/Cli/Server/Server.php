@@ -14,7 +14,7 @@ class Server implements CommandInterface
     public static string $title = 'Start the development server';
     public static string $desc = 'php run serve [<port>]';
 
-    public function run(ConfigInterface $config, array $args): mixed
+    public function run(ConfigInterface $config): mixed
     {
         $publicDir = $config->path()->public;
 

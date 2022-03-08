@@ -7,7 +7,7 @@ namespace Chuck\Cli\Migrations;
 use \PDOException;
 use \Throwable;
 use Chuck\Database\Database;
-use Chuck\Cli\{CommandInterface, GetsOpts};
+use Chuck\Cli\{CommandInterface, Opts};
 use Chuck\ConfigInterface;
 
 ini_set('register_argc_argv', true);
@@ -26,9 +26,8 @@ class Migrations implements CommandInterface
     protected string $sql;
 
 
-    public function run(ConfigInterface $config, array $args): mixed
+    public function run(ConfigInterface $config): mixed
     {
-        print_r($args);
 
         exit(0);
         // return $this->migrate($config, $command === 'stacktrace', $command === 'apply');
@@ -43,8 +42,8 @@ class Migrations implements CommandInterface
         $db->begin();
 
         $appliedMigrations = $this->getAppliedMigrations($db);
-
         $applied = 0;
+
         foreach ($this->getMigrations($config) as $migration) {
             if (in_array(basename($migration), $appliedMigrations)) {
                 continue;

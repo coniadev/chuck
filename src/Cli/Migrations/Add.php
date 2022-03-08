@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Cli\Migrations;
 
-use Chuck\Cli\CommandInterface;
+use Chuck\Cli\{CommandInterface, Opts};
 use Chuck\ConfigInterface;
 
 
@@ -14,16 +14,17 @@ class Add implements CommandInterface
     public static string $title = 'Initialize a new migrations';
     public static string $desc;
 
-    public function run(ConfigInterface $config, array $args): mixed
+    public function run(ConfigInterface $config): mixed
     {
-        return $this->add($config, $args);
+        return $this->add($config);
     }
 
-    protected function add(ConfigInterface $config, array $args): ?string
+    protected function add(ConfigInterface $config): ?string
     {
-        if (count($args) > 0) {
-            $fileName = $args[0];
-        } else {
+        $opts = new Opts();
+        $fileName = $opts->get('-f', $opts->get('--file', ''));
+
+        if (empty($fileName)) {
             $fileName = readline('Name of the migration: ');
         }
 
@@ -50,14 +51,14 @@ class Add implements CommandInterface
             return null;
         }
 
-        $ts = date('ymd-His', time());
+        $timestamp = date('ymd-His', time());
 
         if (is_dir($migrationDir) && is_writable($migrationDir)) {
-            $migration = $migrationDir . DIRECTORY_SEPARATOR . $ts . '-' . $fileName;
+            $migration = $migrationDir . DIRECTORY_SEPARATOR . $timestamp . '-' . $fileName;
             $f = fopen($migration, 'w');
 
             if ($ext === 'php') {
-                fwrite($f, $this->getPhpContent($fileName));
+                fwrite($f, $this->getPhpContent($fileName, $timestamp));
             } elseif ($ext === 'tpql') {
                 fwrite($f, $this->getTpqlContent());
             }
@@ -67,27 +68,38 @@ class Add implements CommandInterface
 
             return $migration;
         } else {
-            echo "No migration directory available or not writable\n  -> $migrationDir\nAborting. \n";
-
+            echo "Migrations directory does not exits or not writable\n  -> $migrationDir\nAborting. \n";
             return null;
         }
     }
 
-    protected function getPhpContent(string $fileName): string
+    protected function getPhpContent(string $fileName, string $timestamp): string
     {
         // Translates what-is-up.sql into WhatIsUp
-        $className = implode('', explode('-', explode('.', ucwords($fileName, '-'))[0]));
+        $className = implode(
+            '',
+            explode(
+                '-',
+                explode(
+                    '.',
+                    ucwords($fileName, '-')
+                )[0]
+            )
+        ) . '_' . str_replace('-', '_', $timestamp);
 
         return "<?php
 
 declare(strict_types=1);
 
-class $className
+use Chuck\Database\{Database, Migration};
+
+
+class $className extends Migration
 {
-    public function run(PDO \$db): void
+    public function run(Database \$db): void
     {
-        \$db->execute('');
-        \$result = \$db->query('SELECT 1', PDO::FETCH_ASSOC)->fetch();
+        \$db->execute('')->run();
+        \$result = \$db->execute('')->all(PDO::FETCH_ASSOC);
     }
 }
 
