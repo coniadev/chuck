@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Chuck\Cli\Migrations;
 
-use \PDO;
 use \PDOException;
 use \Throwable;
 use Chuck\Database\DatabaseInterface;
