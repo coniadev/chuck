@@ -21,6 +21,7 @@ abstract class Command implements CommandInterface
     protected bool $showStacktrace;
     protected bool $convenience;
     protected DatabaseInterface $db;
+    protected ConfigInterface $config;
 
     public function init(ConfigInterface $config)
     {
@@ -42,6 +43,7 @@ abstract class Command implements CommandInterface
         $this->convenience = in_array($this->driver, ['sqlite', 'mysql', 'pgsql']);
         $this->table = $config->get('migrationstable.name', 'migrations');
         $this->column = $config->get('migrationstable.name', 'migration');
+        $this->config = $config;
     }
     protected function db(ConfigInterface $config, string $conn, string $sql): DatabaseInterface
     {

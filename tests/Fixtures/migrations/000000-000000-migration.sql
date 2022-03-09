@@ -1,3 +1,3 @@
 CREATE TABLE albums (
-    id PRIMARY KEY
+    id int
 );

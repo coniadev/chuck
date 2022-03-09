@@ -98,20 +98,24 @@ class Add implements CommandInterface
 
 declare(strict_types=1);
 
-use Chuck\Database\{Database, Migration};
+use \PDO;
+use Chuck\Config;
+use Chuck\Database\Database;
+use Chuck\Database\MigrationInterface;
 
 
-class $className extends Migration
+class $className implements MigrationInterface;
 {
-    public function run(Database \$db): void
+    public function run(Database \$db, Config \$config): bool
     {
         \$db->execute('')->run();
         \$result = \$db->execute('')->all(PDO::FETCH_ASSOC);
+
+        return true;
     }
 }
 
-return new $className();
-";
+return new $className();";
     }
 
     protected function getTpqlContent(): string

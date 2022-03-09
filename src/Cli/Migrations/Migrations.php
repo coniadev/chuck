@@ -80,7 +80,7 @@ class Migrations extends Command
                     $result = $this->migrateSQL($db, $migration, $showStacktrace);
                     break;
                 case 'tpql';
-                    // $result = $this->migrateTPQL($db, $migration, $showStacktrace);
+                    $result = $this->migrateTPQL($db, $migration, $showStacktrace);
                     break;
                 case 'php';
                     $result = $this->migratePHP($db, $migration, $showStacktrace);
@@ -230,7 +230,7 @@ class Migrations extends Command
         try {
             /** @psalm-suppress UnresolvableInclude */
             $migObj = require $migration;
-            $migObj->run($db);
+            $migObj->run($db, $this->config);
             $this->logMigration($db, $migration);
             $this->showMessage($migration);
 
