@@ -40,6 +40,7 @@ class CreateMigrationsTable extends Command
                 try {
                     $this->db->execute($ddl)->run();
                     echo "\033[1;32mSuccess\033[0m: Created table '$this->table'\n";
+                    return true;
                 } catch (Throwable $e) {
                     echo "\033[1;31mError\033[0m: While trying to create table '$this->table'\n";
                     echo $e->getMessage() . PHP_EOL;
@@ -47,6 +48,7 @@ class CreateMigrationsTable extends Command
                     if ($this->showStacktrace) {
                         echo $e->getTraceAsString() . PHP_EOL;
                     }
+                    return false;
                 }
             } else {
                 echo "Driver '$this->driver' is not supported.\n";

@@ -38,7 +38,8 @@ class Database
 
             if (!Arrays::isAssoc($paths)) {
                 throw new ValueError(
-                    "The 'sql' setting in the config file must be a string or an associative array"
+                    "The 'sql' setting in the config file must be " .
+                        "a string or an associative array"
                 );
             }
 
@@ -57,7 +58,9 @@ class Database
         return Connection::fromArray(
             $this->connections[$connection],
             // Allow only an empty list of sql dirs if the default section is used
-            $sql === Config::DEFAULT ? $this->sql[Config::DEFAULT] ?? [] : $this->sql[$sql],
+            $sql === Config::DEFAULT ?
+                $this->sql[Config::DEFAULT] ?? [] :
+                $this->sql[$sql],
         );
     }
 

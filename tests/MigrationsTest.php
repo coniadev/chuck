@@ -2,10 +2,26 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\{TestCase, C};
+use Chuck\Tests\Setup\{DatabaseCase, C};
 use Chuck\Cli\Runner;
 
-uses(TestCase::class);
+uses(DatabaseCase::class);
+
+
+beforeAll(function () {
+    DatabaseCase::createTestDb();
+});
+
+
+test('Create migrations table', function () {
+    $_SERVER['argv'] = ['run', 'create-migrations-table'];
+
+    ob_start();
+    $result = Runner::run($this->config());
+    ob_end_clean();
+
+    expect($result)->toBe(true);
+});
 
 
 test('Add migration SQL', function () {
@@ -22,6 +38,7 @@ test('Add migration SQL', function () {
     @unlink($migration);
     expect(is_file($migration))->toBe(false);
 });
+
 
 test('Add migration TPQL', function () {
     $_SERVER['argv'] = ['run', 'add-migration', '--file', 'test migration.tpql'];
@@ -41,6 +58,7 @@ test('Add migration TPQL', function () {
     expect(is_file($migration))->toBe(false);
     expect($content)->toContain('<?php if');
 });
+
 
 test('Add migration PHP', function () {
     $_SERVER['argv'] = ['run', 'add-migration', '--file', 'test migration.php'];
