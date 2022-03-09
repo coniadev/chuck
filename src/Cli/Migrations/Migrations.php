@@ -70,14 +70,17 @@ class Migrations extends Command
                 continue;
             }
 
-            if (filesize($migration) === 0) {
+            $script = file_get_contents($migration);
+
+            if (empty(trim($script))) {
                 $this->showEmptyMessage($migration);
+                $result = self::WARNING;
                 continue;
             }
 
             switch (pathinfo($migration, PATHINFO_EXTENSION)) {
                 case 'sql';
-                    $result = $this->migrateSQL($db, $migration, $showStacktrace);
+                    $result = $this->migrateSQL($db, $migration, $script, $showStacktrace);
                     break;
                 case 'tpql';
                     $result = $this->migrateTPQL($db, $migration, $showStacktrace);
@@ -179,15 +182,9 @@ class Migrations extends Command
     protected function migrateSQL(
         DatabaseInterface $db,
         string $migration,
+        string $script,
         bool $showStacktrace
     ): string {
-        $script = file_get_contents($migration);
-
-        if (empty(trim($script))) {
-            $this->showEmptyMessage($migration);
-            return self::WARNING;
-        }
-
         try {
             $db->execute($script)->run();
             $this->logMigration($db, $migration);
@@ -207,13 +204,44 @@ class Migrations extends Command
         bool $showStacktrace
     ): string {
         try {
-            /** @psalm-suppress UnresolvableInclude */
-            $migObj = require $migration;
-            $migObj->run($db);
-            $this->logMigration($db, $migration);
-            $this->showMessage($migration);
+            $load = function (string $migrationPath, array $context = []): void {
+                // Hide $migrationPath. Could be overwritten if $context['templatePath'] exists.
+                $____migration_path____ = $migrationPath;
 
-            return self::SUCCESS;
+                extract($context);
+
+                /** @psalm-suppress UnresolvableInclude */
+                include $____migration_path____;
+            };
+
+            $error = null;
+            $context = [
+                'driver' => $db->getPdoDriver(),
+                'db' => $db,
+                'config' => $this->config,
+            ];
+
+            ob_start();
+
+            try {
+                $load($migration, $context);
+            } catch (Throwable $e) {
+                $error = $e;
+            }
+
+            $script = ob_get_contents();
+            ob_end_clean();
+
+            if ($error !== null) {
+                throw $error;
+            }
+
+            if (empty(trim($script))) {
+                $this->showEmptyMessage($migration);
+                return self::WARNING;
+            }
+
+            return $this->migrateSQL($db, $migration, $script, $showStacktrace);
         } catch (Throwable $e) {
             $this->showMessage($migration, $e, $showStacktrace);
 

@@ -1,0 +1,9 @@
+<?php if ($driver === 'sqlite') : ?>
+    ALTER TABLE albums ADD COLUMN released_sqlite TEXT;
+<?php elseif ($driver === 'pgsql'): ?>
+    ALTER TABLE albums ADD COLUMN released_pgsql TEXT;
+<?php elseif ($driver === 'mysql'): ?>
+    ALTER TABLE albums ADD COLUMN released_mysql TEXT;
+<?php else: ?>
+    not supported
+<?php endif ?>

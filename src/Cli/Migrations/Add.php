@@ -104,7 +104,7 @@ use Chuck\Database\Database;
 use Chuck\Database\MigrationInterface;
 
 
-class $className implements MigrationInterface;
+class $className implements MigrationInterface
 {
     public function run(Database \$db, Config \$config): bool
     {
