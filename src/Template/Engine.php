@@ -9,9 +9,8 @@ use \InvalidArgumentException;
 use \RuntimeException;
 use \Throwable;
 use \ValueError;
+use Chuck\Config;
 use Chuck\Util\Path;
-
-use const Chuck\STANDARD;
 
 
 class Engine extends TemplateEngine
@@ -108,7 +107,7 @@ class Engine extends TemplateEngine
         } else {
             try {
                 $path = Path::realpath(
-                    $this->dirs[STANDARD] . $ds . $file . $ext
+                    $this->dirs[Config::DEFAULT] . $ds . $file . $ext
                 );
             } catch (Exception) {
                 throw new ValueError("No default template directory present.");

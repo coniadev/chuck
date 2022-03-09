@@ -6,6 +6,7 @@ namespace Chuck\Cli\Migrations;
 
 use \PDOException;
 use \Throwable;
+use Chuck\Config;
 use Chuck\Cli\Opts;
 use Chuck\Database\DatabaseInterface;
 use Chuck\ConfigInterface;

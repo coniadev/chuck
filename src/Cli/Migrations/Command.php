@@ -6,10 +6,9 @@ namespace Chuck\Cli\Migrations;
 
 use \PDO;
 use Chuck\Cli\{CommandInterface, Opts};
+use Chuck\Config;
 use Chuck\ConfigInterface;
 use Chuck\Database\{Database, DatabaseInterface};
-
-use const Chuck\STANDARD;
 
 
 abstract class Command implements CommandInterface
@@ -31,11 +30,11 @@ abstract class Command implements CommandInterface
         // by default. If there are named additional connetions you want to
         // use, pass the identifier after the dot,
         // e. g. 'db.myconn' in the config must be '--conn myconn'
-        $this->conn = $opts->get('--conn', STANDARD);
+        $this->conn = $opts->get('--conn', Config::DEFAULT);
         // The `sql` section from the config file which points to sql file dirs.
         // The same idea applies to 'sql' as to 'db' above. 'sql' is used by default.
         // e. g. 'sql.otherscripts' in the config must be '--sql otherscripts'
-        $this->sql = $opts->get('--sql', STANDARD);
+        $this->sql = $opts->get('--sql', Config::DEFAULT);
 
         $this->showStacktrace = $opts->has('--stacktrace');
         $this->db = $this->db($config, $this->conn, $this->sql);

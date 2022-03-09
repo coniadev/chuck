@@ -12,11 +12,11 @@ use Chuck\Util\Http;
 use Chuck\Util\Path as PathUtil;
 use Chuck\Config\{Path, Templates, Log, Database, Connection, Scripts};
 
-const STANDARD = 'STANDARD';
-
 
 class Config implements ConfigInterface
 {
+    public const DEFAULT = 'default';
+
     public readonly string $root;
     public readonly bool $debug;
     public readonly string $env;
@@ -52,28 +52,28 @@ class Config implements ConfigInterface
             $dotpos = strpos($key, '.');
 
             if ($dotpos === false) {
-                if (isset($nested[$key][STANDARD])) {
+                if (isset($nested[$key][self::DEFAULT])) {
                     throw new ValueError(
-                        "Configuration error: subkey '" . STANDARD .
+                        "Configuration error: subkey '" . self::DEFAULT .
                             "' for config key '$key' already exists"
                     );
                 }
 
                 switch ($key) {
                     case 'sql':
-                        $nested['sql'][STANDARD] = $value;
+                        $nested['sql'][self::DEFAULT] = $value;
                         break;
                     case 'migrations':
-                        $nested['migrations'][STANDARD] = $value;
+                        $nested['migrations'][self::DEFAULT] = $value;
                         break;
                     case 'templates':
-                        $nested['templates'][STANDARD] = $value;
+                        $nested['templates'][self::DEFAULT] = $value;
                         break;
                     case 'scripts':
-                        $nested['scripts'][STANDARD] = $value;
+                        $nested['scripts'][self::DEFAULT] = $value;
                         break;
                     case 'db':
-                        $nested['db'][STANDARD] = $value;
+                        $nested['db'][self::DEFAULT] = $value;
                         break;
                     default:
                         $nested[$key] = $value;
@@ -214,7 +214,7 @@ class Config implements ConfigInterface
         );
     }
 
-    public function db(string $connection = STANDARD, string $sql = STANDARD): Connection
+    public function db(string $connection = self::DEFAULT, string $sql = self::DEFAULT): Connection
     {
         return $this->getDatabaseConfig()->connection($connection, $sql);
     }

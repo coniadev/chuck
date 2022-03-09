@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Chuck\Config;
 
 use \ValueError;
+use Chuck\Config;
 use Chuck\Util\Arrays;
-
-use const Chuck\STANDARD;
 
 
 class Database
@@ -51,12 +50,14 @@ class Database
         return $clean;
     }
 
-    public function connection(string $connection = STANDARD, string $sql = STANDARD): Connection
-    {
+    public function connection(
+        string $connection = Config::DEFAULT,
+        string $sql = Config::DEFAULT,
+    ): Connection {
         return Connection::fromArray(
             $this->connections[$connection],
             // Allow only an empty list of sql dirs if the default section is used
-            $sql === STANDARD ? $this->sql[STANDARD] ?? [] : $this->sql[$sql],
+            $sql === Config::DEFAULT ? $this->sql[Config::DEFAULT] ?? [] : $this->sql[$sql],
         );
     }
 
