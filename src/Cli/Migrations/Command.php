@@ -62,8 +62,13 @@ abstract class Command implements CommandInterface
     protected function getMigrations(ConfigInterface $config): array
     {
         $migrations = [];
+        $migrationDirs = $config->migrations();
 
-        foreach ($config->migrations() as $path) {
+        if (count($migrationDirs) === 0) {
+            echo "\033[1;31mNotice\033[0m: No migration directories defined in configuration\033[0m\n";
+        }
+
+        foreach ($migrationDirs as $path) {
             $migrations = array_merge(
                 $migrations,
                 array_filter(glob("$path/*.php"), 'is_file'),
