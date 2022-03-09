@@ -46,17 +46,22 @@ class Add implements CommandInterface
 
         $migrations = $config->migrations();
         // Get the last migrations directory from the list
-        $migrationDir = end($migrations);
+        $migrationsDir = end($migrations);
 
-        if ($migrationDir !== false && strpos($migrationDir, '/vendor') !== false) {
-            echo "The migrations directory is inside './vendor'.\n  -> $migrationDir\nAborting.\n";
+        if (!$migrationsDir || !is_dir($migrationsDir)) {
+            echo "The migrations directory does not exist: $migrationsDir\n  -> Aborting.\n";
+            return null;
+        }
+
+        if (strpos($migrationsDir, '/vendor') !== false) {
+            echo "The migrations directory is inside './vendor'.\n  -> $migrationsDir\nAborting.\n";
             return null;
         }
 
         $timestamp = date('ymd-His', time());
 
-        if (is_dir($migrationDir) && is_writable($migrationDir)) {
-            $migration = $migrationDir . DIRECTORY_SEPARATOR . $timestamp . '-' . $fileName;
+        if (is_writable($migrationsDir)) {
+            $migration = $migrationsDir . DIRECTORY_SEPARATOR . $timestamp . '-' . $fileName;
             $f = fopen($migration, 'w');
 
             if ($ext === 'php') {
@@ -70,7 +75,7 @@ class Add implements CommandInterface
 
             return $migration;
         } else {
-            echo "Migrations directory does not exits or not writable\n  -> $migrationDir\nAborting. \n";
+            echo "Migrations directory is not writable\n  -> $migrationsDir\nAborting. \n";
             return null;
         }
     }
