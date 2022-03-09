@@ -6,7 +6,6 @@ namespace Chuck\Cli\Migrations;
 
 use \PDOException;
 use \Throwable;
-use Chuck\Config;
 use Chuck\Cli\Opts;
 use Chuck\Database\DatabaseInterface;
 use Chuck\ConfigInterface;
@@ -19,6 +18,10 @@ class Migrations extends Command
     public static string $desc;
 
     protected DatabaseInterface $db;
+    protected const STARTED = 'start';
+    protected const ERROR = 'error';
+    protected const WARNING = 'warning';
+    protected const SUCCESS = 'success';
 
     public function run(ConfigInterface $config): mixed
     {
@@ -34,7 +37,15 @@ class Migrations extends Command
                 echo "Migrations table does not exist. For '$this->driver' it should look like:\n\n";
                 echo $ddl;
                 echo "\n\nIf you want to create the table above, simply run\n\n";
-                echo "    php run create-migrations-table\n";
+                echo "    php run create-migrations-table\n\n";
+                echo "If you need to change the table or column name add the following ";
+                echo "settings to your configuration\n\n:";
+                echo "\$yourConfig = [\n";
+                echo "    ...\n";
+                echo "    'migrationstable.name' => '<yourtablename>',\n";
+                echo "    'migrationstable.column' => '<yourcolumnname>',\n";
+                echo "    ...\n";
+                echo "];\n";
             } else {
                 echo "Driver '$this->driver' is not supported.\n";
             }
@@ -49,70 +60,145 @@ class Migrations extends Command
         bool $showStacktrace,
         bool $apply
     ): bool {
-        $db->begin();
-
+        $this->begin($db);
         $appliedMigrations = $this->getAppliedMigrations($db);
-        $applied = 0;
+        $result = self::STARTED;
+        $numApplied = 0;
 
         foreach ($this->getMigrations($config) as $migration) {
             if (in_array(basename($migration), $appliedMigrations)) {
                 continue;
             }
 
+            if (filesize($migration) === 0) {
+                $this->showEmptyMessage($migration);
+                continue;
+            }
+
             switch (pathinfo($migration, PATHINFO_EXTENSION)) {
                 case 'sql';
-                    $this->migrateSQL($db, $migration, $showStacktrace);
+                    $result = $this->migrateSQL($db, $migration, $showStacktrace);
                     break;
                 case 'tpql';
-                    $this->migrateTPQL($db, $migration, $showStacktrace);
+                    // $result = $this->migrateTPQL($db, $migration, $showStacktrace);
                     break;
                 case 'php';
-                    $this->migratePHP($db, $migration, $showStacktrace);
+                    $result = $this->migratePHP($db, $migration, $showStacktrace);
                     break;
             }
 
-            $applied += 1;
+            if ($result === self::ERROR) {
+                break;
+            }
+
+            if ($result === self::SUCCESS) {
+                $numApplied++;
+            }
         }
 
-        if ($apply) {
-            $db->commit();
+        return $this->finish($db, $result, $apply, $numApplied);
+    }
+
+    protected function begin(DatabaseInterface $db): void
+    {
+        if ($this->supportsTransactions($db)) {
+            $db->begin();
+        }
+    }
+
+    protected function finish(
+        DatabaseInterface $db,
+        string $result,
+        bool $apply,
+        int $numApplied,
+    ) {
+        $plural = $numApplied > 1 ? 's' : '';
+
+        if ($this->supportsTransactions($db)) {
+            if ($result === self::ERROR) {
+                $db->rollback();
+                echo "\nDue to errors no migrations applied\n";
+                return false;
+            }
+
+            if ($numApplied === 0) {
+                $db->rollback();
+                echo "\nNo migrations applied\n";
+                return true;
+            }
+
+            if ($apply) {
+                $db->commit();
+                echo "\n$numApplied migration$plural successfully applied\n";
+                return true;
+            } else {
+                echo "\n\033[1;31mNotice\033[0m: Test run only\033[0m";
+                echo "\nWould apply $numApplied migration$plural. ";
+                echo "Use the switch --apply to make it happen\n";
+                $db->rollback();
+                return true;
+            }
         } else {
-            $db->rollback();
-        }
+            if ($result === self::ERROR) {
+                $db->rollback();
+                echo "\n$numApplied migration$plural applied until the error occured\n";
+                return false;
+            }
 
-        if ($applied === 0) {
-            echo "No migrations to apply\n";
-            return false;
+            if ($numApplied > 0) {
+                echo "\n$numApplied migration$plural successfully applied\n";
+                return true;
+            }
+
+            echo "\nNo migrations applied\n";
+            return true;
         }
 
         return true;
     }
 
+    protected function supportsTransactions(DatabaseInterface $db): bool
+    {
+        switch ($this->driver) {
+            case 'sqlite':
+                return true;
+            case 'pgsql':
+                return true;
+            case 'mysql':
+                return false;
+            default:
+                return false;
+        }
+    }
+
     protected function getAppliedMigrations(DatabaseInterface $db): array
     {
-        $migrations = $db->execute('SELECT migration FROM migrations;')->all();
-        return array_map(fn (array $mig): array => $mig['migration'], $migrations);
+        $migrations = $db->execute("SELECT $this->column FROM $this->table;")->all();
+        return array_map(fn (array $mig): string => $mig['migration'], $migrations);
     }
 
     protected function migrateSQL(
         DatabaseInterface $db,
         string $migration,
         bool $showStacktrace
-    ): void {
+    ): string {
         $script = file_get_contents($migration);
 
         if (empty(trim($script))) {
-            return;
+            $this->showEmptyMessage($migration);
+            return self::WARNING;
         }
 
         try {
             $db->execute($script)->run();
             $this->logMigration($db, $migration);
             $this->showMessage($migration);
+
+            return self::SUCCESS;
         } catch (PDOException $e) {
-            $db->rollback();
             $this->showMessage($migration, $e, $showStacktrace);
-            exit(1);
+
+            return self::ERROR;
         }
     }
 
@@ -120,15 +206,19 @@ class Migrations extends Command
         DatabaseInterface $db,
         string $migration,
         bool $showStacktrace
-    ): void {
+    ): string {
         try {
             /** @psalm-suppress UnresolvableInclude */
             $migObj = require $migration;
             $migObj->run($db);
             $this->logMigration($db, $migration);
             $this->showMessage($migration);
+
+            return self::SUCCESS;
         } catch (Throwable $e) {
             $this->showMessage($migration, $e, $showStacktrace);
+
+            return self::ERROR;
         }
     }
 
@@ -136,16 +226,27 @@ class Migrations extends Command
         DatabaseInterface $db,
         string $migration,
         bool $showStacktrace
-    ): void {
+    ): string {
         try {
             /** @psalm-suppress UnresolvableInclude */
             $migObj = require $migration;
             $migObj->run($db);
             $this->logMigration($db, $migration);
             $this->showMessage($migration);
+
+            return self::SUCCESS;
         } catch (Throwable $e) {
             $this->showMessage($migration, $e, $showStacktrace);
+
+            return self::ERROR;
         }
+    }
+
+    protected function showEmptyMessage(string $migration): void
+    {
+        echo "\033[33mWarning\033[0m: Migration '\033[1;33m" .
+            basename($migration) .
+            "'\033[0m is empty. Skipped\n";
     }
 
     protected function showMessage(

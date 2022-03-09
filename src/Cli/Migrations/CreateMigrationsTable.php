@@ -39,9 +39,9 @@ class CreateMigrationsTable extends Command
             if ($ddl) {
                 try {
                     $this->db->execute($ddl)->run();
-                    echo "\033[1;32mSuccess\033[0m: created table '$this->table'.\n";
+                    echo "\033[1;32mSuccess\033[0m: Created table '$this->table'\n";
                 } catch (Throwable $e) {
-                    echo "\033[1;31mError\033[0m: while trying to create table '$this->table'.\n";
+                    echo "\033[1;31mError\033[0m: While trying to create table '$this->table'\n";
                     echo $e->getMessage() . PHP_EOL;
 
                     if ($this->showStacktrace) {

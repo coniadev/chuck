@@ -5,7 +5,6 @@
 .phpunit.result.cache
 tmp/
 /vendor
-/tests/Fixtures/migrations/*.php
-/tests/Fixtures/migrations/*.sql
-/tests/Fixtures/migrations/*.tpql
+/tests/Fixtures/migrations/*
+!/tests/Fixtures/migrations/000000*
 /tests/Fixtures/public/cache
