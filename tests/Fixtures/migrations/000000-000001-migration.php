@@ -50,8 +50,11 @@ class TestMigration_1 implements MigrationInterface
                 assert($result['exists'] === 1);
                 break;
             case 'mysql';
-                /** TODO: add mysql */
-                assert(1 === 0);
+                $result = $db->execute(
+                    "SHOW COLUMNS FROM albums WHERE Field = 'name_mysql'"
+                )->one();
+
+                assert($result['Field'] ?? false === 'name_mysql');
                 break;
         }
     }

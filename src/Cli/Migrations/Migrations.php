@@ -140,7 +140,6 @@ class Migrations extends Command
             }
         } else {
             if ($result === self::ERROR) {
-                $db->rollback();
                 echo "\n$numApplied migration$plural applied until the error occured\n";
                 return false;
             }
