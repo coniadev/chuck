@@ -1,9 +1,9 @@
 <?php if ($driver === 'sqlite') : ?>
-    ALTER TABLE albums ADD COLUMN released_sqlite TEXT;
+    ALTER TABLE genres ADD COLUMN desc_sqlite TEXT;
 <?php elseif ($driver === 'pgsql'): ?>
-    ALTER TABLE albums ADD COLUMN released_pgsql TEXT;
+    ALTER TABLE genres ADD COLUMN desc_pgsql TEXT;
 <?php elseif ($driver === 'mysql'): ?>
-    ALTER TABLE albums ADD COLUMN released_mysql TEXT;
+    ALTER TABLE genres ADD COLUMN desc_mysql TEXT;
 <?php else: ?>
     not supported
 <?php endif ?>

@@ -1,3 +1,3 @@
-CREATE TABLE albums (
+CREATE TABLE genres (
     id int
 );

@@ -24,6 +24,22 @@ test('Create migrations table', function () {
 });
 
 
+test('Run migrations', function () {
+    $_SERVER['argv'] = ['run', 'migrations', '--apply'];
+
+    ob_start();
+    $result = Runner::run($this->config());
+    $content = ob_get_contents();
+    ob_end_clean();
+
+    expect($result)->toBe(true);
+    expect($content)->toMatch('/000000-000000-migration.sql[^\n]*?success/');
+    expect($content)->toMatch('/000000-000001-migration.php[^\n]*?success/');
+    expect($content)->toMatch('/000000-000002-migration.tpql[^\n]*?success/');
+    expect($content)->toContain('3 migrations successfully applied');
+});
+
+
 test('Add migration SQL', function () {
     $_SERVER['argv'] = ['run', 'add-migration', '--file', 'test migration'];
 

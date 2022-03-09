@@ -295,6 +295,6 @@ class Migrations extends Command
 
         echo "\033[1;32mSuccess\033[0m: Migration '\033[1;33m" .
             basename($migration) .
-            "'\033[0m successfully applied\n";
+            "\033[0m' successfully applied\n";
     }
 }
