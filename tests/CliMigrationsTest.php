@@ -59,7 +59,7 @@ test('Add migration PHP', function () {
     @unlink($migration);
     expect(is_file($migration))->toBe(false);
     expect($content)->toContain("TestMigration_");
-    expect($content)->toContain("extends Migration");
+    expect($content)->toContain("implements MigrationInterface");
 });
 
 
@@ -83,7 +83,7 @@ test('Wrong migrations directory', function () {
     $output = ob_get_contents();
     ob_end_clean();
 
-    expect($output)->toContain("Migrations directory does not exits");
+    expect($output)->toContain("The migrations directory does not exist");
 });
 
 

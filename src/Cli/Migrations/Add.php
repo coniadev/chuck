@@ -48,13 +48,13 @@ class Add implements CommandInterface
         // Get the last migrations directory from the list
         $migrationsDir = end($migrations);
 
-        if (!$migrationsDir || !is_dir($migrationsDir)) {
-            echo "The migrations directory does not exist: $migrationsDir\n  -> Aborting.\n";
+        if ($migrationsDir && strpos($migrationsDir, '/vendor') !== false) {
+            echo "The migrations directory is inside './vendor'.\n  -> $migrationsDir\nAborting.\n";
             return null;
         }
 
-        if (strpos($migrationsDir, '/vendor') !== false) {
-            echo "The migrations directory is inside './vendor'.\n  -> $migrationsDir\nAborting.\n";
+        if (!$migrationsDir || !is_dir($migrationsDir)) {
+            echo "The migrations directory does not exist: $migrationsDir\n  -> Aborting.\n";
             return null;
         }
 
