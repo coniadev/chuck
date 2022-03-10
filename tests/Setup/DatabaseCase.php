@@ -13,14 +13,31 @@ use Chuck\Tests\Setup\{TestCase, C};
 
 class DatabaseCase extends TestCase
 {
-    protected static function getDbFile(): string
+    public function config(array $options = []): Config
     {
-        return sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'chuck_test_db.sqlite3';
+        $prefix = __DIR__ . C::DS . '..' . C::DS . 'Fixtures' . C::DS . 'sql' . C::DS;
+
+        return parent::config(
+            array_replace_recursive(
+                [
+                    'db' => ['dsn' => $this->getDsn()],
+                    'sql' => $prefix . 'default',
+                    'sql.additional' => [
+                        'sqlite' =>  $prefix . 'additional',
+                        'all' => $prefix . 'default',
+                    ],
+                    'migrations' => C::root() . C::DS . 'migrations',
+                ],
+                $options,
+            )
+        );
     }
 
-    protected static function getDsn(): string
-    {
-        return 'sqlite:' . self::getDbFile();
+    public function getDb(
+        ?array $options = [],
+        string $sql = Config::DEFAULT
+    ): Database {
+        return new Database($this->config($options)->db(Config::DEFAULT, $sql));
     }
 
     public static function createTestDb(): void
@@ -114,29 +131,25 @@ class DatabaseCase extends TestCase
         }
     }
 
-    public function config(array $options = []): Config
+    public static function getAvailableDsns(): array
     {
-        $prefix = __DIR__ . C::DS . '..' . C::DS . 'Fixtures' . C::DS . 'sql' . C::DS;
+        $dsns = ['sqlite:' . self::getDbFile()];
 
-        return parent::config(
-            array_replace_recursive(
-                [
-                    'db' => ['dsn' => $this->getDsn()],
-                    'sql' => $prefix . 'default',
-                    'sql.additional' => [
-                        'sqlite' =>  $prefix . 'additional',
-                        'all' => $prefix . 'default',
-                    ]
-                ],
-                $options,
-            )
-        );
+        return $dsns;
     }
 
-    public function getDb(
-        ?array $options = [],
-        string $sql = Config::DEFAULT
-    ): Database {
-        return new Database($this->config($options)->db(Config::DEFAULT, $sql));
+    public static function cleanUpTestDbs(): void
+    {
+        @unlink(self::getDbFile());
+    }
+
+    protected static function getDbFile(): string
+    {
+        return sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'chuck_test_db.sqlite3';
+    }
+
+    protected static function getDsn(): string
+    {
+        return 'sqlite:' . self::getDbFile();
     }
 }

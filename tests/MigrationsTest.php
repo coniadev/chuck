@@ -9,26 +9,29 @@ uses(DatabaseCase::class);
 
 
 beforeAll(function () {
-    DatabaseCase::createTestDb();
+    DatabaseCase::cleanupTestDbs();
 });
 
 
-test('Create migrations table', function () {
+dataset('connections', DatabaseCase::getAvailableDsns());
+
+
+test('Create migrations table', function (string $dsn) {
     $_SERVER['argv'] = ['run', 'create-migrations-table'];
 
     ob_start();
-    $result = Runner::run($this->config());
+    $result = Runner::run($this->config(['db' => ['dsn' => $dsn]]));
     ob_end_clean();
 
     expect($result)->toBe(true);
-});
+})->with('connections');
 
 
-test('Run migrations', function () {
+test('Run migrations', function (string $dsn) {
     $_SERVER['argv'] = ['run', 'migrations', '--apply'];
 
     ob_start();
-    $result = Runner::run($this->config());
+    $result = Runner::run($this->config(['db' => ['dsn' => $dsn]]));
     $content = ob_get_contents();
     ob_end_clean();
 
@@ -37,7 +40,7 @@ test('Run migrations', function () {
     expect($content)->toMatch('/000000-000001-migration.php[^\n]*?success/');
     expect($content)->toMatch('/000000-000002-migration.tpql[^\n]*?success/');
     expect($content)->toContain('3 migrations successfully applied');
-});
+})->with('connections');
 
 
 test('Add migration SQL', function () {

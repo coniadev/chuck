@@ -118,7 +118,6 @@ class TestCase extends BaseTestCase
             $this->minimalOptions(),
             [
                 'templates' => C::root() . C::DS . 'templates' . C::DS . 'default',
-                'migrations' => C::root() . C::DS . 'migrations',
             ],
             $options
         );
