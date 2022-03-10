@@ -12,7 +12,7 @@ Default:
     $app->run();
 ```
 
-Delarative:
+## Delarative:
 
 ```php
     use Chuck\{App, Config, Router, Route, Request};
@@ -25,7 +25,7 @@ Delarative:
     $app->run();
 ```
 
-Add middleware:
+## Add middleware:
 
 
 ```php
@@ -51,7 +51,7 @@ Add middleware:
 ```
 
 
-Routes:
+## Routes:
 
 
 ```php
@@ -70,14 +70,33 @@ Routes:
     })->middleware(new Permission('admin'))->render('json')->namespace('\Chuck\');
 ```
 
+## Create test databases:
 
-Docs:
+SQLite will be created automatically in the system's temp directory.
+
+PostgreSQL
+
+```
+    CREATE DATABASE chuck_test_db;
+    CREATE ROLE chuck_test_user LOGIN PASSWORD 'chuck_test_password';
+    GRANT ALL PRIVILEGES ON DATABASE chuck_test_db TO chuck_test_user;
+```
+
+MariaDB/MySQL
+
+```
+    CREATE DATABASE chuck_test_db;
+    CREATE USER chuck_test_user@localhost IDENTIFIED BY 'chuck_test_password';
+    GRANT ALL ON chuck_test_db.* TO chuck_test_user@localhost;
+```
+
+## Docs:
 
 - Middlewares which run code after the $next call should check if the result
   of $next is a response and return immediately if so.
 
 
-Config
+## Config
 
 ```
 namespace Chuck;
