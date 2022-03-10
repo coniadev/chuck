@@ -67,6 +67,7 @@ test('Create migrations table :: already exists', function () {
 
 test('Run migrations :: success without apply', function (string $dsn) {
     $_SERVER['argv'] = ['run', 'migrations'];
+    $driver = strtok($dsn, ':');
 
     ob_start();
     $result = Runner::run($this->config(['db' => ['dsn' => $dsn]]));
@@ -77,12 +78,14 @@ test('Run migrations :: success without apply', function (string $dsn) {
     expect($content)->toMatch('/000000-000000-migration.sql[^\n]*?success/');
     expect($content)->toMatch('/000000-000001-migration.php[^\n]*?success/');
     expect($content)->toMatch('/000000-000002-migration.tpql[^\n]*?success/');
-    expect($content)->toContain('Would apply 3 migrations');
+    expect($content)->toMatch('/000000-000005-migration-\[' . $driver . '\].sql[^\n]*?success/');
+    expect($content)->toContain('Would apply 4 migrations');
 })->with('transaction-connections');
 
 
 test('Run migrations :: success', function (string $dsn) {
     $_SERVER['argv'] = ['run', 'migrations', '--apply'];
+    $driver = strtok($dsn, ':');
 
     ob_start();
     $result = Runner::run($this->config(['db' => ['dsn' => $dsn]]));
@@ -93,7 +96,8 @@ test('Run migrations :: success', function (string $dsn) {
     expect($content)->toMatch('/000000-000000-migration.sql[^\n]*?success/');
     expect($content)->toMatch('/000000-000001-migration.php[^\n]*?success/');
     expect($content)->toMatch('/000000-000002-migration.tpql[^\n]*?success/');
-    expect($content)->toContain('3 migrations successfully applied');
+    expect($content)->toMatch('/000000-000005-migration-\[' . $driver . '\].sql[^\n]*?success/');
+    expect($content)->toContain('4 migrations successfully applied');
 })->with('connections');
 
 

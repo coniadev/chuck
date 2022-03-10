@@ -179,6 +179,7 @@ class DatabaseCase extends TestCase
                 $conn->prepare('DROP TABLE IF EXISTS genres')->execute();
                 $conn = null;
             } catch (Throwable $e) {
+                print_r($e->getMessage());
                 continue;
             }
         }

@@ -70,6 +70,10 @@ class Migrations extends Command
                 continue;
             }
 
+            if (!$this->supportedByDriver($migration)) {
+                continue;
+            }
+
             $script = file_get_contents($migration);
 
             if (empty(trim($script))) {
@@ -176,6 +180,26 @@ class Migrations extends Command
     {
         $migrations = $db->execute("SELECT $this->column FROM $this->table;")->all();
         return array_map(fn (array $mig): string => $mig['migration'], $migrations);
+    }
+
+    /**
+     * Returns if the given migration is driver specific
+     */
+    protected function supportedByDriver(string $migration): bool
+    {
+        // First checks if there are brackets in the filename.
+        if (preg_match('/\[[a-z]{3,8}\]/', $migration)) {
+            // We have found a driver specific migration.
+            // Check if it matches the current driver.
+            if (preg_match('/\[' . $this->driver . '\]/', $migration)) {
+                return true;
+            }
+
+            return false;
+        }
+
+        // This is no driver specific migration
+        return true;
     }
 
     protected function migrateSQL(
