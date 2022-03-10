@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Chuck\Tests\Setup;
 
 use \PDO;
-
+use \Throwable;
 use Chuck\Config;
 use Chuck\Database\Database;
 use Chuck\Tests\Setup\{TestCase, C};
@@ -131,9 +131,26 @@ class DatabaseCase extends TestCase
         }
     }
 
+    protected static function getServerDsns(): array
+    {
+        return [
+            'pgsql:host=localhost;dbname=chuck_test_db;user=chuck_test_user;password=chuck_test_password',
+            'mysql:host=127.0.0.1;dbname=chuck_test_db;user=chuck_test_user;password=chuck_test_password',
+        ];
+    }
+
     public static function getAvailableDsns(): array
     {
         $dsns = ['sqlite:' . self::getDbFile()];
+
+        foreach (self::getServerDsns() as $dsn) {
+            try {
+                new PDO($dsn);
+                $dsns[] = $dsn;
+            } catch (Throwable) {
+                continue;
+            }
+        }
 
         return $dsns;
     }
@@ -141,6 +158,17 @@ class DatabaseCase extends TestCase
     public static function cleanUpTestDbs(): void
     {
         @unlink(self::getDbFile());
+
+        foreach (self::getServerDsns() as $dsn) {
+            try {
+                $conn = new PDO($dsn);
+                $conn->prepare('DROP TABLE IF EXISTS migrations')->execute();
+                $conn->prepare('DROP TABLE IF EXISTS genres')->execute();
+                $conn = null;
+            } catch (Throwable) {
+                continue;
+            }
+        }
     }
 
     protected static function getDbFile(): string

@@ -19,9 +19,9 @@ dataset('connections', DatabaseCase::getAvailableDsns());
 test('Create migrations table', function (string $dsn) {
     $_SERVER['argv'] = ['run', 'create-migrations-table'];
 
-    ob_start();
+    // ob_start();
     $result = Runner::run($this->config(['db' => ['dsn' => $dsn]]));
-    ob_end_clean();
+    // ob_end_clean();
 
     expect($result)->toBe(true);
 })->with('connections');

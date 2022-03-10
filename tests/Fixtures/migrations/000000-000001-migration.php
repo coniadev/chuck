@@ -7,6 +7,10 @@ use Chuck\Database\DatabaseInterface;
 use Chuck\Database\MigrationInterface;
 
 
+if (class_exists('TestMigration_1')) {
+    return new TestMigration_1();
+}
+
 class TestMigration_1 implements MigrationInterface
 {
     public function run(DatabaseInterface $db, ConfigInterface $config): void
