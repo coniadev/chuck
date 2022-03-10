@@ -88,6 +88,7 @@ class Migrations extends Command
                 case 'php';
                     $result = $this->migratePHP($db, $migration, $showStacktrace);
                     break;
+                default:
             }
 
             if ($result === self::ERROR) {
@@ -167,8 +168,6 @@ class Migrations extends Command
             case 'pgsql':
                 return true;
             case 'mysql':
-                return false;
-            default:
                 return false;
         }
     }

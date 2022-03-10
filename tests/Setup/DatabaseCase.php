@@ -134,25 +134,38 @@ class DatabaseCase extends TestCase
     protected static function getServerDsns(): array
     {
         return [
-            'pgsql:host=localhost;dbname=chuck_test_db;user=chuck_test_user;password=chuck_test_password',
-            'mysql:host=127.0.0.1;dbname=chuck_test_db;user=chuck_test_user;password=chuck_test_password',
+            [
+                'transactions' => true,
+                'dsn' => 'pgsql:host=localhost;dbname=chuck_test_db;user=chuck_test_user;password=chuck_test_password',
+            ], [
+                'transactions' => false,
+                'dsn' => 'mysql:host=127.0.0.1;dbname=chuck_test_db;user=chuck_test_user;password=chuck_test_password',
+            ],
         ];
     }
 
-    public static function getAvailableDsns(): array
+    public static function getAvailableDsns(bool $transactionsOnly = false): array
     {
-        $dsns = ['sqlite:' . self::getDbFile()];
+        $dsns = [['transactions' => true, 'dsn' => 'sqlite:' . self::getDbFile()]];
 
         foreach (self::getServerDsns() as $dsn) {
             try {
-                new PDO($dsn);
+                new PDO($dsn['dsn']);
                 $dsns[] = $dsn;
             } catch (Throwable) {
                 continue;
             }
         }
 
-        return $dsns;
+        if ($transactionsOnly) {
+            return array_map(
+                fn ($dsn) => $dsn['dsn'],
+                array_filter($dsns, fn ($dsn) => $dsn['transactions'] === true),
+            );
+        }
+
+
+        return array_map(fn ($dsn) => $dsn['dsn'], $dsns);
     }
 
     public static function cleanUpTestDbs(): void
@@ -161,11 +174,11 @@ class DatabaseCase extends TestCase
 
         foreach (self::getServerDsns() as $dsn) {
             try {
-                $conn = new PDO($dsn);
+                $conn = new PDO($dsn['dsn']);
                 $conn->prepare('DROP TABLE IF EXISTS migrations')->execute();
                 $conn->prepare('DROP TABLE IF EXISTS genres')->execute();
                 $conn = null;
-            } catch (Throwable) {
+            } catch (Throwable $e) {
                 continue;
             }
         }
