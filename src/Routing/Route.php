@@ -21,7 +21,7 @@ class Route implements RouteInterface
     protected array $methods = [];
     protected ?Renderer\Config $renderer = null;
     protected array $middlewares = [];
-    protected Closure|string $view;
+    protected Closure|array|string $view;
 
 
     /**
@@ -33,7 +33,7 @@ class Route implements RouteInterface
     public function __construct(
         protected string $name,
         protected string $pattern,
-        callable|string $view,
+        callable|array|string $view,
         protected array $params = [],
     ) {
         if (is_callable($view)) {
@@ -43,37 +43,37 @@ class Route implements RouteInterface
         }
     }
 
-    public static function get(string $name, string $pattern, callable|string $view, array $params = []): self
+    public static function get(string $name, string $pattern, callable|array|string $view, array $params = []): self
     {
         return (new self($name, $pattern, $view, $params))->method('GET');
     }
 
-    public static function post(string $name, string $pattern, callable|string $view, array $params = []): self
+    public static function post(string $name, string $pattern, callable|array|string $view, array $params = []): self
     {
         return (new self($name, $pattern, $view, $params))->method('POST');
     }
 
-    public static function put(string $name, string $pattern, callable|string $view, array $params = []): self
+    public static function put(string $name, string $pattern, callable|array|string $view, array $params = []): self
     {
         return (new self($name, $pattern, $view, $params))->method('PUT');
     }
 
-    public static function patch(string $name, string $pattern, callable|string $view, array $params = []): self
+    public static function patch(string $name, string $pattern, callable|array|string $view, array $params = []): self
     {
         return (new self($name, $pattern, $view, $params))->method('PATCH');
     }
 
-    public static function delete(string $name, string $pattern, callable|string $view, array $params = []): self
+    public static function delete(string $name, string $pattern, callable|array|string $view, array $params = []): self
     {
         return (new self($name, $pattern, $view, $params))->method('DELETE');
     }
 
-    public static function head(string $name, string $pattern, callable|string $view, array $params = []): self
+    public static function head(string $name, string $pattern, callable|array|string $view, array $params = []): self
     {
         return (new self($name, $pattern, $view, $params))->method('HEAD');
     }
 
-    public static function options(string $name, string $pattern, callable|string $view, array $params = []): self
+    public static function options(string $name, string $pattern, callable|array|string $view, array $params = []): self
     {
         return (new self($name, $pattern, $view, $params))->method('OPTIONS');
     }
@@ -263,7 +263,7 @@ class Route implements RouteInterface
         return $url;
     }
 
-    public function view(): callable|string
+    public function view(): Closure|array|string
     {
         return $this->view;
     }

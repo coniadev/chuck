@@ -152,3 +152,10 @@ test('Get view :: string', function () {
 
     expect($route->view())->toBe('chuck');
 });
+
+
+test('Get view :: array', function () {
+    $route = new Route('index', '/', [Chuck\Tests\Fixtures\TestController::class, 'textView']);
+
+    expect($route->view())->toBe(['Chuck\Tests\Fixtures\TestController', 'textView']);
+});

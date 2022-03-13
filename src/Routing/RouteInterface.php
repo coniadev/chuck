@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Chuck\Routing;
 
+use \Closure;
 use Chuck\Renderer;
 
 
 interface RouteInterface
 {
     public function url(array $args): string;
-    public function view(): callable|string;
+    public function view(): Closure|array|string;
     public function name(): string;
     public function args(): array;
     public function method(string ...$args): self;

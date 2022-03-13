@@ -163,11 +163,16 @@ class Router implements RouterInterface
         if (is_callable($view)) {
             return $view(...$this->getViewArgs($view, $request));
         } else {
-            if (!str_contains($view, '::')) {
-                $view .= '::__invoke';
+            if (is_array($view)) {
+                [$ctrlName, $method] = $view;
+            } else {
+                if (!str_contains($view, '::')) {
+                    $view .= '::__invoke';
+                }
+
+                [$ctrlName, $method] = explode('::', $view);
             }
 
-            [$ctrlName, $method] = explode('::', $view);
 
             if (class_exists($ctrlName)) {
                 $ctrl = new $ctrlName(...Reflect::controllerConstructorParams($ctrlName, $request));

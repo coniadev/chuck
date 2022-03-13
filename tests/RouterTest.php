@@ -83,7 +83,7 @@ test('Static routes to nonexistent directory', function () {
 })->throws(RuntimeException::class, 'does not exist');
 
 
-test('Dispatch without renderer', function () {
+test('Dispatch closure', function () {
     $router = new Router();
     $index = new Route('index', '/', fn (Request $request) => new Response($request, 200, 'Chuck'));
     $router->addRoute($index);
@@ -91,8 +91,32 @@ test('Dispatch without renderer', function () {
     $response = $router->dispatch($this->request(method: 'GET', url: '/'));
     expect($response)->toBeInstanceOf(Response::class);
     expect((string)$response->getBody())->toBe('Chuck');
+});
 
-    // Invokable class
+
+test('Dispatch class method as string', function () {
+    $router = new Router();
+    $route = new Route('text', '/text', 'Chuck\Tests\Fixtures\TestController::textView');
+    $router->addRoute($route);
+    $response = $router->dispatch($this->request(method: 'GET', url: '/text'));
+
+    expect($response)->toBeInstanceOf(Response::class);
+    expect((string)$response->getBody())->toBe('success');
+});
+
+
+test('Dispatch class method as array', function () {
+    $router = new Router();
+    $route = Route::get('text', '/text', [TestController::class, 'arrayView'])->render('json');
+    $router->addRoute($route);
+    $response = $router->dispatch($this->request(method: 'GET', url: '/text'));
+
+    expect($response)->toBeInstanceOf(Response::class);
+    expect((string)$response->getBody())->toBe('{"success":true}');
+});
+
+
+test('Dispatch invokable class', function () {
     $router = new Router();
     class ___InvocableClass
     {
