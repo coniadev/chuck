@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Chuck\Routing;
 
 
-class Group
+class Group implements GroupInterface
 {
     /** @psalm-suppress PropertyNotSetInConstructor */
     protected RouterInterface $router;
