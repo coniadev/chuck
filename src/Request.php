@@ -173,6 +173,7 @@ class Request implements RequestInterface
              * TODO: At the time of writing Psalm did not support
              * readonly properties which are not initialized in the
              * constructor. Recheck on occasion.
+             * https://github.com/vimeo/psalm/issues/7608
              */
             $this->response = $this->registry->new(ResponseInterface::class, $this);
         }

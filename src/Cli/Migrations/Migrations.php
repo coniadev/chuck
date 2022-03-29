@@ -17,7 +17,7 @@ class Migrations implements CommandInterface
     public static string $title = 'Apply missing database migrations';
     public static string $desc;
 
-    protected ?Environment $env = null;
+    protected readonly Environment $env;
     protected const STARTED = 'start';
     protected const ERROR = 'error';
     protected const WARNING = 'warning';
@@ -25,6 +25,14 @@ class Migrations implements CommandInterface
 
     public function run(ConfigInterface $config): string|int
     {
+        /**
+         * @psalm-suppress InaccessibleProperty
+         *
+         * TODO: At the time of writing Psalm did not support
+         * readonly properties which are not initialized in the
+         * constructor. Recheck on occasion.
+         * https://github.com/vimeo/psalm/issues/7608
+         */
         $this->env = $env = new Environment($config);
         $opts = new Opts();
 
