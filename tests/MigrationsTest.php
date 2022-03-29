@@ -45,9 +45,13 @@ test('Run migrations :: no migrations table', function () {
 
 test('Create migrations table :: success', function (string $dsn) {
     $_SERVER['argv'] = ['run', 'create-migrations-table'];
+    $config = [
+        'db' => ['dsn' => $dsn],
+        'migrationstable.name' => str_starts_with($dsn, 'pgsql') ? 'public.migrations' : 'migrations',
+    ];
 
     ob_start();
-    $result = Runner::run($this->config(['db' => ['dsn' => $dsn]]));
+    $result = Runner::run($this->config($config));
     ob_end_clean();
 
     expect($result)->toBe(0);

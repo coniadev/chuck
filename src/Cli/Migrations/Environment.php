@@ -42,7 +42,7 @@ class Environment
         $this->driver = $this->db->getPdoDriver();
         $this->convenience = in_array($this->driver, ['sqlite', 'mysql', 'pgsql']);
         $this->table = $config->get('migrationstable.name', 'migrations');
-        $this->column = $config->get('migrationstable.name', 'migration');
+        $this->column = $config->get('migrationstable.column', 'migration');
         $this->config = $config;
     }
 
@@ -71,7 +71,7 @@ class Environment
 
         // Sort by file name instead of full path
         uasort($migrations, function ($a, $b) {
-            if (basename($a) == basename($b)) {
+            if (basename($a) === basename($b)) {
                 return 0;
             }
             return (basename($a) < basename($b)) ? -1 : 1;
@@ -124,7 +124,7 @@ class Environment
         string $table = 'migrations',
         string $column = 'migration',
     ): string|false {
-        if ($driver === 'pqsql' && strpos($table, '.') !== false) {
+        if ($driver === 'pgsql' && strpos($table, '.') !== false) {
             [$schema, $table] = explode('.', $table);
         } else {
             $schema = 'public';
