@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Chuck\Cli\Migrations;
 
 use \PDOException;
+use \RuntimeException;
 use \Throwable;
 use Chuck\Cli\{Opts, CommandInterface};
 use Chuck\Database\DatabaseInterface;
@@ -180,6 +181,8 @@ class Migrations implements CommandInterface
             case 'mysql':
                 return false;
         }
+
+        throw new RuntimeException('Database driver not supported');
     }
 
     protected function getAppliedMigrations(DatabaseInterface $db): array
