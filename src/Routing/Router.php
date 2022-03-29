@@ -139,7 +139,7 @@ class Router implements RouterInterface
     }
 
 
-    public function match(RequestInterface $request): ?Route
+    public function match(RequestInterface $request): Route
     {
         $url = $this->removeQueryString($_SERVER['REQUEST_URI']);
         $requestMethod = $request->method();
