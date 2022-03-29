@@ -47,7 +47,7 @@ class Validator
     }
 }
 
-abstract class Schema implements SchemaInterface
+class Schema implements SchemaInterface
 {
     protected array $validators = [];
 
@@ -69,7 +69,7 @@ abstract class Schema implements SchemaInterface
         $this->addValidators();
     }
 
-    protected function add(
+    public function add(
         string $field,
         string $label,
         string|SchemaInterface $type,
@@ -88,7 +88,14 @@ abstract class Schema implements SchemaInterface
         ];
     }
 
-    abstract protected function rules(): void;
+    /**
+     * This method is called before validation starts.
+     *
+     * It can be overwritten to add rules in a reusable schema
+     */
+    protected function rules(): void
+    {
+    }
 
     protected function addSubError(string $field, array|string|null $error, ?int $listIndex): void
     {
@@ -430,7 +437,6 @@ abstract class Schema implements SchemaInterface
         $this->cachedValues = null;
         $this->cachedPristine = null;
 
-        $this->rules = [];
         $this->rules();
 
         $values = $this->readValues($data);

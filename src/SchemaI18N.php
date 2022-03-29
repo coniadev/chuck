@@ -24,7 +24,7 @@ abstract class SchemaI18N implements SchemaInterface
     ) {
     }
 
-    protected function add(
+    public function add(
         string $field,
         string $label,
         string|SchemaInterface $type,

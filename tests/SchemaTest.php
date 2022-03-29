@@ -14,16 +14,11 @@ test('Type int', function () {
         'invalid_int_2' => '23.23',
     ];
 
-    $schema = new class() extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('invalid_int_1', 'Int 1', 'int');
-            $this->add('invalid_int_2', 'Int 2', 'int');
-            $this->add('valid_int_1', 'Int', 'int');
-            $this->add('valid_int_2', 'Int', 'int');
-        }
-    };
+    $schema = new Schema();
+    $schema->add('invalid_int_1', 'Int 1', 'int');
+    $schema->add('invalid_int_2', 'Int 2', 'int');
+    $schema->add('valid_int_1', 'Int', 'int');
+    $schema->add('valid_int_2', 'Int', 'int');
 
     expect($schema->validate($testData))->toBeFalse();
     $errors = $schema->errors();
@@ -54,17 +49,12 @@ test('Type float', function () {
         'invalid_float' => '23.23invalid',
     ];
 
-    $schema = new class() extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('invalid_float', 'Float', 'float');
-            $this->add('valid_float_1', 'Float', 'float');
-            $this->add('valid_float_2', 'Float', 'float');
-            $this->add('valid_float_3', 'Float', 'float');
-            $this->add('valid_float_4', 'Float', 'float');
-        }
-    };
+    $schema = new Schema;
+    $schema->add('invalid_float', 'Float', 'float');
+    $schema->add('valid_float_1', 'Float', 'float');
+    $schema->add('valid_float_2', 'Float', 'float');
+    $schema->add('valid_float_3', 'Float', 'float');
+    $schema->add('valid_float_4', 'Float', 'float');
 
     expect($schema->validate($testData))->toBeFalse();
     $errors = $schema->errors();
@@ -89,21 +79,16 @@ test('Type boolean', function () {
         'invalid_bool_2' => 13,
     ];
 
-    $schema = new class() extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('valid_bool_1', 'Bool', 'bool');
-            $this->add('valid_bool_2', 'Bool', 'bool');
-            $this->add('valid_bool_3', 'Bool', 'bool');
-            $this->add('valid_bool_4', 'Bool', 'bool');
-            $this->add('valid_bool_5', 'Bool', 'bool');
-            $this->add('valid_bool_6', 'Bool', 'bool');
-            $this->add('valid_bool_7', 'Bool', 'bool');
-            $this->add('invalid_bool_1', 'Bool 1', 'bool');
-            $this->add('invalid_bool_2', 'Bool 2', 'bool');
-        }
-    };
+    $schema = new Schema();
+    $schema->add('valid_bool_1', 'Bool', 'bool');
+    $schema->add('valid_bool_2', 'Bool', 'bool');
+    $schema->add('valid_bool_3', 'Bool', 'bool');
+    $schema->add('valid_bool_4', 'Bool', 'bool');
+    $schema->add('valid_bool_5', 'Bool', 'bool');
+    $schema->add('valid_bool_6', 'Bool', 'bool');
+    $schema->add('valid_bool_7', 'Bool', 'bool');
+    $schema->add('invalid_bool_1', 'Bool 1', 'bool');
+    $schema->add('invalid_bool_2', 'Bool 2', 'bool');
 
     expect($schema->validate($testData))->toBeFalse();
     $errors = $schema->errors();
@@ -138,17 +123,12 @@ test('Type text', function () {
         'valid_text_4' => '<a href="/test">Test</a>',
     ];
 
-    $schema = new class() extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('valid_text_1', 'Text', 'text');
-            $this->add('valid_text_2', 'Text', 'text');
-            $this->add('valid_text_3', 'Text', 'text');
-            $this->add('valid_text_4', 'Text', 'text');
-            $this->add('valid_text_5', 'Text', 'text');
-        }
-    };
+    $schema = new Schema();
+    $schema->add('valid_text_1', 'Text', 'text');
+    $schema->add('valid_text_2', 'Text', 'text');
+    $schema->add('valid_text_3', 'Text', 'text');
+    $schema->add('valid_text_4', 'Text', 'text');
+    $schema->add('valid_text_5', 'Text', 'text');
 
     expect($schema->validate($testData))->toBeTrue();
     expect($schema->errors()['errors'])->toHaveCount(0);
@@ -176,16 +156,11 @@ test('Type html', function () {
         'valid_html_3' => true,
     ];
 
-    $schema = new class() extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('valid_html_1', 'HTML', 'html:basic:code');
-            $this->add('valid_html_2', 'HTML', 'html');
-            $this->add('valid_html_3', 'HTML', 'html');
-            $this->add('valid_html_4', 'HTML', 'html');
-        }
-    };
+    $schema = new Schema();
+    $schema->add('valid_html_1', 'HTML', 'html:basic:code');
+    $schema->add('valid_html_2', 'HTML', 'html');
+    $schema->add('valid_html_3', 'HTML', 'html');
+    $schema->add('valid_html_4', 'HTML', 'html');
 
     expect($schema->validate($testData))->toBeTrue();
     expect($schema->errors()['errors'])->toHaveCount(0);
@@ -208,15 +183,10 @@ test('Type plain', function () {
         'valid_plain_2' => true,
     ];
 
-    $schema = new class() extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('valid_plain_1', 'Plain', 'plain');
-            $this->add('valid_plain_2', 'Plain', 'plain');
-            $this->add('valid_plain_3', 'Plain', 'plain');
-        }
-    };
+    $schema = new Schema();
+    $schema->add('valid_plain_1', 'Plain', 'plain');
+    $schema->add('valid_plain_2', 'Plain', 'plain');
+    $schema->add('valid_plain_3', 'Plain', 'plain');
 
     expect($schema->validate($testData))->toBeTrue();
     expect($schema->errors()['errors'])->toHaveCount(0);
@@ -240,16 +210,11 @@ test('Type list', function () {
         'invalid_list_2' => 13,
     ];
 
-    $schema = new class() extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('valid_list_1', 'List', 'list');
-            $this->add('valid_list_2', 'List', 'list');
-            $this->add('invalid_list_1', 'List 1', 'list');
-            $this->add('invalid_list_2', 'List 2', 'list');
-        }
-    };
+    $schema = new Schema();
+    $schema->add('valid_list_1', 'List', 'list');
+    $schema->add('valid_list_2', 'List', 'list');
+    $schema->add('invalid_list_1', 'List 1', 'list');
+    $schema->add('invalid_list_2', 'List 2', 'list');
 
     expect($schema->validate($testData))->toBeFalse();
     $errors = $schema->errors();
@@ -279,14 +244,9 @@ test('Unknown data', function () {
         'unknown_4' => '23',
     ];
 
-    $schema = new class() extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('unknown_1', 'Unknown', 'text');
-            $this->add('unknown_2', 'Unknown', 'int');
-        }
-    };
+    $schema = new Schema();
+    $schema->add('unknown_1', 'Unknown', 'text');
+    $schema->add('unknown_2', 'Unknown', 'int');
 
     expect($schema->validate($testData))->toBeTrue();
     expect($schema->errors()['errors'])->toHaveCount(0);
@@ -302,14 +262,9 @@ test('Unknown data', function () {
     expect(isset($pristine['unknown_3']))->toBeFalse();
 
     // ... now keep them
-    $schema = new class(false, true) extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('unknown_1', 'Unknown', 'text');
-            $this->add('unknown_2', 'Unknown', 'int');
-        }
-    };
+    $schema = new  Schema(false, true);
+    $schema->add('unknown_1', 'Unknown', 'text');
+    $schema->add('unknown_2', 'Unknown', 'int');
 
     expect($schema->validate($testData))->toBeTrue();
     expect($schema->errors()['errors'])->toHaveCount(0);
@@ -338,20 +293,15 @@ test('Required validator', function () {
         'invalid_3' => [],
     ];
 
-    $schema = new class() extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('valid_1', 'Required', 'text', 'required');
-            $this->add('valid_2', 'Required', 'bool', 'required');
-            $this->add('valid_3', 'Required', 'int', 'required');
-            $this->add('valid_4', 'Required', 'float', 'required');
-            $this->add('valid_5', 'Required', 'list', 'required');
-            $this->add('invalid_1', 'Required 1', 'text', 'required');
-            $this->add('invalid_2', 'Required 2', 'float', 'required');
-            $this->add('invalid_3', 'Required 3', 'list', 'required');
-        }
-    };
+    $schema = new Schema();
+    $schema->add('valid_1', 'Required', 'text', 'required');
+    $schema->add('valid_2', 'Required', 'bool', 'required');
+    $schema->add('valid_3', 'Required', 'int', 'required');
+    $schema->add('valid_4', 'Required', 'float', 'required');
+    $schema->add('valid_5', 'Required', 'list', 'required');
+    $schema->add('invalid_1', 'Required 1', 'text', 'required');
+    $schema->add('invalid_2', 'Required 2', 'float', 'required');
+    $schema->add('invalid_3', 'Required 3', 'list', 'required');
 
     expect($schema->validate($testData))->toBeFalse();
     $errors = $schema->errors();
@@ -368,14 +318,9 @@ test('Email validator', function () {
         'invalid_email' => 'invalid@email',
     ];
 
-    $schema = new class() extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('invalid_email', 'Email', 'text', 'email');
-            $this->add('valid_email', 'Email', 'text', 'email');
-        }
-    };
+    $schema = new Schema();
+    $schema->add('invalid_email', 'Email', 'text', 'email');
+    $schema->add('valid_email', 'Email', 'text', 'email');
 
     expect($schema->validate($testData))->toBeFalse();
     $errors = $schema->errors();
@@ -390,14 +335,9 @@ test('Email validator :: with DNS check', function () {
         'invalid_email' => 'invalid@test.tld',
     ];
 
-    $schema = new class() extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('invalid_email', 'Email', 'text', 'email:checkdns');
-            $this->add('valid_email', 'Email', 'text', 'email:checkdns');
-        }
-    };
+    $schema = new Schema();
+    $schema->add('invalid_email', 'Email', 'text', 'email:checkdns');
+    $schema->add('valid_email', 'Email', 'text', 'email:checkdns');
 
     expect($schema->validate($testData))->toBeFalse();
     $errors = $schema->errors();
@@ -416,18 +356,13 @@ test('Min value validator', function () {
         'invalid_2' => 7.13,
     ];
 
-    $schema = new class() extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('valid_1', 'Min', 'int', 'min:10');
-            $this->add('valid_2', 'Min', 'float', 'min:10');
-            $this->add('valid_3', 'Min', 'int', 'min:10');
-            $this->add('valid_4', 'Min', 'float', 'min:10');
-            $this->add('invalid_1', 'Min', 'int', 'min:10');
-            $this->add('invalid_2', 'Min', 'float', 'min:10');
-        }
-    };
+    $schema = new Schema();
+    $schema->add('valid_1', 'Min', 'int', 'min:10');
+    $schema->add('valid_2', 'Min', 'float', 'min:10');
+    $schema->add('valid_3', 'Min', 'int', 'min:10');
+    $schema->add('valid_4', 'Min', 'float', 'min:10');
+    $schema->add('invalid_1', 'Min', 'int', 'min:10');
+    $schema->add('invalid_2', 'Min', 'float', 'min:10');
 
     expect($schema->validate($testData))->toBeFalse();
     $errors = $schema->errors();
@@ -447,18 +382,13 @@ test('Max value validator', function () {
         'invalid_2' => 23.13,
     ];
 
-    $schema = new class() extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('valid_1', 'Max', 'int', 'max:13');
-            $this->add('valid_2', 'Max', 'float', 'max:13');
-            $this->add('valid_3', 'Max', 'int', 'max:13');
-            $this->add('valid_4', 'Max', 'float', 'max:13');
-            $this->add('invalid_1', 'Max', 'int', 'max:13');
-            $this->add('invalid_2', 'Max', 'float', 'max:13');
-        }
-    };
+    $schema = new Schema();
+    $schema->add('valid_1', 'Max', 'int', 'max:13');
+    $schema->add('valid_2', 'Max', 'float', 'max:13');
+    $schema->add('valid_3', 'Max', 'int', 'max:13');
+    $schema->add('valid_4', 'Max', 'float', 'max:13');
+    $schema->add('invalid_1', 'Max', 'int', 'max:13');
+    $schema->add('invalid_2', 'Max', 'float', 'max:13');
 
     expect($schema->validate($testData))->toBeFalse();
     $errors = $schema->errors();
@@ -475,15 +405,10 @@ test('Min length validator', function () {
         'invalid' => 'abcdefghi',
     ];
 
-    $schema = new class() extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('valid_1', 'Minlen', 'text', 'minlen:10');
-            $this->add('valid_2', 'Minlen', 'text', 'minlen:10');
-            $this->add('invalid', 'Minlen', 'text', 'minlen:10');
-        }
-    };
+    $schema = new Schema();
+    $schema->add('valid_1', 'Minlen', 'text', 'minlen:10');
+    $schema->add('valid_2', 'Minlen', 'text', 'minlen:10');
+    $schema->add('invalid', 'Minlen', 'text', 'minlen:10');
 
     expect($schema->validate($testData))->toBeFalse();
     $errors = $schema->errors();
@@ -499,15 +424,10 @@ test('Max length validator', function () {
         'invalid' => 'abcdefghiklm',
     ];
 
-    $schema = new class() extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('valid_1', 'Maxlen', 'text', 'maxlen:10');
-            $this->add('valid_2', 'Maxlen', 'text', 'maxlen:10');
-            $this->add('invalid', 'Maxlen', 'text', 'maxlen:10');
-        }
-    };
+    $schema = new Schema();
+    $schema->add('valid_1', 'Maxlen', 'text', 'maxlen:10');
+    $schema->add('valid_2', 'Maxlen', 'text', 'maxlen:10');
+    $schema->add('invalid', 'Maxlen', 'text', 'maxlen:10');
 
     expect($schema->validate($testData))->toBeFalse();
     $errors = $schema->errors();
@@ -524,16 +444,11 @@ test('Regex validator ', function () {
         'invalid_colon' => 'abcdef:ghi:klm',
     ];
 
-    $schema = new class() extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('valid', 'Regex', 'text', 'regex:/^abcdefghi$/');
-            $this->add('invalid', 'Regex', 'text', 'regex:/^abcdefghi$/');
-            $this->add('valid_colon', 'Regex', 'text', 'regex:/^[a-z:]+:$/');
-            $this->add('invalid_colon', 'Regex', 'text', 'regex:/^[a-z:]+:$/');
-        }
-    };
+    $schema = new Schema();
+    $schema->add('valid', 'Regex', 'text', 'regex:/^abcdefghi$/');
+    $schema->add('invalid', 'Regex', 'text', 'regex:/^abcdefghi$/');
+    $schema->add('valid_colon', 'Regex', 'text', 'regex:/^[a-z:]+:$/');
+    $schema->add('invalid_colon', 'Regex', 'text', 'regex:/^[a-z:]+:$/');
 
     expect($schema->validate($testData))->toBeFalse();
     $errors = $schema->errors();
@@ -549,15 +464,10 @@ test('In validator ', function () {
         'invalid' => 'invalid',
     ];
 
-    $schema = new class() extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('valid1', 'In', 'text', 'in:valid,alsovalid');
-            $this->add('valid2', 'In', 'text', 'in:valid,alsovalid');
-            $this->add('invalid', 'In', 'text', 'in:valid,alsovalid');
-        }
-    };
+    $schema = new Schema();
+    $schema->add('valid1', 'In', 'text', 'in:valid,alsovalid');
+    $schema->add('valid2', 'In', 'text', 'in:valid,alsovalid');
+    $schema->add('invalid', 'In', 'text', 'in:valid,alsovalid');
 
     expect($schema->validate($testData))->toBeFalse();
     $errors = $schema->errors();
@@ -586,15 +496,10 @@ test('Sub schema', function () {
         ],
     ];
 
-    $schema = new class() extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('int', 'Int', 'int', 'required');
-            $this->add('text', 'Text', 'text', 'required');
-            $this->add('schema', 'Schema', new SubSchema());
-        }
-    };
+    $schema = new Schema();
+    $schema->add('int', 'Int', 'int', 'required');
+    $schema->add('text', 'Text', 'text', 'required');
+    $schema->add('schema', 'Schema', new SubSchema());
 
     expect($schema->validate($testData))->toBeTrue();
 });
@@ -609,15 +514,10 @@ test('Invalid sub schema', function () {
         ],
     ];
 
-    $schema = new class() extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('int', 'Int', 'int', 'required');
-            $this->add('text', 'Text', 'text', 'required');
-            $this->add('schema', 'Schema', new SubSchema());
-        }
-    };
+    $schema = new Schema();
+    $schema->add('int', 'Int', 'int', 'required');
+    $schema->add('text', 'Text', 'text', 'required');
+    $schema->add('schema', 'Schema', new SubSchema());
 
     expect($schema->validate($testData))->toBeFalse();
     $errors = $schema->errors();
@@ -651,17 +551,11 @@ test('List schema', function () {
         ]],
     ]];
 
-
-    $schema = new class(true) extends Schema
-    {
-        protected function rules(): void
-        {
-            $this->add('int', 'Int', 'int', 'required');
-            $this->add('text', 'Text', 'text', 'required');
-            $this->add('single_schema', 'Schema', new SubSchema());
-            $this->add('list_schema', 'Schema', new SubSchema(true));
-        }
-    };
+    $schema = new Schema(true);
+    $schema->add('int', 'Int', 'int', 'required');
+    $schema->add('text', 'Text', 'text', 'required');
+    $schema->add('single_schema', 'Schema', new SubSchema());
+    $schema->add('list_schema', 'Schema', new SubSchema(true));
 
     expect($schema->validate($testData))->toBeTrue();
     $values = $schema->values();
