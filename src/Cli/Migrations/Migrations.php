@@ -18,6 +18,7 @@ class Migrations implements CommandInterface
     public static string $title = 'Apply missing database migrations';
     public static string $desc;
 
+    /** @psalm-suppress PropertyNotSetInConstructor */
     protected readonly Environment $env;
     protected const STARTED = 'start';
     protected const ERROR = 'error';
@@ -118,7 +119,7 @@ class Migrations implements CommandInterface
 
     protected function begin(DatabaseInterface $db): void
     {
-        if ($this->supportsTransactions($db)) {
+        if ($this->supportsTransactions()) {
             $db->begin();
         }
     }
@@ -131,7 +132,7 @@ class Migrations implements CommandInterface
     ): int {
         $plural = $numApplied > 1 ? 's' : '';
 
-        if ($this->supportsTransactions($db)) {
+        if ($this->supportsTransactions()) {
             if ($result === self::ERROR) {
                 $db->rollback();
                 echo "\nDue to errors no migrations applied\n";
