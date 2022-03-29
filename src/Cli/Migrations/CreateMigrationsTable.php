@@ -9,10 +9,6 @@ use Chuck\Cli\CommandInterface;
 use Chuck\ConfigInterface;
 
 
-ini_set('register_argc_argv', true);
-global $argv;
-
-
 class CreateMigrationsTable implements CommandInterface
 {
     public static string $group = 'Database';
@@ -22,8 +18,6 @@ class CreateMigrationsTable implements CommandInterface
     public function run(ConfigInterface $config): mixed
     {
         $env = $env = new Environment($config);
-
-        print("HINAAAAAA\n");
 
         if (!$env->convenience) {
             echo "PDO driver '$env->driver' not supported. Aborting\n";
