@@ -42,7 +42,7 @@ class CreateMigrationsTable implements CommandInterface
                     echo $e->getMessage() . PHP_EOL;
 
                     if ($env->showStacktrace) {
-                        echo $e->getTraceAsString() . PHP_EOL;
+                        echo escapeshellarg($e->getTraceAsString()) . PHP_EOL;
                     }
 
                     return 1;
