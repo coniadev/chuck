@@ -85,6 +85,11 @@ class Route implements RouteInterface
         return $this;
     }
 
+    public function methods(): array
+    {
+        return $this->methods;
+    }
+
     public function prefix(string $name = '', string $pattern = ''): self
     {
         if (!empty($name)) {

@@ -23,10 +23,7 @@ class Router implements RouterInterface
     protected array $names = [];
     protected array $middlewares = [];
 
-    public function getRoutes(): array
-    {
-        return $this->routes;
-    }
+    protected const ALL = 'ALL';
 
     public function getRoute(): RouteInterface
     {
@@ -40,12 +37,21 @@ class Router implements RouterInterface
     public function addRoute(RouteInterface $route): void
     {
         $name = $route->name();
+        $noMethodGiven = true;
 
         if (array_key_exists($name, $this->names)) {
             throw new RuntimeException('Duplicate route name: ' . $name);
         }
 
-        $this->routes[] = $route;
+        foreach ($route->methods() as $method) {
+            $noMethodGiven = false;
+            $this->routes[$method][] = $route;
+        }
+
+        if ($noMethodGiven) {
+            $this->routes[self::ALL][] = $route;
+        }
+
         $this->names[$name] = $route;
     }
 
@@ -136,16 +142,29 @@ class Router implements RouterInterface
     public function match(RequestInterface $request): ?Route
     {
         $url = $this->removeQueryString($_SERVER['REQUEST_URI']);
-        $method = $request->method();
-        $wrongMethod = false;
+        $requestMethod = $request->method();
 
-        foreach ($this->routes as $route) {
-            if ($route->match($url)) {
-                if ($route->methodAllowed($method)) {
+        // Matching routes should be found quite quickly
+        foreach ([$requestMethod, self::ALL] as $method) {
+            foreach ($this->routes[$method] ?? [] as $route) {
+                if ($route->match($url)) {
                     return $route;
                 }
+            }
+        }
 
-                $wrongMethod = true;
+        // We know now, that the route does not match.
+        // Check if it would match one of the remaining methods
+        $wrongMethod = false;
+        foreach ($this->routes as $method => $route) {
+            if ($method === $requestMethod || $method === self::ALL) {
+                continue;
+            }
+
+            foreach ($this->routes[$method] as $route) {
+                if ($route->match($url)) {
+                    $wrongMethod = true;
+                }
             }
         }
 

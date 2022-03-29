@@ -15,6 +15,7 @@ interface RouteInterface
     public function name(): string;
     public function args(): array;
     public function method(string ...$args): self;
+    public function methods(): array;
     public function replaceMiddleware(callable|string ...$middlewares): self;
     public function middleware(callable|string ...$middlewares): self;
     public function middlewares(): array;

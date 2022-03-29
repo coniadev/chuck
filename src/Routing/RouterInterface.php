@@ -10,7 +10,6 @@ use Chuck\ResponseInterface;
 
 interface RouterInterface
 {
-    public function getRoutes(): array;
     public function getRoute(): RouteInterface;
     public function addRoute(RouteInterface $route): void;
     public function addStatic(

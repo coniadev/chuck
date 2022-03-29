@@ -46,15 +46,6 @@ test('Fail to generate route url', function () {
 })->throws(RuntimeException::class, 'Route not found');
 
 
-test('Get routes list', function () {
-    $router = new Router();
-    $router->addRoute(new Route('index', '/', fn () => null));
-    $router->addRoute(new Route('albums', 'albums', fn () => null));
-
-    expect(count($router->getRoutes()))->toBe(2);
-});
-
-
 test('Static routes', function () {
     $router = new Router();
     $router->addStatic('static', '/static', C::root() . C::DS . 'public' . C::DS . 'static');
