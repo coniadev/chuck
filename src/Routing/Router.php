@@ -181,32 +181,32 @@ class Router implements RouterInterface
 
         if (is_callable($view)) {
             return $view(...$this->getViewArgs($view, $request));
+        } elseif (is_array($view)) {
+            [$ctrlName, $method] = $view;
         } else {
-            if (is_array($view)) {
-                [$ctrlName, $method] = $view;
-            } else {
-                if (!str_contains($view, '::')) {
-                    $view .= '::__invoke';
-                }
-
-                [$ctrlName, $method] = explode('::', $view);
+            /** @var string $view */
+            if (!str_contains($view, '::')) {
+                $view .= '::__invoke';
             }
 
+            [$ctrlName, $method] = explode('::', $view);
+        }
 
-            if (class_exists($ctrlName)) {
-                $ctrl = new $ctrlName(...Reflect::controllerConstructorParams($ctrlName, $request));
 
-                if (method_exists($ctrl, $method)) {
-                    return $ctrl->$method(...$this->getViewArgs(
-                        Closure::fromCallable([$ctrl, $method]),
-                        $request
-                    ));
-                } else {
-                    throw HttpServerError::withSubTitle("Controller method not found $view");
-                }
+        if (class_exists($ctrlName)) {
+            $ctrl = new $ctrlName(...Reflect::controllerConstructorParams($ctrlName, $request));
+
+            if (method_exists($ctrl, $method)) {
+                return $ctrl->$method(...$this->getViewArgs(
+                    Closure::fromCallable([$ctrl, $method]),
+                    $request
+                ));
             } else {
-                throw HttpServerError::withSubTitle("Controller not found ${ctrlName}");
+                $view = $ctrlName . '::' . $method;
+                throw HttpServerError::withSubTitle("Controller method not found $view");
             }
+        } else {
+            throw HttpServerError::withSubTitle("Controller not found ${ctrlName}");
         }
     }
 
