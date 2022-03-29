@@ -6,18 +6,18 @@ namespace Chuck\Cli\Migrations;
 
 use \PDOException;
 use \Throwable;
-use Chuck\Cli\Opts;
+use Chuck\Cli\{Opts, CommandInterface};
 use Chuck\Database\DatabaseInterface;
 use Chuck\ConfigInterface;
 
 
-class Migrations extends Command
+class Migrations implements CommandInterface
 {
     public static string $group = 'Database';
     public static string $title = 'Apply missing database migrations';
     public static string $desc;
 
-    protected DatabaseInterface $db;
+    protected ?Environment $env = null;
     protected const STARTED = 'start';
     protected const ERROR = 'error';
     protected const WARNING = 'warning';
@@ -25,16 +25,16 @@ class Migrations extends Command
 
     public function run(ConfigInterface $config): mixed
     {
+        $this->env = $env = new Environment($config);
         $opts = new Opts();
-        $this->init($config);
 
-        if (!$this->convenience || $this->checkIfMigrationsTableExists($this->db)) {
-            return $this->migrate($this->db, $config, $opts->has('--stacktrace'), $opts->has('--apply'));
+        if (!$env->convenience || $env->checkIfMigrationsTableExists($env->db)) {
+            return $this->migrate($env->db, $config, $opts->has('--stacktrace'), $opts->has('--apply'));
         } else {
-            $ddl = $this->getMigrationsTableDDL($this->driver);
+            $ddl = $env->getMigrationsTableDDL($env->driver);
 
             if ($ddl) {
-                echo "Migrations table does not exist. For '$this->driver' it should look like:\n\n";
+                echo "Migrations table does not exist. For '$env->driver' it should look like:\n\n";
                 echo $ddl;
                 echo "\n\nIf you want to create the table above, simply run\n\n";
                 echo "    php run create-migrations-table\n\n";
@@ -47,7 +47,7 @@ class Migrations extends Command
                 echo "    ...\n";
                 echo "];\n";
             } else {
-                echo "Driver '$this->driver' is not supported.\n";
+                echo "Driver '$env->driver' is not supported.\n";
             }
 
             return false;
@@ -65,7 +65,7 @@ class Migrations extends Command
         $result = self::STARTED;
         $numApplied = 0;
 
-        foreach ($this->getMigrations($config) as $migration) {
+        foreach ($this->env->getMigrations($config) as $migration) {
             if (in_array(basename($migration), $appliedMigrations)) {
                 continue;
             }
@@ -87,10 +87,10 @@ class Migrations extends Command
                     $result = $this->migrateSQL($db, $migration, $script, $showStacktrace);
                     break;
                 case 'tpql';
-                    $result = $this->migrateTPQL($db, $migration, $showStacktrace);
+                    $result = $this->migrateTPQL($db, $config, $migration, $showStacktrace);
                     break;
                 case 'php';
-                    $result = $this->migratePHP($db, $migration, $showStacktrace);
+                    $result = $this->migratePHP($db, $config, $migration, $showStacktrace);
                     break;
                 default:
             }
@@ -164,9 +164,9 @@ class Migrations extends Command
         return true;
     }
 
-    protected function supportsTransactions(DatabaseInterface $db): bool
+    protected function supportsTransactions(): bool
     {
-        switch ($this->driver) {
+        switch ($this->env->driver) {
             case 'sqlite':
                 return true;
             case 'pgsql':
@@ -178,7 +178,9 @@ class Migrations extends Command
 
     protected function getAppliedMigrations(DatabaseInterface $db): array
     {
-        $migrations = $db->execute("SELECT $this->column FROM $this->table;")->all();
+        $table = $this->env->table;
+        $column = $this->env->column;
+        $migrations = $db->execute("SELECT $column FROM $table;")->all();
         return array_map(fn (array $mig): string => $mig['migration'], $migrations);
     }
 
@@ -191,7 +193,7 @@ class Migrations extends Command
         if (preg_match('/\[[a-z]{3,8}\]/', $migration)) {
             // We have found a driver specific migration.
             // Check if it matches the current driver.
-            if (preg_match('/\[' . $this->driver . '\]/', $migration)) {
+            if (preg_match('/\[' . $this->env->driver . '\]/', $migration)) {
                 return true;
             }
 
@@ -223,6 +225,7 @@ class Migrations extends Command
 
     protected function migrateTPQL(
         DatabaseInterface $db,
+        ConfigInterface $config,
         string $migration,
         bool $showStacktrace
     ): string {
@@ -241,7 +244,7 @@ class Migrations extends Command
             $context = [
                 'driver' => $db->getPdoDriver(),
                 'db' => $db,
-                'config' => $this->config,
+                'config' => $config,
             ];
 
             ob_start();
@@ -274,13 +277,14 @@ class Migrations extends Command
 
     protected function migratePHP(
         DatabaseInterface $db,
+        ConfigInterface $config,
         string $migration,
         bool $showStacktrace
     ): string {
         try {
             /** @psalm-suppress UnresolvableInclude */
             $migObj = require $migration;
-            $migObj->run($db, $this->config);
+            $migObj->run($db, $config);
             $this->logMigration($db, $migration);
             $this->showMessage($migration);
 
@@ -290,6 +294,15 @@ class Migrations extends Command
 
             return self::ERROR;
         }
+    }
+
+    protected function logMigration(DatabaseInterface $db, string $migration): void
+    {
+        $name = basename($migration);
+        $db->execute(
+            'INSERT INTO migrations (migration) VALUES (:migration)',
+            ['migration' => $name]
+        )->run();
     }
 
     protected function showEmptyMessage(string $migration): void

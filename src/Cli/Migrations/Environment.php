@@ -5,25 +5,25 @@ declare(strict_types=1);
 namespace Chuck\Cli\Migrations;
 
 use \PDO;
-use Chuck\Cli\{CommandInterface, Opts};
+use Chuck\Cli\Opts;
 use Chuck\Config;
 use Chuck\ConfigInterface;
 use Chuck\Database\{Database, DatabaseInterface};
 
 
-abstract class Command implements CommandInterface
+class Environment
 {
-    protected string $conn;
-    protected string $sql;
-    protected string $driver;
-    protected string $table;
-    protected string $column;
-    protected bool $showStacktrace;
-    protected bool $convenience;
-    protected DatabaseInterface $db;
-    protected ConfigInterface $config;
+    public readonly string $conn;
+    public readonly string $sql;
+    public readonly string $driver;
+    public readonly bool $showStacktrace;
+    public readonly bool $convenience;
+    public readonly string $table;
+    public readonly string $column;
+    public readonly DatabaseInterface $db;
+    public readonly ConfigInterface $config;
 
-    public function init(ConfigInterface $config)
+    public function __construct(ConfigInterface $config)
     {
         $opts = new Opts();
         // The `db` section from the config file.
@@ -45,21 +45,13 @@ abstract class Command implements CommandInterface
         $this->column = $config->get('migrationstable.name', 'migration');
         $this->config = $config;
     }
-    protected function db(ConfigInterface $config, string $conn, string $sql): DatabaseInterface
+
+    public function db(ConfigInterface $config, string $conn, string $sql): DatabaseInterface
     {
         return new Database($config->db($conn, $sql));
     }
 
-    protected function logMigration(DatabaseInterface $db, string $migration): void
-    {
-        $name = basename($migration);
-        $db->execute(
-            'INSERT INTO migrations (migration) VALUES (:migration)',
-            ['migration' => $name]
-        )->run();
-    }
-
-    protected function getMigrations(ConfigInterface $config): array
+    public function getMigrations(ConfigInterface $config): array
     {
         $migrations = [];
         $migrationDirs = $config->migrations();
@@ -88,7 +80,7 @@ abstract class Command implements CommandInterface
         return $migrations;
     }
 
-    protected function checkIfMigrationsTableExists(
+    public function checkIfMigrationsTableExists(
         DatabaseInterface $db,
         string $table = 'migrations',
     ): bool {
@@ -120,6 +112,8 @@ abstract class Command implements CommandInterface
             default => false,
         };
 
+        print("HINAAAAAA\n");
+
         if ($query && $db->execute($query)->one(PDO::FETCH_ASSOC)['available'] ?? 0 === 1) {
             return true;
         }
@@ -127,7 +121,7 @@ abstract class Command implements CommandInterface
         return false;
     }
 
-    protected function getMigrationsTableDDL(
+    public function getMigrationsTableDDL(
         string $driver,
         string $table = 'migrations',
         string $column = 'migration',

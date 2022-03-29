@@ -5,6 +5,8 @@
  *
  * Some of these tests depend on each other and the order
  * in which they are executed. So reorganize with care.
+ *
+ * Running a single test might be impossible.
  */
 
 declare(strict_types=1);
@@ -52,17 +54,17 @@ test('Create migrations table :: success', function (string $dsn) {
 })->with('connections');
 
 
-test('Create migrations table :: already exists', function () {
+test('Create migrations table :: already exists', function (string $dsn) {
     $_SERVER['argv'] = ['run', 'create-migrations-table'];
 
     ob_start();
-    $result = Runner::run($this->config());
+    $result = Runner::run($this->config(['db' => ['dsn' => $dsn]]));
     $content = ob_get_contents();
     ob_end_clean();
 
     expect($result)->toBe(false);
     expect($content)->toContain("Table 'migrations' already exists");
-});
+})->with('connections');
 
 
 test('Run migrations :: success without apply', function (string $dsn) {
