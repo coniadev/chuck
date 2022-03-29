@@ -178,8 +178,7 @@ class DatabaseCase extends TestCase
                 $conn->prepare('DROP TABLE IF EXISTS migrations')->execute();
                 $conn->prepare('DROP TABLE IF EXISTS genres')->execute();
                 $conn = null;
-            } catch (Throwable $e) {
-                print_r($e->getMessage());
+            } catch (Throwable) {
                 continue;
             }
         }

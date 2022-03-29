@@ -384,6 +384,28 @@ test('Email validator', function () {
 });
 
 
+test('Email validator :: with DNS check', function () {
+    $testData = [
+        'valid_email' => 'valid@gmail.com',
+        'invalid_email' => 'invalid@test.tld',
+    ];
+
+    $schema = new class() extends Schema
+    {
+        protected function rules(): void
+        {
+            $this->add('invalid_email', 'Email', 'text', 'email:checkdns');
+            $this->add('valid_email', 'Email', 'text', 'email:checkdns');
+        }
+    };
+
+    expect($schema->validate($testData))->toBeFalse();
+    $errors = $schema->errors();
+    expect($errors['errors'])->toHaveCount(1);
+    expect($errors['map']['invalid_email'][0])->toEqual('-schema-invalid-email-Email-invalid@test.tld-');
+});
+
+
 test('Min value validator', function () {
     $testData = [
         'valid_1' => 13,

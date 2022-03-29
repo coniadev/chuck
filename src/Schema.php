@@ -620,10 +620,18 @@ abstract class Schema implements SchemaInterface
             'email',
             _('-schema-invalid-email-%1$s-%2$s-'),
             function (Value $value, string ...$args) {
-                return filter_var(
+                $email = filter_var(
                     trim((string)$value->value),
                     \FILTER_VALIDATE_EMAIL
-                ) !== false;
+                );
+
+                if ($email !== false && ($args[0] ?? null) === 'checkdns') {
+                    [, $mailDomain] = explode("@", $email);
+
+                    return checkdnsrr($mailDomain, 'MX');
+                }
+
+                return $email !== false;
             },
             true
         );
