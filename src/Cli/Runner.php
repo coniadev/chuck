@@ -67,12 +67,12 @@ class Runner
         }, E_ALL);
     }
 
-    protected static function runCommand(ConfigInterface $config, CommandInterface $cmd): mixed
+    protected static function runCommand(ConfigInterface $config, CommandInterface $cmd): string|int
     {
         return $cmd->run($config);
     }
 
-    public static function run(ConfigInterface $config): mixed
+    public static function run(ConfigInterface $config): string|int
     {
         self::setupErrorHandler();
         $ds = DIRECTORY_SEPARATOR;
@@ -87,6 +87,7 @@ class Runner
 
             if ($_SERVER['argv'][1] === 'commands') {
                 self::showCommands($scriptDirs);
+                return 0;
             } else {
                 foreach ($scriptDirs as $scriptDir) {
                     if (!is_string($scriptDir)) {
@@ -100,11 +101,11 @@ class Runner
                     }
                 }
                 echo "\nphp run: Command not found.\n";
-                return null;
+                return 1;
             }
         } else {
             self::showHelp($scriptDirs);
-            return null;
+            return 1;
         }
     }
 }

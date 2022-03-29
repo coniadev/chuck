@@ -23,7 +23,7 @@ class Migrations implements CommandInterface
     protected const WARNING = 'warning';
     protected const SUCCESS = 'success';
 
-    public function run(ConfigInterface $config): mixed
+    public function run(ConfigInterface $config): string|int
     {
         $this->env = $env = new Environment($config);
         $opts = new Opts();
@@ -50,7 +50,7 @@ class Migrations implements CommandInterface
                 echo "Driver '$env->driver' is not supported.\n";
             }
 
-            return false;
+            return 1;
         }
     }
 
@@ -59,7 +59,7 @@ class Migrations implements CommandInterface
         ConfigInterface $config,
         bool $showStacktrace,
         bool $apply
-    ): bool {
+    ): int {
         $this->begin($db);
         $appliedMigrations = $this->getAppliedMigrations($db);
         $result = self::STARTED;
@@ -119,49 +119,47 @@ class Migrations implements CommandInterface
         string $result,
         bool $apply,
         int $numApplied,
-    ) {
+    ): int {
         $plural = $numApplied > 1 ? 's' : '';
 
         if ($this->supportsTransactions($db)) {
             if ($result === self::ERROR) {
                 $db->rollback();
                 echo "\nDue to errors no migrations applied\n";
-                return false;
+                return 1;
             }
 
             if ($numApplied === 0) {
                 $db->rollback();
                 echo "\nNo migrations applied\n";
-                return true;
+                return 0;
             }
 
             if ($apply) {
                 $db->commit();
                 echo "\n$numApplied migration$plural successfully applied\n";
-                return true;
+                return 0;
             } else {
                 echo "\n\033[1;31mNotice\033[0m: Test run only\033[0m";
                 echo "\nWould apply $numApplied migration$plural. ";
                 echo "Use the switch --apply to make it happen\n";
                 $db->rollback();
-                return true;
+                return 0;
             }
         } else {
             if ($result === self::ERROR) {
                 echo "\n$numApplied migration$plural applied until the error occured\n";
-                return false;
+                return 1;
             }
 
             if ($numApplied > 0) {
                 echo "\n$numApplied migration$plural successfully applied\n";
-                return true;
+                return 0;
             }
 
             echo "\nNo migrations applied\n";
-            return true;
+            return 0;
         }
-
-        return true;
     }
 
     protected function supportsTransactions(): bool

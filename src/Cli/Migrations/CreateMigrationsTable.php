@@ -15,19 +15,19 @@ class CreateMigrationsTable implements CommandInterface
     public static string $title = 'Apply missing database migrations';
     public static string $desc;
 
-    public function run(ConfigInterface $config): mixed
+    public function run(ConfigInterface $config): string|int
     {
         $env = $env = new Environment($config);
 
         if (!$env->convenience) {
             echo "PDO driver '$env->driver' not supported. Aborting\n";
 
-            return false;
+            return 1;
         }
 
         if ($env->checkIfMigrationsTableExists($env->db)) {
             echo "Table '$env->table' already exists. Aborting\n";
-            return false;
+            return 1;
         } else {
             $ddl = $env->getMigrationsTableDDL($env->driver, $env->table, $env->column);
 
@@ -35,7 +35,8 @@ class CreateMigrationsTable implements CommandInterface
                 try {
                     $env->db->execute($ddl)->run();
                     echo "\033[1;32mSuccess\033[0m: Created table '$env->table'\n";
-                    return true;
+
+                    return 0;
                 } catch (Throwable $e) {
                     echo "\033[1;31mError\033[0m: While trying to create table '$env->table'\n";
                     echo $e->getMessage() . PHP_EOL;
@@ -43,13 +44,14 @@ class CreateMigrationsTable implements CommandInterface
                     if ($env->showStacktrace) {
                         echo $e->getTraceAsString() . PHP_EOL;
                     }
-                    return false;
+
+                    return 1;
                 }
             } else {
                 echo "Driver '$env->driver' is not supported.\n";
             }
 
-            return false;
+            return 1;
         }
     }
 }

@@ -9,5 +9,5 @@ use Chuck\ConfigInterface;
 
 interface CommandInterface
 {
-    public function run(ConfigInterface $config): mixed;
+    public function run(ConfigInterface $config): string|int;
 }

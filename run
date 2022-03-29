@@ -20,6 +20,6 @@ if ($configFile && realpath($configFile)) {
     }
 }
 
-Runner::run(new Config($config));
+exit(Runner::run(new Config($config)));
 
 // vim: ft=php

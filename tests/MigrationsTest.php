@@ -38,7 +38,7 @@ test('Run migrations :: no migrations table', function () {
     $content = ob_get_contents();
     ob_end_clean();
 
-    expect($result)->toBe(false);
+    expect($result)->toBe(1);
     expect($content)->toContain('Migrations table does not exist');
 });
 
@@ -50,7 +50,7 @@ test('Create migrations table :: success', function (string $dsn) {
     $result = Runner::run($this->config(['db' => ['dsn' => $dsn]]));
     ob_end_clean();
 
-    expect($result)->toBe(true);
+    expect($result)->toBe(0);
 })->with('connections');
 
 
@@ -62,7 +62,7 @@ test('Create migrations table :: already exists', function (string $dsn) {
     $content = ob_get_contents();
     ob_end_clean();
 
-    expect($result)->toBe(false);
+    expect($result)->toBe(1);
     expect($content)->toContain("Table 'migrations' already exists");
 })->with('connections');
 
@@ -76,7 +76,7 @@ test('Run migrations :: success without apply', function (string $dsn) {
     $content = ob_get_contents();
     ob_end_clean();
 
-    expect($result)->toBe(true);
+    expect($result)->toBe(0);
     expect($content)->toMatch('/000000-000000-migration.sql[^\n]*?success/');
     expect($content)->toMatch('/000000-000001-migration.php[^\n]*?success/');
     expect($content)->toMatch('/000000-000002-migration.tpql[^\n]*?success/');
@@ -94,7 +94,7 @@ test('Run migrations :: success', function (string $dsn) {
     $content = ob_get_contents();
     ob_end_clean();
 
-    expect($result)->toBe(true);
+    expect($result)->toBe(0);
     expect($content)->toMatch('/000000-000000-migration.sql[^\n]*?success/');
     expect($content)->toMatch('/000000-000001-migration.php[^\n]*?success/');
     expect($content)->toMatch('/000000-000002-migration.tpql[^\n]*?success/');
@@ -111,7 +111,7 @@ test('Run migrations :: again', function (string $dsn) {
     $content = ob_get_contents();
     ob_end_clean();
 
-    expect($result)->toBe(true);
+    expect($result)->toBe(0);
     expect($content)->not->toMatch('/000000-000000-migration.sql[^\n]*?success/');
     expect($content)->toContain('No migrations applied');
 })->with('connections');
@@ -137,9 +137,9 @@ test('Add migration SQL', function () {
     $content = ob_get_contents();
     ob_end_clean();
     @unlink($migration);
-    expect(is_file($migration))->toBe(false);
 
-    expect($result)->toBe(true);
+    expect(is_file($migration))->toBe(false);
+    expect($result)->toBe(0);
     expect($content)->toMatch('/' . basename($migration) . '[^\n]*?success/');
     expect($content)->toContain('1 migration successfully applied');
 });
@@ -236,9 +236,9 @@ test('Failing SQL migration', function ($dsn, $ext) {
     $content = ob_get_contents();
     ob_end_clean();
     @unlink($migration);
-    expect(is_file($migration))->toBe(false);
 
-    expect($result)->toBe(false);
+    expect(is_file($migration))->toBe(false);
+    expect($result)->toBe(1);
 
     if (str_starts_with($dsn, 'mysql')) {
         expect($content)->toContain('0 migration applied until the error occured');
@@ -262,9 +262,9 @@ test('Failing TPQL/PHP migration (PHP error)', function ($dsn, $ext) {
     $content = ob_get_contents();
     ob_end_clean();
     @unlink($migration);
-    expect(is_file($migration))->toBe(false);
 
-    expect($result)->toBe(false);
+    expect(is_file($migration))->toBe(false);
+    expect($result)->toBe(1);
 
     if (str_starts_with($dsn, 'mysql')) {
         expect($content)->toContain('0 migration applied until the error occured');

@@ -14,12 +14,12 @@ class Add implements CommandInterface
     public static string $title = 'Initialize a new migrations';
     public static string $desc;
 
-    public function run(ConfigInterface $config): mixed
+    public function run(ConfigInterface $config): string|int
     {
         return $this->add($config);
     }
 
-    protected function add(ConfigInterface $config): ?string
+    protected function add(ConfigInterface $config): string|int
     {
         $opts = new Opts();
         $fileName = $opts->get('-f', $opts->get('--file', ''));
@@ -40,7 +40,7 @@ class Add implements CommandInterface
         } else {
             if (!in_array($ext, ['sql', 'php', 'tpql'])) {
                 echo "Wrong file extension '$ext'. Use 'sql', 'php' or 'tpql' instead.\nAborting.\n";
-                return null;
+                return 1;
             }
         }
 
@@ -50,12 +50,12 @@ class Add implements CommandInterface
 
         if ($migrationsDir && strpos($migrationsDir, '/vendor') !== false) {
             echo "The migrations directory is inside './vendor'.\n  -> $migrationsDir\nAborting.\n";
-            return null;
+            return 1;
         }
 
         if (!$migrationsDir || !is_dir($migrationsDir)) {
             echo "The migrations directory does not exist: $migrationsDir\n  -> Aborting.\n";
-            return null;
+            return 1;
         }
 
         $timestamp = date('ymd-His', time());
@@ -76,7 +76,7 @@ class Add implements CommandInterface
             return $migration;
         } else {
             echo "Migrations directory is not writable\n  -> $migrationsDir\nAborting. \n";
-            return null;
+            return 1;
         }
     }
 
