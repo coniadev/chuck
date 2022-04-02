@@ -67,6 +67,8 @@ class Handler
                 HttpBadRequest::class => Logger::WARNING,
                 HttpServerError::class => Logger::ERROR,
             };
+        } elseif ($exception instanceof ExitException) {
+            exit();
         } else {
             $response->statusCode(500);
             $body = '<h1>500 Internal Server Error</h1>';

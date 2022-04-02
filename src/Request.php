@@ -64,13 +64,9 @@ class Request implements RequestInterface
         return Http::origin() . $this->url($stripQuery);
     }
 
-    public function redirect(string $url, int $code = 302): ResponseInterface
+    public function redirect(string $url, int $code = 302): never
     {
-        $class = $this->registry->get(ResponseInterface::class);
-        /** @var ResponseInterface */
-        $response = new $class($this, statusCode: $code);
-        $response->header('Location', $url, true);
-        return $response;
+        Http::redirect($url, $code);
     }
 
     public function getRoute(): RouteInterface

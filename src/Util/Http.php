@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Chuck\Util;
 
 use \ValueError;
+use Chuck\Error\ExitException;
 
 
 class Http
@@ -40,5 +41,12 @@ class Http
             self::origin() . $_SERVER['REQUEST_URI'],
             FILTER_VALIDATE_URL
         );
+    }
+
+    public static function redirect(string $url, int $code = 302): never
+    {
+        header('Location: ' . $url, true, $code);
+
+        throw new ExitException();
     }
 }

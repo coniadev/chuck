@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Chuck\Error;
 
+use \Exception;
 
-abstract class HttpError extends \Exception
+
+abstract class HttpError extends Exception
 {
     protected ?string $subTitle = null;
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Chuck\Assets\Assets;
 use Chuck\ConfigInterface;
+use Chuck\Error\ExitException;
 use Chuck\Request;
 use Chuck\Response;
 use Chuck\ResponseInterface;
@@ -148,17 +149,33 @@ test('Request::params', function () {
 });
 
 
-test('Request::redirect', function () {
-    $request = $this->request();
-    $response = $request->redirect('/login');
+test('Request::redirect temporary', function () {
+    $thrown = false;
 
-    expect($response)->toBeInstanceOf(ResponseInterface::class);
-    expect($response->getStatusCode())->toBe(302);
+    try {
+        $request = $this->request();
+        $request->redirect('/login');
+    } catch (ExitException) {
+        $thrown = true;
+    }
 
-    $request = $this->request();
-    $response = $request->redirect('/login', 301);
+    expect($thrown)->toBe(true);
+    expect(http_response_code())->toBe(302);
+});
 
-    expect($response->getStatusCode())->toBe(301);
+
+test('Request::redirect permanent', function () {
+    $thrown = false;
+
+    try {
+        $request = $this->request();
+        $request->redirect('/login', 301);
+    } catch (ExitException) {
+        $thrown = true;
+    }
+
+    expect($thrown)->toBe(true);
+    expect(http_response_code())->toBe(301);
 });
 
 
