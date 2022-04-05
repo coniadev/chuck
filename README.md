@@ -141,13 +141,16 @@ return [
     'templates.<id>' => null,             // Path to templates
    
     // Default SQL scripts    -> new Database($config);
+    'sql' => '/path/to/sql/scripts/all',
+    // Driver specific
     'sql' => [
         'all' => '/path/to/sql/scripts/all',
         'pgsql' => '/path/to/sql',
         'mysql' => '/path/to/sql/scripts/pgsql',
     ],
     // Additonal namespace SQL scripts    -> new Database($config, sql: 'myapp');
-    'sql.myapp' => [
+    'sql.<id>' => '/path/to/sql/scripts/all', // or
+    'sql.<id>' => [
         'all' => '/path/to/sql/scripts/all',
         'pgsql' => '/path/to/sql/scripts/pgsql'
     ],
