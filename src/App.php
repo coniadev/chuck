@@ -24,7 +24,7 @@ class App
         $this->registry = $request->getRegistry();
     }
 
-    public static function create(array|ConfigInterface $options): self
+    public static function create(array|ConfigInterface $options): static
     {
         if ($options instanceof ConfigInterface) {
             $config = $options;
@@ -47,7 +47,7 @@ class App
         $errorHandler = new Handler($request);
         $errorHandler->setup();
 
-        $app = new self($request);
+        $app = new static($request);
 
         return $app;
     }
