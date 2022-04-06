@@ -24,15 +24,16 @@ class App
         $this->registry = $request->getRegistry();
     }
 
-    public static function create(array|ConfigInterface $options): static
-    {
+    public static function create(
+        array|ConfigInterface $options,
+        RegistryInterface $registry = new Registry(),
+    ): static {
         if ($options instanceof ConfigInterface) {
             $config = $options;
         } else {
             $config = new Config($options);
         }
 
-        $registry = new Registry();
         $registry->logger(new Logger(
             $config->log()->level,
             $config->log()->file,
