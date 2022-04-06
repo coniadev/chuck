@@ -31,7 +31,6 @@ class TestCase extends BaseTestCase
         $_SERVER['HTTP_HOST'] = 'www.example.com';
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/';
-        $_SERVER['SERVER_PORT'] = '80';
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
     }
 
@@ -41,7 +40,6 @@ class TestCase extends BaseTestCase
         unset($_SERVER['HTTP_HOST']);
         unset($_SERVER['REQUEST_METHOD']);
         unset($_SERVER['REQUEST_URI']);
-        unset($_SERVER['SERVER_PORT']);
         unset($_SERVER['SERVER_PROTOCOL']);
         unset($_SERVER['argv']);
         global $_GET;
@@ -87,21 +85,14 @@ class TestCase extends BaseTestCase
         $_SERVER['HTTP_HOST'] = $host;
     }
 
-    public function setPort(int|string $port): void
-    {
-        $_SERVER['SERVER_PORT'] = (string)$port;
-    }
-
     public function enableHttps(): void
     {
         $_SERVER['HTTPS'] = 'on';
-        $_SERVER['SERVER_PORT'] = '443';
     }
 
     public function disableHttps(): void
     {
         unset($_SERVER['HTTPS']);
-        $_SERVER['SERVER_PORT'] = '80';
     }
 
     public function minimalOptions(): array

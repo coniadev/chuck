@@ -12,21 +12,9 @@ class Http
 {
     public static function origin(): string
     {
-        $https = $_SERVER['HTTPS'] ?? false ? true : false;
-        $proto = $https ? 'https' : 'http';
-
-        // Assume cli when HTTP_HOST ist not available
+        $proto = $_SERVER['HTTPS'] ?? false ? 'https' : 'http';
         $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-        $readPort = $_SERVER['SERVER_PORT'] ?? '';
-
-        $port = match ($readPort) {
-            '80' => '',
-            '443' => '',
-            '' => '',
-            default => ':' . $readPort,
-        };
-
-        $origin = "$proto://$host$port";
+        $origin = "$proto://$host";
 
         if (!filter_var($origin, FILTER_VALIDATE_URL)) {
             throw new ValueError('Invalid origin');
