@@ -31,8 +31,7 @@ class Server implements CommandInterface
             exec(
                 "PUBLIC_DIR=$publicDir php -S localhost:$port " .
                     "    -t $publicDir" . DIRECTORY_SEPARATOR . ' ' .
-                    __DIR__ . DIRECTORY_SEPARATOR . 'support' .
-                    DIRECTORY_SEPARATOR . 'server.php'
+                    __DIR__ . DIRECTORY_SEPARATOR . 'Router.php'
             );
 
             return 0;
