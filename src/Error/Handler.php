@@ -77,7 +77,11 @@ class Handler
         }
 
         if ($debug) {
-            $trace = htmlspecialchars($exception->getTraceAsString());
+            $trace = str_replace(
+                ['<', '>', '"'],
+                ['&lt;', '&gt', '&quot;'],
+                $exception->getTraceAsString()
+            );
             $trace = implode('<br>#', explode('#', $trace));
             $body .= preg_replace('/^<br>/', '', $trace);
         }

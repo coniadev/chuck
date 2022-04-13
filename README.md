@@ -102,43 +102,40 @@ MariaDB/MySQL
 namespace Chuck;
 
 return [
-    'app' => 'chuckapp',                  // Internal identifier, will be used in `php run` scripts for example
-                                          // Also used internally for sessions/i18n prefix or other purposes
+    'app' => null,                 // Internal identifier, will be used in `php run` scripts for example
+                                   // Also used internally for sessions/i18n prefix or other purposes
 
-    'path.root' => null,                  // The root folder of the application, defaults to where composer.json is located
-    'path.public' => null,                // Path to the public directory, defaults to <path.root>/public
-    'path.assets' => null,                // Path to asset files used Chuck\Assets if set. Should be writable.
-    'path.cache' => null,                 // Path to cache files. By default used by Chuck\Assets. Must be writable.
+    'path.root' => null,           // The root folder of the application, defaults to where composer.json is located
+    'path.public' => null,         // Path to the public directory, defaults to <path.root>/public
+    'path.assets' => null,         // Path to asset files used Chuck\Assets if set. Should be writable.
+    'path.cache' => null,          // Path to cache files. By default used by Chuck\Assets. Must be writable.
 
-    'env' => null,                        // the current environment, e. g. 'development', 'production'
-    'debug' => false,                     // Whether it should show Whoops messages
-    'port' => 1983,                       // The develompent server port
-    'secret' => null                      // Used for password hashing or creating unique keys. Must be retained if you migrate your site.
+    'env' => null,                 // the current environment, e. g. 'development', 'production'
+    'debug' => false,              // Whether it should show Whoops messages
+    'port' => 1983,                // The develompent server port
+    'secret' => null               // Used for password hashing or creating unique keys. Must be retained if you migrate your site.
 
-    'host' => null,                       // www.example.com
-                                          // Can be used in scripts or your app
-                                          // Will be created from $_SERVER if not set.
-    'origin' => null,                     // e. g. 'https://www.example.com:8080'
-                                          // Used for generating URLs from routes for example
-                                          // Will be created from $_SERVER if not set.
+    'host' => null,                // www.example.com
+                                   // Can be used in scripts or your app
+                                   // Will be created from $_SERVER if not set.
+    'origin' => null,              // e. g. 'https://www.example.com:8080'
+                                   // Used for generating URLs from routes for example
+                                   // Will be created from $_SERVER if not set.
 
-    'log.level' => Logger::DEBUG,         // The default log level (Log middleware must be added)
-    'log.file' => null,                   // Path where the logfiles are written to
+    'log.level' => Logger::DEBUG,  // The default log level (Log middleware must be added)
+    'log.file' => null,            // Path where the logfiles are written to
 
 
-    'locales.list' => [],                 // Array of locales, ['en_US', 'de_DE], optionally with names ['de' => 'Deutsch, 'en => ...]
+    'locales.list' => [],          // Array of locales, ['en_US', 'de_DE], optionally with names ['de' => 'Deutsch, 'en => ...]
     'locales.default' => null,
 
 
-    'password.algorithm' => null,         // Uses what is available if not set, prefers ARGON2
-    'password.entropy' => 40.0,           // Password strength entropy. 40.0 is aproximately a password with
-                                          // at least 12 mixed characters.
+    'password.algorithm' => null,  // Uses what is available if not set, prefers ARGON2
+    'password.entropy' => 40.0,    // Password strength entropy. 40.0 is aproximately a password with
+                                   // at least 12 mixed characters.
 
-    'session.name' => null,               // Cookie name sent to the browser
-    'session.expire' => 60 * 60 * 24 * 7, // This value will be added to the current time()
-
-    'templates' => null,                  // Path to templates
-    'templates.<id>' => null,             // Path to templates
+    'templates' => null,           // Path to templates
+    'templates.<id>' => null,      // Path to templates
    
     // Default SQL scripts    -> new Database($config);
     'sql' => '/path/to/sql/scripts/all',
