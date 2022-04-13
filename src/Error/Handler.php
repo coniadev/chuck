@@ -43,6 +43,7 @@ class Handler
 
     public function handleException(Throwable $exception): void
     {
+        $code = 0;
         $debug = $this->request->getConfig()->debug();
         $response = $this->request->getResponse();
 
@@ -70,13 +71,14 @@ class Handler
         } elseif ($exception instanceof ExitException) {
             exit();
         } else {
-            $response->statusCode(500);
+            $code = 500;
+            $response->statusCode($code);
             $body = '<h1>500 Internal Server Error</h1>';
             $body .= '<h2>' . htmlspecialchars($exception->getMessage()) . '</h2>';
             $level = Logger::ERROR;
         }
 
-        if ($debug) {
+        if ($debug && $code === 500) {
             $trace = str_replace(
                 ['<', '>', '"'],
                 ['&lt;', '&gt', '&quot;'],
