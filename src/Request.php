@@ -101,20 +101,11 @@ class Request implements RequestInterface
 
     public function body(string $stream = 'php://input'): string
     {
-        // TODO: Code to allow testing. Maybe code smell.
-        //       Allows to overwrite the stream as php://input
-        //       can not be populated. See if we can get rid of it.
-        if (PHP_SAPI !== 'cli' && func_num_args() > 0) {
-            // @codeCoverageIgnoreStart
-            throw new InvalidArgumentException('Changing the stream is only allowed in cli SAPI');
-            // @codeCoverageIgnoreEnd
-        }
-
         return file_get_contents($stream);
     }
 
     public function json(
-        string $stream = 'php:://input',
+        string $stream = 'php://input',
         int $flags = JSON_OBJECT_AS_ARRAY,
     ): mixed {
         $body = $this->body($stream);
