@@ -36,6 +36,10 @@ if ($publicDir) {
         return false;
     }
 
+    if (is_file($publicDir . rtrim($url, '/') . '/index.html')) {
+        return false;
+    }
+
     $_SERVER['SCRIPT_NAME'] = 'index.php';
 
     /** @psalm-suppress UnresolvableInclude */
