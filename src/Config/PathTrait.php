@@ -15,12 +15,16 @@ trait PathTrait
         return PathUtil::inside($this->root, $path);
     }
 
-    protected function preparePath(string $path): string
+    protected function preparePath(string $path, bool $debug = false): string
     {
         $path = PathUtil::realpath($path);
 
         if (!PathUtil::isAbsolute($path)) {
             $path = $this->root . DIRECTORY_SEPARATOR . $path;
+        }
+
+        if ($debug) {
+            return $path;
         }
 
         if (str_starts_with($path, $this->root)) {

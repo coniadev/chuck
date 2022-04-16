@@ -20,6 +20,7 @@ class Database
         protected array $connections,
         array $sql,
         protected array $migrations,
+        protected bool $debug = false,
     ) {
         $this->sql = $this->getSql($sql);
     }
@@ -32,7 +33,7 @@ class Database
         foreach ($sql as $section => $paths) {
             // e. g. 'sql' => 'path/to/sql'
             if (is_string($paths)) {
-                $clean[$section] = ['all' => $this->preparePath($paths)];
+                $clean[$section] = ['all' => $this->preparePath($paths, $this->debug)];
                 continue;
             }
 
@@ -44,7 +45,7 @@ class Database
             }
 
             foreach ($paths as $driver => $path) {
-                $clean[$section][$driver] = $this->preparePath($path);
+                $clean[$section][$driver] = $this->preparePath($path, $this->debug);
             }
         }
 
@@ -67,7 +68,7 @@ class Database
     public function migrations(): array
     {
         return array_map(
-            fn ($m) => $this->preparePath($m),
+            fn ($m) => $this->preparePath($m, $this->debug),
             array_values($this->migrations)
         );
     }

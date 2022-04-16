@@ -211,6 +211,7 @@ class Config implements ConfigInterface
             $this->settings['db'] ?? [],
             $this->settings['sql'] ?? [],
             $this->settings['migrations'] ?? [],
+            $this->debug,
         );
     }
 
