@@ -113,7 +113,6 @@ test('Debug mode traceback', function () {
     $output = ob_get_contents();
     ob_end_clean();
     expect($output)->toStartWith('<h1>400 Bad Request</h1><h2>HTTP Error</h2>');
-    expect($output)->toContain('<br>#1');
 
     restore_error_handler();
     restore_exception_handler();
