@@ -13,12 +13,15 @@ class Templates
 
     protected readonly array $dirs;
 
-    public function __construct(protected readonly string $root, array $values)
-    {
+    public function __construct(
+        protected readonly string $root,
+        array $values,
+        bool $debug = false
+    ) {
         $dirs = [];
 
         foreach ($values as $id => $dir) {
-            $preparedDir = $this->preparePath($dir);
+            $preparedDir = $this->preparePath($dir, $debug);
 
             if (!is_dir($preparedDir)) {
                 throw new ValueError("Template directory does not exists: $dir");

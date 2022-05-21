@@ -23,6 +23,13 @@ trait PathTrait
             $path = $this->root . DIRECTORY_SEPARATOR . $path;
         }
 
+        // This allows composer.json path repositories like
+        // "repositories": [
+        //     {
+        //         "type": "path",
+        //         "url": "../chuck"
+        //     },
+        // ]
         if ($debug) {
             return $path;
         }

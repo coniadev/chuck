@@ -239,7 +239,8 @@ class Config implements ConfigInterface
     {
         return (new Templates(
             $this->root,
-            $this->settings['templates'] ?? []
+            $this->settings['templates'] ?? [],
+            $this->debug,
         ))->get();
     }
 
@@ -247,7 +248,8 @@ class Config implements ConfigInterface
     {
         return (new Scripts(
             $this->root,
-            $this->settings['scripts'] ?? []
+            $this->settings['scripts'] ?? [],
+            $this->debug,
         ))->get();
     }
 }
