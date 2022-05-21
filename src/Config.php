@@ -23,7 +23,7 @@ class Config implements ConfigInterface
     public readonly string $app;
     public readonly Path $path;
 
-    protected readonly array $settings;
+    protected array $settings;
 
     public function __construct(array $settings)
     {
