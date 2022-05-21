@@ -7,6 +7,7 @@ namespace Chuck\Tests\Setup;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 use \ValueError;
+use Chuck\App;
 use Chuck\Config;
 use Chuck\ConfigInterface;
 use Chuck\Logger;
@@ -117,6 +118,11 @@ class TestCase extends BaseTestCase
     public function config(array $options = []): Config
     {
         return new Config($this->options($options));
+    }
+
+    public function app(array $options = []): App
+    {
+        return App::create($this->config($options));
     }
 
 

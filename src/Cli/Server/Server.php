@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Cli\Server;
 
-use Chuck\ConfigInterface;
+use Chuck\App;
 use Chuck\Cli\{CommandInterface, Opts};
 
 
@@ -14,8 +14,9 @@ class Server implements CommandInterface
     public static string $title = 'Start the development server';
     public static string $desc = 'php run serve [<port>]';
 
-    public function run(ConfigInterface $config): string|int
+    public function run(App $app): string|int
     {
+        $config = $app->config();
         $publicDir = $config->path()->public;
 
         if ($config->has('port')) {

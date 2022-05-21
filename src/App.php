@@ -45,8 +45,10 @@ class App
         /** @var RequestInterface */
         $request = $registry->new(RequestInterface::class, $config, $router, $registry);
 
-        $errorHandler = new Handler($request);
-        $errorHandler->setup();
+        if (PHP_SAPI !== 'cli') {
+            $errorHandler = new Handler($request);
+            $errorHandler->setup();
+        }
 
         $app = new static($request);
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Cli\Migrations;
 
+use Chuck\App;
 use Chuck\Cli\{CommandInterface, Opts};
 use Chuck\ConfigInterface;
 
@@ -14,8 +15,9 @@ class Add implements CommandInterface
     public static string $title = 'Initialize a new migrations';
     public static string $desc;
 
-    public function run(ConfigInterface $config): string|int
+    public function run(App $app): string|int
     {
+        $config = $app->config();
         return $this->add($config);
     }
 

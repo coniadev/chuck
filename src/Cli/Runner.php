@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Chuck\Cli;
 
 use \ErrorException;
+use Chuck\App;
 use Chuck\ConfigInterface;
 
 
@@ -67,15 +68,16 @@ class Runner
         }, E_ALL);
     }
 
-    protected static function runCommand(ConfigInterface $config, CommandInterface $cmd): string|int
+    protected static function runCommand(App $app, CommandInterface $cmd): string|int
     {
-        return $cmd->run($config);
+        return $cmd->run($app);
     }
 
-    public static function run(ConfigInterface $config): string|int
+    public static function run(App $app): string|int
     {
         self::setupErrorHandler();
         $ds = DIRECTORY_SEPARATOR;
+        $config = $app->config();
 
         // add the custom script dir first to allow
         // overriding of builtin scripts.
@@ -97,7 +99,7 @@ class Runner
                     $file = $scriptDir . DIRECTORY_SEPARATOR . $script;
 
                     if (is_file($file)) {
-                        return self::runCommand($config, require $file);
+                        return self::runCommand($app, require $file);
                     }
                 }
                 echo "\nphp run: Command not found.\n";

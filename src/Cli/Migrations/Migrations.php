@@ -7,9 +7,10 @@ namespace Chuck\Cli\Migrations;
 use \PDOException;
 use \RuntimeException;
 use \Throwable;
+use Chuck\App;
 use Chuck\Cli\{Opts, CommandInterface};
-use Chuck\Database\DatabaseInterface;
 use Chuck\ConfigInterface;
+use Chuck\Database\DatabaseInterface;
 
 
 class Migrations implements CommandInterface
@@ -25,7 +26,7 @@ class Migrations implements CommandInterface
     protected const WARNING = 'warning';
     protected const SUCCESS = 'success';
 
-    public function run(ConfigInterface $config): string|int
+    public function run(App $app): string|int
     {
         /**
          * @psalm-suppress InaccessibleProperty
@@ -35,6 +36,7 @@ class Migrations implements CommandInterface
          * constructor. Recheck on occasion.
          * https://github.com/vimeo/psalm/issues/7608
          */
+        $config = $app->config();
         $this->env = $env = new Environment($config);
         $opts = new Opts();
 

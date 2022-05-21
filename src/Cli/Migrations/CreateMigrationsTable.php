@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Chuck\Cli\Migrations;
 
 use \Throwable;
+use Chuck\App;
 use Chuck\Cli\CommandInterface;
-use Chuck\ConfigInterface;
 
 
 class CreateMigrationsTable implements CommandInterface
@@ -15,8 +15,9 @@ class CreateMigrationsTable implements CommandInterface
     public static string $title = 'Apply missing database migrations';
     public static string $desc;
 
-    public function run(ConfigInterface $config): string|int
+    public function run(App $app): string|int
     {
+        $config = $app->config();
         $env = $env = new Environment($config);
 
         if (!$env->convenience) {

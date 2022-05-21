@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/vendor/autoload.php';
 
+use \Chuck\App;
 use \Chuck\Config;
 use \Chuck\Cli\Runner;
 
@@ -20,6 +21,6 @@ if ($configFile && realpath($configFile)) {
     }
 }
 
-exit(Runner::run(new Config($config)));
+exit(Runner::run(App::create(new Config($config))));
 
 // vim: ft=php
