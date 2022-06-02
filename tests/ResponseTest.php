@@ -20,7 +20,7 @@ test('Request::response', function () {
         'The Plug is Pulled',
     );
 
-    expect($response->getStatusCode())->toBe(404);
+    expect($response->statusCode())->toBe(404);
     expect((string)$response->getBody())->toBe('Pull the Plug');
     ob_start();
     $response->emit();

@@ -76,7 +76,7 @@ test('Static routes to nonexistent directory', function () {
 
 test('Dispatch closure', function () {
     $router = new Router();
-    $index = new Route('index', '/', fn (Request $request) => new Response($request, 200, 'Chuck'));
+    $index = new Route('index', '/', fn (Request $request) => new Response(200, 'Chuck'));
     $router->addRoute($index);
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/'));
@@ -113,7 +113,7 @@ test('Dispatch invokable class', function () {
     {
         public function __invoke(Request $request)
         {
-            return new Response($request, 200, 'Schuldiner');
+            return new Response(200, 'Schuldiner');
         }
     };
     $object = new Route('object', '/object', '___InvocableClass');

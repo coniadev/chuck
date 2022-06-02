@@ -33,7 +33,6 @@ class Response implements ResponseInterface
     protected ?Body $body = null;
 
     public function __construct(
-        protected RequestInterface $request,
         protected int $statusCode = 200,
         string|Body|null $body = null,
         protected array $headers = [],
@@ -49,7 +48,7 @@ class Response implements ResponseInterface
         }
     }
 
-    public function statusCode(int $statusCode, ?string $reasonPhrase = null): void
+    public function setStatusCode(int $statusCode, ?string $reasonPhrase = null): void
     {
         $this->statusCode = $statusCode;
 
@@ -63,7 +62,7 @@ class Response implements ResponseInterface
         $this->protocol = $protocol;
     }
 
-    public function getStatusCode(): int
+    public function statusCode(): int
     {
         return $this->statusCode;
     }
@@ -172,8 +171,7 @@ class Response implements ResponseInterface
             $this->reasonPhrase ?: REASON_PHRASES[$this->statusCode]
         ), true);
 
-        // HEAD responses are not allowed to have a body
-        if ($this->request->method() === 'HEAD') {
+        if (strtoupper($_SERVER['REQUEST_METHOD']) === 'HEAD') {
             return;
         }
 

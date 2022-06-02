@@ -53,7 +53,7 @@ test('Helper properties', function () {
 
 test('Route property :: initialized', function () {
     $router = new Router();
-    $router->addRoute(new Route('index', '/', fn (Request $request) => new Response($request, 200, 'Chuck')));
+    $router->addRoute(new Route('index', '/', fn (Request $request) => new Response(200, 'Chuck')));
     $request = $this->request(method: 'GET', url: '/', router: $router);
     $router->dispatch($request);
 

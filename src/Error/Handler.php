@@ -50,7 +50,7 @@ class Handler
         if ($exception instanceof HttpError) {
             /** @var int $code */
             $code = $exception->getCode();
-            $response->statusCode($code);
+            $response->setStatusCode($code);
             $body = '<h1>' . htmlspecialchars($exception->getTitle()) . '</h1>';
             $subTitle = $exception->getSubtitle();
 
@@ -72,7 +72,7 @@ class Handler
             exit();
         } else {
             $code = 500;
-            $response->statusCode($code);
+            $response->setStatusCode($code);
             $body = '<h1>500 Internal Server Error</h1>';
             $body .= '<h2>' . htmlspecialchars($exception->getMessage()) . '</h2>';
             $level = Logger::ERROR;

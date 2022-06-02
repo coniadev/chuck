@@ -22,7 +22,7 @@ class Request implements RequestInterface
         protected RegistryInterface $registry,
         ResponseInterface $response = null,
     ) {
-        $this->response = $response ?: new Response($this);
+        $this->response = $response ?: new Response();
     }
 
     public function params(): array
@@ -151,7 +151,7 @@ class Request implements RequestInterface
         ?string $protocol = null,
         ?string $reasonPhrase = null,
     ): ResponseInterface {
-        $this->response->statusCode($statusCode, $reasonPhrase);
+        $this->response->setStatusCode($statusCode, $reasonPhrase);
 
         if ($body) {
             $this->response->body($body);

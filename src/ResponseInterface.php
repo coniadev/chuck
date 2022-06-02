@@ -9,8 +9,8 @@ use Chuck\Body\Body;
 
 interface ResponseInterface
 {
-    public function statusCode(int $statusCode, ?string $reasonPhrase = null): void;
-    public function getStatusCode(): int;
+    public function setStatusCode(int $statusCode, ?string $reasonPhrase = null): void;
+    public function statusCode(): int;
     public function protocol(string $protocol): void;
     public function header(string $name, string $value, bool $replace = true): void;
     public function getHeaderList(): array;
