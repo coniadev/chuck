@@ -8,19 +8,18 @@ use Chuck\Error\Handler;
 use Chuck\Logger;
 use Chuck\Routing\GroupInterface;
 use Chuck\Routing\RouteInterface;
-use Chuck\Routing\RouterInterface;
+use Chuck\Routing\{Router, RouterInterface};
 
 
 class App
 {
-    protected RouterInterface $router;
     protected RegistryInterface $registry;
-    protected ConfigInterface $config;
 
-    public function __construct(protected RequestInterface $request)
-    {
-        $this->config = $request->getConfig();
-        $this->router = $request->getRouter();
+    public function __construct(
+        protected RequestInterface $request,
+        protected ConfigInterface $config,
+        protected RouterInterface $router,
+    ) {
         $this->registry = $request->getRegistry();
     }
 
@@ -33,18 +32,15 @@ class App
             $config->log()->file,
         ));
 
-        /** @var RouterInterface */
-        $router = $registry->new(RouterInterface::class);
-
-        /** @var RequestInterface */
-        $request = $registry->new(RequestInterface::class, $config, $router, $registry);
+        $router = new Router();
+        $request = new Request($config, $router, $registry);
 
         if (PHP_SAPI !== 'cli') {
             $errorHandler = new Handler($request);
             $errorHandler->setup();
         }
 
-        $app = new static($request);
+        $app = new static($request, $config, $router);
 
         return $app;
     }

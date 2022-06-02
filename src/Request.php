@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use \InvalidArgumentException;
 use \RuntimeException;
 use Chuck\Assets\Assets;
+use Chuck\Response;
 use Chuck\Routing\RouteInterface;
 use Chuck\Routing\RouterInterface;
 use Chuck\Util\Http;
@@ -14,15 +14,15 @@ use Chuck\Util\Http;
 
 class Request implements RequestInterface
 {
-    /** @psalm-suppress PropertyNotSetInConstructor */
-    protected readonly ResponseInterface $response;
     protected array $customMethods = [];
 
     public function __construct(
         protected ConfigInterface $config,
         protected RouterInterface $router,
         protected RegistryInterface $registry,
+        ResponseInterface $response = null,
     ) {
+        $this->response = $response ?: new Response($this);
     }
 
     public function params(): array
@@ -151,20 +151,6 @@ class Request implements RequestInterface
         ?string $protocol = null,
         ?string $reasonPhrase = null,
     ): ResponseInterface {
-        /** @psalm-suppress RedundantPropertyInitializationCheck */
-        if (!isset($this->response)) {
-            /**
-             * @psalm-suppress InaccessibleProperty
-             * @var ResponseInterface
-             *
-             * TODO: At the time of writing Psalm did not support
-             * readonly properties which are not initialized in the
-             * constructor. Recheck on occasion.
-             * https://github.com/vimeo/psalm/issues/7608
-             */
-            $this->response = $this->registry->new(ResponseInterface::class, $this);
-        }
-
         $this->response->statusCode($statusCode, $reasonPhrase);
 
         if ($body) {

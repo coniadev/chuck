@@ -68,7 +68,8 @@ test('Register renderer helper', function () {
 
 
 test('App run', function () {
-    $app = new App($this->request(method: 'GET', url: '/'));
+    $request = $this->request(method: 'GET', url: '/');
+    $app = new App($request, $request->getConfig(), $request->getRouter());
     $app->add(Route::get('index', '/', 'Chuck\Tests\Fixtures\TestController::textView'));
     ob_start();
     $response = $app->run();
