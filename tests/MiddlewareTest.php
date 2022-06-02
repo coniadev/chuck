@@ -55,7 +55,7 @@ class ___EarlyResponseMiddleware
 }
 
 test('Middleware flow', function () {
-    $app = App::create($this->options());
+    $app = App::create($this->config());
     $app->add(Route::get('index', '/', 'Chuck\Tests\Fixtures\TestController::middlewareView'));
     $app->middleware('___functionMiddleware');
     $app->middleware(new ___ObjectMiddleware(' second'));
@@ -70,7 +70,7 @@ test('Middleware flow', function () {
 
 
 test('Early response', function () {
-    $app = App::create($this->options());
+    $app = App::create($this->config());
     $app->add(Route::get('index', '/', 'Chuck\Tests\Fixtures\TestController::middlewareView'));
     $app->middleware(new ___EarlyResponseMiddleware('immediate response'));
     $app->middleware(new ___ObjectMiddleware(' second'));
@@ -86,7 +86,7 @@ test('Early response', function () {
 
 test('Middleware validation', function () {
     // debug => true activated middleware validation
-    $app = App::create($this->options(['debug' => true]));
+    $app = App::create($this->config(['debug' => true]));
     $app->add(Route::get('index', '/', 'Chuck\Tests\Fixtures\TestController::middlewareView'));
     $app->middleware(function () {
     });

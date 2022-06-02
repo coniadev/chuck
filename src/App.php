@@ -25,15 +25,9 @@ class App
     }
 
     public static function create(
-        array|ConfigInterface $options,
+        ConfigInterface $config,
         RegistryInterface $registry = new Registry(),
     ): static {
-        if ($options instanceof ConfigInterface) {
-            $config = $options;
-        } else {
-            $config = new Config($options);
-        }
-
         $registry->logger(new Logger(
             $config->log()->level,
             $config->log()->file,

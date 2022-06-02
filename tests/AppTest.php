@@ -11,12 +11,12 @@ uses(TestCase::class);
 
 
 test('Create helper', function () {
-    expect(App::create($this->options()))->toBeInstanceOf(App::class);
+    expect(App::create($this->config()))->toBeInstanceOf(App::class);
 });
 
 
 test('Helper methods', function () {
-    $app = App::create($this->options());
+    $app = App::create($this->config());
 
     expect($app->request())->toBeInstanceOf(Request::class);
     expect($app->router())->toBeInstanceOf(Router::class);
@@ -25,7 +25,7 @@ test('Helper methods', function () {
 
 
 test('Middleware helper', function () {
-    $app = App::create($this->options());
+    $app = App::create($this->config());
 
     $app->middleware(function (Request $request, callable $next): Request|Response {
         return $next($request);
@@ -36,7 +36,7 @@ test('Middleware helper', function () {
 
 
 test('Static route helper', function () {
-    $app = App::create($this->options());
+    $app = App::create($this->config());
     $app->static('static', '/static', C::root() . C::DS . 'public' . C::DS . 'static');
 
     expect($app->router()->staticUrl('static', 'test.json'))->toBe('/static/test.json');
@@ -44,7 +44,7 @@ test('Static route helper', function () {
 
 
 test('Route helper', function () {
-    $app = App::create($this->options());
+    $app = App::create($this->config());
     $app->add(Route::get('albums', '/albums', 'Chuck\Tests\Fixtures\TestController::textView'));
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
@@ -52,7 +52,7 @@ test('Route helper', function () {
 
 
 test('Register helper', function () {
-    $app = App::create($this->options());
+    $app = App::create($this->config());
     $app->register(TestInterface::class, TestClass::class);
 
     expect($app->registry()->get(TestInterface::class))->toBe(TestClass::class);
@@ -60,7 +60,7 @@ test('Register helper', function () {
 
 
 test('Register renderer helper', function () {
-    $app = App::create($this->options());
+    $app = App::create($this->config());
     $app->register('test', TestRenderer::class);
 
     expect($app->registry()->get('test'))->toBe(TestRenderer::class);

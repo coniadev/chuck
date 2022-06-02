@@ -12,7 +12,7 @@ uses(TestCase::class);
 
 
 test('Logging middleware', function () {
-    $app = App::create($this->options());
+    $app = App::create($this->config());
     $app->add(Route::get('index', '/', 'Chuck\Tests\Fixtures\TestController::textView'));
     $app->middleware(new Logging());
     ob_start();
