@@ -26,6 +26,5 @@ interface RouterInterface
     ): string;
     public function match(RequestInterface $request): ?Route;
     public function dispatch(RequestInterface $request): ResponseInterface;
-    public function middleware(callable ...$middlewares): void;
     public function middlewares(): array;
 }

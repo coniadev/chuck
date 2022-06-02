@@ -91,7 +91,7 @@ test('Controller prefixing error', function () {
 
 test('Middleware', function () {
     $router = new Router();
-    $router->middleware(new TestMiddleware1());
+    $router->addMiddleware(new TestMiddleware1());
 
     $group = Group::new('albums:', '/albums', function (Group $group) {
         $ctrl = TestController::class;

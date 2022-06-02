@@ -18,6 +18,5 @@ interface RegistryInterface extends ContainerInterface
     public function add(string $id, string|object $entry): void;
     public function new(string $id, mixed ...$args): object;
     public function instance(string $id): object;
-    public function renderer(string $id, mixed ...$args): RendererInterface;
     public function logger(LoggerInterface $logger): void;
 }

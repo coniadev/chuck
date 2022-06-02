@@ -89,7 +89,7 @@ class App
 
     public function middleware(callable ...$middlewares): void
     {
-        $this->router->middleware(...$middlewares);
+        $this->router->addMiddleware(...$middlewares);
     }
 
     /**

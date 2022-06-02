@@ -6,9 +6,12 @@ namespace Chuck\Routing;
 
 use \Closure;
 use \RuntimeException;
+use \ValueError;
 use \Throwable;
 use Chuck\Error\{HttpNotFound, HttpMethodNotAllowed};
 use Chuck\Error\HttpServerError;
+use Chuck\Renderer;
+use Chuck\Renderer\RendererInterface;
 use Chuck\RequestInterface;
 use Chuck\ResponseInterface;
 use Chuck\Util\Reflect;
@@ -22,8 +25,19 @@ class Router implements RouterInterface
     protected array $staticRoutes = [];
     protected array $names = [];
     protected array $middlewares = [];
+    /** @var array<string, class-string<RendererInterface>> */
+    protected array $renderers = [];
 
     protected const ALL = 'ALL';
+
+    public function __construct()
+    {
+        $this->renderers = [
+            'text' => Renderer\TextRenderer::class,
+            'json' => Renderer\JsonRenderer::class,
+            'template' => Renderer\TemplateRenderer::class,
+        ];
+    }
 
     public function getRoute(): RouteInterface
     {
@@ -70,7 +84,16 @@ class Router implements RouterInterface
         }
     }
 
-    public function middleware(callable ...$middlewares): void
+    public function addRenderer(string $name, string $class): void
+    {
+        if ($class instanceof RendererInterface) {
+            $this->renderers[$name] = $class;
+        } else {
+            throw new ValueError('A renderer must implement ' . RendererInterface::class);
+        }
+    }
+
+    public function addMiddleware(callable ...$middlewares): void
     {
         foreach ($middlewares as $middleware) {
             $this->middlewares[] = $middleware;
@@ -217,11 +240,15 @@ class Router implements RouterInterface
         if ($result instanceof ResponseInterface) {
             return $result;
         } else {
-            $registry = $request->getRegistry();
             $renderer = $route->getRenderer();
 
             if ($renderer) {
-                $rendererObj = $registry->renderer($renderer->type, $request, $result, $renderer->args);
+                // Create a renderer instance
+                $rendererObj = new ($this->renderers[$renderer->type])(
+                    $request,
+                    $result,
+                    $renderer->args
+                );
                 $response = $request->getResponse();
                 $response->body($rendererObj->render());
 
