@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Chuck\Tests\Setup\{TestCase, C};
 use Chuck\Config;
+use Chuck\Logger;
 
 uses(TestCase::class);
 
@@ -220,33 +221,12 @@ test('SQL paths', function () {
 });
 
 
-test('Log file creation', function () {
-    $logfile = C::root() . C::DS . 'log' . C::DS . bin2hex(random_bytes(4)) . '.log';
-    $config = new Config($this->options(['log.file' => $logfile]));
+test('Logger setup', function () {
+    $config = new Config($this->options());
+    $config->setupLogger(function () {
+        $logfile = C::root() . C::DS . 'log' . C::DS . bin2hex(random_bytes(4)) . '.log';
+        return new Logger(Logger::DEBUG, $logfile);
+    });
 
-    expect($config->log()->file)->toBe($logfile);
-    expect(is_file($config->log()->file))->toBe(true);
-
-    @unlink($logfile);
-});
-
-
-test('Log file not writeable', function () {
-    $logfile = C::root() . C::DS . 'log' . C::DS . bin2hex(random_bytes(4)) . '.log';
-    touch($logfile);
-    chmod($logfile, 0400);
-    $thrown = false;
-
-    try {
-        (new Config($this->options(['log.file' => $logfile])))->log();
-    } catch (ValueError $e) {
-        if (str_contains($e->getMessage(), 'is not writable')) {
-            $thrown = true;
-        }
-    }
-
-    chmod($logfile, 0644);
-    @unlink($logfile);
-
-    expect($thrown)->toBe(true);
+    expect($config->logger())->toBeInstanceOf(Logger::class);
 });

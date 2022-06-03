@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Chuck\Tests\Setup;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
+use Psr\Log\LoggerInterface;
 
 use \ValueError;
 use Chuck\App;
@@ -153,6 +154,9 @@ class TestCase extends BaseTestCase
 
         if ($config === null) {
             $config = $this->config($options);
+            $config->setupLogger(function (): LoggerInterface {
+                return new Logger();
+            });
         }
 
         if ($router === null) {
@@ -161,10 +165,6 @@ class TestCase extends BaseTestCase
 
         if ($registry === null) {
             $registry = new Registry();
-            $registry->logger(new Logger(
-                $config->log()->level,
-                $config->log()->file,
-            ));
         }
 
         $request = new Request($config, $router, $registry);

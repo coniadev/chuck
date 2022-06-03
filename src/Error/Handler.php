@@ -6,6 +6,7 @@ namespace Chuck\Error;
 
 use \ErrorException;
 use \Throwable;
+use Psr\Log\LoggerInterface;
 use Chuck\RequestInterface;
 use Chuck\Error\HttpError;
 use Chuck\Error\HttpBadRequest;
@@ -13,7 +14,6 @@ use Chuck\Error\HttpForbidden;
 use Chuck\Error\HttpNotFound;
 use Chuck\Error\HttpServerError;
 use Chuck\Error\HttpUnauthorized;
-use Chuck\Logger;
 
 
 class Handler
@@ -59,15 +59,6 @@ class Handler
             } else {
                 $body .= '<h2>HTTP Error</h2>';
             }
-
-            $level = match ($exception::class) {
-                HttpNotFound::class => Logger::INFO,
-                HttpMethodNotAllowed::class => Logger::INFO,
-                HttpForbidden::class => Logger::NOTICE,
-                HttpUnauthorized::class => Logger::NOTICE,
-                HttpBadRequest::class => Logger::WARNING,
-                HttpServerError::class => Logger::ERROR,
-            };
         } elseif ($exception instanceof ExitException) {
             exit();
         } else {
@@ -75,7 +66,6 @@ class Handler
             $response->setStatusCode($code);
             $body = '<h1>500 Internal Server Error</h1>';
             $body .= '<h2>' . htmlspecialchars($exception->getMessage()) . '</h2>';
-            $level = Logger::ERROR;
         }
 
         if ($debug && $code === 500) {
@@ -90,23 +80,29 @@ class Handler
 
         $response->body($body);
         $response->emit();
-        $this->log($level, $exception);
+        $this->log($exception);
     }
 
-    public function log(int $level, \Throwable $exception): void
+    protected function getLoggerMethod(Throwable $exception): string
     {
-        $registry = $this->request->getRegistry();
+        return match ($exception::class) {
+            HttpNotFound::class => 'info',
+            HttpMethodNotAllowed::class => 'info',
+            HttpForbidden::class => 'notice',
+            HttpUnauthorized::class => 'notice',
+            HttpBadRequest::class => 'warning',
+            HttpServerError::class => 'error',
+            default => 'error',
+        };
+    }
 
-        if ($registry->has('logger')) {
-            $logger = $registry->instance('logger');
+    public function log(Throwable $exception): void
+    {
+        $logger = $this->request->config->logger();
 
-            $logger->log(
-                $level,
-                "Uncaught Exception:",
-                [
-                    'exception' => $exception,
-                ]
-            );
+        if ($logger) {
+            $method = $this->getLoggerMethod($exception);
+            ([$logger, $method])("Uncaught Exception:", ['exception' => $exception]);
         }
     }
 }

@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use Psr\Log\LoggerInterface;
 use Chuck\Config;
-use Chuck\Config\{Path, Log, Connection};
+use Chuck\Config\{Path, Connection};
 
 
 interface ConfigInterface
@@ -20,7 +21,7 @@ interface ConfigInterface
         string $connection = Config::DEFAULT,
         string $sql = Config::DEFAULT
     ): Connection;
-    public function log(): Log;
+    public function logger(): ?LoggerInterface;
     public function templates(): array;
     public function migrations(): array;
     public function scripts(): array;

@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use \Closure;
 use \InvalidArgumentException;
 use \Throwable;
 use \ValueError;
-
+use Psr\Log\LoggerInterface;
 use Chuck\Util\Http;
 use Chuck\Util\Path as PathUtil;
-use Chuck\Config\{Path, Templates, Log, Database, Connection, Scripts};
+use Chuck\Config\{Path, Templates, Database, Connection, Scripts};
 
 
 class Config implements ConfigInterface
@@ -23,6 +24,8 @@ class Config implements ConfigInterface
     public readonly string $app;
     public readonly Path $path;
 
+    protected Closure $loggerCallback;
+    protected LoggerInterface $logger;
     protected array $settings;
 
     public function __construct(array $settings)
@@ -230,9 +233,24 @@ class Config implements ConfigInterface
         return $this->path;
     }
 
-    public function log(): Log
+    public function setupLogger(Closure $callback): void
     {
-        return new Log($this->root, $this->settings['log'] ?? []);
+        $this->loggerCallback = $callback;
+    }
+
+    public function logger(): ?LoggerInterface
+    {
+        if (isset($this->loggerCallback)) {
+            if (isset($this->logger)) {
+                return $this->logger;
+            }
+
+            $this->logger = ($this->loggerCallback)();
+
+            return $this->logger;
+        }
+
+        return null;
     }
 
     public function templates(): array

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Chuck;
 
 use \InvalidArgumentException;
-use Psr\Log\LoggerInterface;
 use Chuck\Error\RegistryEntryNotFoundError;
 use Chuck\Template\{Engine, TemplateEngine};
 
@@ -79,10 +78,5 @@ class Registry implements RegistryInterface
     {
         return $this->instances[$id] ??
             throw new InvalidArgumentException("Undefined registry key \"$id\"");
-    }
-
-    public function logger(LoggerInterface $logger): void
-    {
-        $this->instances['logger'] = $logger;
     }
 }
