@@ -18,7 +18,6 @@ interface RequestInterface
     ): ResponseInterface;
     public function getConfig(): ConfigInterface;
     public function getRouter(): RouterInterface;
-    public function getRegistry(): RegistryInterface;
     public function method(): string;
     public function addMethod(string $name, callable $callable): void;
 }

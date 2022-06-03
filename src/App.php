@@ -12,22 +12,18 @@ use Chuck\Routing\{Router, RouterInterface};
 
 class App
 {
-    protected RegistryInterface $registry;
-
     public function __construct(
         protected RequestInterface $request,
         protected ConfigInterface $config,
         protected RouterInterface $router,
     ) {
-        $this->registry = $request->getRegistry();
     }
 
     public static function create(
         ConfigInterface $config,
-        RegistryInterface $registry = new Registry(),
     ): static {
         $router = new Router();
-        $request = new Request($config, $router, $registry);
+        $request = new Request($config, $router);
 
         if (PHP_SAPI !== 'cli') {
             $errorHandler = new Handler($request);
@@ -54,11 +50,6 @@ class App
         return $this->config;
     }
 
-    public function registry(): RegistryInterface
-    {
-        return $this->registry;
-    }
-
     public function add(RouteInterface $route): void
     {
         $this->router->addRoute($route);
@@ -80,15 +71,6 @@ class App
     public function middleware(callable ...$middlewares): void
     {
         $this->router->addMiddleware(...$middlewares);
-    }
-
-    /**
-     * @param string|class-string $key
-     * @param object|class-string $entry
-     */
-    public function register(string $id, string|object $entry): void
-    {
-        $this->registry->add($id, $entry);
     }
 
     public function run(): ResponseInterface

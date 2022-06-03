@@ -51,22 +51,6 @@ test('Route helper', function () {
 });
 
 
-test('Register helper', function () {
-    $app = App::create($this->config());
-    $app->register(TestInterface::class, TestClass::class);
-
-    expect($app->registry()->get(TestInterface::class))->toBe(TestClass::class);
-});
-
-
-test('Register renderer helper', function () {
-    $app = App::create($this->config());
-    $app->register('test', TestRenderer::class);
-
-    expect($app->registry()->get('test'))->toBe(TestRenderer::class);
-});
-
-
 test('App run', function () {
     $request = $this->request(method: 'GET', url: '/');
     $app = new App($request, $request->getConfig(), $request->getRouter());

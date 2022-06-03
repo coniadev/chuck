@@ -12,8 +12,6 @@ use Chuck\App;
 use Chuck\Config;
 use Chuck\ConfigInterface;
 use Chuck\Logger;
-use Chuck\Registry;
-use Chuck\RegistryInterface;
 use Chuck\Request;
 use Chuck\Routing\Router;
 use Chuck\Routing\RouterInterface;
@@ -134,7 +132,6 @@ class TestCase extends BaseTestCase
         array $options = [],
         ?RouterInterface $router = null,
         ?ConfigInterface $config = null,
-        ?RegistryInterface $registry = null,
     ): Request {
         if ($method) {
             $this->setMethod($method);
@@ -163,11 +160,7 @@ class TestCase extends BaseTestCase
             $router = new Router();
         }
 
-        if ($registry === null) {
-            $registry = new Registry();
-        }
-
-        $request = new Request($config, $router, $registry);
+        $request = new Request($config, $router);
 
         return $request;
     }

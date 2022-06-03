@@ -19,7 +19,6 @@ class Request implements RequestInterface
     public function __construct(
         protected ConfigInterface $config,
         protected RouterInterface $router,
-        protected RegistryInterface $registry,
         ResponseInterface $response = null,
     ) {
         $this->response = $response ?: new Response();
@@ -139,11 +138,6 @@ class Request implements RequestInterface
         return $this->config;
     }
 
-    public function getRegistry(): RegistryInterface
-    {
-        return $this->registry;
-    }
-
     public function getResponse(
         int $statusCode = 200,
         mixed $body = null,
@@ -187,7 +181,7 @@ class Request implements RequestInterface
     public function __get(
         string $key
     ): ResponseInterface | ConfigInterface | RouterInterface |
-    RouteInterface | RegistryInterface | Assets | bool | string {
+    RouteInterface | Assets | bool | string {
         return match ($key) {
             /** @var ResponseInterface */
             'response' => $this->getResponse(),
@@ -197,8 +191,6 @@ class Request implements RequestInterface
             'router' => $this->router,
             /** @var RouteInterface */
             'route' => $this->router->getRoute(),
-            /** @var RegistryInterface */
-            'registry' => $this->registry,
             /** @var Assets */
             'assets' => $this->getAssets(),
             /** @var string */
