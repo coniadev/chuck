@@ -6,7 +6,6 @@ namespace Chuck;
 
 use \InvalidArgumentException;
 use Chuck\Error\RegistryEntryNotFoundError;
-use Chuck\Template\{Engine, TemplateEngine};
 
 
 class Registry implements RegistryInterface
@@ -19,7 +18,6 @@ class Registry implements RegistryInterface
         $this->classes = [
             SessionInterface::class => Session::class,
             CsrfInterface::class => Csrf::class,
-            TemplateEngine::class => Engine::class,
         ];
         $this->instances = [];
     }

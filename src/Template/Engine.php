@@ -13,7 +13,7 @@ use Chuck\Config;
 use Chuck\Util\Path;
 
 
-class Engine extends TemplateEngine
+class Engine
 {
     protected array $capture = [];
     protected array $sections = [];

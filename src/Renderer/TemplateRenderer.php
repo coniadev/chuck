@@ -7,7 +7,7 @@ namespace Chuck\Renderer;
 use Chuck\Body\Body;
 use Chuck\Body\Text;
 use Chuck\RequestInterface;
-use Chuck\Template\TemplateEngine;
+use Chuck\Template\Engine;
 
 
 class TemplateRenderer extends Renderer
@@ -35,8 +35,7 @@ class TemplateRenderer extends Renderer
     {
         $request = $this->request;
         $config = $request->getConfig();
-        $class = $request->getRegistry()->get(TemplateEngine::class);
-        $template = new $class(
+        $template = new Engine(
             $config->templates(),
             defaults: [
                 'config' => $config,
