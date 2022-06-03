@@ -6,18 +6,17 @@ namespace Chuck\Middleware;
 
 use Chuck\RequestInterface;
 use Chuck\ResponseInterface;
-use Chuck\SessionInterface;
+use Chuck\Session as SessionBase;
 
 
 class Session
 {
     public function __invoke(RequestInterface $request, callable $next): RequestInterface|ResponseInterface
     {
-        /** @var SessionInterface */
-        $session = $request->getRegistry()->new(SessionInterface::class, $request->getConfig()->app());
+        $session = new SessionBase($request->getConfig()->app());
         $session->start();
 
-        $request->addMethod('session', function () use ($session): SessionInterface {
+        $request->addMethod('session', function () use ($session): SessionBase {
             return $session;
         });
 

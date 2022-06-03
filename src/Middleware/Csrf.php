@@ -6,16 +6,15 @@ namespace Chuck\Middleware;
 
 use Chuck\RequestInterface;
 use Chuck\ResponseInterface;
-use Chuck\CsrfInterface;
+use Chuck\Csrf as CsrfBase;
 
 
 class Csrf
 {
     public function __invoke(RequestInterface $request, callable $next): RequestInterface|ResponseInterface
     {
-        $request->addMethod('csrf', function () use ($request): CsrfInterface {
-            /** @var CsrfInterface */
-            return $request->getRegistry()->new(CsrfInterface::class);;
+        $request->addMethod('csrf', function (): CsrfBase {
+            return new CsrfBase();;
         });
 
         return $next($request);

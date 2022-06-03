@@ -15,10 +15,7 @@ class Registry implements RegistryInterface
 
     public function __construct()
     {
-        $this->classes = [
-            SessionInterface::class => Session::class,
-            CsrfInterface::class => Csrf::class,
-        ];
+        $this->classes = [];
         $this->instances = [];
     }
 
