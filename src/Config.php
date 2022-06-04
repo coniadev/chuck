@@ -56,7 +56,6 @@ class Config implements ConfigInterface
         $this->renderers = [
             'text' => ['class' => TextRenderer::class, 'settings' => null],
             'json' => ['class' => JsonRenderer::class, 'settings' => null],
-            'template' => ['class' => TemplateRenderer::class, 'settings' => null],
         ];
     }
 
