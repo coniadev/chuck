@@ -9,7 +9,12 @@ use \InvalidArgumentException;
 use \Throwable;
 use \ValueError;
 use Psr\Log\LoggerInterface;
-use Chuck\Renderer\{Renderer, JsonRenderer, TextRenderer, TemplateRenderer};
+use Chuck\Renderer\{
+    Renderer,
+    JsonRenderer,
+    TextRenderer,
+    TemplateRenderer
+};
 use Chuck\Util\Http;
 use Chuck\Util\Path as PathUtil;
 use Chuck\Config\{Path, Templates, Database, Connection, Scripts};
@@ -28,7 +33,7 @@ class Config implements ConfigInterface
     protected Closure $loggerCallback;
     protected LoggerInterface $logger;
     protected array $settings;
-    /** @var class-string-map<string, class-string<Renderer>> */
+    /** @var array<string, array{class: class-string<Renderer>, settings: mixed}> */
     protected array $renderers = [];
 
     public function __construct(array $settings)
@@ -49,9 +54,9 @@ class Config implements ConfigInterface
         );
         $this->settings = $settings;
         $this->renderers = [
-            'text' => TextRenderer::class,
-            'json' => JsonRenderer::class,
-            'template' => TemplateRenderer::class,
+            'text' => ['class' => TextRenderer::class, 'settings' => null],
+            'json' => ['class' => JsonRenderer::class, 'settings' => null],
+            'template' => ['class' => TemplateRenderer::class, 'settings' => null],
         ];
     }
 
@@ -215,19 +220,18 @@ class Config implements ConfigInterface
         return $this->env;
     }
 
-    public function addRenderer(string $name, string $class): void
+    public function addRenderer(string $name, string $class, mixed $settings = null): void
     {
         if ($class instanceof Renderer) {
-            $this->renderers[$name] = $class;
+            $this->renderers[$name] = ['class' => $class, 'settings' => $settings];
         } else {
             throw new ValueError('A renderer must extend ' . Renderer::class);
         }
     }
 
-    /** @return class-string<Renderer> */
-    public function renderer(string $name): string
+    public function renderers(): array
     {
-        return $this->renderers[$name];
+        return $this->renderers;
     }
 
     protected function getDatabaseConfig(): Database

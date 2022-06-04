@@ -6,6 +6,7 @@ namespace Chuck;
 
 use Psr\Log\LoggerInterface;
 use Chuck\Config;
+use Chuck\Renderer\RendererFactory;
 use Chuck\Config\{Path, Connection};
 
 
@@ -25,5 +26,5 @@ interface ConfigInterface
     public function templates(): array;
     public function migrations(): array;
     public function scripts(): array;
-    public function renderer(string $name): string;
+    public function renderers(): array;
 }

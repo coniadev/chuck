@@ -158,18 +158,6 @@ test('Wrong paths results in empty array', function () {
 });
 
 
-test('Template paths', function () {
-    $config = new Config($this->options([
-        // templates.default is defined in $this->options()
-        'templates.relative' => 'templates/additional',
-    ]));
-    $prefix = C::root() . C::DS . 'templates' . C::DS;
-
-    expect($config->templates()[Config::DEFAULT])->toBe($prefix . 'default');
-    expect($config->templates()['relative'])->toBe($prefix . 'additional');
-});
-
-
 test('Migrations paths', function () {
     // NOTICE: we're reusing the existing template paths for the test
     $config = new Config($this->options([

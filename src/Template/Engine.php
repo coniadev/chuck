@@ -9,7 +9,6 @@ use \InvalidArgumentException;
 use \RuntimeException;
 use \Throwable;
 use \ValueError;
-use Chuck\Config;
 use Chuck\Util\Path;
 
 
@@ -104,18 +103,18 @@ class Engine
 
         if ($namespace) {
             $path = Path::realpath($this->dirs[$namespace] . $ds . $file . $ext);
-        } else {
-            try {
-                $path = Path::realpath(
-                    $this->dirs[Config::DEFAULT] . $ds . $file . $ext
-                );
-            } catch (Exception) {
-                throw new ValueError("No default template directory present.");
-            }
-        }
 
-        if (is_file($path)) {
-            return $path;
+            if (is_file($path)) {
+                return $path;
+            }
+        } else {
+            foreach ($this->dirs as $dir) {
+                $path = Path::realpath($dir . $ds . $file . $ext);
+
+                if (is_file($path)) {
+                    return $path;
+                }
+            }
         }
 
         throw new ValueError("Template '$path' not found inside the project root directory");

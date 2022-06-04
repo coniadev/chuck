@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Chuck\Renderer;
 
-use Chuck\RequestInterface;
 use Chuck\Body\Body;
 use Chuck\Body\Json;
 
@@ -12,14 +11,6 @@ use Chuck\Body\Json;
 class JsonRenderer extends Renderer
 {
     protected Json $body;
-
-    public function __construct(
-        RequestInterface $request,
-        mixed $data,
-        array $args,
-    ) {
-        parent::__construct($request, $data, $args);
-    }
 
     public function render(): Body
     {

@@ -107,9 +107,6 @@ class TestCase extends BaseTestCase
     {
         return array_merge(
             $this->minimalOptions(),
-            [
-                'templates' => C::root() . C::DS . 'templates' . C::DS . 'default',
-            ],
             $options
         );
     }
@@ -117,6 +114,13 @@ class TestCase extends BaseTestCase
     public function config(array $options = []): Config
     {
         return new Config($this->options($options));
+    }
+
+    public function templates(array $templates = []): array
+    {
+        return array_merge($templates, [
+            C::root() . C::DS . 'templates' . C::DS . 'default',
+        ]);
     }
 
     public function app(array $options = []): App

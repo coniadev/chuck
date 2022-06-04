@@ -55,15 +55,20 @@ test('String Renderer', function () {
 
 
 test('String Renderer - wrong type', function () {
-    new TextRenderer($this->request(), [1, 2, 3], []);
+    (new TextRenderer($this->request(), [1, 2, 3], []))->render();
 })->throws(ValueError::class, 'Wrong type [array]');
 
 
 test('Template Renderer', function () {
-    $renderer = new TemplateRenderer($this->request(), [
-        'text' => 'numbers',
-        'arr' => [1, 2, 3]
-    ], ['renderer']);
+    $renderer = new TemplateRenderer(
+        $this->request(),
+        [
+            'text' => 'numbers',
+            'arr' => [1, 2, 3]
+        ],
+        ['renderer'],
+        $this->templates(),
+    );
     $hasContentType = false;
     foreach ($renderer->headers() as $header) {
         if ($header['name'] === 'Content-Type' && $header['value'] === 'text/html') {
@@ -74,10 +79,15 @@ test('Template Renderer', function () {
     expect($hasContentType)->toBe(true);
     expect((string)$renderer->render())->toBe("<h1>chuck</h1>\n<p>numbers</p><p>1</p><p>2</p><p>3</p>");
 
-    $renderer = new TemplateRenderer($this->request(), [], [
-        'plain',
-        'contentType' => 'application/xhtml+xml'
-    ]);
+    $renderer = new TemplateRenderer(
+        $this->request(),
+        [],
+        [
+            'plain',
+            'contentType' => 'application/xhtml+xml'
+        ],
+        $this->templates(),
+    );
     $hasContentType = false;
     foreach ($renderer->headers() as $header) {
         if ($header['name'] === 'Content-Type' && $header['value'] === 'application/xhtml+xml') {
@@ -92,5 +102,5 @@ test('Template Renderer', function () {
         $arr = [1, 2, 3];
         foreach ($arr as $a) yield $a;
     };
-    new TemplateRenderer($this->request(), $iter(), ['renderer']);
+    new TemplateRenderer($this->request(), $iter(), ['renderer'], $this->templates());
 });

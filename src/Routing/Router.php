@@ -9,6 +9,7 @@ use \RuntimeException;
 use \Throwable;
 use Chuck\Error\{HttpNotFound, HttpMethodNotAllowed};
 use Chuck\Error\HttpServerError;
+use Chuck\Renderer\RendererFactory;
 use Chuck\RequestInterface;
 use Chuck\ResponseInterface;
 use Chuck\Util\Reflect;
@@ -218,14 +219,14 @@ class Router implements RouterInterface
             return $result;
         } else {
             $config = $request->getConfig();
-            $rendererInfo = $route->getRenderer();
+            $rendererConfig = $route->getRenderer();
 
-            if ($rendererInfo) {
-                /** @var Renderer */
-                $renderer = new ($config->renderer($rendererInfo->type))(
+            if ($rendererConfig) {
+                $factory = new RendererFactory($config->renderers(), $rendererConfig->type);
+                $renderer = $factory->create(
                     $request,
                     $result,
-                    $rendererInfo->args
+                    $rendererConfig->args
                 );
                 $response = $request->getResponse();
                 $response->body($renderer->render());

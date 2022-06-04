@@ -16,11 +16,12 @@ class TemplateRenderer extends Renderer
     protected string $template;
 
     public function __construct(
-        protected RequestInterface $request,
-        protected mixed $data,
-        protected array $args,
+        RequestInterface $request,
+        mixed $data,
+        array $args,
+        mixed $settings,
     ) {
-        parent::__construct($request, $data, $args);
+        parent::__construct($request, $data, $args, $settings);
 
         if ($this->data instanceof \Traversable) {
             $this->context = iterator_to_array($this->data);
@@ -36,7 +37,7 @@ class TemplateRenderer extends Renderer
         $request = $this->request;
         $config = $request->getConfig();
         $template = new Engine(
-            $config->templates(),
+            $this->settings,
             defaults: [
                 'config' => $config,
                 'request' => $request,
