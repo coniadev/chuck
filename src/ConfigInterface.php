@@ -25,4 +25,5 @@ interface ConfigInterface
     public function templates(): array;
     public function migrations(): array;
     public function scripts(): array;
+    public function renderer(string $name): string;
 }

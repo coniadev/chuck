@@ -6,12 +6,9 @@ namespace Chuck\Routing;
 
 use \Closure;
 use \RuntimeException;
-use \ValueError;
 use \Throwable;
 use Chuck\Error\{HttpNotFound, HttpMethodNotAllowed};
 use Chuck\Error\HttpServerError;
-use Chuck\Renderer;
-use Chuck\Renderer\RendererInterface;
 use Chuck\RequestInterface;
 use Chuck\ResponseInterface;
 use Chuck\Util\Reflect;
@@ -25,19 +22,8 @@ class Router implements RouterInterface
     protected array $staticRoutes = [];
     protected array $names = [];
     protected array $middlewares = [];
-    /** @var array<string, class-string<RendererInterface>> */
-    protected array $renderers = [];
 
     protected const ALL = 'ALL';
-
-    public function __construct()
-    {
-        $this->renderers = [
-            'text' => Renderer\TextRenderer::class,
-            'json' => Renderer\JsonRenderer::class,
-            'template' => Renderer\TemplateRenderer::class,
-        ];
-    }
 
     public function getRoute(): RouteInterface
     {
@@ -81,15 +67,6 @@ class Router implements RouterInterface
             ];
         } else {
             throw new RuntimeException("The static directory does not exist: $dir");
-        }
-    }
-
-    public function addRenderer(string $name, string $class): void
-    {
-        if ($class instanceof RendererInterface) {
-            $this->renderers[$name] = $class;
-        } else {
-            throw new ValueError('A renderer must implement ' . RendererInterface::class);
         }
     }
 
@@ -240,19 +217,20 @@ class Router implements RouterInterface
         if ($result instanceof ResponseInterface) {
             return $result;
         } else {
-            $renderer = $route->getRenderer();
+            $config = $request->getConfig();
+            $rendererInfo = $route->getRenderer();
 
-            if ($renderer) {
-                // Create a renderer instance
-                $rendererObj = new ($this->renderers[$renderer->type])(
+            if ($rendererInfo) {
+                /** @var Renderer */
+                $renderer = new ($config->renderer($rendererInfo->type))(
                     $request,
                     $result,
-                    $renderer->args
+                    $rendererInfo->args
                 );
                 $response = $request->getResponse();
-                $response->body($rendererObj->render());
+                $response->body($renderer->render());
 
-                foreach ($rendererObj->headers() as $header) {
+                foreach ($renderer->headers() as $header) {
                     $response->header($header['name'], $header['value'], $header['replace'] ?? true);
                 }
 
