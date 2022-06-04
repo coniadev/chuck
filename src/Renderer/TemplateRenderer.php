@@ -31,7 +31,7 @@ class TemplateRenderer extends Renderer
         $this->template = $this->args[0];
     }
 
-    public function render(): string
+    public function render(): Body
     {
         $request = $this->request;
         $config = $request->getConfig();
@@ -45,12 +45,7 @@ class TemplateRenderer extends Renderer
                 'env' => $config->env(),
             ]
         );
-        return $template->render($this->template, $this->context);
-    }
-
-    public function body(): Body
-    {
-        return new Text($this->render());
+        return new Text($template->render($this->template, $this->context));
     }
 
     public function headers(): iterable

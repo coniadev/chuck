@@ -9,8 +9,7 @@ use \InvalidArgumentException;
 use \Throwable;
 use \ValueError;
 use Psr\Log\LoggerInterface;
-use Chuck\Renderer;
-use Chuck\Renderer\RendererInterface;
+use Chuck\Renderer\{Renderer, JsonRenderer, TextRenderer, TemplateRenderer};
 use Chuck\Util\Http;
 use Chuck\Util\Path as PathUtil;
 use Chuck\Config\{Path, Templates, Database, Connection, Scripts};
@@ -50,9 +49,9 @@ class Config implements ConfigInterface
         );
         $this->settings = $settings;
         $this->renderers = [
-            'text' => Renderer\TextRenderer::class,
-            'json' => Renderer\JsonRenderer::class,
-            'template' => Renderer\TemplateRenderer::class,
+            'text' => TextRenderer::class,
+            'json' => JsonRenderer::class,
+            'template' => TemplateRenderer::class,
         ];
     }
 
@@ -218,10 +217,10 @@ class Config implements ConfigInterface
 
     public function addRenderer(string $name, string $class): void
     {
-        if ($class instanceof RendererInterface) {
+        if ($class instanceof Renderer) {
             $this->renderers[$name] = $class;
         } else {
-            throw new ValueError('A renderer must implement ' . RendererInterface::class);
+            throw new ValueError('A renderer must extend ' . Renderer::class);
         }
     }
 

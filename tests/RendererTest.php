@@ -16,7 +16,7 @@ test('JSON Renderer', function () {
         'released' => 1990,
     ], []);
 
-    expect($renderer->render())->toBe('{"album":"Spiritual Healing","released":1990}');
+    expect((string)$renderer->render())->toBe('{"album":"Spiritual Healing","released":1990}');
 
     function __json__renderer_iterator()
     {
@@ -27,7 +27,7 @@ test('JSON Renderer', function () {
     }
     $renderer = new JsonRenderer($this->request(), __json__renderer_iterator(), []);
 
-    expect($renderer->render())->toBe('[13,31,73]');
+    expect((string)$renderer->render())->toBe('[13,31,73]');
 
     $hasContentType = false;
     foreach ($renderer->headers() as $header) {
@@ -50,7 +50,7 @@ test('String Renderer', function () {
     }
 
     expect($hasContentType)->toBe(true);
-    expect($renderer->render())->toBe("<h1>Symbolic</h1>");
+    expect((string)$renderer->render())->toBe("<h1>Symbolic</h1>");
 });
 
 
@@ -72,7 +72,7 @@ test('Template Renderer', function () {
     }
 
     expect($hasContentType)->toBe(true);
-    expect($renderer->render())->toBe("<h1>chuck</h1>\n<p>numbers</p><p>1</p><p>2</p><p>3</p>");
+    expect((string)$renderer->render())->toBe("<h1>chuck</h1>\n<p>numbers</p><p>1</p><p>2</p><p>3</p>");
 
     $renderer = new TemplateRenderer($this->request(), [], [
         'plain',
@@ -85,7 +85,7 @@ test('Template Renderer', function () {
         }
     }
     expect($hasContentType)->toBe(true);
-    expect($renderer->render())->toBe("<p>plain</p>\n");
+    expect((string)$renderer->render())->toBe("<p>plain</p>\n");
 
     // Pass iterator
     $iter = function () {

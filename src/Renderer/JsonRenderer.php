@@ -19,18 +19,11 @@ class JsonRenderer extends Renderer
         array $args,
     ) {
         parent::__construct($request, $data, $args);
-
-        $this->body = new Json($this->data);
     }
 
-    public function render(): string
+    public function render(): Body
     {
-        return (string)$this->body;
-    }
-
-    public function body(): Body
-    {
-        return $this->body;
+        return new Json($this->data);
     }
 
     public function headers(): iterable

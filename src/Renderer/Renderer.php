@@ -7,7 +7,7 @@ namespace Chuck\Renderer;
 use Chuck\Body\Body;
 use Chuck\RequestInterface;
 
-abstract class Renderer implements RendererInterface
+abstract class Renderer
 {
     public function __construct(
         protected RequestInterface $request,
@@ -16,7 +16,6 @@ abstract class Renderer implements RendererInterface
     ) {
     }
 
-    abstract public function render(): string;
-    abstract public function body(): Body;
+    abstract public function render(): Body;
     abstract public function headers(): iterable;
 }

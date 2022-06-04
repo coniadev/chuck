@@ -53,7 +53,6 @@ class Group implements GroupInterface
         return $this;
     }
 
-
     public function add(RouteInterface $route): void
     {
         $route->prefix($this->namePrefix, $this->patternPrefix);

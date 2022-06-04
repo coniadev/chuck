@@ -23,14 +23,10 @@ class TextRenderer extends Renderer
 
         parent::__construct($request, $data, $args);
     }
-    public function render(): string
-    {
-        return (string)$this->data;
-    }
 
-    public function body(): Body
+    public function render(): Body
     {
-        return new Text($this->render());
+        return new Text((string)$this->data);
     }
 
     public function headers(): iterable
