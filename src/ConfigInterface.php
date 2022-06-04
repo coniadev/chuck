@@ -6,7 +6,6 @@ namespace Chuck;
 
 use Psr\Log\LoggerInterface;
 use Chuck\Config;
-use Chuck\Renderer\RendererFactory;
 use Chuck\Config\{Path, Connection};
 
 
@@ -23,7 +22,6 @@ interface ConfigInterface
         string $sql = Config::DEFAULT
     ): Connection;
     public function logger(): ?LoggerInterface;
-    public function templates(): array;
     public function migrations(): array;
     public function scripts(): array;
     public function renderers(): array;

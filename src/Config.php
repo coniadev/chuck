@@ -17,7 +17,7 @@ use Chuck\Renderer\{
 };
 use Chuck\Util\Http;
 use Chuck\Util\Path as PathUtil;
-use Chuck\Config\{Path, Templates, Database, Connection, Scripts};
+use Chuck\Config\{Path, Database, Connection, Scripts};
 
 
 class Config implements ConfigInterface
@@ -81,9 +81,6 @@ class Config implements ConfigInterface
                         break;
                     case 'migrations':
                         $nested['migrations'][self::DEFAULT] = $value;
-                        break;
-                    case 'templates':
-                        $nested['templates'][self::DEFAULT] = $value;
                         break;
                     case 'scripts':
                         $nested['scripts'][self::DEFAULT] = $value;
@@ -278,15 +275,6 @@ class Config implements ConfigInterface
         }
 
         return null;
-    }
-
-    public function templates(): array
-    {
-        return (new Templates(
-            $this->root,
-            $this->settings['templates'] ?? [],
-            $this->debug,
-        ))->get();
     }
 
     public function scripts(): array
