@@ -6,7 +6,7 @@ namespace Chuck;
 
 use Psr\Log\LoggerInterface;
 use Chuck\Config;
-use Chuck\Config\{Path, Connection};
+use Chuck\Config\Connection;
 
 
 interface ConfigInterface
@@ -16,7 +16,6 @@ interface ConfigInterface
     public function env(): string;
     public function has(string $key): bool;
     public function get(string $key, mixed $default = null): mixed;
-    public function path(): Path;
     public function db(
         string $connection = Config::DEFAULT,
         string $sql = Config::DEFAULT

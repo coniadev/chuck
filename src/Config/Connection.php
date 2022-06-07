@@ -14,8 +14,8 @@ class Connection
     public readonly array $sqlDirs;
 
     public function __construct(
-        protected string|array $sql,
         public readonly string $dsn,
+        protected string|array $sql,
         public readonly ?string $username = null,
         public readonly ?string $password = null,
         public readonly array $options = [],

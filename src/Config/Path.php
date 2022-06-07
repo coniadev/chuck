@@ -5,46 +5,32 @@ declare(strict_types=1);
 namespace Chuck\Config;
 
 use \InvalidArgumentException;
-use \ValueError;
 
 
 class Path
 {
-    use PathTrait;
-
     public readonly string $public;
-    protected readonly array $paths;
+    /** @var array<string, string|array> */
+    protected  array $paths;
 
-    public function __construct(public readonly string $root, array $paths)
+    public function __construct(public readonly string $root)
     {
-        // Public directory containing the static assets and index.php
-        // If it is not set look for a directory named 'public' in path.root
-        if (!isset($paths['public'])) {
-            $this->public = $this->preparePath('public');
+    }
 
-            if (!is_dir($this->public)) {
-                throw new ValueError(
-                    'Configuration error: public directory is not set and could not be determined'
-                );
+    public function add(string $key, string $value): void
+    {
+        if (isset($this->paths[$key])) {
+            if (is_string($this->paths[$key])) {
+                $this->paths[$key] = [
+                    $this->paths[$key],
+                    $value,
+                ];
+            } else {
+                $this->paths[$key][] = $value;
             }
         } else {
-            $this->public = $this->preparePath($paths['public']);
+            $this->paths[$key] = $value;
         }
-
-        $this->paths = array_map(
-            function ($path) {
-                if (is_string($path)) {
-                    return $this->preparePath($path);
-                }
-
-                return array_map(fn (string $p) => $this->preparePath($p), $path);
-            },
-            array_filter(
-                $paths,
-                fn ($key) => $key !== 'root' && $key !== 'public',
-                ARRAY_FILTER_USE_KEY,
-            )
-        );
     }
 
     public function get(string $key, string $default = ''): string

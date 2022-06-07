@@ -113,7 +113,7 @@ class TestCase extends BaseTestCase
 
     public function config(array $options = []): Config
     {
-        return new Config($this->options($options));
+        return new Config($this->options($options), 'chuck', root: C::root());
     }
 
     public function templates(array $templates = []): array

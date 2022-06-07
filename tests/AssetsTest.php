@@ -12,8 +12,8 @@ uses(TestCase::class);
 
 beforeEach(function () {
     $this->paths = [
-        'path.assets' => 'public' . C::DS . 'assets',
-        'path.cache' => 'public' . C::DS . 'cache',
+        'assets' => 'public' . C::DS . 'assets',
+        'cache' => 'public' . C::DS . 'cache',
     ];
     $this->landscape = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'landscape.png';
     $this->portrait = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'sub' . C::DS . 'portrait.png';
@@ -22,14 +22,14 @@ beforeEach(function () {
 
 
 test('Create instance from config', function () {
-    $assets = Assets::fromConfig($this->config($this->paths));
+    $assets = new Assets($this->paths['assets'], $this->paths['cache']);
 
     expect($assets)->toBeInstanceOf(Assets::class);
 });
 
 
 test('Resize to width', function () {
-    $assets = Assets::fromConfig($this->config($this->paths));
+    $assets = new Assets($this->paths['assets'], $this->paths['cache']);
 
     $assetImage = $assets->image($this->landscape);
     $cacheImage = $assetImage->resize(200, 0, false);
@@ -51,7 +51,7 @@ test('Resize to width', function () {
 
 
 test('Resize to height', function () {
-    $assets = Assets::fromConfig($this->config($this->paths));
+    $assets = new Assets($this->paths['assets'], $this->paths['cache']);
 
     $assetImage = $assets->image($this->landscape);
     $cacheImage = $assetImage->resize(0, 200, false);
@@ -72,7 +72,7 @@ test('Resize to height', function () {
 
 
 test('Resize portrait to bounding box', function () {
-    $assets = Assets::fromConfig($this->config($this->paths));
+    $assets = new Assets($this->paths['assets'], $this->paths['cache']);
 
     $assetImage = $assets->image($this->portrait);
     $cacheImage = $assetImage->resize(200, 200, false);
@@ -94,7 +94,7 @@ test('Resize portrait to bounding box', function () {
 
 
 test('Resize landscape to bounding box', function () {
-    $assets = Assets::fromConfig($this->config($this->paths));
+    $assets = new Assets($this->paths['assets'], $this->paths['cache']);
 
     $assetImage = $assets->image($this->landscape);
     $cacheImage = $assetImage->resize(200, 200, false);
@@ -116,7 +116,7 @@ test('Resize landscape to bounding box', function () {
 
 
 test('Crop landscape into bounding box', function () {
-    $assets = Assets::fromConfig($this->config($this->paths));
+    $assets = new Assets($this->paths['assets'], $this->paths['cache']);
 
     $assetImage = $assets->image($this->landscape);
     $cacheImage = $assetImage->resize(200, 200, true);
@@ -138,7 +138,7 @@ test('Crop landscape into bounding box', function () {
 
 
 test('Crop portrait into bounding box', function () {
-    $assets = Assets::fromConfig($this->config($this->paths));
+    $assets = new Assets($this->paths['assets'], $this->paths['cache']);
 
     $assetImage = $assets->image($this->portrait);
     $cacheImage = $assetImage->resize(200, 200, true);
@@ -161,7 +161,7 @@ test('Crop portrait into bounding box', function () {
 
 
 test('Resize one side 0',  function () {
-    $assets = Assets::fromConfig($this->config($this->paths));
+    $assets = new Assets($this->paths['assets'], $this->paths['cache']);
     $assetImage = $assets->image($this->landscape);
     $assetImage->resize(200, 0, true);
 })->throws(ValueError::class);
@@ -170,7 +170,11 @@ test('Resize one side 0',  function () {
 test('Static route', function () {
     $router = new Router();
     $router->addStatic('assets', '/assets', C::root() . C::DS . 'public' . C::DS . 'assets');
-    $assets = Assets::fromRequest($this->request(options: $this->paths, router: $router));
+    $assets = new Assets(
+        $this->paths['assets'],
+        $this->paths['cache'],
+        $this->request(options: $this->paths, router: $router)
+    );
     $image = $assets->image($this->portrait);
 
     expect(is_file($image->path()))->toBe(true);
@@ -189,7 +193,11 @@ test('Static cache route', function () {
     $router = new Router();
     $router->addStatic('cache', '/cache/assets', C::root() . C::DS .
         'public' . C::DS . 'cache' . C::DS . 'assets');
-    $assets = Assets::fromRequest($this->request(options: $this->paths, router: $router));
+    $assets = new Assets(
+        $this->paths['assets'],
+        $this->paths['cache'],
+        $this->request(options: $this->paths, router: $router)
+    );
     $image = $assets->image($this->portrait)->resize(200);
 
     expect(is_file($image->path()))->toBe(true);
