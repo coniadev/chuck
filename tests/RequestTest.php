@@ -27,27 +27,9 @@ test('Helper methods', function () {
     expect($request->getConfig())->toBeInstanceOf(ConfigInterface::class);
     expect($request->getRouter())->toBeInstanceOf(RouterInterface::class);
     expect($request->getResponse())->toBeInstanceOf(ResponseInterface::class);
-    expect($request->getAssets())->toBeInstanceOf(Assets::class);
     expect($request->method())->toBe('GET');
     expect($request->methodIs('GET'))->toBe(true);
     expect($request->methodIs('POST'))->toBe(false);
-});
-
-
-test('Helper properties', function () {
-    $request = $this->request(options: [
-        'env' => 'chuckenv',
-        'debug' => true,
-        'path.assets' => 'public' . C::DS . 'assets',
-        'path.cache' => 'public' . C::DS . 'cache',
-    ]);
-
-    expect($request->config)->toBeInstanceOf(ConfigInterface::class);
-    expect($request->router)->toBeInstanceOf(RouterInterface::class);
-    expect($request->response)->toBeInstanceOf(ResponseInterface::class);
-    expect($request->assets)->toBeInstanceOf(Assets::class);
-    expect($request->env)->toBe('chuckenv');
-    expect($request->debug)->toBe(true);
 });
 
 
@@ -57,16 +39,8 @@ test('Route property :: initialized', function () {
     $request = $this->request(method: 'GET', url: '/', router: $router);
     $router->dispatch($request);
 
-    expect($request->route)->toBeInstanceOf(RouteInterface::class);
     expect($request->getRoute())->toBeInstanceOf(RouteInterface::class);
 });
-
-
-test('Route property :: uninitialized', function () {
-    $request = $this->request();
-
-    expect($request->route)->toBeInstanceOf(RouteInterface::class);
-})->throws(RuntimeException::class, 'Route is not initialized');
 
 
 test('Route method :: uninitialized', function () {
@@ -74,12 +48,6 @@ test('Route method :: uninitialized', function () {
 
     expect($request->getRoute())->toBeInstanceOf(RouteInterface::class);
 })->throws(RuntimeException::class, 'Route is not initialized');
-
-
-test('Undefined property', function () {
-    $request = $this->request();
-    $request->doesnotexist;
-})->throws(RuntimeException::class, "Undefined request property 'doesnotexist'");
 
 
 test('Url helpers', function () {

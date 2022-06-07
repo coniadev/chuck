@@ -166,38 +166,10 @@ class Request implements RequestInterface
         return $this->response;
     }
 
-    public function getAssets(): Assets
-    {
-        return Assets::fromConfig($this->config);
-    }
-
     public function __call(string $name, array $args)
     {
         $func = $this->customMethods[$name];
 
         return $func->call($this, ...$args);
-    }
-
-    public function __get(
-        string $key
-    ): ResponseInterface | ConfigInterface | RouterInterface |
-    RouteInterface | Assets | bool | string {
-        return match ($key) {
-            /** @var ResponseInterface */
-            'response' => $this->getResponse(),
-            /** @var ConfigInterface */
-            'config' => $this->config,
-            /** @var RouterInterface */
-            'router' => $this->router,
-            /** @var RouteInterface */
-            'route' => $this->router->getRoute(),
-            /** @var Assets */
-            'assets' => $this->getAssets(),
-            /** @var string */
-            'env' => $this->config->env(),
-            /** @var bool */
-            'debug' => $this->config->debug(),
-            default => throw new RuntimeException("Undefined request property '$key'")
-        };
     }
 }
