@@ -218,7 +218,7 @@ class Router implements RouterInterface
         if ($result instanceof ResponseInterface) {
             return $result;
         } else {
-            $config = $request->getConfig();
+            $config = $request->config();
             $rendererConfig = $route->getRenderer();
 
             if ($rendererConfig) {
@@ -228,7 +228,7 @@ class Router implements RouterInterface
                     $result,
                     $rendererConfig->args
                 );
-                $response = $request->getResponse();
+                $response = $request->response();
                 $response->body($renderer->render());
 
                 foreach ($renderer->headers() as $header) {
@@ -239,7 +239,7 @@ class Router implements RouterInterface
             }
 
             if (is_string($result)) {
-                return $request->getResponse(body: $result);
+                return $request->response(body: $result);
             }
 
             throw new RuntimeException('Cannot determine a handler for the return type of the view');
@@ -332,7 +332,7 @@ class Router implements RouterInterface
             $this->route->middlewares(),
         );
 
-        if ($request->getConfig()->debug()) {
+        if ($request->config()->debug()) {
             foreach ($handlerStack as $middleware) {
                 Reflect::validateMiddleware($middleware);
             }

@@ -13,7 +13,7 @@ class Session
 {
     public function __invoke(RequestInterface $request, callable $next): RequestInterface|ResponseInterface
     {
-        $session = new SessionBase($request->getConfig()->app());
+        $session = new SessionBase($request->config()->app());
         $session->start();
 
         $request->addMethod('session', function () use ($session): SessionBase {

@@ -53,7 +53,7 @@ test('Route helper', function () {
 
 test('App run', function () {
     $request = $this->request(method: 'GET', url: '/');
-    $app = new App($request, $request->getConfig(), $request->getRouter());
+    $app = new App($request, $request->config(), $request->router());
     $app->add(Route::get('index', '/', 'Chuck\Tests\Fixtures\TestController::textView'));
     ob_start();
     $response = $app->run();

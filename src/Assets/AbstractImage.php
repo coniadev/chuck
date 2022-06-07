@@ -63,7 +63,7 @@ abstract class AbstractImage
         }
 
         // try {
-        $router = $this->assets->request->getRouter();
+        $router = $this->assets->request->router();
         return $router->staticUrl(
             $staticRouteName,
             $this->relativePath,

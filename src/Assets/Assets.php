@@ -37,27 +37,6 @@ class Assets
         $this->cache = $realCachePath;
     }
 
-    public static function fromConfig(
-        ConfigInterface $config,
-        ?RequestInterface $request = null,
-    ): self {
-        $assets = new  self(
-            $config->path()->get('assets'),
-            $config->path()->get('cache') . DIRECTORY_SEPARATOR . 'assets',
-            $request,
-        );
-
-        return $assets;
-    }
-
-    public static function fromRequest(RequestInterface $request): self
-    {
-        $config = $request->getConfig();
-        $assets = self::fromConfig($config, $request);
-
-        return $assets;
-    }
-
     public function image(string $path): Image
     {
         return new Image($this, $path);

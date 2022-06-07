@@ -24,9 +24,9 @@ test('Helper methods', function () {
         'path.cache' => 'public' . C::DS . 'cache',
     ]);
 
-    expect($request->getConfig())->toBeInstanceOf(ConfigInterface::class);
-    expect($request->getRouter())->toBeInstanceOf(RouterInterface::class);
-    expect($request->getResponse())->toBeInstanceOf(ResponseInterface::class);
+    expect($request->config())->toBeInstanceOf(ConfigInterface::class);
+    expect($request->router())->toBeInstanceOf(RouterInterface::class);
+    expect($request->response())->toBeInstanceOf(ResponseInterface::class);
     expect($request->method())->toBe('GET');
     expect($request->methodIs('GET'))->toBe(true);
     expect($request->methodIs('POST'))->toBe(false);
@@ -39,14 +39,14 @@ test('Route property :: initialized', function () {
     $request = $this->request(method: 'GET', url: '/', router: $router);
     $router->dispatch($request);
 
-    expect($request->getRoute())->toBeInstanceOf(RouteInterface::class);
+    expect($request->route())->toBeInstanceOf(RouteInterface::class);
 });
 
 
 test('Route method :: uninitialized', function () {
     $request = $this->request();
 
-    expect($request->getRoute())->toBeInstanceOf(RouteInterface::class);
+    expect($request->route())->toBeInstanceOf(RouteInterface::class);
 })->throws(RuntimeException::class, 'Route is not initialized');
 
 

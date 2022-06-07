@@ -9,7 +9,7 @@ uses(TestCase::class);
 
 
 test('Session set/has/get', function () {
-    $session = new Session($this->request()->config->app());
+    $session = new Session($this->request()->config()->app());
     $session->set('Chuck', 'Schuldiner');
 
     expect($session->has('Chuck'))->toBe(true);
@@ -18,7 +18,7 @@ test('Session set/has/get', function () {
 
 
 test('Session unset', function () {
-    $session = new Session($this->request()->config->app());
+    $session = new Session($this->request()->config()->app());
     $session->set('Chuck', 'Schuldiner');
 
     expect($session->get('Chuck'))->toBe('Schuldiner');
@@ -32,13 +32,13 @@ test('Session unset', function () {
 
 
 test('Session throws when missing', function () {
-    $session = new Session($this->request()->config->app());
+    $session = new Session($this->request()->config()->app());
     $session->get('To exist in this world may be a mistake');
 })->throws(Exception::class, 'Undefined array key');
 
 
 test('Flash messages all', function () {
-    $session = new Session($this->request()->config->app());
+    $session = new Session($this->request()->config()->app());
 
     expect($session->hasFlashes())->toBe(false);
 
@@ -57,7 +57,7 @@ test('Flash messages all', function () {
 
 
 test('Flash messages queue', function () {
-    $session = new Session($this->request()->config->app());
+    $session = new Session($this->request()->config()->app());
 
     expect($session->hasFlashes())->toBe(false);
 
@@ -75,7 +75,7 @@ test('Flash messages queue', function () {
 
 
 test('Remember URI', function () {
-    $session = new Session($this->request(url: '/albums')->config->app());
+    $session = new Session($this->request(url: '/albums')->config()->app());
     $session->rememberRequestUri();
 
     expect($session->getRememberedUri())->toBe('http://www.example.com/albums');
@@ -90,7 +90,7 @@ test('Remember URI', function () {
 test('Session run start/forget/regenerate', function () {
     // Merely runs the code without effect.
     // Can't be tested properly.
-    $session = new Session($this->request()->config->app());
+    $session = new Session($this->request()->config()->app());
     $session->start();
     $session->set('Chuck', 'Schuldiner');
 

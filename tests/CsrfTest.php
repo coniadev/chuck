@@ -10,7 +10,7 @@ uses(TestCase::class);
 
 
 test('Csrf get creates token', function () {
-    $session = new Session($this->request()->config->app());
+    $session = new Session($this->request()->config()->app());
     $csrf = new Csrf();
     $token = $csrf->get();
 

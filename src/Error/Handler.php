@@ -44,8 +44,8 @@ class Handler
     public function handleException(Throwable $exception): void
     {
         $code = 0;
-        $debug = $this->request->getConfig()->debug();
-        $response = $this->request->getResponse();
+        $debug = $this->request->config()->debug();
+        $response = $this->request->response();
 
         if ($exception instanceof HttpError) {
             /** @var int $code */
@@ -98,8 +98,7 @@ class Handler
 
     public function log(Throwable $exception): void
     {
-        $logger = $this->request->config->logger();
-
+        $logger = $this->request->config()->logger();
         if ($logger) {
             $method = $this->getLoggerMethod($exception);
             ([$logger, $method])("Uncaught Exception:", ['exception' => $exception]);

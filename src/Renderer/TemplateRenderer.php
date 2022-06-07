@@ -35,13 +35,13 @@ class TemplateRenderer extends Renderer
     public function render(): Body
     {
         $request = $this->request;
-        $config = $request->getConfig();
+        $config = $request->config();
         $template = new Engine(
             $this->settings,
             defaults: [
                 'config' => $config,
                 'request' => $request,
-                'router' => $request->getRouter(),
+                'router' => $request->router(),
                 'debug' => $config->debug(),
                 'env' => $config->env(),
             ]

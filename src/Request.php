@@ -68,7 +68,7 @@ class Request implements RequestInterface
         Http::redirect($url, $code);
     }
 
-    public function getRoute(): RouteInterface
+    public function route(): RouteInterface
     {
         return $this->router->getRoute();
     }
@@ -80,7 +80,7 @@ class Request implements RequestInterface
 
     public function staticUrl(string $name, string $path, bool $bust = false): string
     {
-        return $this->getRouter()->staticUrl(
+        return $this->router()->staticUrl(
             $name,
             $path,
             host: Http::origin(),
@@ -128,17 +128,17 @@ class Request implements RequestInterface
         $this->customMethods[$name] = $callable;
     }
 
-    public function getRouter(): RouterInterface
+    public function router(): RouterInterface
     {
         return $this->router;
     }
 
-    public function getConfig(): ConfigInterface
+    public function config(): ConfigInterface
     {
         return $this->config;
     }
 
-    public function getResponse(
+    public function response(
         int $statusCode = 200,
         mixed $body = null,
         array $headers = [],

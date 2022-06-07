@@ -12,7 +12,7 @@ uses(TestCase::class);
 
 test('Request::response', function () {
     $request = $this->request();
-    $response = $request->getResponse(
+    $response = $request->response(
         404,
         'Pull the Plug',
         [['name' => 'Content-Type', 'value' => 'superior', 'replace' => false]],
@@ -33,7 +33,7 @@ test('Request::response', function () {
 
 
 test('File body', function () {
-    $response = $this->request()->getResponse();
+    $response = $this->request()->response();
     $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.gif';
     $response->file($file);
 
@@ -52,7 +52,7 @@ test('File body', function () {
 
 
 test('File body as download', function () {
-    $response = $this->request()->getResponse();
+    $response = $this->request()->response();
     $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.gif';
     $response->file($file, asDownload: true);
 
@@ -67,7 +67,7 @@ test('File body as download', function () {
 
 test('File body with sendfile', function () {
     $_SERVER['SERVER_SOFTWARE'] = 'nginx';
-    $response = $this->request()->getResponse();
+    $response = $this->request()->response();
     $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.gif';
     $response->file($file, sendFile: true, asDownload: true);
 
@@ -78,7 +78,7 @@ test('File body with sendfile', function () {
 
 
     $_SERVER['SERVER_SOFTWARE'] = 'apache';
-    $response = $this->request()->getResponse();
+    $response = $this->request()->response();
     $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.gif';
     $response->file($file, sendFile: true, asDownload: true);
 
@@ -92,14 +92,14 @@ test('File body with sendfile', function () {
 
 
 test('File body nonexistent file', function () {
-    $response = $this->request()->getResponse();
+    $response = $this->request()->response();
     $file = C::root() . C::DS . 'static' . C::DS . 'pixel.jpg';
     $response->file($file);
 })->throws(HttpNotFound::class);
 
 
 test('File body nonexistent file with runtime error', function () {
-    $response = $this->request()->getResponse();
+    $response = $this->request()->response();
     $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.jpg';
     $response->file($file, throwNotFound: false);
 })->throws(RuntimeException::class, 'does not exist');
