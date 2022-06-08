@@ -6,39 +6,31 @@ namespace Chuck\Config;
 
 use \PDO;
 use \RuntimeException;
-
+use \ValueError;
+use Chuck\Util\Arrays;
 
 class Connection
 {
-    public readonly string $driver;
-    public readonly array $sqlDirs;
+    use PathTrait;
+
+    protected readonly string $driver;
+    protected array $sql;
+    protected array $migrations;
 
     public function __construct(
-        public readonly string $dsn,
-        protected string|array $sql,
-        public readonly ?string $username = null,
-        public readonly ?string $password = null,
-        public readonly array $options = [],
-        public readonly int $fetchMode = PDO::FETCH_BOTH,
-        public readonly bool $print = false
+        protected readonly string $dsn,
+        string|array $sql,
+        string|array $migrations = null,
+        protected readonly ?string $username = null,
+        protected readonly ?string $password = null,
+        protected readonly array $options = [],
+        protected readonly int $fetchMode = PDO::FETCH_BOTH,
+        protected readonly bool $print = false
+
     ) {
         $this->driver = $this->getDriver($this->dsn);
-        $this->sqlDirs = $this->getDirs();
-    }
-
-    public static function fromArray(
-        array $connection,
-        string|array $sql
-    ): self {
-        return new self(
-            $sql,
-            $connection['dsn'],
-            $connection['username'] ?? null,
-            $connection['password'] ?? null,
-            $connection['options'] ?? [],
-            $connection['fetchmode'] ?? PDO::FETCH_BOTH,
-            $connection['print'] ?? false,
-        );
+        $this->sql = $this->readDirs($sql);
+        $this->migrations = $this->readDirs($migrations);
     }
 
     protected function getDriver(string $dsn): string
@@ -52,6 +44,25 @@ class Connection
         throw new RuntimeException('PDO driver not supported: ' . $driver);
     }
 
+    protected function prepareDirs(array $entry): array
+    {
+        $dirs = [];
+
+        // Add sql scripts for the current pdo driver.
+        // Should be the first in the list as they
+        // may have platform specific queries.
+        if (array_key_exists($this->driver, $entry)) {
+            $dirs[] = $entry[$this->driver];
+        }
+
+        // Add sql scripts for all platforms
+        if (array_key_exists('all', $entry)) {
+            $dirs[] = $entry['all'];
+        }
+
+        return $dirs;
+    }
+
     /**
      * Adds the sql script paths from configuration.
      *
@@ -59,26 +70,82 @@ class Connection
      * Which means the last path added is the first one searched
      * for a SQL script.
      */
-    protected function getDirs(): array
+    protected function readDirs(string|array $sql): array
     {
+        if (is_string($sql)) {
+            return [$sql];
+        }
+
+        if (Arrays::isAssoc($sql)) {
+            return $this->prepareDirs($sql);
+        }
+
         $dirs = [];
 
-        if (is_string($this->sql)) {
-            return [$this->sql];
-        }
+        foreach ($sql as $entry) {
+            if (is_string($entry)) {
+                array_unshift($dirs, $entry);
+                continue;
+            }
 
-        // Add sql scripts for the current pdo driver.
-        // Should be the first in the list as they
-        // may have platform specific queries.
-        if (array_key_exists($this->driver, $this->sql)) {
-            $dirs[] = $this->sql[$this->driver];
-        }
+            if (Arrays::isAssoc($entry)) {
+                $dirs = array_merge($this->prepareDirs($entry), $dirs);
+                continue;
+            }
 
-        // Add sql scripts for all platforms
-        if (array_key_exists('all', $this->sql)) {
-            $dirs[] = $this->sql['all'];
+            throw new ValueError(
+                "The 'sql' setting in the config file must be " .
+                    "a string or an associative array"
+            );
         }
 
         return $dirs;
+    }
+
+    public function dsn(): string
+    {
+        return $this->dsn;
+    }
+
+    public function username(): ?string
+    {
+        return $this->username;
+    }
+
+    public function password(): ?string
+    {
+        return $this->password;
+    }
+
+    public function options(): array
+    {
+        return $this->options;
+    }
+
+    public function print(): bool
+    {
+        return $this->print;
+    }
+    public function driver(): string
+    {
+        return $this->driver;
+    }
+
+    public function fetchMode(): int
+    {
+        return $this->fetchMode;
+    }
+
+    public function migrations(): array
+    {
+        return array_map(
+            fn ($m) => $this->preparePath($m, $this->debug),
+            array_values($this->migrations)
+        );
+    }
+
+    public function sql(): array
+    {
+        return $this->sql;
     }
 }

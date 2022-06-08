@@ -33,6 +33,8 @@ class Config implements ConfigInterface
     protected array $settings;
     /** @var array<string, array{class: class-string<Renderer>, settings: mixed}> */
     protected array $renderers = [];
+    /** @var array<string, Connection> */
+    protected array $connections = [];
     protected readonly Path $path;
 
     public function __construct(
@@ -117,9 +119,8 @@ class Config implements ConfigInterface
             return $app;
         } else {
             throw new ValueError(
-                "The 'app' setting must exist in the config file. It must " .
-                    ' be a nonempty string which consist only of lower case letters ' .
-                    'and numbers. Its length must not be longer than 32 characters.'
+                'The app name must be a nonempty string which consist only of lower case ' .
+                    'letters and numbers. Its length must not be longer than 32 characters.'
             );
         }
     }
@@ -256,25 +257,19 @@ class Config implements ConfigInterface
         return $this->renderers;
     }
 
-    protected function getDatabaseConfig(): Database
+
+    public function addConnection(Connection $conn, string $name = self::DEFAULT): void
     {
-        return new Database(
-            $this->root,
-            $this->settings['db'] ?? [],
-            $this->settings['sql'] ?? [],
-            $this->settings['migrations'] ?? [],
-            $this->debug,
-        );
+        if (!isset($this->connections[$name])) {
+            $this->connections[$name] = $conn;
+        } else {
+            throw new ValueError("A connection with the name '$name' already exists");
+        }
     }
 
-    public function db(string $connection = self::DEFAULT, string $sql = self::DEFAULT): Connection
+    public function connection(string $name = self::DEFAULT): Connection
     {
-        return $this->getDatabaseConfig()->connection($connection, $sql);
-    }
-
-    public function migrations(): array
-    {
-        return $this->getDatabaseConfig()->migrations();
+        return $this->connections[$name];
     }
 
     public function setupLogger(Closure $callback): void

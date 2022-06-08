@@ -27,14 +27,14 @@ class Database implements DatabaseInterface
 
     public function __construct(protected Connection $config)
     {
-        $this->dsn = $config->dsn;
-        $this->username = $config->username;
-        $this->password = $config->password;
-        $this->options = $config->options;
-        $this->fetchMode = $config->fetchMode;
-        $this->print = $config->print;
-        $this->driver = $config->driver;
-        $this->sqlDirs = $config->sqlDirs;
+        $this->dsn = $config->dsn();
+        $this->username = $config->username();
+        $this->password = $config->password();
+        $this->options = $config->options();
+        $this->fetchMode = $config->fetchMode();
+        $this->print = $config->print();
+        $this->driver = $config->driver();
+        $this->sqlDirs = $config->sql();
     }
 
     public function setPrint(bool $print): self

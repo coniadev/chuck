@@ -7,37 +7,41 @@ namespace Chuck\Tests\Setup;
 use \PDO;
 use \Throwable;
 use Chuck\Config;
+use Chuck\Config\Connection;
 use Chuck\Database\Database;
 use Chuck\Tests\Setup\{TestCase, C};
 
 
 class DatabaseCase extends TestCase
 {
-    public function config(array $options = []): Config
+    public function config(array $options = [], bool $additionalDirs = false): Config
     {
         $prefix = __DIR__ . C::DS . '..' . C::DS . 'Fixtures' . C::DS . 'sql' . C::DS;
+        $config = parent::config($options);
 
-        return parent::config(
-            array_replace_recursive(
+        $sql =  $additionalDirs ?
+            [
+                $prefix . 'default',
                 [
-                    'db' => ['dsn' => $this->getDsn()],
-                    'sql' => $prefix . 'default',
-                    'sql.additional' => [
-                        'sqlite' =>  $prefix . 'additional',
-                        'all' => $prefix . 'default',
-                    ],
-                    'migrations' => C::root() . C::DS . 'migrations',
-                ],
-                $options,
-            )
-        );
+                    'sqlite' =>  $prefix . 'additional',
+                    'all' => $prefix . 'default',
+                ]
+            ] : $prefix . 'default';
+
+        $config->addConnection(new Connection(
+            $this->getDsn(),
+            $sql,
+            migrations: C::root() . C::DS . 'migrations',
+        ));
+
+        return $config;
     }
 
     public function getDb(
         ?array $options = [],
-        string $sql = Config::DEFAULT
+        bool $additionalDirs = false,
     ): Database {
-        return new Database($this->config($options)->db(Config::DEFAULT, $sql));
+        return new Database($this->config($options, $additionalDirs)->connection());
     }
 
     public static function createTestDb(): void

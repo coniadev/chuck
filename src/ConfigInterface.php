@@ -16,12 +16,8 @@ interface ConfigInterface
     public function env(): string;
     public function has(string $key): bool;
     public function get(string $key, mixed $default = null): mixed;
-    public function db(
-        string $connection = Config::DEFAULT,
-        string $sql = Config::DEFAULT
-    ): Connection;
     public function logger(): ?LoggerInterface;
-    public function migrations(): array;
+    public function connection(string $name = Config::DEFAULT,): Connection;
     public function scripts(): array;
     public function renderers(): array;
 }
