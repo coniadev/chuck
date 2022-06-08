@@ -11,7 +11,7 @@ uses(TestCase::class);
 
 function ___functionMiddleware(Request $request, callable $next): Request|Response
 {
-    $request->response->body($request->response->getBody() . 'first');
+    $request->response()->body($request->response()->getBody() . 'first');
     return $next($request);
 }
 
@@ -24,7 +24,7 @@ class ___ObjectMiddleware
 
     public function __invoke(Request $request, callable $next): Request|Response
     {
-        $response = $request->response;
+        $response = $request->response();
         // add $text from constructor
         $response->body($response->getBody() . $this->text);
         // handle next
@@ -47,7 +47,7 @@ class ___EarlyResponseMiddleware
 
     public function __invoke(Request $request, callable $next): Request|Response
     {
-        $response = $request->response;
+        $response = $request->response();
         $response->body($response->getBody() . $this->text);
 
         return $response;

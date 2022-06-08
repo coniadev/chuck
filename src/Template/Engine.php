@@ -117,7 +117,7 @@ class Engine
             }
         }
 
-        throw new ValueError("Template '$path' not found inside the project root directory");
+        throw new ValueError("Template '$template' not found inside the project root directory");
     }
 
     public function exists(string $moniker): bool

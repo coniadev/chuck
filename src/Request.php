@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use \RuntimeException;
-use Chuck\Assets\Assets;
 use Chuck\Response;
 use Chuck\Routing\RouteInterface;
 use Chuck\Routing\RouterInterface;
@@ -14,6 +12,7 @@ use Chuck\Util\Http;
 
 class Request implements RequestInterface
 {
+    protected ResponseInterface $response;
     protected array $customMethods = [];
 
     public function __construct(
