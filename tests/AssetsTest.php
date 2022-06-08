@@ -12,8 +12,8 @@ uses(TestCase::class);
 
 beforeEach(function () {
     $this->paths = [
-        'assets' => 'public' . C::DS . 'assets',
-        'cache' => 'public' . C::DS . 'cache',
+        'assets' => C::root() . C::DS . 'public' . C::DS . 'assets',
+        'cache' => C::root() . C::DS . 'public' . C::DS . 'cache' . C::DS . 'assets',
     ];
     $this->landscape = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'landscape.png';
     $this->portrait = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'sub' . C::DS . 'portrait.png';
@@ -173,7 +173,7 @@ test('Static route', function () {
     $assets = new Assets(
         $this->paths['assets'],
         $this->paths['cache'],
-        $this->request(options: $this->paths, router: $router)
+        $this->request(router: $router)
     );
     $image = $assets->image($this->portrait);
 
@@ -196,7 +196,7 @@ test('Static cache route', function () {
     $assets = new Assets(
         $this->paths['assets'],
         $this->paths['cache'],
-        $this->request(options: $this->paths, router: $router)
+        $this->request(router: $router)
     );
     $image = $assets->image($this->portrait)->resize(200);
 

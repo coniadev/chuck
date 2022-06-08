@@ -15,13 +15,13 @@ use Chuck\Tests\Setup\{TestCase, C};
 class DatabaseCase extends TestCase
 {
     public function config(
-        array $options = [],
+        bool $debug = false,
         string $dsn = null,
         bool $additionalDirs = false,
         string $migrations = null,
     ): Config {
         $prefix = __DIR__ . C::DS . '..' . C::DS . 'Fixtures' . C::DS . 'sql' . C::DS;
-        $config = parent::config($options);
+        $config = parent::config(debug: $debug);
 
         $sql =  $additionalDirs ?
             [

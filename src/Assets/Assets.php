@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace Chuck\Assets;
 
 use \RuntimeException;
-use Chuck\ConfigInterface;
 use Chuck\RequestInterface;
 
 
 class Assets
 {
-
     public readonly string $assets;
     public readonly string $cache;
 

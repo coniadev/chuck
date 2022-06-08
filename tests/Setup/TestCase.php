@@ -116,7 +116,6 @@ class TestCase extends BaseTestCase
         ?string $method = null,
         ?string $url = null,
         ?bool $https = null,
-        array $options = [],
         ?RouterInterface $router = null,
         ?ConfigInterface $config = null,
     ): Request {
@@ -137,7 +136,7 @@ class TestCase extends BaseTestCase
         }
 
         if ($config === null) {
-            $config = $this->config($options);
+            $config = $this->config();
             $config->setupLogger(function (): LoggerInterface {
                 return new Logger();
             });

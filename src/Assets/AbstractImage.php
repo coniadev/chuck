@@ -62,7 +62,6 @@ abstract class AbstractImage
             throw new RuntimeException('Assets instance initialized without request');
         }
 
-        // try {
         $router = $this->assets->request->router();
         return $router->staticUrl(
             $staticRouteName,
@@ -70,6 +69,5 @@ abstract class AbstractImage
             $bust,
             $host
         );
-        // } catch {
     }
 }
