@@ -9,7 +9,7 @@ use Chuck\Renderer\Renderer;
 
 class RendererFactory
 {
-    /** @var class-string */
+    /** @var class-string<Renderer> */
     protected readonly string $class;
     protected readonly mixed $settings;
 

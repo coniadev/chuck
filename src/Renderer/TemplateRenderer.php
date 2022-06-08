@@ -4,36 +4,34 @@ declare(strict_types=1);
 
 namespace Chuck\Renderer;
 
+use \ErrorException;
+use \InvalidArgumentException;
+use \ValueError;
 use Chuck\Body\Body;
 use Chuck\Body\Text;
-use Chuck\RequestInterface;
 use Chuck\Template\Engine;
 
 
 class TemplateRenderer extends Renderer
 {
-    protected array $context;
-    protected string $template;
-
-    public function __construct(
-        RequestInterface $request,
-        mixed $data,
-        array $args,
-        mixed $settings,
-    ) {
-        parent::__construct($request, $data, $args, $settings);
-
-        if ($this->data instanceof \Traversable) {
-            $this->context = iterator_to_array($this->data);
-        } else {
-            $this->context = $this->data ?? [];
-        }
-
-        $this->template = $this->args[0];
-    }
-
     public function render(): Body
     {
+        if ($this->data instanceof \Traversable) {
+            $context = iterator_to_array($this->data);
+        } else {
+            $context = $this->data ?? [];
+        }
+
+        try {
+            $templateName = $this->args[0];
+        } catch (ErrorException) {
+            throw new InvalidArgumentException('No template passed to template renderer');
+        }
+
+        if (!is_array($this->settings) || count($this->settings) === 0) {
+            throw new ValueError('No template dirs given');
+        }
+
         $request = $this->request;
         $config = $request->config();
         $template = new Engine(
@@ -46,7 +44,7 @@ class TemplateRenderer extends Renderer
                 'env' => $config->env(),
             ]
         );
-        return new Text($template->render($this->template, $this->context));
+        return new Text($template->render($templateName, $context));
     }
 
     public function headers(): iterable

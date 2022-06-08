@@ -104,3 +104,7 @@ test('Template Renderer', function () {
     };
     new TemplateRenderer($this->request(), $iter(), ['renderer'], $this->templates());
 });
+
+test('Template Renderer :: template missing', function () {
+    (new TemplateRenderer($this->request(), [], [], $this->templates()))->render();
+})->throws(InvalidArgumentException::class);

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Chuck\Template;
 
-use \Exception;
 use \InvalidArgumentException;
 use \RuntimeException;
 use \Throwable;

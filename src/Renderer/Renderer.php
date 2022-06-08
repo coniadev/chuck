@@ -9,16 +9,12 @@ use Chuck\RequestInterface;
 
 abstract class Renderer implements RendererInterface
 {
-    protected mixed $settings;
-
-    public function __construct(
+    final public function __construct(
         protected RequestInterface $request,
         protected mixed $data,
-        array $args = [],
-        mixed $settings = null,
+        protected array $args,
+        protected mixed $settings = null,
     ) {
-        $this->args = $args;
-        $this->settings = $settings;
     }
 
     abstract public function render(): Body;

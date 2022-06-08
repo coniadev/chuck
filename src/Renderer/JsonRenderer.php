@@ -10,8 +10,6 @@ use Chuck\Body\Json;
 
 class JsonRenderer extends Renderer
 {
-    protected Json $body;
-
     public function render(): Body
     {
         return new Json($this->data);
