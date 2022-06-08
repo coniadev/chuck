@@ -85,8 +85,8 @@ test('Early response', function () {
 
 
 test('Middleware validation', function () {
-    // debug => true activated middleware validation
-    $app = App::create($this->config(['debug' => true]));
+    // debug => true activates middleware validation
+    $app = App::create($this->config(debug: true));
     $app->add(Route::get('index', '/', 'Chuck\Tests\Fixtures\TestController::middlewareView'));
     $app->middleware(function () {
     });

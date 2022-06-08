@@ -95,9 +95,9 @@ class TestCase extends BaseTestCase
         unset($_SERVER['HTTPS']);
     }
 
-    public function config(): Config
+    public function config(bool $debug = false): Config
     {
-        return new Config('chuck', root: C::root());
+        return new Config('chuck', root: C::root(), debug: $debug);
     }
 
     public function templates(array $templates = []): array
