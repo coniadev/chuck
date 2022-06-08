@@ -105,7 +105,7 @@ test('Handle PHP Exceptions', function () {
 
 test('Debug mode traceback', function () {
     $default = ini_set('error_log', stream_get_meta_data(tmpfile())['uri']);
-    $err = new Handler($this->request(config: $this->config(['debug' => true])));
+    $err = new Handler($this->request(config: $this->config(debug: true)));
     $err->setup();
 
     ob_start();

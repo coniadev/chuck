@@ -14,19 +14,19 @@ use Chuck\Renderer\{
     JsonRenderer,
     TextRenderer,
 };
-use Chuck\Util\Http;
 use Chuck\Util\Path as PathUtil;
-use Chuck\Config\{Database, Connection, Path, Scripts};
+use Chuck\Config\{Connection, Scripts};
 
 
 class Config implements ConfigInterface
 {
     public const DEFAULT = 'default';
 
-    public readonly string $root;
-    public readonly bool $debug;
-    public readonly string $env;
-    public readonly string $app;
+    protected readonly string $root;
+    protected readonly string $public;
+    protected readonly bool $debug;
+    protected readonly string $env;
+    protected readonly string $app;
 
     protected Closure $loggerCallback;
     protected LoggerInterface $logger;
@@ -35,22 +35,21 @@ class Config implements ConfigInterface
     protected array $renderers = [];
     /** @var array<string, Connection> */
     protected array $connections = [];
-    protected readonly Path $path;
 
     public function __construct(
         string $app,
         string $root,
         string $public = null,
         bool $debug = false,
-        string $env = ''
+        string $env = '',
+        array $settings = []
     ) {
-        // $settings = $this->initDefaults($this->getNested([]));
         $this->app = $this->getApp($app);
         $this->root = $this->getRoot($root);
         $this->public = $this->getPublic($public);
         $this->debug = $debug;
         $this->env = $env;
-        $this->path = new Path($this->root);
+        $this->settings = $settings;
 
         $this->renderers = [
             'text' => ['class' => TextRenderer::class, 'settings' => null],
@@ -97,19 +96,6 @@ class Config implements ConfigInterface
         }
 
         return $nested;
-    }
-
-    protected function initDefaults(array $settings): array
-    {
-        if (!isset($settings['origin'])) {
-            $settings['origin'] = Http::origin();
-        }
-
-        if (!isset($settings['host'])) {
-            $settings['host'] = $_SERVER['HTTP_HOST'] ?? 'localhost';
-        }
-
-        return $settings;
     }
 
     protected function getApp(string $app): string
@@ -161,61 +147,20 @@ class Config implements ConfigInterface
         }
     }
 
-    public function addPath(string $key, string $value): void
+    public function set(string $key, mixed $value): void
     {
-        $this->path->add($key, $value);
+        $this->settings[$key] = $value;
     }
-
-    public function path(): Path
-    {
-        return $this->path;
-    }
-
-    protected function getKeys(string $key): array
-    {
-        $segments = explode('.', trim($key));
-
-        if (count($segments) === 1) {
-            return [$key, null];
-        }
-
-        // if the key contains more than one '.' merge the remainder
-        // e. g. if $key = 'chuck.rick.chris', after the following operation
-        // $mainKey will be 'chuck' and $subKey 'rick.chris'
-        $mainKey = $segments[0];
-        $subKey = implode('.', array_slice($segments, 1));
-
-        return [$mainKey, $subKey];
-    }
-
 
     public function has(string $key): bool
     {
-        [$mainKey, $subKey] = $this->getKeys($key);
-
-        if ($subKey) {
-            return !empty($this->settings[$mainKey][$subKey]);
-        } else {
-            return !empty($this->settings[$key]);
-        }
+        return array_key_exists($key, $this->settings);
     }
 
-    /**
-     * Returns the given $key from the configuration
-     *
-     * Also handles the dotted config file format, e. g. 'db.dsn'
-     */
     public function get(string $key, mixed $default = null): mixed
     {
-        [$mainKey, $subKey] = $this->getKeys($key);
-
         try {
-            if ($subKey) {
-                return $this->settings[$mainKey][$subKey];
-            } else {
-
-                return $this->settings[$key];
-            }
+            return $this->settings[$key];
         } catch (Throwable) {
             if (func_num_args() > 1) {
                 return $default;
@@ -230,6 +175,16 @@ class Config implements ConfigInterface
     public function app(): string
     {
         return $this->app;
+    }
+
+    public function root(): string
+    {
+        return $this->root;
+    }
+
+    public function public(): string
+    {
+        return $this->public;
     }
 
     public function debug(): bool

@@ -19,10 +19,7 @@ uses(TestCase::class);
 
 
 test('Helper methods', function () {
-    $request = $this->request(options: [
-        'path.assets' => 'public' . C::DS . 'assets',
-        'path.cache' => 'public' . C::DS . 'cache',
-    ]);
+    $request = $this->request();
 
     expect($request->config())->toBeInstanceOf(ConfigInterface::class);
     expect($request->router())->toBeInstanceOf(RouterInterface::class);

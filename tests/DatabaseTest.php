@@ -169,9 +169,7 @@ test('Template query', function () {
 
 
 test('PDO driver is handed to template query', function () {
-    $db = $this->getDb([
-        'db.fetchMode' => \PDO::FETCH_ASSOC,
-    ]);
+    $db = $this->getDb();
     $result = $db->members->joined(['year' => 1983])->one();
 
     // The PDO driver is handed to the template
