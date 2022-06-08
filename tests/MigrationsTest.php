@@ -45,13 +45,9 @@ test('Run migrations :: no migrations table', function () {
 
 test('Create migrations table :: success', function (string $dsn) {
     $_SERVER['argv'] = ['run', 'create-migrations-table'];
-    $config = [
-        'db' => ['dsn' => $dsn],
-        'migrationstable.name' => str_starts_with($dsn, 'pgsql') ? 'public.migrations' : 'migrations',
-    ];
 
     ob_start();
-    $result = Runner::run($this->app($config));
+    $result = Runner::run($this->app($this->config(dsn: $dsn)));
     ob_end_clean();
 
     expect($result)->toBe(0);
@@ -62,12 +58,16 @@ test('Create migrations table :: already exists', function (string $dsn) {
     $_SERVER['argv'] = ['run', 'create-migrations-table'];
 
     ob_start();
-    $result = Runner::run($this->app(['db' => ['dsn' => $dsn]]));
+    $result = Runner::run($this->app($this->config(dsn: $dsn)));
     $content = ob_get_contents();
     ob_end_clean();
 
     expect($result)->toBe(1);
-    expect($content)->toContain("Table 'migrations' already exists");
+    if (str_starts_with($dsn, 'pgsql')) {
+        expect($content)->toContain("Table 'public.migrations' already exists");
+    } else {
+        expect($content)->toContain("Table 'migrations' already exists");
+    }
 })->with('connections');
 
 
@@ -76,7 +76,7 @@ test('Run migrations :: success without apply', function (string $dsn) {
     $driver = strtok($dsn, ':');
 
     ob_start();
-    $result = Runner::run($this->app(['db' => ['dsn' => $dsn]]));
+    $result = Runner::run($this->app($this->config(dsn: $dsn)));
     $content = ob_get_contents();
     ob_end_clean();
 
@@ -94,7 +94,7 @@ test('Run migrations :: success', function (string $dsn) {
     $driver = strtok($dsn, ':');
 
     ob_start();
-    $result = Runner::run($this->app(['db' => ['dsn' => $dsn]]));
+    $result = Runner::run($this->app($this->config(dsn: $dsn)));
     $content = ob_get_contents();
     ob_end_clean();
 
@@ -111,7 +111,7 @@ test('Run migrations :: again', function (string $dsn) {
     $_SERVER['argv'] = ['run', 'migrations', '--apply'];
 
     ob_start();
-    $result = Runner::run($this->app(['db' => ['dsn' => $dsn]]));
+    $result = Runner::run($this->app($this->config(dsn: $dsn)));
     $content = ob_get_contents();
     ob_end_clean();
 
@@ -203,22 +203,15 @@ test('Add migration with wrong file extension', function () {
 
 
 test('Wrong migrations directory', function () {
-    $_SERVER['argv'] = ['run', 'add-migration', '-f', 'test'];
-
-    ob_start();
-    Runner::run($this->app(['migrations' => 'not' . C::DS . 'available']));
-    $output = ob_get_contents();
-    ob_end_clean();
-
-    expect($output)->toContain("The migrations directory does not exist");
-});
+    $this->config(migrations: 'not' . C::DS . 'available');
+})->throws(ValueError::class, 'Path does not exist: not/available');
 
 
 test('Add migration to vendor', function () {
     $_SERVER['argv'] = ['run', 'add-migration', '-f', 'test'];
 
     ob_start();
-    Runner::run($this->app(['migrations' => 'vendor' . C::DS . 'migrations']));
+    Runner::run($this->app($this->config(migrations: C::root() . C::DS . 'vendor')));
     $output = ob_get_contents();
     ob_end_clean();
 
@@ -230,13 +223,13 @@ test('Failing SQL migration', function ($dsn, $ext) {
     $_SERVER['argv'] = ['run', 'add-migration', '--file', "test-migration-failing$ext"];
 
     ob_start();
-    $migration = Runner::run($this->app(['db' => ['dsn' => $dsn]]));
+    $migration = Runner::run($this->app($this->config(dsn: $dsn)));
 
     // Add content and run it
     file_put_contents($migration, 'RUBBISH;');
     $_SERVER['argv'] = ['run', 'migrations', '--apply'];
 
-    $result = Runner::run($this->app(['db' => ['dsn' => $dsn]]));
+    $result = Runner::run($this->app($this->config(dsn: $dsn)));
     $content = ob_get_contents();
     ob_end_clean();
     @unlink($migration);
@@ -256,13 +249,13 @@ test('Failing TPQL/PHP migration (PHP error)', function ($dsn, $ext) {
     $_SERVER['argv'] = ['run', 'add-migration', '--file', "test-migration-php-failing.$ext"];
 
     ob_start();
-    $migration = Runner::run($this->app(['db' => ['dsn' => $dsn]]));
+    $migration = Runner::run($this->app($this->config(dsn: $dsn)));
 
     // Add content and run it
     file_put_contents($migration, '<?php echo if)');
     $_SERVER['argv'] = ['run', 'migrations', '--apply'];
 
-    $result = Runner::run($this->app(['db' => ['dsn' => $dsn]]));
+    $result = Runner::run($this->app($this->config(dsn: $dsn)));
     $content = ob_get_contents();
     ob_end_clean();
     @unlink($migration);

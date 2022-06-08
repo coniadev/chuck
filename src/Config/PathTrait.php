@@ -17,12 +17,16 @@ trait PathTrait
 
     protected function preparePath(string $path): string
     {
-        $path = PathUtil::realpath($path);
+        $result = PathUtil::realpath($path);
 
-        if (!PathUtil::isAbsolute($path)) {
-            $path = $this->root . DIRECTORY_SEPARATOR . $path;
+        if (!PathUtil::isAbsolute($result)) {
+            $result = realpath($result);
         }
 
-        return $path;
+        if ($result) {
+            return $result;
+        }
+
+        throw new ValueError("Path does not exist: $path");
     }
 }

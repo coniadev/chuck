@@ -38,14 +38,13 @@ class Config implements ConfigInterface
     protected readonly Path $path;
 
     public function __construct(
-        array $settings,
         string $app,
         string $root,
         string $public = null,
         bool $debug = false,
         string $env = ''
     ) {
-        $settings = $this->initDefaults($this->getNested($settings));
+        // $settings = $this->initDefaults($this->getNested([]));
         $this->app = $this->getApp($app);
         $this->root = $this->getRoot($root);
         $this->public = $this->getPublic($public);

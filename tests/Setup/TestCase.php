@@ -95,25 +95,9 @@ class TestCase extends BaseTestCase
         unset($_SERVER['HTTPS']);
     }
 
-    public function minimalOptions(): array
+    public function config(): Config
     {
-        return [
-            'app' => 'chuck',
-            'path.root' => C::root(),
-        ];
-    }
-
-    public function options(array $options = []): array
-    {
-        return array_merge(
-            $this->minimalOptions(),
-            $options
-        );
-    }
-
-    public function config(array $options = []): Config
-    {
-        return new Config($this->options($options), 'chuck', root: C::root());
+        return new Config('chuck', root: C::root());
     }
 
     public function templates(array $templates = []): array
@@ -123,11 +107,10 @@ class TestCase extends BaseTestCase
         ]);
     }
 
-    public function app(array $options = []): App
+    public function app(Config $config = null): App
     {
-        return App::create($this->config($options));
+        return App::create($config ?? $this->config());
     }
-
 
     public function request(
         ?string $method = null,

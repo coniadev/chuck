@@ -6,30 +6,36 @@ namespace Chuck\Cli\Migrations;
 
 use Chuck\App;
 use Chuck\Cli\{CommandInterface, Opts};
+use Chuck\Config;
 use Chuck\ConfigInterface;
 
 
 class Add implements CommandInterface
 {
+    public readonly string $fileName;
+    public readonly string $conn;
     public static string $group = 'Database';
     public static string $title = 'Initialize a new migrations';
     public static string $desc;
 
     public function run(App $app): string|int
     {
+        $opts = new Opts();
         $config = $app->config();
+        $this->conn = $opts->get('--conn', Config::DEFAULT);
+        $this->fileName = $opts->get('-f', $opts->get('--file', ''));
+
         return $this->add($config);
     }
 
     protected function add(ConfigInterface $config): string|int
     {
-        $opts = new Opts();
-        $fileName = $opts->get('-f', $opts->get('--file', ''));
-
-        if (empty($fileName)) {
+        if (empty($this->fileName)) {
             // @codeCoverageIgnoreStart
-            $fileName = readline('Name of the migration: ');
+            $fileName = readline('Name of the migration script: ');
             // @codeCoverageIgnoreEnd
+        } else {
+            $fileName = $this->fileName;
         }
 
         $fileName = str_replace(' ', '-', $fileName);
@@ -46,10 +52,11 @@ class Add implements CommandInterface
             }
         }
 
-        $migrations = $config->migrations();
+        $migrations = $config->connection($this->conn)->migrations();
         // Get the last migrations directory from the list
         $migrationsDir = end($migrations);
 
+        echo ($migrationsDir . PHP_EOL);
         if ($migrationsDir && strpos($migrationsDir, '/vendor') !== false) {
             echo "The migrations directory is inside './vendor'.\n  -> $migrationsDir\nAborting.\n";
             return 1;
@@ -102,13 +109,14 @@ declare(strict_types=1);
 
 use \PDO;
 use Chuck\Config;
+use Chuck\Config\Connection;
 use Chuck\Database\Database;
 use Chuck\Database\MigrationInterface;
 
 
 class $className implements MigrationInterface
 {
-    public function run(Database \$db, Config \$config): bool
+    public function run(Database \$db, Config \$config, Connection \$conn): bool
     {
         \$db->execute('')->run();
         \$result = \$db->execute('')->all(PDO::FETCH_ASSOC);

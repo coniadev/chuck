@@ -7,14 +7,14 @@ namespace Chuck\Cli\Migrations;
 use \PDO;
 use Chuck\Cli\Opts;
 use Chuck\Config;
+use Chuck\Config\Connection;
 use Chuck\ConfigInterface;
 use Chuck\Database\{Database, DatabaseInterface};
 
 
 class Environment
 {
-    public readonly string $conn;
-    public readonly string $sql;
+    public readonly Connection $conn;
     public readonly string $driver;
     public readonly bool $showStacktrace;
     public readonly bool $convenience;
@@ -26,35 +26,27 @@ class Environment
     public function __construct(ConfigInterface $config)
     {
         $opts = new Opts();
-        // The `db` section from the config file.
-        // If there is a plain 'db' entry in the config file, it is used
-        // by default. If there are named additional connetions you want to
-        // use, pass the identifier after the dot,
-        // e. g. 'db.myconn' in the config must be '--conn myconn'
-        $this->conn = $opts->get('--conn', Config::DEFAULT);
-        // The `sql` section from the config file which points to sql file dirs.
-        // The same idea applies to 'sql' as to 'db' above. 'sql' is used by default.
-        // e. g. 'sql.otherscripts' in the config must be '--sql otherscripts'
-        $this->sql = $opts->get('--sql', Config::DEFAULT);
-
+        $conn = $config->connection($opts->get('--conn', Config::DEFAULT));
+        $this->conn = $conn;
         $this->showStacktrace = $opts->has('--stacktrace');
-        $this->db = $this->db($config, $this->conn, $this->sql);
+        $this->db = $this->db($this->conn);
         $this->driver = $this->db->getPdoDriver();
         $this->convenience = in_array($this->driver, ['sqlite', 'mysql', 'pgsql']);
-        $this->table = $config->get('migrationstable.name', 'migrations');
-        $this->column = $config->get('migrationstable.column', 'migration');
+        $this->table = $conn->migrationsTable();
+        $this->columnMigration = $conn->migrationsColumnMigration();
+        $this->columnApplied = $conn->migrationsColumnApplied();
         $this->config = $config;
     }
 
-    public function db(ConfigInterface $config, string $conn, string $sql): DatabaseInterface
+    public function db(Connection $conn): DatabaseInterface
     {
-        return new Database($config->db($conn, $sql));
+        return new Database($conn);
     }
 
-    public function getMigrations(ConfigInterface $config): array
+    public function getMigrations(Connection $conn): array
     {
         $migrations = [];
-        $migrationDirs = $config->migrations();
+        $migrationDirs = $conn->migrations();
 
         if (count($migrationDirs) === 0) {
             echo "\033[1;31mNotice\033[0m: No migration directories defined in configuration\033[0m\n";
@@ -119,35 +111,35 @@ class Environment
         return false;
     }
 
-    public function getMigrationsTableDDL(
-        string $driver,
-        string $table = 'migrations',
-        string $column = 'migration',
-    ): string|false {
-        if ($driver === 'pgsql' && strpos($table, '.') !== false) {
-            [$schema, $table] = explode('.', $table);
+    public function getMigrationsTableDDL(): string|false
+    {
+        if ($this->driver === 'pgsql' && strpos($this->table, '.') !== false) {
+            [$schema, $table] = explode('.', $this->table);
         } else {
             $schema = 'public';
+            $table = $this->table;
         }
+        $columnMigration = $this->columnMigration;
+        $columnApplied = $this->columnApplied;
 
-        switch ($driver) {
+        switch ($this->driver) {
             case 'sqlite':
                 return "CREATE TABLE $table (
-    $column text NOT NULL,
-    executed timestamp DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY ($column)
+    $columnMigration text NOT NULL,
+    $columnApplied timestamp DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY ($columnMigration)
 );";
             case 'pgsql':
                 return "CREATE TABLE $schema.$table (
-    $column text NOT NULL,
-    executed timestamp with time zone DEFAULT now() NOT NULL,
-    CONSTRAINT pk_$table PRIMARY KEY ($column)
+    $columnMigration text NOT NULL,
+    $columnApplied timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT pk_$table PRIMARY KEY ($columnMigration)
 );";
             case 'mysql':
                 return "CREATE TABLE $table (
-    $column varchar(255) NOT NULL,
-    executed timestamp DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY ($column)
+    $columnMigration varchar(255) NOT NULL,
+    $columnApplied timestamp DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY ($columnMigration)
 );";
             default:
                 return false;

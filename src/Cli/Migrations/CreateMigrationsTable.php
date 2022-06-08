@@ -30,7 +30,7 @@ class CreateMigrationsTable implements CommandInterface
             echo "Table '$env->table' already exists. Aborting\n";
             return 1;
         } else {
-            $ddl = $env->getMigrationsTableDDL($env->driver, $env->table, $env->column);
+            $ddl = $env->getMigrationsTableDDL();
 
             if ($ddl) {
                 try {

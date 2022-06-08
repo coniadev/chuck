@@ -14,8 +14,12 @@ use Chuck\Tests\Setup\{TestCase, C};
 
 class DatabaseCase extends TestCase
 {
-    public function config(array $options = [], bool $additionalDirs = false): Config
-    {
+    public function config(
+        array $options = [],
+        string $dsn = null,
+        bool $additionalDirs = false,
+        string $migrations = null,
+    ): Config {
         $prefix = __DIR__ . C::DS . '..' . C::DS . 'Fixtures' . C::DS . 'sql' . C::DS;
         $config = parent::config($options);
 
@@ -27,21 +31,20 @@ class DatabaseCase extends TestCase
                     'all' => $prefix . 'default',
                 ]
             ] : $prefix . 'default';
+        $migrations = $migrations ??  C::root() . C::DS . 'migrations';
 
-        $config->addConnection(new Connection(
-            $this->getDsn(),
-            $sql,
-            migrations: C::root() . C::DS . 'migrations',
-        ));
+        $dsn = $dsn ?: $this->getDsn();
+        $conn = new Connection($dsn, $sql, migrations: $migrations,);
+        $conn->setMigrationsTable(str_starts_with($dsn, 'pgsql') ? 'public.migrations' : 'migrations');
+        $config->addConnection($conn);
 
         return $config;
     }
 
     public function getDb(
-        ?array $options = [],
         bool $additionalDirs = false,
     ): Database {
-        return new Database($this->config($options, $additionalDirs)->connection());
+        return new Database($this->config(additionalDirs: $additionalDirs)->connection());
     }
 
     public static function createTestDb(): void

@@ -17,6 +17,10 @@ class Connection
     protected array $sql;
     protected array $migrations;
 
+    protected string $migrationsTable = 'migrations';
+    protected string $migrationsColumnMigration = 'migration';
+    protected string $migrationsColumnApplied = 'applied';
+
     public function __construct(
         protected readonly string $dsn,
         string|array $sql,
@@ -28,12 +32,12 @@ class Connection
         protected readonly bool $print = false
 
     ) {
-        $this->driver = $this->getDriver($this->dsn);
+        $this->driver = $this->readDriver($this->dsn);
         $this->sql = $this->readDirs($sql);
         $this->migrations = $this->readDirs($migrations);
     }
 
-    protected function getDriver(string $dsn): string
+    protected function readDriver(string $dsn): string
     {
         $driver = explode(':', $dsn)[0];
 
@@ -52,12 +56,12 @@ class Connection
         // Should be the first in the list as they
         // may have platform specific queries.
         if (array_key_exists($this->driver, $entry)) {
-            $dirs[] = $entry[$this->driver];
+            $dirs[] = $this->preparePath($entry[$this->driver]);
         }
 
         // Add sql scripts for all platforms
         if (array_key_exists('all', $entry)) {
-            $dirs[] = $entry['all'];
+            $dirs[] = $this->preparePath($entry['all']);
         }
 
         return $dirs;
@@ -73,7 +77,7 @@ class Connection
     protected function readDirs(string|array $sql): array
     {
         if (is_string($sql)) {
-            return [$sql];
+            return [$this->preparePath($sql)];
         }
 
         if (Arrays::isAssoc($sql)) {
@@ -84,7 +88,7 @@ class Connection
 
         foreach ($sql as $entry) {
             if (is_string($entry)) {
-                array_unshift($dirs, $entry);
+                array_unshift($dirs, $this->preparePath($entry));
                 continue;
             }
 
@@ -100,6 +104,56 @@ class Connection
         }
 
         return $dirs;
+    }
+
+    public function setMigrationsTable(string $table): void
+    {
+        $this->migrationsTable = $table;
+    }
+
+    public function setMigrationsColumnMigration(string $column): void
+    {
+        $this->migrationsColumnMigration = $column;
+    }
+
+    public function setMigrationsColumnApplied(string $column): void
+    {
+        $this->migrationsColumnApplied = $column;
+    }
+
+    public function migrationsTable(): string
+    {
+        if ($this->driver === 'pgsql') {
+            // PostgreSQL table names can contain a schema
+            if (preg_match('/^([a-zA-Z0-9_]+\.)?[a-zA-Z0-9_]+$/', $this->migrationsTable)) {
+                return $this->migrationsTable;
+            }
+        } else {
+            if (preg_match('/^[a-zA-Z0-9_]+$/', $this->migrationsTable)) {
+                return $this->migrationsTable;
+            }
+        }
+
+        throw new ValueError('Invalid migrations table name: ' . $this->migrationsTable);
+    }
+
+    protected function getColumnName(string $column): string
+    {
+        if (preg_match('/^[a-zA-Z0-9_]+$/', $column)) {
+            return $column;
+        }
+
+        throw new ValueError('Invalid migrations table column name: ' . $column);
+    }
+
+    public function migrationsColumnMigration(): string
+    {
+        return $this->getColumnName($this->migrationsColumnMigration);
+    }
+
+    public function migrationsColumnApplied(): string
+    {
+        return $this->getColumnName($this->migrationsColumnApplied);
     }
 
     public function dsn(): string
@@ -138,10 +192,7 @@ class Connection
 
     public function migrations(): array
     {
-        return array_map(
-            fn ($m) => $this->preparePath($m, $this->debug),
-            array_values($this->migrations)
-        );
+        return $this->migrations;
     }
 
     public function sql(): array

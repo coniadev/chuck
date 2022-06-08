@@ -10,6 +10,7 @@ use \Throwable;
 use Chuck\App;
 use Chuck\Cli\{Opts, CommandInterface};
 use Chuck\ConfigInterface;
+use Chuck\Config\Connection;
 use Chuck\Database\DatabaseInterface;
 
 
@@ -41,7 +42,7 @@ class Migrations implements CommandInterface
         $opts = new Opts();
 
         if (!$env->convenience || $env->checkIfMigrationsTableExists($env->db)) {
-            return $this->migrate($env->db, $config, $opts->has('--stacktrace'), $opts->has('--apply'));
+            return $this->migrate($env->db, $config, $env->conn, $opts->has('--stacktrace'), $opts->has('--apply'));
         } else {
             $ddl = $env->getMigrationsTableDDL($env->driver);
 
@@ -69,6 +70,7 @@ class Migrations implements CommandInterface
     protected function migrate(
         DatabaseInterface $db,
         ConfigInterface $config,
+        Connection $conn,
         bool $showStacktrace,
         bool $apply
     ): int {
@@ -77,7 +79,7 @@ class Migrations implements CommandInterface
         $result = self::STARTED;
         $numApplied = 0;
 
-        foreach ($this->env->getMigrations($config) as $migration) {
+        foreach ($this->env->getMigrations($conn) as $migration) {
             if (in_array(basename($migration), $appliedMigrations)) {
                 continue;
             }
@@ -99,10 +101,10 @@ class Migrations implements CommandInterface
                     $result = $this->migrateSQL($db, $migration, $script, $showStacktrace);
                     break;
                 case 'tpql';
-                    $result = $this->migrateTPQL($db, $config, $migration, $showStacktrace);
+                    $result = $this->migrateTPQL($db, $config, $conn, $migration, $showStacktrace);
                     break;
                 case 'php';
-                    $result = $this->migratePHP($db, $config, $migration, $showStacktrace);
+                    $result = $this->migratePHP($db, $config, $conn, $migration, $showStacktrace);
                     break;
                 default:
             }
@@ -191,7 +193,7 @@ class Migrations implements CommandInterface
     protected function getAppliedMigrations(DatabaseInterface $db): array
     {
         $table = $this->env->table;
-        $column = $this->env->column;
+        $column = $this->env->columnMigration;
         $migrations = $db->execute("SELECT $column FROM $table;")->all();
         return array_map(fn (array $mig): string => $mig['migration'], $migrations);
     }
@@ -238,6 +240,7 @@ class Migrations implements CommandInterface
     protected function migrateTPQL(
         DatabaseInterface $db,
         ConfigInterface $config,
+        Connection $conn,
         string $migration,
         bool $showStacktrace
     ): string {
@@ -257,6 +260,7 @@ class Migrations implements CommandInterface
                 'driver' => $db->getPdoDriver(),
                 'db' => $db,
                 'config' => $config,
+                'conn' => $conn,
             ];
 
             ob_start();
@@ -290,13 +294,14 @@ class Migrations implements CommandInterface
     protected function migratePHP(
         DatabaseInterface $db,
         ConfigInterface $config,
+        Connection $conn,
         string $migration,
         bool $showStacktrace
     ): string {
         try {
             /** @psalm-suppress UnresolvableInclude */
             $migObj = require $migration;
-            $migObj->run($db, $config);
+            $migObj->run($db, $config, $conn);
             $this->logMigration($db, $migration);
             $this->showMessage($migration);
 
