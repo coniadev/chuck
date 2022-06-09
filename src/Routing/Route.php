@@ -278,21 +278,6 @@ class Route implements RouteInterface
         return $this->args;
     }
 
-    public function methodAllowed(string $requestMethod): bool
-    {
-        if (count($this->methods) === 0) {
-            return true;
-        }
-
-        foreach ($this->methods as $method) {
-            if (strtoupper($requestMethod) === strtoupper($method)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public function match(string $url): ?Route
     {
 

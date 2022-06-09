@@ -24,5 +24,4 @@ interface RouteInterface
     public function getRenderer(): ?Renderer\Config;
     public function prefix(string $name, string $pattern): self;
     public function match(string $url): ?Route;
-    public function methodAllowed(string $requestMethod): bool;
 }
