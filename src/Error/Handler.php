@@ -43,12 +43,10 @@ class Handler
 
     public function handleException(Throwable $exception): void
     {
-        $code = 0;
         $debug = $this->request->config()->debug();
         $response = $this->request->response();
 
         if ($exception instanceof HttpError) {
-            /** @var int $code */
             $code = $exception->getCode();
             $response->setStatusCode($code);
             $body = '<h1>' . htmlspecialchars($exception->getTitle()) . '</h1>';

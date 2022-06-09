@@ -144,8 +144,6 @@ class Response implements ResponseInterface
 
     public function emit(): void
     {
-        // Fix Content-Type
-        $ct = $this->headers['Content-Type']['value'][0] ?? null;
         if (!array_key_exists('Content-Type', $this->headers)) {
             $this->writeHeader('Content-Type: text/html; charset=UTF-8', true);
         } else {

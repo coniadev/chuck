@@ -18,7 +18,7 @@ class CreateMigrationsTable implements CommandInterface
     public function run(App $app): string|int
     {
         $config = $app->config();
-        $env = $env = new Environment($config);
+        $env = new Environment($config);
 
         if (!$env->convenience) {
             echo "PDO driver '$env->driver' not supported. Aborting\n";

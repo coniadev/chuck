@@ -239,7 +239,6 @@ class Query implements QueryInterface
     {
         $prep = $this->prepareQuery($this->query);
         $argsArray = $this->args->get();
-        $interpolated = $this->interpolateNamed($prep->query, $argsArray);
 
         if ($this->args->type() === ArgType::Named) {
             $interpolated = $this->interpolateNamed($prep->query, $argsArray);
