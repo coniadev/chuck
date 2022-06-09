@@ -11,13 +11,10 @@ class Scripts
 
     protected readonly array $dirs;
 
-    public function __construct(
-        protected readonly string $root,
-        array $values,
-        bool $debug = true
-    ) {
+    public function __construct(array $values)
+    {
         $this->dirs = array_map(
-            fn ($dir) => $this->preparePath($dir, $debug),
+            fn ($dir) => $this->preparePath($dir),
             array_values($values),
         );
     }

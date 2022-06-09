@@ -10,11 +10,6 @@ use Chuck\Util\Path as PathUtil;
 
 trait PathTrait
 {
-    public function insideRoot(string $path): bool
-    {
-        return PathUtil::inside($this->root, $path);
-    }
-
     protected function preparePath(string $path): string
     {
         $result = PathUtil::realpath($path);
