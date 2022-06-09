@@ -634,7 +634,6 @@ class Schema implements SchemaInterface
             'minlen',
             _('-schema-minlen-%1$s-%4$s-'),
             function (Value $value, string ...$args) {
-                error_log('in minlen ' . $value->value);
                 return strlen($value->value) >= (int)$args[0];
             },
             true

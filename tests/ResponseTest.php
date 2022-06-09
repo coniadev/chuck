@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-use Chuck\Body\File;
+use Chuck\Response;
+use Chuck\Body\{File, Text};
 use Chuck\Tests\Setup\{TestCase, C};
 use Chuck\Error\HttpNotFound;
 
@@ -10,12 +11,56 @@ use Chuck\Error\HttpNotFound;
 uses(TestCase::class);
 
 
+test('Create with body', function () {
+    $text = new Text('text');
+    $response = new Response(body: $text);
+    expect($response->getBody())->toBe($text);
+});
+
+
+test('Set header', function () {
+    $response = new Response(headers: [['name' => 'header-value', 'value' => 'value', 'replace' => false]]);
+
+    expect(array_key_exists('Header-Value', $response->headers()))->toBe(true);
+});
+
+
+test('Set header replace false', function () {
+    $response = new Response();
+    $response->header('header-value', 'value', false);
+    $response->header('header-value', 'value2', false);
+
+    $headers = $response->headers();
+
+    expect(array_key_exists('Header-Value', $headers))->toBe(true);
+    expect(count($headers['Header-Value']['value']))->toBe(2);
+});
+
+
+test('Set invalid header', function () {
+    new Response(headers: [['name' => 'wrong header', 'value' => 'value']]);
+})->throws(ValueError::class);
+
+
+test('HEAD request', function () {
+    $request = $this->request(method: 'head');
+    $response = $request->response(body: new Text('should not appear'));
+
+    expect((string)$response->getBody())->toBe('should not appear');
+    ob_start();
+    $response->emit();
+    $content = ob_get_contents();
+    ob_end_clean();
+    expect(trim($content))->toBe('');
+});
+
+
 test('Request::response', function () {
     $request = $this->request();
     $response = $request->response(
         404,
         'Pull the Plug',
-        [['name' => 'Content-Type', 'value' => 'superior', 'replace' => false]],
+        [['name' => 'Content-Type', 'value' => 'text/superior', 'replace' => false]],
         '1.2',
         'The Plug is Pulled',
     );
@@ -26,7 +71,7 @@ test('Request::response', function () {
     $response->emit();
     ob_end_clean();
     expect($response->getHeaderList())->toBe([
-        'Content-Type: superior',
+        'Content-Type: text/superior; charset=UTF-8',
         'HTTP/1.2 404 The Plug is Pulled',
     ]);
 });

@@ -140,6 +140,7 @@ class Request implements RequestInterface
     public function response(
         int $statusCode = 200,
         mixed $body = null,
+        /** @param array{name: string, value: string, replace: bool} */
         array $headers = [],
         ?string $protocol = null,
         ?string $reasonPhrase = null,

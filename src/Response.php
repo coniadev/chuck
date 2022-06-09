@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use \InvalidArgumentException;
+use \ValueError;
 use Chuck\Body\Body;
 use Chuck\Body\File;
 use Chuck\Body\Text;
@@ -30,12 +30,15 @@ class Response implements ResponseInterface
 {
     /** @psalm-suppress PropertyNotSetInConstructor */
     protected array $headerList = [];
+    /** @var array{name: string, value: string, replace: bool} */
+    protected array $headers = [];
     protected ?Body $body = null;
 
     public function __construct(
         protected int $statusCode = 200,
         string|Body|null $body = null,
-        protected array $headers = [],
+        /** @param array{name: string, value: string, replace: bool} */
+        array $headers = [],
         protected string $protocol = '1.1',
         protected ?string $reasonPhrase = null,
     ) {
@@ -45,6 +48,10 @@ class Response implements ResponseInterface
             } else {
                 $this->body = $body;
             }
+        }
+
+        foreach ($headers as $header) {
+            $this->header($header['name'], $header['value'], $header['replace'] ?? true);
         }
     }
 
@@ -70,7 +77,7 @@ class Response implements ResponseInterface
     protected function validateHeaderName(string $name): void
     {
         if (preg_match("/^[0-9A-Za-z-]+$/", $name) !== 1) {
-            throw new InvalidArgumentException(
+            throw new ValueError(
                 'Header name must consist only of the characters a-zA-Z0-9 and -.'
             );
         }
@@ -99,6 +106,11 @@ class Response implements ResponseInterface
         ];
     }
 
+    public function headers(): array
+    {
+        return $this->headers;
+    }
+
     public function getHeaderList(): array
     {
         return $this->headerList;
@@ -123,7 +135,9 @@ class Response implements ResponseInterface
         if (PHP_SAPI === 'cli') {
             $this->headerList[] = $value;
         } else {
+            // @codeCoverageIgnoreStart
             header($value, $replace);
+            // @codeCoverageIgnoreEnd
         }
     }
 
