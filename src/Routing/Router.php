@@ -320,10 +320,7 @@ class Router implements RouterInterface
         /**
          * @psalm-suppress InaccessibleProperty
          *
-         * TODO: At the time of writing Psalm did not support
-         * readonly properties which are not initialized in the
-         * constructor. Recheck on occasion.
-         * https://github.com/vimeo/psalm/issues/7608
+         * TODO: See README
          */
         $this->route = $this->match($request);
 
