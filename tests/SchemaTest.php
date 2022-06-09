@@ -75,6 +75,7 @@ test('Type boolean', function () {
         'valid_bool_4' => 'off',
         'valid_bool_5' => 'true',
         'valid_bool_6' => 'null',
+        'valid_bool_8' => null,
         'invalid_bool_1' => 'invalid',
         'invalid_bool_2' => 13,
     ];
@@ -87,6 +88,7 @@ test('Type boolean', function () {
     $schema->add('valid_bool_5', 'Bool', 'bool');
     $schema->add('valid_bool_6', 'Bool', 'bool');
     $schema->add('valid_bool_7', 'Bool', 'bool');
+    $schema->add('valid_bool_8', 'Bool', 'bool');
     $schema->add('invalid_bool_1', 'Bool 1', 'bool');
     $schema->add('invalid_bool_2', 'Bool 2', 'bool');
 
@@ -107,6 +109,7 @@ test('Type boolean', function () {
     expect(true)->toBe($values['valid_bool_5']);
     expect(false)->toBe($values['valid_bool_6']);
     expect(false)->toBe($values['valid_bool_7']);
+    expect(false)->toBe($values['valid_bool_8']);
 
     $pristine = $schema->pristineValues();
     expect('yes')->toBe($pristine['valid_bool_3']);
@@ -146,6 +149,18 @@ test('Type text', function () {
 });
 
 
+test('Type skip empty', function () {
+    $testData = [
+        'valid_text' => '',
+    ];
+
+    $schema = new Schema();
+    $schema->add('valid_text', 'Text', 'text', 'maxlen');
+
+    expect($schema->validate($testData))->toBeTrue();
+});
+
+
 test('Type html', function () {
     $html = '<a href="http://example.com/test">Test</a>' .
         '<script>console.log();</script>' .
@@ -154,6 +169,7 @@ test('Type html', function () {
         'valid_html_1' => $html,
         'valid_html_2' => $html,
         'valid_html_3' => true,
+        'valid_html_5' => '',
     ];
 
     $schema = new Schema();
@@ -161,6 +177,7 @@ test('Type html', function () {
     $schema->add('valid_html_2', 'HTML', 'html');
     $schema->add('valid_html_3', 'HTML', 'html');
     $schema->add('valid_html_4', 'HTML', 'html');
+    $schema->add('valid_html_5', 'HTML', 'html');
 
     expect($schema->validate($testData))->toBeTrue();
     expect($schema->errors()['errors'])->toHaveCount(0);
@@ -170,10 +187,12 @@ test('Type html', function () {
     expect('<a href="http://example.com/test">Test</a>let test &#61; 1;')->toBe($values['valid_html_2']);
     expect('1')->toBe($values['valid_html_3']);
     expect(null)->toBe($values['valid_html_4']);
+    expect(null)->toBe($values['valid_html_5']);
 
     $pristine = $schema->pristineValues();
     expect(true)->toBe($pristine['valid_html_3']);
     expect(null)->toBe($pristine['valid_html_4']);
+    expect('')->toBe($pristine['valid_html_5']);
 });
 
 
@@ -236,6 +255,13 @@ test('Type list', function () {
 });
 
 
+test('Wrong type', function () {
+    $schema = new Schema();
+    $schema->add('invalid_field', 'Invalid', 'invalid');
+    $schema->validate(['invalid_field' => false]);
+})->throws(ValueError::class, 'Wrong schema type');
+
+
 test('Unknown data', function () {
     $testData = [
         'unknown_1' => 'Test',
@@ -291,6 +317,7 @@ test('Required validator', function () {
         'valid_4' => 0.0,
         'valid_5' => [1],
         'invalid_3' => [],
+        'invalid_4' => '',
     ];
 
     $schema = new Schema();
@@ -302,13 +329,15 @@ test('Required validator', function () {
     $schema->add('invalid_1', 'Required 1', 'text', 'required');
     $schema->add('invalid_2', 'Required 2', 'float', 'required');
     $schema->add('invalid_3', 'Required 3', 'list', 'required');
+    $schema->add('invalid_4', 'Required 4', 'plain', 'required');
 
     expect($schema->validate($testData))->toBeFalse();
     $errors = $schema->errors();
-    expect($errors['errors'])->toHaveCount(3);
+    expect($errors['errors'])->toHaveCount(4);
     expect($errors['map']['invalid_1'][0])->toEqual('-schema-required-Required 1-');
     expect($errors['map']['invalid_2'][0])->toEqual('-schema-required-Required 2-');
     expect($errors['map']['invalid_3'][0])->toEqual('-schema-required-Required 3-');
+    expect($errors['map']['invalid_4'][0])->toEqual('-schema-required-Required 4-');
 });
 
 
@@ -505,7 +534,7 @@ test('Sub schema', function () {
 });
 
 
-test('Invalid sub schema', function () {
+test('Invalid data in sub schema', function () {
     $testData = [
         'int' => 13,
         'schema' => [
@@ -574,6 +603,7 @@ function getListData(): array
     return [
         [
             'int' => 13,
+            'email' => 'chuck@example.com',
             'single_schema' => [
                 'inner_email' => 'test@example.com',
             ],
@@ -584,6 +614,7 @@ function getListData(): array
         ],
         [
             'int' => 73,
+            'email' => 'chuck',
             'list_schema' => [
                 [
                     'inner_int' => 43,
@@ -633,6 +664,7 @@ function getListSchema(): Schema
         {
             $this->add('int', 'Int', 'int', 'required');
             $this->add('text', 'Text', 'text', 'required');
+            $this->add('email', 'Text', 'text', 'email', 'minlen:10');
             $this->add(
                 'single_schema',
                 'Single Schema',
@@ -651,11 +683,13 @@ test('Invalid list schema', function () {
 
     expect($schema->validate($testData))->toBeFalse();
     $errors = $schema->errors();
-    expect([1])->toHaveCount(1);
+    expect($errors)->toHaveCount(5);
     expect($errors['map'][0]['text'][0])->toEqual('-schema-required-Text-');
     expect($errors['map'][0]['single_schema']['inner_int'][0])->toEqual('-schema-required-Int-');
     expect($errors['map'][1]['single_schema'][0])->toEqual('-schema-required-Single Schema-');
     expect($errors['map'][1]['text'][0])->toEqual('-schema-required-Text-');
+    expect($errors['map'][1]['email'][0])->toEqual('-schema-invalid-email-Text-chuck-');
+    expect($errors['map'][1]['email'][1])->toEqual('-schema-minlen-Text-10-');
     expect($errors['map'][3]['single_schema']['inner_email'][0])->toEqual('-schema-invalid-email-Email-test INVALID example.com-');
     expect($errors['map'][3]['list_schema'][0]['inner_int'][0])->toEqual('-schema-invalid-integer-Int-');
     expect($errors['map'][3]['list_schema'][2]['inner_email'][0])->toEqual('-schema-invalid-email-Email-example INVALID example.com-');
@@ -670,9 +704,21 @@ test('Grouped errors', function () {
     $groups = $schema->errors(grouped: true)['errors'];
     expect($groups)->toHaveCount(3);
     expect($groups[0]['title'])->toEqual('List Root');
-    expect($groups[0]['errors'][2]['error'])->toEqual('-schema-required-Single Schema-');
+    expect($groups[0]['errors'][2]['error'])->toEqual('-schema-invalid-email-Text-chuck-');
     expect($groups[1]['title'])->toEqual('List Sub');
     expect($groups[1]['errors'][0]['error'])->toEqual('-schema-invalid-integer-Int-');
     expect($groups[2]['title'])->toEqual('Single Sub');
     expect($groups[2]['errors'][1]['error'])->toEqual('-schema-invalid-email-Email-test INVALID example.com-');
 });
+
+
+test('Empty field name', function () {
+    $schema = new class(langs: ['de', 'en']) extends Schema
+    {
+        protected function rules(): void
+        {
+            $this->add('', 'Int', 'int');
+        }
+    };
+    $schema->validate([]);
+})->throws(ValueError::class, 'must not be empty');

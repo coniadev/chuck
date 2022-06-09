@@ -311,16 +311,8 @@ class Schema implements SchemaInterface
                     $typeName = $typeArray[0];
                     $typeArgs = array_slice($typeArray, 1);
                 } else {
-                    $interfaces = class_implements($rule['type']::class);
-
-                    if (isset($interfaces['Chuck\SchemaInterface'])) {
-                        $typeName = 'schema';
-                        $typeArgs = [];
-                    } else {
-                        throw new RuntimeException(
-                            'Sub schema must implement SchemaInterface'
-                        );
-                    }
+                    $typeName = 'schema';
+                    $typeArgs = [];
                 }
 
                 $label = $rule['label'];
@@ -515,10 +507,6 @@ class Schema implements SchemaInterface
             $aa = $a['level'] . $a['title'];
             $bb = $b['level'] . $b['title'];
 
-            if ($aa === $bb) {
-                return 0;
-            }
-
             return $aa > $bb ? 1 : -1;
         });
 
@@ -646,6 +634,7 @@ class Schema implements SchemaInterface
             'minlen',
             _('-schema-minlen-%1$s-%4$s-'),
             function (Value $value, string ...$args) {
+                error_log('in minlen ' . $value->value);
                 return strlen($value->value) >= (int)$args[0];
             },
             true
