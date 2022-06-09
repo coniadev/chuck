@@ -10,6 +10,7 @@ use Chuck\Routing\RouteInterface;
 use Chuck\Routing\{Router, RouterInterface};
 
 
+/** @psalm-consistent-constructor */
 class App
 {
     public function __construct(
