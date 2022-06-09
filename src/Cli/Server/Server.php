@@ -17,13 +17,8 @@ class Server implements CommandInterface
     public function run(App $app): string|int
     {
         $config = $app->config();
-        $publicDir = $config->path()->public;
-
-        if ($config->has('port')) {
-            $port = (string)$config->get('port');
-        } else {
-            $port = '1983';
-        }
+        $publicDir = $config->public();
+        $port = '1983';
 
         $opts = new Opts();
         $port = $opts->get('-p', $opts->get('--port', $port));

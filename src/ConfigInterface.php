@@ -14,6 +14,8 @@ interface ConfigInterface
     public function app(): string;
     public function debug(): bool;
     public function env(): string;
+    public function root(): string;
+    public function public(): string;
     public function has(string $key): bool;
     public function get(string $key, mixed $default = null): mixed;
     public function logger(): ?LoggerInterface;
