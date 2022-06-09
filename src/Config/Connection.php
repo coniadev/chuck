@@ -34,7 +34,7 @@ class Connection
     ) {
         $this->driver = $this->readDriver($this->dsn);
         $this->sql = $this->readDirs($sql);
-        $this->migrations = $this->readDirs($migrations);
+        $this->migrations = $this->readDirs($migrations ?? []);
     }
 
     protected function readDriver(string $dsn): string

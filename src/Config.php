@@ -28,8 +28,8 @@ class Config implements ConfigInterface
     protected readonly string $env;
     protected readonly string $app;
 
-    protected Closure $loggerCallback;
-    protected LoggerInterface $logger;
+    protected ?Closure $loggerCallback = null;
+    protected ?LoggerInterface $logger = null;
     protected array $settings;
     /** @var array<string, array{class: class-string<Renderer>, settings: mixed}> */
     protected array $renderers = [];
@@ -197,9 +197,10 @@ class Config implements ConfigInterface
         return $this->env;
     }
 
+    /** @param class-string<Renderer> $class */
     public function addRenderer(string $name, string $class, mixed $settings = null): void
     {
-        if ($class instanceof Renderer) {
+        if (is_subclass_of($class, Renderer::class)) {
             $this->renderers[$name] = ['class' => $class, 'settings' => $settings];
         } else {
             throw new ValueError('A renderer must extend ' . Renderer::class);
@@ -233,8 +234,8 @@ class Config implements ConfigInterface
 
     public function logger(): ?LoggerInterface
     {
-        if (isset($this->loggerCallback)) {
-            if (isset($this->logger)) {
+        if ($this->loggerCallback) {
+            if ($this->logger) {
                 return $this->logger;
             }
 
