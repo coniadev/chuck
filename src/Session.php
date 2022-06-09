@@ -19,12 +19,7 @@ class Session implements SessionInterface
 
     public function start(): void
     {
-        if (!isset($_SESSION)) {
-            // If we are run from the command line interface we do not care
-            // about headers sent using session_start.
-            if (PHP_SAPI === 'cli') {
-                $_SESSION = [];
-            }
+        if (session_status() === PHP_SESSION_NONE) {
             if (!headers_sent()) {
                 session_name($this->name);
 
@@ -64,14 +59,8 @@ class Session implements SessionInterface
             );
         }
 
-        if (PHP_SAPI === 'cli') {
-            return;
-        }
-
         // Finally, destroy the session.
-        // @codeCoverageIgnoreStart
         session_destroy();
-        // @codeCoverageIgnoreEnd
     }
 
     public function get(string $key, mixed $default = null): mixed

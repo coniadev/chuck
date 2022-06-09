@@ -160,11 +160,39 @@ test('Crop portrait into bounding box', function () {
 });
 
 
-test('Resize one side 0',  function () {
+test('Resize one side 0 when cropping',  function () {
     $assets = new Assets($this->paths['assets'], $this->paths['cache']);
     $assetImage = $assets->image($this->landscape);
     $assetImage->resize(200, 0, true);
-})->throws(ValueError::class);
+})->throws(ValueError::class, 'Image cropping error');
+
+
+test('Resize height < 0 error',  function () {
+    $assets = new Assets($this->paths['assets'], $this->paths['cache']);
+    $assetImage = $assets->image($this->landscape);
+    $assetImage->resize(200, -1);
+})->throws(ValueError::class, 'not be smaller than 0');
+
+
+test('Resize width < 0 error',  function () {
+    $assets = new Assets($this->paths['assets'], $this->paths['cache']);
+    $assetImage = $assets->image($this->landscape);
+    $assetImage->resize(-1, 200);
+})->throws(ValueError::class, 'not be smaller than 0');
+
+
+test('Resize height too large error',  function () {
+    $assets = new Assets($this->paths['assets'], $this->paths['cache']);
+    $assetImage = $assets->image($this->landscape);
+    $assetImage->resize(200, 10000);
+})->throws(ValueError::class, 'not be larger than');
+
+
+test('Resize width too large error',  function () {
+    $assets = new Assets($this->paths['assets'], $this->paths['cache']);
+    $assetImage = $assets->image($this->landscape);
+    $assetImage->resize(10000, 200);
+})->throws(ValueError::class, 'not be larger than');
 
 
 test('Static route', function () {

@@ -30,7 +30,7 @@ abstract class SchemaI18N implements SchemaInterface
         string|SchemaInterface $type,
         string ...$validators
     ): void {
-        if (!$field) {
+        if (empty($field)) {
             throw new ValueError(
                 'Schema definition error: field must not be empty'
             );

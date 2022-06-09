@@ -17,6 +17,15 @@ test('Simple rendering', function () {
 });
 
 
+test('Simple rendering (namespaced)', function () {
+    $tpl = new Engine($this->namespacedTemplates(), ['config' => $this->config()]);
+
+    expect(
+        $this->fullTrim($tpl->render('namespace:simple', ['text' => 'rules']))
+    )->toBe('<h1>chuck</h1><p>rules</p>');
+});
+
+
 test('Extension given', function () {
     $tpl = new Engine($this->templates(), ['config' => $this->config()]);
 
