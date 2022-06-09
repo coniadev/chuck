@@ -54,12 +54,12 @@ test('String Renderer', function () {
 });
 
 
-test('String Renderer - wrong type', function () {
+test('String Renderer :: wrong type', function () {
     (new TextRenderer($this->request(), [1, 2, 3], []))->render();
 })->throws(ValueError::class, 'Wrong type [array]');
 
 
-test('Template Renderer', function () {
+test('Template Renderer :: html', function () {
     $renderer = new TemplateRenderer(
         $this->request(),
         [
@@ -75,10 +75,11 @@ test('Template Renderer', function () {
             $hasContentType = true;
         }
     }
-
     expect($hasContentType)->toBe(true);
     expect((string)$renderer->render())->toBe("<h1>chuck</h1>\n<p>numbers</p><p>1</p><p>2</p><p>3</p>");
+});
 
+test('Template Renderer :: xhtml', function () {
     $renderer = new TemplateRenderer(
         $this->request(),
         [],
@@ -96,15 +97,22 @@ test('Template Renderer', function () {
     }
     expect($hasContentType)->toBe(true);
     expect((string)$renderer->render())->toBe("<p>plain</p>\n");
+});
 
+test('Template Renderer :: iterator', function () {
     // Pass iterator
     $iter = function () {
-        $arr = [1, 2, 3];
-        foreach ($arr as $a) yield $a;
+        yield 'text' => 'characters';
+        yield 'arr' => ['a', 'b', 'c'];
     };
-    new TemplateRenderer($this->request(), $iter(), ['renderer'], $this->templates());
+    $renderer = new TemplateRenderer($this->request(), $iter(), ['renderer'], $this->templates());
+    expect((string)$renderer->render())->toBe("<h1>chuck</h1>\n<p>characters</p><p>a</p><p>b</p><p>c</p>");
 });
 
 test('Template Renderer :: template missing', function () {
     (new TemplateRenderer($this->request(), [], [], $this->templates()))->render();
-})->throws(InvalidArgumentException::class);
+})->throws(ValueError::class);
+
+test('Template Renderer :: template dirs missing', function () {
+    (new TemplateRenderer($this->request(), [], ['renderer'], []))->render();
+})->throws(ValueError::class);

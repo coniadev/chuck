@@ -25,7 +25,7 @@ class TemplateRenderer extends Renderer
         try {
             $templateName = $this->args[0];
         } catch (ErrorException) {
-            throw new InvalidArgumentException('No template passed to template renderer');
+            throw new ValueError('No template passed to template renderer');
         }
 
         if (!is_array($this->settings) || count($this->settings) === 0) {
