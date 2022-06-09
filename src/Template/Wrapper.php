@@ -9,11 +9,6 @@ use \Traversable;
 
 class Wrapper
 {
-    /**
-     * @param mixed|null $value
-     *
-     * @psalm-param TValue|null $value
-     */
     public static function wrap(mixed $value): mixed
     {
         if (is_string($value)) {

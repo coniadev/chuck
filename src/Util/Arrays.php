@@ -6,7 +6,8 @@ namespace Chuck\Util;
 
 class Arrays
 {
-    public static function groupBy(array $data, int|array|float|string|object $key): array
+    /** @param array<int, array> $data */
+    public static function groupBy(array $data, mixed $key): array
     {
         $result = [];
 
