@@ -19,7 +19,8 @@ class Environment
     public readonly bool $showStacktrace;
     public readonly bool $convenience;
     public readonly string $table;
-    public readonly string $column;
+    public readonly string $columnMigration;
+    public readonly string $columnApplied;
     public readonly DatabaseInterface $db;
     public readonly ConfigInterface $config;
 

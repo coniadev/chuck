@@ -29,6 +29,7 @@ class Migrations implements CommandInterface
 
     public function run(App $app): string|int
     {
+        $config = $app->config();
         /**
          * @psalm-suppress InaccessibleProperty
          *
@@ -37,14 +38,13 @@ class Migrations implements CommandInterface
          * constructor. Recheck on occasion.
          * https://github.com/vimeo/psalm/issues/7608
          */
-        $config = $app->config();
         $this->env = $env = new Environment($config);
         $opts = new Opts();
 
         if (!$env->convenience || $env->checkIfMigrationsTableExists($env->db)) {
             return $this->migrate($env->db, $config, $env->conn, $opts->has('--stacktrace'), $opts->has('--apply'));
         } else {
-            $ddl = $env->getMigrationsTableDDL($env->driver);
+            $ddl = $env->getMigrationsTableDDL();
 
             if ($ddl) {
                 echo "Migrations table does not exist. For '$env->driver' it should look like:\n\n";

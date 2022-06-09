@@ -10,6 +10,7 @@ use Chuck\Config;
 use Chuck\ConfigInterface;
 
 
+/** @psalm-suppress MissingConstructor */
 class Add implements CommandInterface
 {
     public readonly string $fileName;
@@ -22,7 +23,16 @@ class Add implements CommandInterface
     {
         $opts = new Opts();
         $config = $app->config();
+        /**
+         * @psalm-suppress InaccessibleProperty
+         *
+         * TODO: At the time of writing Psalm did not support
+         * readonly properties which are not initialized in the
+         * constructor. Recheck on occasion.
+         * https://github.com/vimeo/psalm/issues/7608
+         */
         $this->conn = $opts->get('--conn', Config::DEFAULT);
+        /** @psalm-suppress InaccessibleProperty */
         $this->fileName = $opts->get('-f', $opts->get('--file', ''));
 
         return $this->add($config);
