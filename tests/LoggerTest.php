@@ -94,6 +94,18 @@ test('Logger with higher debug level', function () {
 });
 
 
+test('Logger with wrong debug level', function () {
+    $tmpfile = tmpfile();
+    $logfile = stream_get_meta_data($tmpfile)['uri'];
+    $default = ini_set('error_log', $logfile);
+
+    $logger = new Logger(Logger::ERROR, $logfile);
+    $logger->log(1313, 'never logged');
+
+    ini_set('error_log', $default);
+})->throws(InvalidArgumentException::class);
+
+
 test('Message interpolation', function () {
     $tmpfile = tmpfile();
     $logfile = stream_get_meta_data($tmpfile)['uri'];

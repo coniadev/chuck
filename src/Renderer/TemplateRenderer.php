@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Chuck\Renderer;
 
 use \ErrorException;
-use \InvalidArgumentException;
 use \ValueError;
 use Chuck\Body\Body;
 use Chuck\Body\Text;

@@ -45,7 +45,7 @@ test('Error handler II', function () {
 
 test('Handle HTTP Exceptions', function () {
     $default = ini_set('error_log', stream_get_meta_data(tmpfile())['uri']);
-    $err = new Handler($this->request());
+    $err = new Handler($this->request(config: $this->config(debug: true)));
     $err->setup();
 
     ob_start();
@@ -67,16 +67,17 @@ test('Handle HTTP Exceptions', function () {
     expect($output)->toBe('<h1>403 Forbidden</h1><h2>HTTP Error</h2>');
 
     ob_start();
-    $err->handleException(new HttpNotFound());
+    $err->handleException(HttpNotFound::withSubtitle("I've searched everywhere"));
     $output = ob_get_contents();
     ob_end_clean();
-    expect($output)->toBe('<h1>404 Not Found</h1><h2>HTTP Error</h2>');
+    expect($output)->toBe("<h1>404 Not Found</h1><h2>I&#039;ve searched everywhere</h2>");
 
     ob_start();
     $err->handleException(new HttpServerError());
     $output = ob_get_contents();
     ob_end_clean();
-    expect($output)->toBe('<h1>500 Internal Server Error</h1><h2>HTTP Error</h2>');
+    expect($output)->toStartWith('<h1>500 Internal Server Error</h1><h2>HTTP Error</h2>');
+    expect($output)->toContain('<br>#1');
 
     restore_error_handler();
     restore_exception_handler();

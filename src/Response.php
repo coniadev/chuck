@@ -28,9 +28,9 @@ const REASON_PHRASES = [
 
 class Response implements ResponseInterface
 {
-    /** @psalm-suppress PropertyNotSetInConstructor */
+    /** @var array<never, never>|array<string> */
     protected array $headerList = [];
-    /** @var array{name: string, value: string, replace: bool} */
+    /** @var array<never, never>|array<array-key, array{value: array<string>, replace: bool}> */
     protected array $headers = [];
     protected ?Body $body = null;
 

@@ -6,7 +6,6 @@ namespace Chuck\Error;
 
 use \ErrorException;
 use \Throwable;
-use Psr\Log\LoggerInterface;
 use Chuck\RequestInterface;
 use Chuck\Error\HttpError;
 use Chuck\Error\HttpBadRequest;
@@ -58,7 +57,9 @@ class Handler
                 $body .= '<h2>HTTP Error</h2>';
             }
         } elseif ($exception instanceof ExitException) {
+            // @codeCoverageIgnoreStart
             exit();
+            // @codeCoverageIgnoreEnd
         } else {
             $code = 500;
             $response->setStatusCode($code);
