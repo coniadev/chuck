@@ -7,4 +7,5 @@ tmp/
 /vendor
 /tests/Fixtures/migrations/*
 !/tests/Fixtures/migrations/000000*
-/tests/Fixtures/public/cache
+/tests/Fixtures/public/cache/*
+!/tests/Fixtures/public/cache/cached.jpg

@@ -56,6 +56,11 @@ class Router implements RouterInterface
         $this->names[$name] = $route;
     }
 
+    public function addGroup(GroupInterface $group): void
+    {
+        $group->create($this);
+    }
+
     public function addStatic(
         string $name,
         string $prefix,

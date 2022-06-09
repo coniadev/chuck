@@ -3,8 +3,7 @@
 declare(strict_types=1);
 
 use Chuck\Tests\Setup\{TestCase, C};
-use Chuck\Tests\Fixtures\{TestClass, TestInterface, TestRenderer};
-use Chuck\Routing\{Router, Route};
+use Chuck\Routing\{Router, Route, Group};
 use Chuck\{App, Request, Response, Config};
 
 uses(TestCase::class);
@@ -46,8 +45,13 @@ test('Static route helper', function () {
 test('Route helper', function () {
     $app = App::create($this->config());
     $app->add(Route::get('albums', '/albums', 'Chuck\Tests\Fixtures\TestController::textView'));
+    $app->group(Group::new('albums:', '/albums', function (Group $group) {
+        $ctrl = TestController::class;
+        $group->add(Route::get('name', '/{name}', "$ctrl::albumName"));
+    }));
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
+    expect($app->router()->routeUrl('albums:name', ['name' => 'symbolic']))->toBe('/albums/symbolic');
 });
 
 

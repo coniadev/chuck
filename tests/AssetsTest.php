@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Chuck\Routing\Router;
 use Chuck\Tests\Setup\{TestCase, C};
-use Chuck\Assets\{Assets, Image};
+use Chuck\Assets\{Assets, Image, CachedImage};
 
 
 uses(TestCase::class);
@@ -18,6 +18,7 @@ beforeEach(function () {
     $this->landscape = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'landscape.png';
     $this->portrait = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'sub' . C::DS . 'portrait.png';
     $this->square = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'square.png';
+    $this->cached = C::root() . C::DS . 'public' . C::DS . 'cache' . C::DS . 'cached.jpg';
 });
 
 
@@ -242,3 +243,15 @@ test('Static cache route', function () {
 
     expect(is_file($image->path()))->toBe(false);
 });
+
+test('Image path validaton', function () {
+    $assets = new Assets($this->paths['assets'], $this->paths['cache']);
+
+    new Image($assets, $this->cached);
+})->throws(RuntimeException::class, 'not inside the assets directory');
+
+test('CachedImage path validaton', function () {
+    $assets = new Assets($this->paths['assets'], $this->paths['cache']);
+
+    new CachedImage($assets, $this->landscape);
+})->throws(RuntimeException::class, 'not inside the cache directory');

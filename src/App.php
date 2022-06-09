@@ -26,10 +26,8 @@ class App
         $router = new Router();
         $request = new Request($config, $router);
 
-        if (PHP_SAPI !== 'cli') {
-            $errorHandler = new Handler($request);
-            $errorHandler->setup();
-        }
+        $errorHandler = new Handler($request);
+        $errorHandler->setup();
 
         $app = new static($request, $config, $router);
 
@@ -58,7 +56,7 @@ class App
 
     public function group(GroupInterface $group): void
     {
-        $group->create($this->router);
+        $this->router->addGroup($group);
     }
 
     public function static(

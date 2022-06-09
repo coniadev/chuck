@@ -14,7 +14,6 @@ class Json implements Body
 
     public function __toString(): string
     {
-        // If $context is of type 'object' it should be a Generator
         if ($this->data instanceof \Traversable) {
             return json_encode(iterator_to_array($this->data), JSON_UNESCAPED_SLASHES);
         }

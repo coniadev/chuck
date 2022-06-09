@@ -7,7 +7,7 @@ use Chuck\Tests\Fixtures\TestMiddleware1;
 use Chuck\Tests\Fixtures\TestController;
 use Chuck\Tests\Fixtures\TestControllerWithRequest;
 use Chuck\{Request, Response};
-use Chuck\Routing\{Router, Route};
+use Chuck\Routing\{Router, Route, Group};
 use Chuck\Error\{HttpNotFound, HttpServerError, HttpMethodNotAllowed};
 
 uses(TestCase::class);
@@ -19,10 +19,17 @@ test('Matching', function () {
     $router->addRoute($index);
     $albums = new Route('albums', '/albums', fn () => null);
     $router->addRoute($albums);
+    $router->addGroup(Group::new('albums:', '/albums', function (Group $group) {
+        $ctrl = TestController::class;
+        $group->add(Route::get('name', '/{name}', "$ctrl::albumName"));
+    }));
+
+    expect($router->match($this->request(method: 'GET', url: ''))->name())->toBe('index');
 
     expect($router->match($this->request(method: 'GET', url: '')))->toBe($index);
     expect($router->match($this->request(method: 'GET', url: '/albums')))->toBe($albums);
     expect($router->match($this->request(method: 'GET', url: '/albums?q=Symbolic')))->toBe($albums);
+    expect($router->match($this->request(method: 'GET', url: '/albums/name'))->name())->toBe('albums:name');
 
     $router->match($this->request(method: 'GET', url: '/does-not-exist'));
 })->throws(HttpNotFound::class);

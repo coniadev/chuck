@@ -12,6 +12,7 @@ interface RouterInterface
 {
     public function getRoute(): RouteInterface;
     public function addRoute(RouteInterface $route): void;
+    public function addGroup(GroupInterface $group): void;
     public function addStatic(
         string $name,
         string $prefix,
