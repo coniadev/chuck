@@ -5,14 +5,23 @@ declare(strict_types=1);
 use Chuck\Logger;
 
 
-test('Logger to file', function () {
+beforeEach(function () {
     // capture output of error_log calls in a temporary file
     // to prevent it printed to the console.
-    $default = ini_set('error_log', stream_get_meta_data(tmpfile())['uri']);
+    $this->default = ini_set('error_log', stream_get_meta_data(tmpfile())['uri']);
     $tmpfile = tmpfile();
-    $logfile = stream_get_meta_data($tmpfile)['uri'];
+    $this->logfile = stream_get_meta_data($tmpfile)['uri'];
+});
 
-    $logger = new Logger(logfile: $logfile);
+
+afterEach(function () {
+    // Restore default error_log
+    ini_set('error_log', $this->default);
+});
+
+
+test('Logger to file', function () {
+    $logger = new Logger(logfile: $this->logfile);
 
     $logger->debug("Scott");
     $logger->info("Steve");
@@ -23,7 +32,7 @@ test('Logger to file', function () {
     $logger->alert("Kelly");
     $logger->emergency("Terry");
 
-    $output = file_get_contents($logfile);
+    $output = file_get_contents($this->logfile);
 
     expect($output)->toContain('] DEBUG: Scott');
     expect($output)->toContain('] INFO: Steve');
@@ -33,17 +42,11 @@ test('Logger to file', function () {
     expect($output)->toContain('] CRITICAL: Chris');
     expect($output)->toContain('] ALERT: Kelly');
     expect($output)->toContain('] EMERGENCY: Terry');
-
-    ini_set('error_log', $default);
 });
 
 
 test('Logger to php sapi', function () {
-    $tmpfile = tmpfile();
-    $logfile = stream_get_meta_data($tmpfile)['uri'];
-    $default = ini_set('error_log', $logfile);
-
-    $logger = new Logger(logfile: $logfile);
+    $logger = new Logger(logfile: $this->logfile);
 
     $logger->debug("Scott");
     $logger->info("Steve");
@@ -51,24 +54,18 @@ test('Logger to php sapi', function () {
     $logger->error("Bobby");
     $logger->alert("Kelly");
 
-    $output = file_get_contents($logfile);
+    $output = file_get_contents($this->logfile);
 
     expect($output)->toContain('] DEBUG: Scott');
     expect($output)->toContain('] INFO: Steve');
     expect($output)->toContain('] WARNING: Chuck');
     expect($output)->toContain('] ERROR: Bobby');
     expect($output)->toContain('] ALERT: Kelly');
-
-    ini_set('error_log', $default);
 });
 
 
 test('Logger with higher debug level', function () {
-    $tmpfile = tmpfile();
-    $logfile = stream_get_meta_data($tmpfile)['uri'];
-    $default = ini_set('error_log', $logfile);
-
-    $logger = new Logger(Logger::ERROR, $logfile);
+    $logger = new Logger(Logger::ERROR, $this->logfile);
 
     $logger->debug("Scott");
     $logger->info("Steve");
@@ -79,7 +76,7 @@ test('Logger with higher debug level', function () {
     $logger->alert("Kelly");
     $logger->emergency("Terry");
 
-    $output = file_get_contents($logfile);
+    $output = file_get_contents($this->logfile);
 
     expect($output)->not->toContain('] DEBUG: Scott');
     expect($output)->not->toContain('] INFO: Steve');
@@ -89,29 +86,17 @@ test('Logger with higher debug level', function () {
     expect($output)->toContain('] CRITICAL: Chris');
     expect($output)->toContain('] ALERT: Kelly');
     expect($output)->toContain('] EMERGENCY: Terry');
-
-    ini_set('error_log', $default);
 });
 
 
-test('Logger with wrong debug level', function () {
-    $tmpfile = tmpfile();
-    $logfile = stream_get_meta_data($tmpfile)['uri'];
-    $default = ini_set('error_log', $logfile);
-
-    $logger = new Logger(Logger::ERROR, $logfile);
+test('Logger with wrong log level', function () {
+    $logger = new Logger(Logger::ERROR, $this->logfile);
     $logger->log(1313, 'never logged');
-
-    ini_set('error_log', $default);
-})->throws(InvalidArgumentException::class);
+})->throws(InvalidArgumentException::class, 'Unknown log level');
 
 
 test('Message interpolation', function () {
-    $tmpfile = tmpfile();
-    $logfile = stream_get_meta_data($tmpfile)['uri'];
-    $default = ini_set('error_log', $logfile);
-
-    $logger = new Logger(logfile: $logfile);
+    $logger = new Logger(logfile: $this->logfile);
 
     try {
         throw new Exception('The test exception');
@@ -135,7 +120,7 @@ test('Message interpolation', function () {
         );
     }
 
-    $output = file_get_contents($logfile);
+    $output = file_get_contents($this->logfile);
 
     expect($output)->toContain('String: Scream Bloody Gore');
     expect($output)->toContain('Integer: 13');
@@ -146,6 +131,4 @@ test('Message interpolation', function () {
     expect($output)->toContain('Other: [resource]');
     expect($output)->toContain('Null: [null]');
     expect($output)->toContain('Exception Message: The test exception');
-
-    ini_set('error_log', $default);
 });

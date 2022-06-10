@@ -20,12 +20,6 @@ class CreateMigrationsTable implements CommandInterface
         $config = $app->config();
         $env = new Environment($config);
 
-        if (!$env->convenience) {
-            echo "PDO driver '$env->driver' not supported. Aborting\n";
-
-            return 1;
-        }
-
         if ($env->checkIfMigrationsTableExists($env->db)) {
             echo "Table '$env->table' already exists. Aborting\n";
             return 1;
@@ -38,6 +32,7 @@ class CreateMigrationsTable implements CommandInterface
                     echo "\033[1;32mSuccess\033[0m: Created table '$env->table'\n";
 
                     return 0;
+                    // @codeCoverageIgnoreStart
                 } catch (Throwable $e) {
                     echo "\033[1;31mError\033[0m: While trying to create table '$env->table'\n";
                     echo $e->getMessage() . PHP_EOL;
@@ -48,11 +43,16 @@ class CreateMigrationsTable implements CommandInterface
 
                     return 1;
                 }
+                // @codeCoverageIgnoreEnd
             } else {
-                echo "Driver '$env->driver' is not supported.\n";
-            }
+                // Cannot be reliably tested.
+                // Would require an unsupported driver to be installed.
+                // @codeCoverageIgnoreStart
+                echo "PDO driver '$env->driver' not supported. Aborting\n";
 
-            return 1;
+                return 1;
+                // @codeCoverageIgnoreEnd
+            }
         }
     }
 }

@@ -76,7 +76,13 @@ class Migrations implements CommandInterface
         $result = self::STARTED;
         $numApplied = 0;
 
-        foreach ($this->env->getMigrations($conn) as $migration) {
+        $migrations = $this->env->getMigrations($conn);
+
+        if (!$migrations) {
+            return 1;
+        }
+
+        foreach ($migrations as $migration) {
             if (in_array(basename($migration), $appliedMigrations)) {
                 continue;
             }

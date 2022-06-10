@@ -71,6 +71,19 @@ test('Create migrations table :: already exists', function (string $dsn) {
 })->with('connections');
 
 
+test('Run migrations :: no migrations directories defined', function () {
+    $_SERVER['argv'] = ['run', 'migrations', '--apply'];
+
+    ob_start();
+    $result = Runner::run($this->app($this->config(migrations: [])));
+    $content = ob_get_contents();
+    ob_end_clean();
+
+    expect($result)->toBe(1);
+    expect($content)->toContain('No migration directories defined');
+});
+
+
 test('Run migrations :: success without apply', function (string $dsn) {
     $_SERVER['argv'] = ['run', 'migrations'];
     $driver = strtok($dsn, ':');
@@ -269,3 +282,32 @@ test('Failing TPQL/PHP migration (PHP error)', function ($dsn, $ext) {
         expect($content)->toContain('Due to errors no migrations applied');
     }
 })->with('connections')->with(['.php', '.tpql']);
+
+
+test('Failing due to missing migrations directory', function () {
+    $_SERVER['argv'] = ['run', 'add-migration', '--file', "test-migration.sql"];
+
+    ob_start();
+    Runner::run($this->app($this->config(migrations: '/wrong/dir')));
+    $content = ob_get_contents();
+    ob_end_clean();
+
+    expect($content)->toContain('directory does not exist');
+});
+
+
+test('Failing due to readonly migrations directory', function () {
+    $tmpdir = sys_get_temp_dir() . C::DS . 'chuck' . (string)mt_rand();
+    mkdir($tmpdir, 0400);
+
+    $_SERVER['argv'] = ['run', 'add-migration', '--file', "test-migration.sql"];
+
+    ob_start();
+    Runner::run($this->app($this->config(migrations: $tmpdir)));
+    $content = ob_get_contents();
+    ob_end_clean();
+
+    rmdir($tmpdir);
+
+    expect($content)->toContain('directory is not writable');
+});

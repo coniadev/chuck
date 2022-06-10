@@ -74,26 +74,26 @@ class Add implements CommandInterface
             return 1;
         }
 
-        $timestamp = date('ymd-His', time());
-
-        if (is_writable($migrationsDir)) {
-            $migration = $migrationsDir . DIRECTORY_SEPARATOR . $timestamp . '-' . $fileName;
-            $f = fopen($migration, 'w');
-
-            if ($ext === 'php') {
-                fwrite($f, $this->getPhpContent($fileName, $timestamp));
-            } elseif ($ext === 'tpql') {
-                fwrite($f, $this->getTpqlContent());
-            }
-
-            fclose($f);
-            echo "Migration created:\n$migration\n";
-
-            return $migration;
-        } else {
+        if (!is_writable($migrationsDir)) {
             echo "Migrations directory is not writable\n  -> $migrationsDir\nAborting. \n";
             return 1;
         }
+
+        $timestamp = date('ymd-His', time());
+
+        $migration = $migrationsDir . DIRECTORY_SEPARATOR . $timestamp . '-' . $fileName;
+        $f = fopen($migration, 'w');
+
+        if ($ext === 'php') {
+            fwrite($f, $this->getPhpContent($fileName, $timestamp));
+        } elseif ($ext === 'tpql') {
+            fwrite($f, $this->getTpqlContent());
+        }
+
+        fclose($f);
+        echo "Migration created:\n$migration\n";
+
+        return $migration;
     }
 
     protected function getPhpContent(string $fileName, string $timestamp): string

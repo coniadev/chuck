@@ -44,13 +44,15 @@ class Environment
         return new Database($conn);
     }
 
-    public function getMigrations(Connection $conn): array
+    public function getMigrations(Connection $conn): array|false
     {
         $migrations = [];
         $migrationDirs = $conn->migrations();
 
         if (count($migrationDirs) === 0) {
             echo "\033[1;31mNotice\033[0m: No migration directories defined in configuration\033[0m\n";
+
+            return false;
         }
 
         foreach ($migrationDirs as $path) {
@@ -64,22 +66,18 @@ class Environment
 
         // Sort by file name instead of full path
         uasort($migrations, function ($a, $b) {
-            if (basename($a) === basename($b)) {
-                return 0;
-            }
             return (basename($a) < basename($b)) ? -1 : 1;
         });
 
         return $migrations;
     }
 
-    public function checkIfMigrationsTableExists(
-        DatabaseInterface $db,
-        string $table = 'migrations',
-    ): bool {
+    public function checkIfMigrationsTableExists(DatabaseInterface $db): bool
+    {
         $driver = $db->getPdoDriver();
+        $table = $this->table;
 
-        if ($driver === 'pqsql' && strpos($table, '.') !== false) {
+        if ($driver === 'pgsql' && strpos($table, '.') !== false) {
             [$schema, $table] = explode('.', $table);
         } else {
             $schema = 'public';
@@ -90,7 +88,7 @@ class Environment
                 SELECT count(*) AS available
                 FROM sqlite_master
                 WHERE type='table'
-                AND name='migrations';",
+                AND name='$table';",
 
             'mysql' => "
                 SELECT count(*) AS available
@@ -143,7 +141,11 @@ class Environment
     PRIMARY KEY ($columnMigration)
 );";
             default:
+                // Cannot be reliably tested.
+                // Would require an unsupported driver to be installed.
+                // @codeCoverageIgnoreStart
                 return false;
+                // @codeCoverageIgnoreEnd
         }
     }
 }

@@ -18,7 +18,7 @@ class DatabaseCase extends TestCase
         bool $debug = false,
         string $dsn = null,
         bool $additionalDirs = false,
-        string $migrations = null,
+        array|string $migrations = null,
     ): Config {
         $prefix = __DIR__ . C::DS . '..' . C::DS . 'Fixtures' . C::DS . 'sql' . C::DS;
         $config = parent::config(debug: $debug);
@@ -34,7 +34,7 @@ class DatabaseCase extends TestCase
         $migrations = $migrations ??  C::root() . C::DS . 'migrations';
 
         $dsn = $dsn ?: $this->getDsn();
-        $conn = new Connection($dsn, $sql, migrations: $migrations,);
+        $conn = new Connection($dsn, $sql, migrations: $migrations);
         $conn->setMigrationsTable(str_starts_with($dsn, 'pgsql') ? 'public.migrations' : 'migrations');
         $config->addConnection($conn);
 

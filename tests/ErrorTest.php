@@ -13,19 +13,28 @@ use Chuck\Tests\Setup\TestCase;
 uses(TestCase::class);
 
 
-test('Initialize handler', function () {
+beforeEach(function () {
     // capture output of error_log calls in a temporary file
     // to prevent it printed to the console.
-    $default = ini_set('error_log', stream_get_meta_data(tmpfile())['uri']);
+    $this->default = ini_set('error_log', stream_get_meta_data(tmpfile())['uri']);
+    $tmpfile = tmpfile();
+    $this->logfile = stream_get_meta_data($tmpfile)['uri'];
+});
 
+
+afterEach(function () {
+    // Restore default error_log and handlers
+    ini_set('error_log', $this->default);
+    restore_error_handler();
+    restore_exception_handler();
+});
+
+
+test('Initialize handler', function () {
     $err = new Handler($this->request());
     $result = $err->setup();
 
     expect(is_callable($result))->toBe(true);
-
-    restore_error_handler();
-    restore_exception_handler();
-    ini_set('error_log', $default);
 });
 
 
@@ -44,7 +53,6 @@ test('Error handler II', function () {
 
 
 test('Handle HTTP Exceptions', function () {
-    $default = ini_set('error_log', stream_get_meta_data(tmpfile())['uri']);
     $err = new Handler($this->request(config: $this->config(debug: true)));
     $err->setup();
 
@@ -78,16 +86,11 @@ test('Handle HTTP Exceptions', function () {
     ob_end_clean();
     expect($output)->toStartWith('<h1>500 Internal Server Error</h1><h2>HTTP Error</h2>');
     expect($output)->toContain('<br>#1');
-
-    restore_error_handler();
-    restore_exception_handler();
-    ini_set('error_log', $default);
 });
 
 
 
 test('Handle PHP Exceptions', function () {
-    $default = ini_set('error_log', stream_get_meta_data(tmpfile())['uri']);
     $err = new Handler($this->request());
     $err->setup();
 
@@ -96,16 +99,11 @@ test('Handle PHP Exceptions', function () {
     $output = ob_get_contents();
     ob_end_clean();
     expect($output)->toBe('<h1>500 Internal Server Error</h1><h2>Division by zero</h2>');
-
-    restore_error_handler();
-    restore_exception_handler();
-    ini_set('error_log', $default);
 });
 
 
 
 test('Debug mode traceback', function () {
-    $default = ini_set('error_log', stream_get_meta_data(tmpfile())['uri']);
     $err = new Handler($this->request(config: $this->config(debug: true)));
     $err->setup();
 
@@ -114,8 +112,4 @@ test('Debug mode traceback', function () {
     $output = ob_get_contents();
     ob_end_clean();
     expect($output)->toStartWith('<h1>400 Bad Request</h1><h2>HTTP Error</h2>');
-
-    restore_error_handler();
-    restore_exception_handler();
-    ini_set('error_log', $default);
 });
