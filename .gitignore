@@ -8,4 +8,6 @@ tmp/
 /tests/Fixtures/migrations/*
 !/tests/Fixtures/migrations/000000*
 /tests/Fixtures/public/cache/*
-!/tests/Fixtures/public/cache/cached.jpg
+!/tests/Fixtures/public/cache/assets
+/tests/Fixtures/public/assets/*
+!/tests/Fixtures/public/cache/assets/cached.jpg

@@ -11,22 +11,59 @@ uses(TestCase::class);
 
 
 beforeEach(function () {
-    $this->paths = [
-        'assets' => C::root() . C::DS . 'public' . C::DS . 'assets',
-        'cache' => C::root() . C::DS . 'public' . C::DS . 'cache' . C::DS . 'assets',
-    ];
-    $this->landscape = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'landscape.png';
-    $this->portrait = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'sub' . C::DS . 'portrait.png';
-    $this->square = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'square.png';
-    $this->cached = C::root() . C::DS . 'public' . C::DS . 'cache' . C::DS . 'cached.jpg';
+    $assets = C::root() . C::DS . 'public' . C::DS . 'assets';
+    $cache = C::root() . C::DS . 'public' . C::DS . 'cache' . C::DS . 'assets';
+    $cachesub = $cache . C::DS . 'sub';
+
+    if (is_dir($cachesub)) {
+        array_map('unlink', glob("$cachesub/*.*"));
+        rmdir($cachesub);
+    }
+
+    $this->paths = ['assets' => $assets, 'cache' =>  $cache];
+    $this->landscape = $assets . C::DS . 'landscape.png';
+    $this->portrait = $assets . C::DS . 'sub' . C::DS . 'portrait.png';
+    $this->square = $assets . C::DS . 'square.png';
+    $this->relativeSquare = 'square.png';
+    $this->cached = $cache . C::DS . 'cached.jpg';
 });
 
 
-test('Create instance from config', function () {
+test('Assets directory does not exist', function () {
+    new Assets('/wrong/path', $this->paths['cache']);
+})->throws(RuntimeException::class, 'does not exist');
+
+
+test('Cache directory does not exist', function () {
+    new Assets($this->paths['assets'], '/wrong/path');
+})->throws(RuntimeException::class, 'does not exist');
+
+
+test('Relative and absolute image path', function () {
     $assets = new Assets($this->paths['assets'], $this->paths['cache']);
 
-    expect($assets)->toBeInstanceOf(Assets::class);
+    $absolute = $assets->image($this->square);
+    $relative = $assets->image($this->relativeSquare);
+
+    expect($absolute)->toBeInstanceOf(Image::class);
+    expect($relative)->toBeInstanceOf(Image::class);
+    expect($relative->path())->toBe($this->square);
+    expect($absolute->relative())->toBe($this->relativeSquare);
 });
+
+
+test('Image does not exist', function () {
+    $assets = new Assets($this->paths['assets'], $this->paths['cache']);
+
+    $assets->image('does-not-exist.jpg');
+})->throws(RuntimeException::class, 'does not exist');
+
+
+test('Initialized without Request', function () {
+    $assets = new Assets($this->paths['assets'], $this->paths['cache']);
+    $image = $assets->image($this->square);
+    $image->url(false);
+})->throws(RuntimeException::class, 'initialized without request');
 
 
 test('Resize to width', function () {
@@ -114,6 +151,16 @@ test('Resize landscape to bounding box', function () {
 
     expect(is_file($cacheImage->path()))->toBe(false);
 });
+
+
+// test('Resize error', function () {
+// $tmpdir = sys_get_temp_dir() . C::DS . 'chuck' . (string)mt_rand();
+// mkdir($tmpdir);
+// $assets = new Assets($this->paths['assets'], $tmpdir);
+// $image = $assets->image($this->square);
+// rmdir($tmpdir);
+// $image->resize(200, 200, false);
+// })->only();
 
 
 test('Crop landscape into bounding box', function () {

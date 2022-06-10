@@ -19,7 +19,7 @@
             </exclude>
         </whitelist>
     </filter>
-    <coverage processUncoveredFiles="true">
+    <coverage processUncoveredFiles="true" pathCoverage="true">
         <include>
             <directory>src</directory>
         </include>
