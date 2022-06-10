@@ -153,16 +153,6 @@ test('Resize landscape to bounding box', function () {
 });
 
 
-// test('Resize error', function () {
-// $tmpdir = sys_get_temp_dir() . C::DS . 'chuck' . (string)mt_rand();
-// mkdir($tmpdir);
-// $assets = new Assets($this->paths['assets'], $tmpdir);
-// $image = $assets->image($this->square);
-// rmdir($tmpdir);
-// $image->resize(200, 200, false);
-// })->only();
-
-
 test('Crop landscape into bounding box', function () {
     $assets = new Assets($this->paths['assets'], $this->paths['cache']);
 
@@ -205,6 +195,28 @@ test('Crop portrait into bounding box', function () {
     $cacheImage->delete();
 
     expect(is_file($cacheImage->path()))->toBe(false);
+});
+
+
+test('Recreate cached file', function () {
+    $tmpdir = sys_get_temp_dir() . C::DS . 'chuck' . (string)mt_rand();
+    mkdir($tmpdir);
+
+    $assets = new Assets($this->paths['assets'], $tmpdir);
+    $image = $assets->image($this->square);
+    $cachedImage = $image->resize(200, 200, false);
+    touch($cachedImage->path(), 0); // sets the date of the cached file to 1970-01-01
+
+    expect(filemtime($cachedImage->path()))->toBe(0);
+
+    $image = $assets->image($this->square);
+    $cachedImage = $image->resize(200, 200, false);
+
+    // Indicates that the file was recreated
+    expect(filemtime($cachedImage->path()))->toBeGreaterThan(0);
+
+    unlink($cachedImage->path());
+    rmdir($tmpdir);
 });
 
 

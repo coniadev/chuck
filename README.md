@@ -110,3 +110,17 @@ are not initialized in the constructor. The maintainers suggest to
 suppress errors is the only appropriate way. Recheck on occasion.
 
 - https://github.com/vimeo/psalm/issues/7608
+
+## Tests:
+
+Run `pest`.
+
+With coverage and static analyzer:
+
+    pest --coverage && psalm --no-cache --show-info=true
+
+Note: Running the test suite will create temporary files. We try to clean up, but in 
+case of failing tests they might remain in the file system:
+
+TODO: list temporary paths.
+- sqlite test db

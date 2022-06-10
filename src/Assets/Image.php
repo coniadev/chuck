@@ -56,9 +56,7 @@ class Image extends AbstractImage
 
     protected function createCacheFile(string $cacheFile, int $width, int $height, bool $crop): void
     {
-        if (!$this->image->thumb($cacheFile, $width, $height, $crop)) {
-            throw new RuntimeException('Could not resize file: ' . $this->path);
-        }
+        $this->image->thumb($cacheFile, $width, $height, $crop);
     }
 
     public function resize(int $width = 0, int $height = 0, bool $crop = false): CachedImage

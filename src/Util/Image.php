@@ -87,31 +87,31 @@ class Image
         int $width = 0,
         int $height = 0,
         bool $crop = false,
-    ): bool {
+    ): void {
         $image = self::getImageFromPath($path);
 
-        return self::writeImageToPath(
+        self::writeImageToPath(
             self::resizeImage($image, $width, $height, $crop),
             $dest
         );
     }
 
-    public static function writeImageToPath(GdImage $image, string $path): bool
+    public static function writeImageToPath(GdImage $image, string $path): void
     {
         switch (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
             case 'jfif':
             case 'jpeg':
             case 'jpg':
-                return imagejpeg($image, $path);
+                imagejpeg($image, $path);
                 break;
             case 'png':
-                return imagepng($image, $path);
+                imagepng($image, $path);
                 break;
             case 'gif':
-                return imagegif($image, $path);
+                imagegif($image, $path);
                 break;
             case 'webp':
-                return imagewebp($image, $path);
+                imagewebp($image, $path);
                 break;
             default:
                 throw new InvalidArgumentException('Image with given extension not supported: ' . $path);
@@ -155,9 +155,9 @@ class Image
     }
 
 
-    public function write(string $path): bool
+    public function write(string $path): void
     {
-        return self::writeImageToPath($this->get(), $path);
+        self::writeImageToPath($this->get(), $path);
     }
 
     public function resize(
@@ -178,7 +178,7 @@ class Image
         int $width = 0,
         int $height = 0,
         bool $crop = false,
-    ): bool {
-        return self::writeImageToPath($this->resize($width, $height, $crop), $dest);
+    ): void {
+        self::writeImageToPath($this->resize($width, $height, $crop), $dest);
     }
 }

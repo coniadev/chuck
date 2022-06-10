@@ -32,9 +32,8 @@ test('Static create resized', function () {
 
     expect(is_file($tmpfile))->toBe(false);
 
-    $success = Image::createResizedImage($this->landscape, $tmpfile, 200);
+    Image::createResizedImage($this->landscape, $tmpfile, 200);
 
-    expect($success)->toBe(true);
     expect(is_file($tmpfile))->toBe(true);
 
     unlink($tmpfile);
