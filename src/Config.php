@@ -30,11 +30,18 @@ class Config implements ConfigInterface
 
     protected ?Closure $loggerCallback = null;
     protected ?LoggerInterface $logger = null;
-    protected array $settings;
     /** @var array<string, array{class: class-string<Renderer>, settings: mixed}> */
     protected array $renderers = [];
     /** @var array<string, Connection> */
     protected array $connections = [];
+
+    /**
+     * Holds additional user defined settings/options
+     *
+     * @var array<string, mixed>
+     */
+    protected array $settings;
+
 
     public function __construct(
         string $app,
@@ -55,47 +62,6 @@ class Config implements ConfigInterface
             'text' => ['class' => TextRenderer::class, 'settings' => null],
             'json' => ['class' => JsonRenderer::class, 'settings' => null],
         ];
-    }
-
-    protected function getNested(array $flat): array
-    {
-        $nested = [];
-
-        foreach ($flat as $key => $value) {
-            $dotpos = strpos($key, '.');
-
-            if ($dotpos === false) {
-                if (isset($nested[$key][self::DEFAULT])) {
-                    throw new ValueError(
-                        "Configuration error: subkey '" . self::DEFAULT .
-                            "' for config key '$key' already exists"
-                    );
-                }
-
-                switch ($key) {
-                    case 'sql':
-                        $nested['sql'][self::DEFAULT] = $value;
-                        break;
-                    case 'migrations':
-                        $nested['migrations'][self::DEFAULT] = $value;
-                        break;
-                    case 'scripts':
-                        $nested['scripts'][self::DEFAULT] = $value;
-                        break;
-                    case 'db':
-                        $nested['db'][self::DEFAULT] = $value;
-                        break;
-                    default:
-                        $nested[$key] = $value;
-                        break;
-                }
-                continue;
-            }
-
-            $nested[strtok($key, '.')][substr($key, $dotpos + 1)] = $value;
-        }
-
-        return $nested;
     }
 
     protected function getApp(string $app): string
@@ -247,10 +213,10 @@ class Config implements ConfigInterface
         return null;
     }
 
-    public function scripts(): array
+    public function scripts(): Scripts
     {
         return (new Scripts(
             $this->settings['scripts'] ?? [],
-        ))->get();
+        ));
     }
 }

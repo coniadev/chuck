@@ -4,21 +4,15 @@ declare(strict_types=1);
 
 namespace Chuck\Tests\Fixtures;
 
-use Chuck\Body\Body;
 use Chuck\Body\Text;
 use Chuck\Renderer\Renderer;
 
 
 class TestRenderer extends Renderer
 {
-    public function render(): string
+    public function render(): Text
     {
-        return '';
-    }
-
-    public function body(): Body
-    {
-        return new Text($this->render());
+        return new Text('');
     }
 
     public function headers(): array

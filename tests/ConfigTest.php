@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\{TestCase, C};
+use Chuck\Tests\Setup\{DatabaseCase, C};
+use Chuck\Tests\Fixtures\TestRenderer;
 use Chuck\Config;
+use Chuck\Config\Connection;
 use Chuck\Logger;
 
-uses(TestCase::class);
+uses(DatabaseCase::class);
 
 
 test('Defaults', function () {
@@ -16,6 +18,11 @@ test('Defaults', function () {
     expect($config->root())->toBe(C::root());
     expect($config->public())->toBe(C::root() . DIRECTORY_SEPARATOR . 'public');
 });
+
+
+test('Wrong app name', function () {
+    new Config('wrong name', C::root());
+})->throws(ValueError::class, 'app name');
 
 
 test('Root path not absolute', function () {
@@ -68,4 +75,61 @@ test('Logger setup', function () {
     });
 
     expect($config->logger())->toBeInstanceOf(Logger::class);
+    // fetches the memoized logger
+    expect($config->logger())->toBeInstanceOf(Logger::class);
+});
+
+
+test('Add renderer', function () {
+    $config = new Config('chuck', C::root());
+    $config->addRenderer('test', TestRenderer::class);
+    $renderers = $config->renderers();
+
+    expect(count($renderers))->toBe(3);
+    expect(array_key_exists('test', $renderers))->toBe(true);
+    expect(array_key_exists('text', $renderers))->toBe(true);
+    expect(array_key_exists('json', $renderers))->toBe(true);
+});
+
+
+test('Add wrong renderer', function () {
+    $config = new Config('chuck', C::root());
+    $config->addRenderer('test', Config::class);
+})->throws(ValueError::class, 'must extend');
+
+
+test('Add database connection', function () {
+    $config = new Config('chuck', C::root());
+    $conn1 = new Connection($this->getDsn(), $this->getSqlDirs());
+    $config->addConnection($conn1);
+    $conn2 = new Connection($this->getDsn(), $this->getSqlDirs());
+    $config->addConnection($conn2, name: 'second');
+
+    expect($config->connection())->toBe($conn1);
+    expect($config->connection('second'))->toBe($conn2);
+});
+
+
+test('Add duplicate database connection', function () {
+    $config = new Config('chuck', C::root());
+    $conn1 = new Connection($this->getDsn(), $this->getSqlDirs());
+    $config->addConnection($conn1);
+    $conn2 = new Connection($this->getDsn(), $this->getSqlDirs());
+    $config->addConnection($conn2);
+})->throws(ValueError::class, 'already exists');
+
+
+
+test('Scripts', function () {
+    $config = new Config('chuck', C::root());
+    $scripts = $config->scripts();
+
+    expect(count($scripts->get()))->toBe(1);
+    expect($scripts->get()[0])->toEndWith('/bin');
+
+    $scripts->add(C::root() . C::DS . 'scripts');
+
+    expect(count($scripts->get()))->toBe(2);
+    expect($scripts->get()[0])->toEndWith(C::root() . C::DS . 'scripts');
+    expect($scripts->get()[1])->toEndWith('/bin');
 });

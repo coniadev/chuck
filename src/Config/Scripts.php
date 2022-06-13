@@ -9,14 +9,17 @@ class Scripts
 {
     use PathTrait;
 
-    protected readonly array $dirs;
+    protected array $dirs;
 
-    public function __construct(array $values)
+    public function __construct()
     {
-        $this->dirs = array_map(
-            fn ($dir) => $this->preparePath($dir),
-            array_values($values),
-        );
+        $ds = DIRECTORY_SEPARATOR;
+        $this->dirs[] = realpath(__DIR__ . $ds . '..' . $ds . '..' . $ds . 'bin');
+    }
+
+    public function add(string $path): void
+    {
+        array_unshift($this->dirs, $this->preparePath($path));
     }
 
     public function get(): array

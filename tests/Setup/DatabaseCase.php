@@ -20,10 +20,24 @@ class DatabaseCase extends TestCase
         bool $additionalDirs = false,
         array|string $migrations = null,
     ): Config {
-        $prefix = __DIR__ . C::DS . '..' . C::DS . 'Fixtures' . C::DS . 'sql' . C::DS;
         $config = parent::config(debug: $debug);
 
-        $sql =  $additionalDirs ?
+        $migrations = $migrations ??  C::root() . C::DS . 'migrations';
+
+        $dsn = $dsn ?: $this->getDsn();
+        $sql = $this->getSqlDirs($additionalDirs);
+        $conn = new Connection($dsn, $sql, migrations: $migrations);
+        $conn->setMigrationsTable(str_starts_with($dsn, 'pgsql') ? 'public.migrations' : 'migrations');
+        $config->addConnection($conn);
+
+        return $config;
+    }
+
+    public function getSqlDirs($additionalDirs = false): array|string
+    {
+        $prefix = __DIR__ . C::DS . '..' . C::DS . 'Fixtures' . C::DS . 'sql' . C::DS;
+
+        return $additionalDirs ?
             [
                 $prefix . 'default',
                 [
@@ -31,14 +45,6 @@ class DatabaseCase extends TestCase
                     'all' => $prefix . 'default',
                 ]
             ] : $prefix . 'default';
-        $migrations = $migrations ??  C::root() . C::DS . 'migrations';
-
-        $dsn = $dsn ?: $this->getDsn();
-        $conn = new Connection($dsn, $sql, migrations: $migrations);
-        $conn->setMigrationsTable(str_starts_with($dsn, 'pgsql') ? 'public.migrations' : 'migrations');
-        $config->addConnection($conn);
-
-        return $config;
     }
 
     public function getDb(

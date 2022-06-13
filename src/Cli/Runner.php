@@ -76,13 +76,11 @@ class Runner
     public static function run(App $app): string|int
     {
         self::setupErrorHandler();
-        $ds = DIRECTORY_SEPARATOR;
         $config = $app->config();
 
         // add the custom script dir first to allow
         // overriding of builtin scripts.
-        $scriptDirs = $config->scripts();
-        $scriptDirs[] = realpath(__DIR__ . $ds . '..' . $ds . '..' . $ds . 'bin');
+        $scriptDirs = $config->scripts()->get();
 
         if (isset($_SERVER['argv'][1])) {
             $script = $_SERVER['argv'][1] . '.php';
