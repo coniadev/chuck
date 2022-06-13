@@ -104,6 +104,7 @@ test('File body as download', function () {
     ob_start();
     $response->emit();
     ob_end_clean();
+
     expect($response->getHeaderList())->toContain(
         'Content-Disposition: attachment; filename="pixel.gif"'
     );

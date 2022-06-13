@@ -6,7 +6,7 @@
  * Some of these tests depend on each other and the order
  * in which they are executed. Reorganize with care.
  *
- * Running a single test might be impossible.
+ * Running a single test with '->only()' might be impossible.
  */
 
 declare(strict_types=1);
@@ -247,7 +247,7 @@ test('Failing SQL migration', function ($dsn, $ext) {
 
     // Add content and run it
     file_put_contents($migration, 'RUBBISH;');
-    $_SERVER['argv'] = ['run', 'migrations', '--apply'];
+    $_SERVER['argv'] = ['run', 'migrations', '--apply', '--stacktrace'];
 
     $result = Runner::run($this->app($this->config(dsn: $dsn)));
     $content = ob_get_contents();
@@ -256,11 +256,17 @@ test('Failing SQL migration', function ($dsn, $ext) {
 
     expect(is_file($migration))->toBe(false);
     expect($result)->toBe(1);
+    expect($content)->toContain("\n#0");
 
     if (str_starts_with($dsn, 'mysql')) {
         expect($content)->toContain('0 migration applied until the error occured');
+        expect($content)->toContain("SQLSTATE[42000]");
+    } elseif (str_starts_with($dsn, 'pgsql')) {
+        expect($content)->toContain('Due to errors no migrations applied');
+        expect($content)->toContain("SQLSTATE[42601]");
     } else {
         expect($content)->toContain('Due to errors no migrations applied');
+        expect($content)->toContain("SQLSTATE[HY000]");
     }
 })->with('connections')->with(['.sql', '.tpql']);
 

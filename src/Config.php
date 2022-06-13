@@ -215,8 +215,6 @@ class Config implements ConfigInterface
 
     public function scripts(): Scripts
     {
-        return (new Scripts(
-            $this->settings['scripts'] ?? [],
-        ));
+        return new Scripts();
     }
 }

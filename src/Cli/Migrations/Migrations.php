@@ -57,7 +57,11 @@ class Migrations implements CommandInterface
                 echo "    ...\n";
                 echo "];\n";
             } else {
+                // An unsupported driver would have to be installed
+                // to be able to test meaningfully
+                // @codeCoverageIgnoreStart
                 echo "Driver '$env->driver' is not supported.\n";
+                // @codeCoverageIgnoreEnd
             }
 
             return 1;
@@ -109,7 +113,6 @@ class Migrations implements CommandInterface
                 case 'php';
                     $result = $this->migratePHP($db, $config, $conn, $migration, $showStacktrace);
                     break;
-                default:
             }
 
             if ($result === self::ERROR) {
@@ -190,7 +193,11 @@ class Migrations implements CommandInterface
                 return false;
         }
 
+        // An unsupported driver would have to be installed
+        // to be able to test meaningfully
+        // @codeCoverageIgnoreStart
         throw new RuntimeException('Database driver not supported');
+        // @codeCoverageIgnoreEnd
     }
 
     protected function getAppliedMigrations(DatabaseInterface $db): array
@@ -346,6 +353,7 @@ class Migrations implements CommandInterface
             if ($showStacktrace) {
                 echo $e->getTraceAsString() . "\n";
             }
+
             return;
         }
 

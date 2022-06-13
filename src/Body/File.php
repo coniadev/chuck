@@ -64,12 +64,13 @@ class File implements Body
     public function emit(): void
     {
         if (!$this->sendFile) {
-            // @codeCoverageIgnoreStart
             if (!(PHP_SAPI == 'cli')) {
+                // ob_end_clean will be called in the test suite
+                // @codeCoverageIgnoreStart
                 // Removes anything in the buffer, as this might corrupt the download
                 ob_end_clean();
+                // @codeCoverageIgnoreEnd
             }
-            // @codeCoverageIgnoreEnd
 
             $stream = fopen($this->file, 'rb');
 

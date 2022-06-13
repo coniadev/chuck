@@ -28,7 +28,7 @@ class Reflect
         } elseif (is_object($callable)) {
             return (new ReflectionObject($callable))->getMethod('__invoke');
         } else {
-            /** @var non-falsy-string $callable */
+            /** @var Closure|non-empty-string $callable */
             return new ReflectionFunction($callable);
         }
     }

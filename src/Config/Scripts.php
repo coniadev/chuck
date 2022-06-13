@@ -14,7 +14,7 @@ class Scripts
     public function __construct()
     {
         $ds = DIRECTORY_SEPARATOR;
-        $this->dirs[] = realpath(__DIR__ . $ds . '..' . $ds . '..' . $ds . 'bin');
+        $this->dirs = [realpath(__DIR__ . $ds . '..' . $ds . '..' . $ds . 'bin')];
     }
 
     public function add(string $path): void

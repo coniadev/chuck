@@ -30,9 +30,7 @@ class Session implements SessionInterface
                 }
             } else {
                 // @codeCoverageIgnoreStart
-                throw new RuntimeException(
-                    __METHOD__ . 'Session started after headers sent.'
-                );
+                throw new RuntimeException(__METHOD__ . 'Session started after headers sent.');
                 // @codeCoverageIgnoreEnd
             }
         }
@@ -89,13 +87,13 @@ class Session implements SessionInterface
 
     public function regenerate(): void
     {
-        if (PHP_SAPI === 'cli') {
-            return;
+        if (session_status() == PHP_SESSION_ACTIVE) {
+            // The session is always inactive when PHP_SAPI === 'cli'
+            // e. g. when tests are run
+            // @codeCoverageIgnoreStart
+            session_regenerate_id(true);
+            // @codeCoverageIgnoreEnd
         }
-
-        // @codeCoverageIgnoreStart
-        session_regenerate_id(true);
-        // @codeCoverageIgnoreEnd
     }
 
     public function flash(

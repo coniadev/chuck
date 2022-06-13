@@ -122,5 +122,11 @@ With coverage and static analyzer:
 Note: Running the test suite will create temporary files. We try to clean up, but in 
 case of failing tests they might remain in the file system:
 
+Note: Coverage is measured with pcov. Xdebug does report some PHP 8 match 
+expressions as uncovered.
+
+Note: Full coverage is only reported if all three supported PDO drivers are installed
+which are sqlite, pgsql and mysql.
+
 TODO: list temporary paths.
 - sqlite test db
