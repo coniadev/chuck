@@ -98,8 +98,7 @@ class Connection
             }
 
             throw new ValueError(
-                "The 'sql' setting in the config file must be " .
-                    "a string or an associative array"
+                "A single 'sql' item must be either a string or an associative array"
             );
         }
 
