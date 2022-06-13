@@ -60,27 +60,32 @@ class Runner
             string $file = '',
             int $line = 0,
         ): bool {
-            if ($level & error_reporting()) {
-                throw new ErrorException($message, $level, $level, $file, $line);
-            }
-
-            return false;
+            throw new ErrorException($message, $level, $level, $file, $line);
         }, E_ALL);
     }
 
     protected static function runCommand(App $app, CommandInterface $cmd): string|int
     {
-        return $cmd->run($app);
+        try {
+            return $cmd->run($app);
+        } catch (ErrorException $e) {
+            $cmd = $_SERVER['argv'][1];
+
+            echo "\nError while running command '$cmd'.\n";
+            echo "    Error message: " . $e->getMessage();
+
+            return 1;
+        }
     }
 
-    public static function run(App $app): string|int
+    public static function run(App $app, array $scriptDirs = []): string|int
     {
         self::setupErrorHandler();
         $config = $app->config();
 
         // add the custom script dir first to allow
         // overriding of builtin scripts.
-        $scriptDirs = $config->scripts()->get();
+        $scriptDirs = array_merge($scriptDirs, $config->scripts()->get());
 
         if (isset($_SERVER['argv'][1])) {
             $script = $_SERVER['argv'][1] . '.php';
@@ -96,7 +101,7 @@ class Runner
                         return self::runCommand($app, require $file);
                     }
                 }
-                echo "\nphp run: Command not found.\n";
+                echo "\nCommand not found.\n";
                 return 1;
             }
         } else {

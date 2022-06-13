@@ -52,3 +52,31 @@ test('Command not found', function () {
     expect($result)->toBe(1);
     expect($content)->toContain('Command not found');
 });
+
+
+test('Pass additional dir', function () {
+    $_SERVER['argv'] = ['run', 'commands'];
+
+    ob_start();
+    $result = Runner::run($this->app(), [C::root() . C::DS . 'scripts']);
+    $content = ob_get_contents();
+    ob_end_clean();
+
+    expect($result)->toBe(0);
+    expect($content)->toContain('add-migration');
+    expect($content)->toContain('error-script');
+});
+
+
+test('Handle script error', function () {
+    $_SERVER['argv'] = ['run', 'error-script'];
+
+    ob_start();
+    $result = Runner::run($this->app(), [C::root() . C::DS . 'scripts']);
+    $content = ob_get_contents();
+    ob_end_clean();
+
+    expect($result)->toBe(1);
+    expect($content)->toContain('error-script');
+    expect($content)->toContain('script error');
+});
