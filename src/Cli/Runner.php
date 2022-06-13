@@ -92,10 +92,6 @@ class Runner
                 return 0;
             } else {
                 foreach ($scriptDirs as $scriptDir) {
-                    if (!is_string($scriptDir)) {
-                        continue;
-                    }
-
                     $file = $scriptDir . DIRECTORY_SEPARATOR . $script;
 
                     if (is_file($file)) {
@@ -107,7 +103,7 @@ class Runner
             }
         } else {
             self::showHelp($scriptDirs);
-            return 1;
+            return 0;
         }
     }
 }

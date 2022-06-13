@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Migration testing is complex.
+ * Migration testing is hard.
  *
  * Some of these tests depend on each other and the order
- * in which they are executed. So reorganize with care.
+ * in which they are executed. Reorganize with care.
  *
  * Running a single test might be impossible.
  */
@@ -23,6 +23,13 @@ beforeAll(function () {
     array_map('unlink', glob("$migrationsDir*test-migration*"));
 
     DatabaseCase::cleanupTestDbs();
+});
+
+
+afterEach(function () {
+    // Each Runner::run call registers a error handler
+    restore_error_handler();
+    restore_exception_handler();
 });
 
 
