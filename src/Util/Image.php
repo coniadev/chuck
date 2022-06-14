@@ -136,8 +136,8 @@ class Image
             $size->origHeight,
         );
 
-        // TODO: This is here to satisfy psalm.
-        //       We have not yet found a way to provoke this error.
+        // This is here to satisfy psalm.
+        // We have not yet found a way to provoke this error.
         if ($result === false) {
             // @codeCoverageIgnoreStart
             throw new RuntimeException('Error processing image: cannot resize');

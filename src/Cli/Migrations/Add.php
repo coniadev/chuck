@@ -38,6 +38,7 @@ class Add implements CommandInterface
     protected function add(ConfigInterface $config): string|int
     {
         if (empty($this->fileName)) {
+            // Would stop the test suit and wait for input
             // @codeCoverageIgnoreStart
             $fileName = readline('Name of the migration script: ');
             // @codeCoverageIgnoreEnd

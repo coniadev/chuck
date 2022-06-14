@@ -29,6 +29,7 @@ class Session implements SessionInterface
                     // @codeCoverageIgnoreEnd
                 }
             } else {
+                // Cannot be provoked in the test suit
                 // @codeCoverageIgnoreStart
                 throw new RuntimeException(
                     __METHOD__ . 'Session started after headers sent. File: ' .

@@ -65,6 +65,6 @@ test('App run', function () {
     ob_end_clean();
 
     expect($output)->toBe('success');
-    expect(in_array('Content-Type: text/html; charset=UTF-8', $response->getHeaderList()))->toBe(true);
-    expect(in_array('HTTP/1.1 200 OK', $response->getHeaderList()))->toBe(true);
+    expect(in_array('Content-Type: text/html; charset=UTF-8', $response->getWrittenHeaderList()))->toBe(true);
+    expect(in_array('HTTP/1.1 200 OK', $response->getWrittenHeaderList()))->toBe(true);
 });

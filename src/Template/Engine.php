@@ -40,15 +40,9 @@ class Engine
         };
 
         $template = new Template($this, $moniker, $context);
-        $load = $load->bindTo($template);
 
-        // TODO: This is here to satisfy psalm.
-        //       We have not yet found a way to provoke this error.
-        if (!$load) {
-            // @codeCoverageIgnoreStart
-            throw new RuntimeException('Unable to bind context to template');
-            // @codeCoverageIgnoreEnd
-        }
+        /** @var callable */
+        $load = $load->bindTo($template);
 
         ob_start();
 

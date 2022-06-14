@@ -11,7 +11,6 @@ interface ResponseInterface
     public function getStatusCode(): int;
     public function protocol(string $protocol): self;
     public function header(string $name, string $value, bool $replace = true): self;
-    public function getHeaderList(): array;
     public function body(string $body): self;
     public function getBody(): ?string;
     public function emit(): void;

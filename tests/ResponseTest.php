@@ -91,7 +91,7 @@ test('Response defaults', function () {
     $response->emit();
     ob_end_clean();
 
-    expect($response->getHeaderList())->toBe([
+    expect($response->getWrittenHeaderList())->toBe([
         'Content-Type: text/html; charset=UTF-8',
         'HTTP/1.1 200 OK',
     ]);
@@ -111,7 +111,7 @@ test('Response overwrite defaults', function () {
     $response->emit();
     ob_end_clean();
 
-    expect($response->getHeaderList())->toBe([
+    expect($response->getWrittenHeaderList())->toBe([
         'Content-Type: text/superior; charset=UTF-32',
         'HTTP/1.2 404 The Plug is Pulled',
     ]);
@@ -126,9 +126,9 @@ test('File response', function () {
     $response->emit(cleanOutputBuffer: false);
     ob_end_clean();
 
-    expect($response->getHeaderList())->toContain('Content-Type: image/gif');
-    expect($response->getHeaderList())->toContain('Content-Length: 43');
-    expect($response->getHeaderList())->not->toContain(
+    expect($response->getWrittenHeaderList())->toContain('Content-Type: image/gif');
+    expect($response->getWrittenHeaderList())->toContain('Content-Length: 43');
+    expect($response->getWrittenHeaderList())->not->toContain(
         'Content-Disposition: attachment; filename="pixel.gif"'
     );
 });
@@ -142,7 +142,7 @@ test('File response as download', function () {
     $response->emit(cleanOutputBuffer: false);
     ob_end_clean();
 
-    expect($response->getHeaderList())->toContain(
+    expect($response->getWrittenHeaderList())->toContain(
         'Content-Disposition: attachment; filename="pixel.gif"'
     );
 });
@@ -156,7 +156,7 @@ test('File response with sendfile', function () {
     ob_start();
     $response->emit(cleanOutputBuffer: false);
     ob_end_clean();
-    expect($response->getHeaderList())->toContain("X-Accel-Redirect: $file");
+    expect($response->getWrittenHeaderList())->toContain("X-Accel-Redirect: $file");
 
 
     $_SERVER['SERVER_SOFTWARE'] = 'apache';
@@ -166,7 +166,7 @@ test('File response with sendfile', function () {
     ob_start();
     $response->emit(cleanOutputBuffer: false);
     ob_end_clean();
-    expect($response->getHeaderList())->toContain("X-Sendfile: $file");
+    expect($response->getWrittenHeaderList())->toContain("X-Sendfile: $file");
 
     unset($_SERVER['SERVER_SOFTWARE']);
 });

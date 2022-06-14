@@ -59,6 +59,7 @@ class Handler
                 $body .= '<h2>HTTP Error</h2>';
             }
         } elseif ($exception instanceof ExitException) {
+            // Would stop the test suit
             // @codeCoverageIgnoreStart
             exit();
             // @codeCoverageIgnoreEnd

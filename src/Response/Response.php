@@ -27,7 +27,7 @@ class Response implements ResponseInterface
 
 
     /** @var array<never, never>|array<string> */
-    protected array $headerList = [];
+    protected array $writtenHeaders = [];
     /** @var array<never, never>|array<array-key, array{value: array<string>, replace: bool}> */
     protected array $headers = [];
     protected string $charset = 'UTF-8';
@@ -114,9 +114,9 @@ class Response implements ResponseInterface
         return $this->headers;
     }
 
-    public function getHeaderList(): array
+    public function getWrittenHeaderList(): array
     {
-        return $this->headerList;
+        return $this->writtenHeaders;
     }
 
     public function body(string $body): self
@@ -134,8 +134,9 @@ class Response implements ResponseInterface
     protected function writeHeader(string $value, bool $replace): void
     {
         if (PHP_SAPI === 'cli') {
-            $this->headerList[] = $value;
+            $this->writtenHeaders[] = $value;
         } else {
+            // In the tests suit we check $this->writtenHeaders
             // @codeCoverageIgnoreStart
             header($value, $replace);
             // @codeCoverageIgnoreEnd

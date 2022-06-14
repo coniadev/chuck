@@ -32,6 +32,8 @@ class CreateMigrationsTable implements CommandInterface
                     echo "\033[1;32mSuccess\033[0m: Created table '$env->table'\n";
 
                     return 0;
+                    // Would require to create additional errornous DDL or to
+                    // setup a different test database. Too much effort.
                     // @codeCoverageIgnoreStart
                 } catch (Throwable $e) {
                     echo "\033[1;31mError\033[0m: While trying to create table '$env->table'\n";
@@ -42,8 +44,8 @@ class CreateMigrationsTable implements CommandInterface
                     }
 
                     return 1;
+                    // @codeCoverageIgnoreEnd
                 }
-                // @codeCoverageIgnoreEnd
             } else {
                 // Cannot be reliably tested.
                 // Would require an unsupported driver to be installed.
