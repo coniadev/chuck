@@ -9,9 +9,12 @@ use \RuntimeException;
 use \Throwable;
 use Chuck\Error\{HttpNotFound, HttpMethodNotAllowed};
 use Chuck\Error\HttpServerError;
-use Chuck\Renderer\RendererFactory;
+use Chuck\Renderer\{
+    Config as RendererConfig,
+    RendererInterface,
+};
 use Chuck\RequestInterface;
-use Chuck\ResponseInterface;
+use Chuck\Response\ResponseInterface;
 use Chuck\Util\Reflect;
 
 
@@ -216,6 +219,16 @@ class Router implements RouterInterface
         }
     }
 
+    protected function getRenderer(RequestInterface $request, RendererConfig $rendererConfig, mixed $data): RendererInterface
+    {
+        $renderers = $request->config()->renderers();
+        $class = $renderers[$rendererConfig->type]['class'];
+        $settings = $renderers[$rendererConfig->type]['settings'];
+
+        /** @var RendererInterface */
+        return new $class($request, $data, $rendererConfig->args, $settings);
+    }
+
     protected function respond(RequestInterface $request, RouteInterface $route): ResponseInterface
     {
         $result = $this->getViewResult($route, $request);
@@ -223,28 +236,17 @@ class Router implements RouterInterface
         if ($result instanceof ResponseInterface) {
             return $result;
         } else {
-            $config = $request->config();
             $rendererConfig = $route->getRenderer();
 
             if ($rendererConfig) {
-                $factory = new RendererFactory($config->renderers(), $rendererConfig->type);
-                $renderer = $factory->create(
-                    $request,
-                    $result,
-                    $rendererConfig->args
-                );
-                $response = $request->response();
-                $response->body($renderer->render());
+                $renderer = $this->getRenderer($request, $rendererConfig, $result);
 
-                foreach ($renderer->headers() as $header) {
-                    $response->header($header['name'], $header['value'], $header['replace'] ?? true);
-                }
-
-                return $response;
+                return $renderer->response();
             }
 
             if (is_string($result)) {
-                return $request->response(body: $result);
+                /** @var ResponseInterface */
+                return $request->response($result);
             }
 
             throw new RuntimeException('Cannot determine a handler for the return type of the view');

@@ -4,19 +4,14 @@ declare(strict_types=1);
 
 namespace Chuck\Tests\Fixtures;
 
-use Chuck\Body\Text;
+use Chuck\Response\Response;
 use Chuck\Renderer\Renderer;
 
 
 class TestRenderer extends Renderer
 {
-    public function render(): Text
+    public function response(): Response
     {
-        return new Text('');
-    }
-
-    public function headers(): array
-    {
-        return [];
+        return new Response('');
     }
 }

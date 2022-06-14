@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Chuck\Assets\Assets;
 use Chuck\ConfigInterface;
 use Chuck\Error\ExitException;
 use Chuck\Request;
-use Chuck\Response;
-use Chuck\ResponseInterface;
+use Chuck\Response\Response;
+use Chuck\Response\ResponseFactory;
+use Chuck\Response\ResponseInterface;
 use Chuck\Routing\Route;
 use Chuck\Routing\RouteInterface;
 use Chuck\Routing\Router;
@@ -23,7 +23,8 @@ test('Helper methods', function () {
 
     expect($request->config())->toBeInstanceOf(ConfigInterface::class);
     expect($request->router())->toBeInstanceOf(RouterInterface::class);
-    expect($request->response())->toBeInstanceOf(ResponseInterface::class);
+    expect($request->response())->toBeInstanceOf(ResponseFactory::class);
+    expect($request->response('Chuck'))->toBeInstanceOf(ResponseInterface::class);
     expect($request->method())->toBe('GET');
     expect($request->methodIs('GET'))->toBe(true);
     expect($request->methodIs('POST'))->toBe(false);
@@ -32,7 +33,7 @@ test('Helper methods', function () {
 
 test('Route property :: initialized', function () {
     $router = new Router();
-    $router->addRoute(new Route('index', '/', fn (Request $request) => new Response(200, 'Chuck')));
+    $router->addRoute(new Route('index', '/', fn (Request $request) => new Response('Chuck')));
     $request = $this->request(method: 'GET', url: '/', router: $router);
     $router->dispatch($request);
 

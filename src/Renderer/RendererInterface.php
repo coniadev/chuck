@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Chuck\Renderer;
 
-use Chuck\Body\Body;
+use Chuck\Response\ResponseInterface;
 
 
 interface RendererInterface
 {
-    public function render(): Body;
-    public function headers(): iterable;
+    public function response(): ResponseInterface;
 }

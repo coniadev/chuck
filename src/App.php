@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Chuck;
 
 use Chuck\Error\Handler;
+use Chuck\Response\ResponseInterface;
 use Chuck\Routing\GroupInterface;
 use Chuck\Routing\RouteInterface;
 use Chuck\Routing\{Router, RouterInterface};

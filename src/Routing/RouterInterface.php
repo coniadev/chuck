@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Chuck\Routing;
 
 use Chuck\RequestInterface;
-use Chuck\ResponseInterface;
+use Chuck\Response\ResponseInterface;
 
 
 interface RouterInterface

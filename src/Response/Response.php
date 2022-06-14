@@ -2,76 +2,77 @@
 
 declare(strict_types=1);
 
-namespace Chuck;
+namespace Chuck\Response;
 
 use \ValueError;
-use Chuck\Body\Body;
-use Chuck\Body\File;
-use Chuck\Body\Text;
-
-const REASON_PHRASES = [
-    100 => 'Continue', 101 => 'Switching Protocols',
-    200 => 'OK', 201 => 'Created', 202 => 'Accepted', 203 => 'Non-Authoritative Information',
-    204 => 'No Content', 205 => 'Reset Content', 206 => 'Partial Content',
-    300 => 'Multiple Choices', 301 => 'Moved Permanently', 302 => 'Found', 303 => 'See Other',
-    304 => 'Not Modified', 305 => 'Use Proxy', 307 => 'Temporary Redirect',
-    400 => 'Bad Request', 401 => 'Unauthorized', 402 => 'Payment Required', 403 => 'Forbidden',
-    404 => 'Not Found', 405 => 'Method Not Allowed', 406 => 'Not Acceptable',
-    407 => 'Proxy Authentication Required', 408 => 'Request Time-out', 409 => 'Conflict',
-    410 => 'Gone', 411 => 'Length Required', 412 => 'Precondition Failed',
-    413 => 'Request Entity Too Large', 414 => 'Request-URI Too Large', 415 => 'Unsupported Media Type',
-    416 => 'Requested range not satisfiable', 417 => 'Expectation Failed',
-    500 => 'Internal Server Error', 501 => 'Not Implemented', 502 => 'Bad Gateway',
-    503 => 'Service Unavailable', 504 => 'Gateway Time-out', 505 => 'HTTP Version not supported',
-];
 
 
 class Response implements ResponseInterface
 {
+    const REASON_PHRASES = [
+        100 => 'Continue', 101 => 'Switching Protocols',
+        200 => 'OK', 201 => 'Created', 202 => 'Accepted', 203 => 'Non-Authoritative Information',
+        204 => 'No Content', 205 => 'Reset Content', 206 => 'Partial Content',
+        300 => 'Multiple Choices', 301 => 'Moved Permanently', 302 => 'Found', 303 => 'See Other',
+        304 => 'Not Modified', 305 => 'Use Proxy', 307 => 'Temporary Redirect',
+        400 => 'Bad Request', 401 => 'Unauthorized', 402 => 'Payment Required', 403 => 'Forbidden',
+        404 => 'Not Found', 405 => 'Method Not Allowed', 406 => 'Not Acceptable',
+        407 => 'Proxy Authentication Required', 408 => 'Request Time-out', 409 => 'Conflict',
+        410 => 'Gone', 411 => 'Length Required', 412 => 'Precondition Failed',
+        413 => 'Request Entity Too Large', 414 => 'Request-URI Too Large', 415 => 'Unsupported Media Type',
+        416 => 'Requested range not satisfiable', 417 => 'Expectation Failed',
+        500 => 'Internal Server Error', 501 => 'Not Implemented', 502 => 'Bad Gateway',
+        503 => 'Service Unavailable', 504 => 'Gateway Time-out', 505 => 'HTTP Version not supported',
+    ];
+
+
     /** @var array<never, never>|array<string> */
     protected array $headerList = [];
     /** @var array<never, never>|array<array-key, array{value: array<string>, replace: bool}> */
     protected array $headers = [];
-    protected ?Body $body = null;
+    protected string $charset = 'UTF-8';
+    protected string $protocol = '1.1';
+    protected ?string $reasonPhrase = null;
 
     public function __construct(
+        protected mixed $body = null,
         protected int $statusCode = 200,
-        string|Body|null $body = null,
-        /** @param array{name: string, value: string, replace: bool} */
+        /** @param list<array{name: string, value: string, replace: bool}> */
         array $headers = [],
-        protected string $protocol = '1.1',
-        protected ?string $reasonPhrase = null,
     ) {
-        if (!empty($body)) {
-            if (is_string($body)) {
-                $this->body = new Text($body);
-            } else {
-                $this->body = $body;
-            }
-        }
-
         foreach ($headers as $header) {
             $this->header($header['name'], $header['value'], $header['replace'] ?? true);
         }
     }
 
-    public function setStatusCode(int $statusCode, ?string $reasonPhrase = null): void
+    public function statusCode(int $statusCode, ?string $reasonPhrase = null): self
     {
         $this->statusCode = $statusCode;
 
         if ($reasonPhrase !== null) {
             $this->reasonPhrase = $reasonPhrase;
         }
+
+        return $this;
     }
 
-    public function protocol(string $protocol): void
-    {
-        $this->protocol = $protocol;
-    }
-
-    public function statusCode(): int
+    public function getStatusCode(): int
     {
         return $this->statusCode;
+    }
+
+    public function charset(string $charset): self
+    {
+        $this->charset = $charset;
+
+        return $this;
+    }
+
+    public function protocol(string $protocol): self
+    {
+        $this->protocol = $protocol;
+
+        return $this;
     }
 
     protected function validateHeaderName(string $name): void
@@ -87,7 +88,7 @@ class Response implements ResponseInterface
         string $name,
         string $value,
         bool $replace = true,
-    ): void {
+    ): self {
         $this->validateHeaderName($name);
         $name = ucwords(strtolower($name), '-');
 
@@ -97,13 +98,15 @@ class Response implements ResponseInterface
                 'replace' => $replace,
             ];
 
-            return;
+            return $this;
         }
 
         $this->headers[$name] = [
             'value' => [$value],
             'replace' => $replace,
         ];
+
+        return $this;
     }
 
     public function headers(): array
@@ -116,18 +119,16 @@ class Response implements ResponseInterface
         return $this->headerList;
     }
 
-    public function getBody(): ?Body
+    public function body(string $body): self
     {
-        return $this->body;
+        $this->body = $body;
+
+        return $this;
     }
 
-    public function body(string|Body $body): void
+    public function getBody(): ?string
     {
-        if (is_string($body)) {
-            $this->body = new Text($body);
-        } else {
-            $this->body = $body;
-        }
+        return $this->body;
     }
 
     protected function writeHeader(string $value, bool $replace): void
@@ -141,31 +142,16 @@ class Response implements ResponseInterface
         }
     }
 
-    public function file(
-        string $file,
-        bool $sendFile = false,
-        bool $asDownload = false,
-        int $chunkSize = 2 << 20, // 2 MB
-        bool $throwNotFound = true, // 2 MB
-    ): void {
-        $body = new File($this, $file, $chunkSize, $throwNotFound);
-
-        if ($sendFile) $body = $body->sendfile();
-        if ($asDownload) $body = $body->download();
-
-        $this->body = $body;
-    }
-
     public function emit(): void
     {
         if (!array_key_exists('Content-Type', $this->headers)) {
-            $this->writeHeader('Content-Type: text/html; charset=UTF-8', true);
+            $this->writeHeader('Content-Type: text/html; charset=' . $this->charset, true);
         } else {
             $ct = $this->headers['Content-Type']['value'][0];
 
             if (stripos($ct, 'text/') === 0 && stripos($ct, 'charset') === false) {
                 // Add missing charset
-                $this->headers['Content-Type']['value'][0] .= '; charset=UTF-8';
+                $this->headers['Content-Type']['value'][0] .= '; charset=' . $this->charset;
             }
         }
 
@@ -180,15 +166,16 @@ class Response implements ResponseInterface
             'HTTP/%s %d %s',
             $this->protocol,
             $this->statusCode,
-            $this->reasonPhrase ?: REASON_PHRASES[$this->statusCode]
+            $this->reasonPhrase ?: self::REASON_PHRASES[$this->statusCode]
         ), true);
 
         if (strtoupper($_SERVER['REQUEST_METHOD']) === 'HEAD') {
             return;
         }
 
-        if ($this->body !== null) {
-            $this->body->emit();
+        $body = $this->getBody();
+        if ($body !== null) {
+            echo $body;
         }
     }
 }

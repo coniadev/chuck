@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Chuck\Tests\Fixtures;
 
 use Chuck\Request;
-use Chuck\Response;
+use Chuck\Response\Response;
 
 
 class TestController
@@ -22,9 +22,7 @@ class TestController
 
     public function middlewareView(Request $request): Response
     {
-        $response = $request->response();
-        $response->body($response->getBody() . ' view');
-        return $response;
+        return $request->response(' view');
     }
 
     public function routeParams(string $string, float $float, Request $request, int $int): array

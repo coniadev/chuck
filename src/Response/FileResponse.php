@@ -2,39 +2,43 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Body;
+namespace Chuck\Response;
 
 use \finfo;
+use \LogicException;
 use \RuntimeException;
-use Chuck\ResponseInterface;
 use Chuck\Error\HttpNotFound;
 
 
-class File implements Body
+class FileResponse extends Response
 {
     protected bool $sendFile = false;
 
     public function __construct(
-        protected ResponseInterface $response,
         protected string $file,
-        protected int $chunkSize,
+        protected int $statusCode = 200,
+        /** @param list<array{name: string, value: string, replace: bool}> */
+        array $headers = [],
+        protected int $chunkSize = 2 << 20, // 2 MB
         protected bool $throwNotFound = true,
     ) {
+        parent::__construct(null, $statusCode, $headers);
+
         if (!is_file($file)) {
             if ($throwNotFound) {
                 throw new HttpNotFound();
             }
 
-            throw new RuntimeException('File for response body does not exist');
+            throw new RuntimeException('File not found');
         }
 
         $finfo = new finfo(FILEINFO_MIME_TYPE);
         $contentType = finfo_file($finfo, $this->file);
 
-        $response->header('Content-Type', $contentType);
+        $this->header('Content-Type', $contentType);
         $finfo = new finfo(FILEINFO_MIME_ENCODING);
-        $response->header('Content-Transfer-Encoding', finfo_file($finfo, $file));
-        $response->header('Content-Length', (string)filesize($this->file));
+        $this->header('Content-Transfer-Encoding', finfo_file($finfo, $file));
+        $this->header('Content-Length', (string)filesize($this->file));
     }
 
     public function sendfile(): self
@@ -43,9 +47,9 @@ class File implements Body
         $server = strtolower($_SERVER['SERVER_SOFTWARE']);
 
         if (strpos($server, 'nginx') !== false) {
-            $this->response->header('X-Accel-Redirect', $this->file);
+            $this->header('X-Accel-Redirect', $this->file);
         } else {
-            $this->response->header('X-Sendfile', $this->file);
+            $this->header('X-Sendfile', $this->file);
         }
 
         return $this;
@@ -53,7 +57,7 @@ class File implements Body
 
     public function download(): self
     {
-        $this->response->header(
+        $this->header(
             'Content-Disposition',
             'attachment; filename="' . basename($this->file) . '"'
         );
@@ -61,10 +65,17 @@ class File implements Body
         return $this;
     }
 
-    public function emit(): void
+    public function body(string $body): self
     {
+        throw new LogicException('The body cannot be set on a FileResponse instance.');
+    }
+
+    public function emit(bool $cleanOutputBuffer = true): void
+    {
+        parent::emit();
+
         if (!$this->sendFile) {
-            if (!(PHP_SAPI == 'cli')) {
+            if ($cleanOutputBuffer) {
                 // ob_end_clean will be called in the test suite
                 // @codeCoverageIgnoreStart
                 // Removes anything in the buffer, as this might corrupt the download

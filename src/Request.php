@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use Chuck\Response;
+use Chuck\Response\{
+    ResponseFactory,
+    ResponseFactoryInterface,
+    ResponseInterface
+};
 use Chuck\Routing\RouteInterface;
 use Chuck\Routing\RouterInterface;
 use Chuck\Util\Http;
@@ -12,15 +16,13 @@ use Chuck\Util\Http;
 
 class Request implements RequestInterface
 {
-    protected ResponseInterface $response;
     protected array $customMethods = [];
 
     public function __construct(
         protected ConfigInterface $config,
         protected RouterInterface $router,
-        ResponseInterface $response = null,
+        protected ResponseFactoryInterface $responseFactory = new ResponseFactory(),
     ) {
-        $this->response = $response ?: new Response();
     }
 
     public function params(): array
@@ -138,32 +140,16 @@ class Request implements RequestInterface
     }
 
     public function response(
+        ?string $body = null,
         int $statusCode = 200,
-        mixed $body = null,
         /** @param array{name: string, value: string, replace: bool} */
         array $headers = [],
-        ?string $protocol = null,
-        ?string $reasonPhrase = null,
-    ): ResponseInterface {
-        $this->response->setStatusCode($statusCode, $reasonPhrase);
-
-        if ($body) {
-            $this->response->body($body);
+    ): ResponseFactoryInterface|ResponseInterface {
+        if (func_num_args() === 0) {
+            return $this->responseFactory;
         }
 
-        foreach ($headers as $header) {
-            $this->response->header(
-                $header['name'],
-                $header['value'],
-                $header['replace'] ?? true
-            );
-        }
-
-        if ($protocol) {
-            $this->response->protocol($protocol);
-        }
-
-        return $this->response;
+        return $this->responseFactory->make($body, $statusCode, $headers);
     }
 
     public function __call(string $name, array $args)

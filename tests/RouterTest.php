@@ -6,7 +6,8 @@ use Chuck\Tests\Setup\{TestCase, C};
 use Chuck\Tests\Fixtures\TestMiddleware1;
 use Chuck\Tests\Fixtures\TestController;
 use Chuck\Tests\Fixtures\TestControllerWithRequest;
-use Chuck\{Request, Response};
+use Chuck\Request;
+use Chuck\Response\Response;
 use Chuck\Routing\{Router, Route, Group};
 use Chuck\Error\{HttpNotFound, HttpServerError, HttpMethodNotAllowed};
 
@@ -83,7 +84,7 @@ test('Static routes to nonexistent directory', function () {
 
 test('Dispatch closure', function () {
     $router = new Router();
-    $index = new Route('index', '/', fn (Request $request) => new Response(200, 'Chuck'));
+    $index = new Route('index', '/', fn (Request $request) => new Response('Chuck', 200));
     $router->addRoute($index);
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/'));
@@ -120,7 +121,7 @@ test('Dispatch invokable class', function () {
     {
         public function __invoke(Request $request)
         {
-            return new Response(200, 'Schuldiner');
+            return new Response('Schuldiner', 200);
         }
     };
     $object = new Route('object', '/object', '___InvocableClass');

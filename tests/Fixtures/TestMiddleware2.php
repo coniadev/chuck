@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Chuck\Tests\Fixtures;
 
 use Chuck\Request;
-use Chuck\Response;
+use Chuck\Response\Response;
 
 
 class TestMiddleware2

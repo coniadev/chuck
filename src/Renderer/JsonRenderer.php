@@ -4,35 +4,13 @@ declare(strict_types=1);
 
 namespace Chuck\Renderer;
 
-use Chuck\Body\Body;
-use Chuck\Body\Json;
+use Chuck\Response\JsonResponse;
 
 
 class JsonRenderer extends Renderer
 {
-    public function render(): Body
+    public function response(): JsonResponse
     {
-        return new Json($this->data);
-    }
-
-    public function headers(): iterable
-    {
-        $headers = [
-            [
-                'name' => 'Content-Type',
-                'value' => 'application/json',
-                'replace' => true,
-            ]
-        ];
-
-        // if (method_exists($this->request, 'session')) {
-        // $headers[] = [
-        // 'name' => 'X-CSRF-Token',
-        // 'value' => $this->request->session()->csrf->get(),
-        // 'replace' => true,
-        // ];
-        // }
-
-        return $headers;
+        return new JsonResponse($this->data);
     }
 }

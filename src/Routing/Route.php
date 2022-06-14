@@ -9,7 +9,7 @@ use \InvalidArgumentException;
 use \ValueError;
 
 use Chuck\Util\Arrays;
-use Chuck\Renderer;
+use Chuck\Renderer\Config as RendererConfig;
 
 const LEFT_BRACE = '§§§€§§§';
 const RIGHT_BRACE = '§§§£§§§';
@@ -19,7 +19,7 @@ class Route implements RouteInterface
 {
     protected array $args = [];
     protected array $methods = [];
-    protected ?Renderer\Config $renderer = null;
+    protected ?RendererConfig $renderer = null;
     protected array $middlewares = [];
     protected Closure|array|string $view;
 
@@ -105,12 +105,12 @@ class Route implements RouteInterface
 
     public function render(string $renderer, mixed ...$args): self
     {
-        $this->renderer = new Renderer\Config($renderer, $args);
+        $this->renderer = new RendererConfig($renderer, $args);
 
         return $this;
     }
 
-    public function getRenderer(): ?Renderer\Config
+    public function getRenderer(): ?RendererConfig
     {
         return $this->renderer;
     }

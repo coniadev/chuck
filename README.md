@@ -70,26 +70,6 @@ Default:
     })->middleware(new Permission('admin'))->render('json')->namespace('\Chuck\');
 ```
 
-## Create test databases:
-
-SQLite will be created automatically in the system's temp directory.
-
-PostgreSQL
-
-```
-    CREATE DATABASE chuck_test_db;
-    CREATE ROLE chuck_test_user LOGIN PASSWORD 'chuck_test_password';
-    GRANT ALL PRIVILEGES ON DATABASE chuck_test_db TO chuck_test_user;
-```
-
-MariaDB/MySQL
-
-```
-    CREATE DATABASE chuck_test_db;
-    CREATE USER chuck_test_user@localhost IDENTIFIED BY 'chuck_test_password';
-    GRANT ALL ON chuck_test_db.* TO chuck_test_user@localhost;
-```
-
 ## Docs:
 
 - Middlewares which run code after the $next call should check if the result
@@ -126,7 +106,27 @@ Note: Coverage is measured with pcov. Xdebug does report some PHP 8 match
 expressions as uncovered.
 
 Note: Full coverage is only reported if all three supported PDO drivers are installed
-which are sqlite, pgsql and mysql.
+which are sqlite, pgsql and mysql, and the test databases are set up.
+
+### Create test databases:
+
+SQLite will be created automatically in the system's temp directory.
+
+PostgreSQL
+
+```
+    CREATE DATABASE chuck_test_db;
+    CREATE ROLE chuck_test_user LOGIN PASSWORD 'chuck_test_password';
+    GRANT ALL PRIVILEGES ON DATABASE chuck_test_db TO chuck_test_user;
+```
+
+MariaDB/MySQL
+
+```
+    CREATE DATABASE chuck_test_db;
+    CREATE USER chuck_test_user@localhost IDENTIFIED BY 'chuck_test_password';
+    GRANT ALL ON chuck_test_db.* TO chuck_test_user@localhost;
+```
 
 TODO: list temporary paths.
 - sqlite test db

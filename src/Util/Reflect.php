@@ -15,7 +15,7 @@ use \Throwable;
 use \TypeError;
 
 use Chuck\RequestInterface;
-use Chuck\ResponseInterface;
+use Chuck\Response\ResponseInterface;
 
 
 class Reflect
@@ -28,7 +28,7 @@ class Reflect
         } elseif (is_object($callable)) {
             return (new ReflectionObject($callable))->getMethod('__invoke');
         } else {
-            /** @var Closure|non-empty-string $callable */
+            /** @var Closure|non-falsy-string $callable */
             return new ReflectionFunction($callable);
         }
     }

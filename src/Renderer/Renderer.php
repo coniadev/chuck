@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Renderer;
 
-use Chuck\Body\Body;
+use Chuck\Response\ResponseInterface;
 use Chuck\RequestInterface;
 
 abstract class Renderer implements RendererInterface
@@ -17,6 +17,5 @@ abstract class Renderer implements RendererInterface
     ) {
     }
 
-    abstract public function render(): Body;
-    abstract public function headers(): iterable;
+    abstract public function response(): ResponseInterface;
 }

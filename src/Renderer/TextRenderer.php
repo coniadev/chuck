@@ -6,39 +6,21 @@ namespace Chuck\Renderer;
 
 use \ErrorException;
 use \ValueError;
-use Chuck\Body\Body;
-use Chuck\Body\Text;
+use Chuck\Response\Response;
 
 
 class TextRenderer extends Renderer
 {
-    public function render(): Body
+    public function response(): Response
     {
         try {
-            return new Text((string)$this->data);
+            return (new Response((string)$this->data))->header(
+                'Content-Type',
+                ($this->args['contentType'] ?? null) ?: 'text/plain',
+                true,
+            );
         } catch (ErrorException) {
             throw new ValueError('Text renderer error: Wrong type [' . gettype($this->data) . ']');
         }
-    }
-
-    public function headers(): iterable
-    {
-        if (array_key_exists('contentType', $this->args)) {
-            return [
-                [
-                    'name' => 'Content-Type',
-                    'value' => $this->args['contentType'],
-                    'replace' => true,
-                ],
-            ];
-        }
-
-        return [
-            [
-                'name' => 'Content-Type',
-                'value' => 'text/plain',
-                'replace' => true,
-            ],
-        ];
     }
 }

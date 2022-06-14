@@ -6,14 +6,13 @@ namespace Chuck\Renderer;
 
 use \ErrorException;
 use \ValueError;
-use Chuck\Body\Body;
-use Chuck\Body\Text;
+use Chuck\Response\Response;
 use Chuck\Template\Engine;
 
 
 class TemplateRenderer extends Renderer
 {
-    public function render(): Body
+    public function response(): Response
     {
         if ($this->data instanceof \Traversable) {
             $context = iterator_to_array($this->data);
@@ -43,27 +42,11 @@ class TemplateRenderer extends Renderer
                 'env' => $config->env(),
             ]
         );
-        return new Text($template->render($templateName, $context));
-    }
 
-    public function headers(): iterable
-    {
-        if (array_key_exists('contentType', $this->args)) {
-            return [
-                [
-                    'name' => 'Content-Type',
-                    'value' => $this->args['contentType'],
-                    'replace' => true,
-                ],
-            ];
-        }
-
-        return [
-            [
-                'name' => 'Content-Type',
-                'value' => 'text/html',
-                'replace' => true,
-            ],
-        ];
+        return (new Response($template->render($templateName, $context)))->header(
+            'Content-Type',
+            ($this->args['contentType'] ?? null) ?: 'text/html',
+            true
+        );
     }
 }

@@ -173,6 +173,7 @@ class Config implements ConfigInterface
         }
     }
 
+    /** @return array<string, array{class: class-string<Renderer>, settings: mixed}> */
     public function renderers(): array
     {
         return $this->renderers;

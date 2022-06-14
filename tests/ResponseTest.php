@@ -2,8 +2,7 @@
 
 declare(strict_types=1);
 
-use Chuck\Response;
-use Chuck\Body\{File, Text};
+use Chuck\Response\{Response, FileResponse, JsonResponse};
 use Chuck\Tests\Setup\{TestCase, C};
 use Chuck\Error\HttpNotFound;
 
@@ -12,8 +11,8 @@ uses(TestCase::class);
 
 
 test('Create with body', function () {
-    $text = new Text('text');
-    $response = new Response(body: $text);
+    $text = 'text';
+    $response = new Response($text);
     expect($response->getBody())->toBe($text);
 });
 
@@ -44,7 +43,7 @@ test('Set invalid header', function () {
 
 test('HEAD request', function () {
     $request = $this->request(method: 'head');
-    $response = $request->response(body: new Text('should not appear'));
+    $response = $request->response('should not appear');
 
     expect((string)$response->getBody())->toBe('should not appear');
     ob_start();
@@ -57,35 +56,74 @@ test('HEAD request', function () {
 
 test('Request::response', function () {
     $request = $this->request();
-    $response = $request->response(
-        404,
-        'Pull the Plug',
-        [['name' => 'Content-Type', 'value' => 'text/superior', 'replace' => false]],
-        '1.2',
-        'The Plug is Pulled',
-    );
+    $response = $request->response('Pull the Plug');
 
-    expect($response->statusCode())->toBe(404);
+    expect($response->getStatusCode())->toBe(200);
     expect((string)$response->getBody())->toBe('Pull the Plug');
+});
+
+
+test('Request::response::json', function () {
+    $request = $this->request();
+    $response = $request->response()->json([1, 2, 3]);
+
+    expect($response->getStatusCode())->toBe(200);
+    expect((string)$response->getBody())->toBe('[1,2,3]');
+});
+
+
+test('Request::response::file', function () {
+    $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.gif';
+    $request = $this->request();
+    $response = $request->response()->file($file);
+
+    expect($response)->toBeInstanceOf(FileResponse::class);
+});
+
+
+test('Response defaults', function () {
+    $response = new Response('Pull the Plug');
+
+    expect($response->getStatusCode())->toBe(200);
+    expect((string)$response->getBody())->toBe('Pull the Plug');
+
     ob_start();
     $response->emit();
     ob_end_clean();
+
     expect($response->getHeaderList())->toBe([
-        'Content-Type: text/superior; charset=UTF-8',
+        'Content-Type: text/html; charset=UTF-8',
+        'HTTP/1.1 200 OK',
+    ]);
+});
+
+
+test('Response overwrite defaults', function () {
+    $response = (new Response(
+        'Pull the Plug',
+        headers: [['name' => 'Content-Type', 'value' => 'text/superior', 'replace' => false]]
+    ))->protocol('1.2')->statusCode(404, 'The Plug is Pulled')->charset('UTF-32');
+
+    expect($response->getStatusCode())->toBe(404);
+    expect((string)$response->getBody())->toBe('Pull the Plug');
+
+    ob_start();
+    $response->emit();
+    ob_end_clean();
+
+    expect($response->getHeaderList())->toBe([
+        'Content-Type: text/superior; charset=UTF-32',
         'HTTP/1.2 404 The Plug is Pulled',
     ]);
 });
 
 
-test('File body', function () {
-    $response = $this->request()->response();
+test('File response', function () {
     $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.gif';
-    $response->file($file);
-
-    expect($response->getBody())->toBeInstanceOf(File::class);
+    $response = new FileResponse($file);
 
     ob_start();
-    $response->emit();
+    $response->emit(cleanOutputBuffer: false);
     ob_end_clean();
 
     expect($response->getHeaderList())->toContain('Content-Type: image/gif');
@@ -96,13 +134,12 @@ test('File body', function () {
 });
 
 
-test('File body as download', function () {
-    $response = $this->request()->response();
+test('File response as download', function () {
     $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.gif';
-    $response->file($file, asDownload: true);
+    $response = (new FileResponse($file))->download();
 
     ob_start();
-    $response->emit();
+    $response->emit(cleanOutputBuffer: false);
     ob_end_clean();
 
     expect($response->getHeaderList())->toContain(
@@ -111,25 +148,23 @@ test('File body as download', function () {
 });
 
 
-test('File body with sendfile', function () {
+test('File response with sendfile', function () {
     $_SERVER['SERVER_SOFTWARE'] = 'nginx';
-    $response = $this->request()->response();
     $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.gif';
-    $response->file($file, sendFile: true, asDownload: true);
+    $response = (new FileResponse($file))->download()->sendfile();
 
     ob_start();
-    $response->emit();
+    $response->emit(cleanOutputBuffer: false);
     ob_end_clean();
     expect($response->getHeaderList())->toContain("X-Accel-Redirect: $file");
 
 
     $_SERVER['SERVER_SOFTWARE'] = 'apache';
-    $response = $this->request()->response();
     $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.gif';
-    $response->file($file, sendFile: true, asDownload: true);
+    $response = (new FileResponse($file))->download()->sendfile();
 
     ob_start();
-    $response->emit();
+    $response->emit(cleanOutputBuffer: false);
     ob_end_clean();
     expect($response->getHeaderList())->toContain("X-Sendfile: $file");
 
@@ -137,15 +172,19 @@ test('File body with sendfile', function () {
 });
 
 
-test('File body nonexistent file', function () {
-    $response = $this->request()->response();
+test('File response nonexistent file', function () {
     $file = C::root() . C::DS . 'static' . C::DS . 'pixel.jpg';
-    $response->file($file);
+    new FileResponse($file);
 })->throws(HttpNotFound::class);
 
 
-test('File body nonexistent file with runtime error', function () {
-    $response = $this->request()->response();
+test('File response nonexistent file with runtime error', function () {
     $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.jpg';
-    $response->file($file, throwNotFound: false);
-})->throws(RuntimeException::class, 'does not exist');
+    new FileResponse($file, throwNotFound: false);
+})->throws(RuntimeException::class, 'File not found');
+
+
+test('File response body set', function () {
+    $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.gif';
+    (new FileResponse($file))->body('');
+})->throws(LogicException::class, 'The body cannot be set');

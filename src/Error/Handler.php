@@ -7,6 +7,7 @@ namespace Chuck\Error;
 use \ErrorException;
 use \Throwable;
 use Chuck\RequestInterface;
+use Chuck\Response\ResponseInterface;
 use Chuck\Error\HttpError;
 use Chuck\Error\HttpBadRequest;
 use Chuck\Error\HttpForbidden;
@@ -42,12 +43,13 @@ class Handler
 
     public function handleException(Throwable $exception): void
     {
+        /** @var ResponseInterface */
+        $response = $this->request->response(null);
         $debug = $this->request->config()->debug();
-        $response = $this->request->response();
 
         if ($exception instanceof HttpError) {
             $code = $exception->getCode();
-            $response->setStatusCode($code);
+            $response->statusCode($code);
             $body = '<h1>' . htmlspecialchars($exception->getTitle()) . '</h1>';
             $subTitle = $exception->getSubtitle();
 
@@ -62,7 +64,7 @@ class Handler
             // @codeCoverageIgnoreEnd
         } else {
             $code = 500;
-            $response->setStatusCode($code);
+            $response->statusCode($code);
             $body = '<h1>500 Internal Server Error</h1>';
             $body .= '<h2>' . htmlspecialchars($exception->getMessage()) . '</h2>';
         }
@@ -77,8 +79,7 @@ class Handler
             $body .= preg_replace('/^<br>/', '', $trace);
         }
 
-        $response->body($body);
-        $response->emit();
+        $response->body($body)->emit();
         $this->log($exception);
     }
 
