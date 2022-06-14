@@ -27,10 +27,6 @@ class ___ObjectMiddleware
 
     public function __invoke(Request $request, callable $next): Request|Response
     {
-        // add $text from constructor
-        // $response = $request->response($this->text);
-        // error_log($response->getBody());
-
         // handle next
         $response = $next($request);
 
