@@ -20,7 +20,7 @@ class Session implements SessionInterface
     public function start(): void
     {
         if (session_status() === PHP_SESSION_NONE) {
-            if (!headers_sent()) {
+            if (!headers_sent($file, $line)) {
                 session_name($this->name);
 
                 if (!session_start()) {
@@ -30,7 +30,10 @@ class Session implements SessionInterface
                 }
             } else {
                 // @codeCoverageIgnoreStart
-                throw new RuntimeException(__METHOD__ . 'Session started after headers sent.');
+                throw new RuntimeException(
+                    __METHOD__ . 'Session started after headers sent. File: ' .
+                        $file . ' line: ' . $line
+                );
                 // @codeCoverageIgnoreEnd
             }
         }
