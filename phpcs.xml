@@ -32,8 +32,8 @@
     </rule>
 
     <rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
-        <properties>
-            <property name="validUnusedVariableNames" value="_ __ ___"/>
-        </properties>
-    </rule>
+		<properties>
+			<property name="ignoreUnusedRegexp" value="/^(_|__|___)$/"/>
+		</properties>
+	</rule>
 </ruleset>

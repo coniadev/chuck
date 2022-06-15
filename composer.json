@@ -1,5 +1,5 @@
 {
-    "name": "ebenefuenf/chuck",
+    "name": "conia/chuck",
     "description": "",
     "version": "0.1.0",
     "type": "project",
@@ -8,15 +8,10 @@
     "prefer-stable": true,
     "require-dev": {
         "phpunit/phpunit": "^9",
-        "nunomaduro/collision": "^6",
         "pestphp/pest": "^1",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
         "sirbrillig/phpcs-variable-analysis": "^2.11",
-        "league/plates": "^3.4",
-        "psy/psysh": "^0.11.1",
-        "symfony/console": "6.0.2",
-        "vimeo/psalm": "5.0.0-alpha1",
-        "composer": "^2.2"
+        "vimeo/psalm": "^5.0.0-beta1"
     },
     "require": {
         "php": ">=8.1",
@@ -24,13 +19,9 @@
         "psr/log": "^3.0",
         "psr/container": "^2.0"
     },
-    "suggest": {
-        "league/plates": "If you want to use the Plates template engine"
-    },
     "autoload": {
         "psr-4": {
-            "Chuck\\": "src",
-            "Chuck\\Lib\\": "lib"
+            "Chuck\\": "src"
         }
     },
     "autoload-dev": {
