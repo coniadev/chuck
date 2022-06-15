@@ -203,14 +203,14 @@ test('Render error :: missing template', function () {
     $tpl = new Engine($this->templates());
 
     $tpl->render('nonexistent');
-})->throws(ValueError::class, 'inside the project root');
+})->throws(ValueError::class, 'not found');
 
 
 test('Render error :: template outside root directory', function () {
     $tpl = new Engine($this->templates());
 
     $tpl->render('../../../../../etc/passwd');
-})->throws(ValueError::class, 'inside the project root');
+})->throws(ValueError::class, 'not found');
 
 
 test('Render error :: parse error', function () {
