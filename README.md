@@ -36,7 +36,7 @@ Chuck framework
 ### Middleware:
 
 ```php
-    use Chuck\{App, Route, RequestInterface};
+    use Chuck\{App, Config, Route, RequestInterface};
 
     class Middleware {
         public function __invoke(RequestInterface $request, callable $next) {
@@ -47,7 +47,7 @@ Chuck framework
         }
     }
 
-    $app = App::create(__DIR__ . '/config.php');
+    $app = App::create(new Config('chuck'));
     $app->middleware(new Middleware());
 
     // Route specific middleware
