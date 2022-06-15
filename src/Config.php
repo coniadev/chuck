@@ -22,8 +22,6 @@ class Config implements ConfigInterface
 {
     public const DEFAULT = 'default';
 
-    protected readonly string $root;
-    protected readonly string $public;
     protected readonly bool $debug;
     protected readonly string $env;
     protected readonly string $app;
@@ -45,15 +43,11 @@ class Config implements ConfigInterface
 
     public function __construct(
         string $app,
-        string $root,
-        string $public = null,
         bool $debug = false,
         string $env = '',
         array $settings = []
     ) {
         $this->app = $this->getApp($app);
-        $this->root = $this->getRoot($root);
-        $this->public = $this->getPublic($public);
         $this->debug = $debug;
         $this->env = $env;
         $this->settings = $settings;
@@ -73,43 +67,6 @@ class Config implements ConfigInterface
                 'The app name must be a nonempty string which consist only of lower case ' .
                     'letters and numbers. Its length must not be longer than 32 characters.'
             );
-        }
-    }
-
-    protected function getRoot(string $root): string
-    {
-        $root = rtrim(PathUtil::realpath($root), DIRECTORY_SEPARATOR);
-
-        if (!PathUtil::isAbsolute($root)) {
-            throw new ValueError('Configuration error: root path must be an absolute path: ' . $root);
-        }
-
-        return $root;
-    }
-
-    protected function preparePublic(string $dir): string
-    {
-        $dir = PathUtil::realpath($dir);
-
-        if (!PathUtil::isAbsolute($dir)) {
-            $dir = $this->root . DIRECTORY_SEPARATOR . $dir;
-        }
-
-        if (is_dir($dir)) {
-            return $dir;
-        }
-
-        throw new ValueError(
-            'Configuration error: public directory is not set and could not be determined'
-        );
-    }
-
-    protected function getPublic(?string $public): string
-    {
-        if (isset($public)) {
-            return $this->preparePublic($public);
-        } else {
-            return $this->preparePublic('public');
         }
     }
 
@@ -141,16 +98,6 @@ class Config implements ConfigInterface
     public function app(): string
     {
         return $this->app;
-    }
-
-    public function root(): string
-    {
-        return $this->root;
-    }
-
-    public function public(): string
-    {
-        return $this->public;
     }
 
     public function debug(): bool

@@ -142,7 +142,7 @@ class Request implements RequestInterface
     public function response(
         ?string $body = null,
         int $statusCode = 200,
-        /** @param array{name: string, value: string, replace: bool} */
+        /** @param list<array{name: string, value: string, replace: bool}> */
         array $headers = [],
     ): ResponseFactoryInterface|ResponseInterface {
         if (func_num_args() === 0) {

@@ -97,7 +97,7 @@ class TestCase extends BaseTestCase
 
     public function config(bool $debug = false): Config
     {
-        return new Config('chuck', root: C::root(), debug: $debug);
+        return new Config('chuck', debug: $debug);
     }
 
     public function templates(array $templates = []): array

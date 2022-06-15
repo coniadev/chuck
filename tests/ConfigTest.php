@@ -12,40 +12,19 @@ uses(DatabaseCase::class);
 
 
 test('Defaults', function () {
-    $config = new Config('chuck', C::root());
+    $config = new Config('chuck');
 
     expect($config->app())->toBe('chuck');
-    expect($config->root())->toBe(C::root());
-    expect($config->public())->toBe(C::root() . DIRECTORY_SEPARATOR . 'public');
 });
 
 
 test('Wrong app name', function () {
-    new Config('wrong name', C::root());
+    new Config('wrong name');
 })->throws(ValueError::class, 'app name');
 
 
-test('Root path not absolute', function () {
-    new Config('chuck', 'no/absolute/path');
-})->throws(ValueError::class, 'must be an absolute');
-
-
-test('Public not determinable', function () {
-    new Config('chuck', C::root() . C::DS . 'altroot');
-})->throws(ValueError::class, 'not be determined');
-
-
-test('Public set', function () {
-    $config = new Config('chuck', C::root() . C::DS . 'altroot', 'www');
-
-    expect($config->public())->toBe(realpath(
-        C::root() . C::DS . 'altroot' . C::DS . 'www'
-    ));
-});
-
-
 test('Custom options', function () {
-    $config = new Config('chuck', C::root());
+    $config = new Config('chuck');
     $config->set('album', 'Symbolic');
 
     expect($config->has('album'))->toBe(true);
@@ -54,21 +33,21 @@ test('Custom options', function () {
 
 
 test('Default value', function () {
-    $config = new Config('chuck', C::root());
+    $config = new Config('chuck');
 
     expect($config->get('missing', 'default'))->toBe('default');
 });
 
 
 test('Missing key', function () {
-    $config = new Config('chuck', C::root());
+    $config = new Config('chuck');
 
     $config->get('missing');
 })->throws(InvalidArgumentException::class, 'does not exist');
 
 
 test('Logger setup', function () {
-    $config = new Config('chuck', C::root());
+    $config = new Config('chuck');
     $config->setupLogger(function () {
         $logfile = C::root() . C::DS . 'log' . C::DS . bin2hex(random_bytes(4)) . '.log';
         return new Logger(Logger::DEBUG, $logfile);
@@ -81,7 +60,7 @@ test('Logger setup', function () {
 
 
 test('Add renderer', function () {
-    $config = new Config('chuck', C::root());
+    $config = new Config('chuck');
     $config->addRenderer('test', TestRenderer::class);
     $renderers = $config->renderers();
 
@@ -93,13 +72,13 @@ test('Add renderer', function () {
 
 
 test('Add wrong renderer', function () {
-    $config = new Config('chuck', C::root());
+    $config = new Config('chuck');
     $config->addRenderer('test', Config::class);
 })->throws(ValueError::class, 'must extend');
 
 
 test('Add database connection', function () {
-    $config = new Config('chuck', C::root());
+    $config = new Config('chuck');
     $conn1 = new Connection($this->getDsn(), $this->getSqlDirs());
     $config->addConnection($conn1);
     $conn2 = new Connection($this->getDsn(), $this->getSqlDirs());
@@ -111,7 +90,7 @@ test('Add database connection', function () {
 
 
 test('Add duplicate database connection', function () {
-    $config = new Config('chuck', C::root());
+    $config = new Config('chuck');
     $conn1 = new Connection($this->getDsn(), $this->getSqlDirs());
     $config->addConnection($conn1);
     $conn2 = new Connection($this->getDsn(), $this->getSqlDirs());
@@ -121,7 +100,7 @@ test('Add duplicate database connection', function () {
 
 
 test('Scripts', function () {
-    $config = new Config('chuck', C::root());
+    $config = new Config('chuck');
     $scripts = $config->scripts();
 
     expect(count($scripts->get()))->toBe(1);

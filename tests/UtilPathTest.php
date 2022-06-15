@@ -24,10 +24,11 @@ test('Path realpath', function () {
 test('Path is inside root dir', function () {
     $config = $this->config();
     $pathUtil = new Path($config);
+    $ds = DIRECTORY_SEPARATOR;
 
-    expect($pathUtil->inside($config->root(), C::root() . "/../leprosy"))->toBe(false);
-    expect($pathUtil->inside($config->root(), C::root() . "/symbolic"))->toBe(true);
-    expect($pathUtil->inside($config->root(), C::root() . "/././/./symbolic"))->toBe(true);
-    expect($pathUtil->inside($config->root(), C::root() . "/./..//./symbolic"))->toBe(false);
-    expect($pathUtil->inside($config->root(), "/etc/apache"))->toBe(false);
+    expect($pathUtil->inside(C::root(), C::root() . "$ds..{$ds}leprosy"))->toBe(false);
+    expect($pathUtil->inside(C::root(), C::root() . "{$ds}symbolic"))->toBe(true);
+    expect($pathUtil->inside(C::root(), C::root() . "$ds.$ds.$ds$ds.{$ds}symbolic"))->toBe(true);
+    expect($pathUtil->inside(C::root(), C::root() . "$ds.$ds..$ds$ds.{$ds}symbolic"))->toBe(false);
+    expect($pathUtil->inside(C::root(), "{$ds}etc{$ds}apache"))->toBe(false);
 });
