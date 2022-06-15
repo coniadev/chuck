@@ -285,6 +285,13 @@ class Router implements RouterInterface
                     default => Reflect::getRequestParamOrError($request, $param, $name),
                 };
             } catch (Throwable $e) {
+                // Check if the view parameter has a default value
+                if (!array_key_exists($name, $routeArgs) && $param->isOptional()) {
+                    $args[$name] = $param->getDefaultValue();
+
+                    continue;
+                }
+
                 throw new RuntimeException($errMsg . $e->getMessage());
             }
         }

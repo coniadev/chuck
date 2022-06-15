@@ -190,6 +190,32 @@ test('Dispatch view with route params', function () {
 });
 
 
+test('Dispatch view with default value params', function () {
+    $index = (new Route('params', '/{string}', TestController::class . '::routeDefaultValueParams'))->render('json');
+    $withInt = (new Route('params:default', '/{string}/{int}', TestController::class . '::routeDefaultValueParams'))->render('json');
+
+    $router = new Router();
+    $router->addRoute($index);
+    $router->addRoute($withInt);
+    $response = $router->dispatch($this->request(method: 'GET', url: '/symbolic/17'));
+
+    expect($router->getRoute())->toBeInstanceOf(Route::class);
+    expect((string)$response->getBody())->toBe(
+        '{"string":"symbolic","int":17}'
+    );
+
+    $router = new Router();
+    $router->addRoute($index);
+    $router->addRoute($withInt);
+    $response = $router->dispatch($this->request(method: 'GET', url: '/symbolic'));
+
+    expect($router->getRoute())->toBeInstanceOf(Route::class);
+    expect((string)$response->getBody())->toBe(
+        '{"string":"symbolic","int":13}'
+    );
+});
+
+
 test('Dispatch view with wrong route params', function () {
     $router = new Router();
     $index = (new Route('params', '/{wrong}/{param}', TestControllerWithRequest::class . '::routeParams'))->render('json');

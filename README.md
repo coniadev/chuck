@@ -17,13 +17,17 @@ Chuck framework
 
 ```php
     use Chuck\{App, Config, Router, Route, Request, ResponseFactory};
+    use Chuck\Renderer\TemplateRenderer;
 
     $config = new Config('chuck');
+
+    // Add template support
+    $config->addRenderer('template', TemplateRenderer::class, '/path/to/templates');
 
     $router = new Router();
     $router->add(Route::get('index', '/', function () {
         return ['data' => [1, 2, 3]];
-    })->renderer('json'));
+    })->render('json'));
     $router->add(Route::get('file', '/file', function (Request $request) {
         return $request->response()->file('/path/to/file.zip');
     }));
@@ -63,12 +67,11 @@ Chuck framework
 
 ## Routes:
 
-
 ```php
     // Single route
     $route = Route::get('index', '/', function (Request $request) {
         return [1, 2, 3];
-    })->renderer('json');
+    })->render('json');
     $app->add($route);
 
     $route = (new Route('index', '/', function (Request $request) {}))->method('GET','POST');

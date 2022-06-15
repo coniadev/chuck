@@ -34,4 +34,12 @@ class TestController
             'request' => $request::class,
         ];
     }
+
+    public function routeDefaultValueParams(string $string, int $int = 13): array
+    {
+        return [
+            'string' => $string,
+            'int' => $int,
+        ];
+    }
 }
