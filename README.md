@@ -2,7 +2,7 @@ Chuck framework
 ===============
 
 
-Default:
+## Default:
 
 ```php
     use Chuck\{App, Config, Route};
