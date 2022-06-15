@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\TestCase;
+use Chuck\Tests\Setup\{C, TestCase};
 use Chuck\Renderer\JsonRenderer;
 use Chuck\Renderer\TextRenderer;
 use Chuck\Renderer\TemplateRenderer;
@@ -62,13 +62,10 @@ test('String Renderer :: wrong type', function () {
 })->throws(ValueError::class, 'Wrong type [array]');
 
 
-test('Template Renderer :: html', function () {
+test('Template Renderer :: html (array of template dirs)', function () {
     $renderer = new TemplateRenderer(
         $this->request(),
-        [
-            'text' => 'numbers',
-            'arr' => [1, 2, 3]
-        ],
+        ['text' => 'numbers', 'arr' => [1, 2, 3]],
         ['renderer'],
         $this->templates(),
     );
@@ -84,6 +81,20 @@ test('Template Renderer :: html', function () {
     expect($hasContentType)->toBe(true);
     expect($response->getBody())->toBe("<h1>chuck</h1>\n<p>numbers</p><p>1</p><p>2</p><p>3</p>");
 });
+
+
+test('Template Renderer :: html (template dir as string)', function () {
+    $renderer = new TemplateRenderer(
+        $this->request(),
+        ['text' => 'numbers', 'arr' => [1, 2, 3]],
+        ['renderer'],
+        C::root() . C::DS . 'templates' . C::DS . 'default',
+    );
+    $response = $renderer->response();
+
+    expect($response->getBody())->toBe("<h1>chuck</h1>\n<p>numbers</p><p>1</p><p>2</p><p>3</p>");
+});
+
 
 test('Template Renderer :: xhtml', function () {
     $renderer = new TemplateRenderer(

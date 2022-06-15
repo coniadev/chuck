@@ -26,8 +26,12 @@ class TemplateRenderer extends Renderer
             throw new ValueError('No template passed to template renderer');
         }
 
-        if (!is_array($this->settings) || count($this->settings) === 0) {
-            throw new ValueError('No template dirs given');
+        if (is_string($this->settings)) {
+            $this->settings = [$this->settings];
+        } else {
+            if (!is_array($this->settings) || count($this->settings) === 0) {
+                throw new ValueError('No template dirs given');
+            }
         }
 
         $request = $this->request;
