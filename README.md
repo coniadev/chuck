@@ -5,28 +5,27 @@ Chuck framework
 Default:
 
 ```php
-    use Chuck\{App, Route};
+    use Chuck\{App, Config, Route};
 
-    $app = App::create(__DIR__ . '/config.php');
+    $app = App::create(new Config('chuck'));
     $app->add(Route::get('index', '/', function (Request $request) {}));
     $app->run();
 ```
 
-## Delarative:
+## Manually:
 
 ```php
     use Chuck\{App, Config, Router, Route, Request};
 
-    $config = new Config(__DIR__ . '/config.php');
+    $config = new Config('chuck');
     $router = new Router();
     $route = (new Route('index', '/', function (Request $request) {}))->method('GET');
     $router->add($route);
-    $app = new App(new Request($router, $config));
+    $app = new App(new Request($config, $router));
     $app->run();
 ```
 
-## Add middleware:
-
+## Middleware:
 
 ```php
     use Chuck\{App, Route, RequestInterface};
@@ -34,19 +33,22 @@ Default:
     class Middleware {
         public function __invoke(RequestInterface $request, callable $next) {
             // ... do something before the next
-            $request = $next($request);
+            $resujlt = $next($request);
             // ... do something after the next
-            return $request;
+            return $result;
         }
     }
 
     $app = App::create(__DIR__ . '/config.php');
-    $app->reqister(new Middleware());
+    $app->middleware(new Middleware());
 
     // Route specific middleware
-    $app->add(Route::get('index', '/', function (Request $request) {}))->reqister(function (RequestInterface $request, callable $next): $request {
-        return $next($request);
-    });
+    $app->add(
+        Route::get('index', '/', function (Request $request) {}))->middleware(
+            function (RequestInterface $request, callable $next): $request {
+            return $next($request);
+        })
+    );
     $app->run();
 ```
 
@@ -55,25 +57,19 @@ Default:
 
 
 ```php
-    
-    $app->addRoute([
-        'name' => 'admin:index',
-        'route' => '/admin/',
-        'view' => '\App\Controller\Admin\Home::index',
-        'permission' => 'backend',
-        'renderer' => 'template:admin/index',
-    ]);
+    // Single route
+    $route = Route::get('index', '/', function (Request $request) {
+        return [1, 2, 3];
+    })->renderer('json');
+    $app->add($route);
 
 
+    // Route groups
     $app->group(new Group('admin:', '/admin/', function (Group $group) {
-        $group->add(Route::get(())
-    })->middleware(new Permission('admin'))->render('json')->namespace('\Chuck\');
+        $group->add(Route::get(...);
+        $group->add(Route::post(...);
+    });
 ```
-
-## Docs:
-
-- Middlewares which run code after the $next call should check if the result
-  of $next is a response and return immediately if so.
 
 
 ## Config
@@ -90,6 +86,7 @@ are not initialized in the constructor. The maintainers suggest to
 suppress errors is the only appropriate way. Recheck on occasion.
 
 - https://github.com/vimeo/psalm/issues/7608
+
 
 ## Tests:
 
@@ -128,5 +125,8 @@ MariaDB/MySQL
     GRANT ALL ON chuck_test_db.* TO chuck_test_user@localhost;
 ```
 
-TODO: list temporary paths.
+## TODO
+
+list temporary paths.
+
 - sqlite test db
