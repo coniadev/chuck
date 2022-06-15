@@ -1,31 +1,39 @@
 Chuck framework
 ===============
 
+## Usage:
 
-## Default:
+### Quick Start:
 
 ```php
     use Chuck\{App, Config, Route};
 
     $app = App::create(new Config('chuck'));
-    $app->add(Route::get('index', '/', function (Request $request) {}));
+    $app->add(Route::get('index', '/', 'Controller::view'));
     $app->run();
 ```
 
-## Manually:
+### Manually:
 
 ```php
-    use Chuck\{App, Config, Router, Route, Request};
+    use Chuck\{App, Config, Router, Route, Request, ResponseFactory};
 
     $config = new Config('chuck');
+
     $router = new Router();
-    $route = (new Route('index', '/', function (Request $request) {}))->method('GET');
-    $router->add($route);
-    $app = new App(new Request($config, $router));
+    $router->add(Route::get('index', '/', function () {
+        return ['data' => [1, 2, 3]];
+    })->renderer('json'));
+    $router->add(Route::get('file', '/file', function (Request $request) {
+        return $request->response()->file('/path/to/file.zip');
+    }));
+
+    // The ResponseFactory is optional
+    $app = new App(new Request($config, $router, new ResponseFactory()));
     $app->run();
 ```
 
-## Middleware:
+### Middleware:
 
 ```php
     use Chuck\{App, Route, RequestInterface};
@@ -62,6 +70,8 @@ Chuck framework
         return [1, 2, 3];
     })->renderer('json');
     $app->add($route);
+
+    $route = (new Route('index', '/', function (Request $request) {}))->method('GET','POST');
 
 
     // Route groups

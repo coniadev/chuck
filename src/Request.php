@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use Chuck\Response\{
-    ResponseFactory,
-    ResponseFactoryInterface,
-    ResponseInterface
-};
+use Chuck\ResponseFactory;
+use Chuck\ResponseFactoryInterface;
+use Chuck\Response\ResponseInterface;
 use Chuck\Routing\RouteInterface;
 use Chuck\Routing\RouterInterface;
 use Chuck\Util\Http;

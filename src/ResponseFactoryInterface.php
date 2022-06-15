@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Response;
+namespace Chuck;
 
+use Chuck\Response\ResponseInterface;
 
 interface ResponseFactoryInterface
 {
