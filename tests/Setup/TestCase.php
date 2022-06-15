@@ -97,7 +97,12 @@ class TestCase extends BaseTestCase
 
     public function config(bool $debug = false): Config
     {
-        return new Config('chuck', debug: $debug);
+        $config = new Config('chuck', debug: $debug);
+        $config->setupLogger(function (): LoggerInterface {
+            return new Logger();
+        });
+
+        return $config;
     }
 
     public function templates(array $templates = []): array
@@ -144,9 +149,6 @@ class TestCase extends BaseTestCase
 
         if ($config === null) {
             $config = $this->config();
-            $config->setupLogger(function (): LoggerInterface {
-                return new Logger();
-            });
         }
 
         if ($router === null) {

@@ -100,6 +100,7 @@ class Handler
     public function log(Throwable $exception): void
     {
         $logger = $this->request->config()->logger();
+
         if ($logger) {
             $method = $this->getLoggerMethod($exception);
             ([$logger, $method])("Uncaught Exception:", ['exception' => $exception]);

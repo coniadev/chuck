@@ -100,7 +100,6 @@ class Environment
                 FROM pg_tables
                 WHERE schemaname = '$schema'
                 AND tablename = '$table';",
-            default => false,
         };
 
         if ($query && ($db->execute($query)->one(PDO::FETCH_ASSOC)['available'] ?? 0) === 1) {

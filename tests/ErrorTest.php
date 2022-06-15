@@ -6,6 +6,7 @@ use Chuck\Error\Handler;
 use Chuck\Error\HttpBadRequest;
 use Chuck\Error\HttpForbidden;
 use Chuck\Error\HttpNotFound;
+use Chuck\Error\HttpMethodNotAllowed;
 use Chuck\Error\HttpServerError;
 use Chuck\Error\HttpUnauthorized;
 use Chuck\Tests\Setup\TestCase;
@@ -17,13 +18,14 @@ beforeEach(function () {
     // capture output of error_log calls in a temporary file
     // to prevent it printed to the console.
     $this->default = ini_set('error_log', stream_get_meta_data(tmpfile())['uri']);
-    $tmpfile = tmpfile();
-    $this->logfile = stream_get_meta_data($tmpfile)['uri'];
+    $this->tmpfile = tmpfile();
+    $this->logfile = stream_get_meta_data($this->tmpfile)['uri'];
 });
 
 
 afterEach(function () {
     // Restore default error_log and handlers
+    is_file($this->logfile) && unlink($this->logfile);
     ini_set('error_log', $this->default);
     restore_error_handler();
     restore_exception_handler();
@@ -79,6 +81,12 @@ test('Handle HTTP Exceptions', function () {
     $output = ob_get_contents();
     ob_end_clean();
     expect($output)->toBe("<h1>404 Not Found</h1><h2>I&#039;ve searched everywhere</h2>");
+
+    ob_start();
+    $err->handleException(new HttpMethodNotAllowed());
+    $output = ob_get_contents();
+    ob_end_clean();
+    expect($output)->toBe("<h1>405 Method Not Allowed</h1><h2>HTTP Error</h2>");
 
     ob_start();
     $err->handleException(new HttpServerError());

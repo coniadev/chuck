@@ -59,6 +59,13 @@ test('Logger setup', function () {
 });
 
 
+test('Logger call without setup', function () {
+    $config = new Config('chuck');
+
+    expect($config->logger())->toBe(null);
+});
+
+
 test('Add renderer', function () {
     $config = new Config('chuck');
     $config->addRenderer('test', TestRenderer::class);

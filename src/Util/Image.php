@@ -36,17 +36,13 @@ class Image
                 case 'jfif':
                 case 'jpeg':
                 case 'jpg':
-                    $result = imagecreatefromjpeg($path);
-                    break;
+                    return imagecreatefromjpeg($path);
                 case 'png':
-                    $result = imagecreatefrompng($path);
-                    break;
+                    return imagecreatefrompng($path);
                 case 'gif':
-                    $result = imagecreatefromgif($path);
-                    break;
+                    return imagecreatefromgif($path);
                 case 'webp':
-                    $result = imagecreatefromwebp($path);
-                    break;
+                    return imagecreatefromwebp($path);
                 default:
                     throw new InvalidArgumentException(
                         'File "' . $path . '" is not a valid jpg, webp, png or gif image.'
@@ -57,8 +53,6 @@ class Image
                 'File "' . $path . '" is not a valid jpg, webp, png or gif image.'
             );
         }
-
-        return $result;
     }
 
     public static function resizeImage(
