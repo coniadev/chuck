@@ -22,6 +22,6 @@ interface RouteInterface
     public function render(string $renderer, mixed ...$args): static;
     public function controller(string $controller): void;
     public function getRenderer(): ?Renderer\Config;
-    public function prefix(string $name, string $pattern): static;
+    public function prefix(string $pattern, string $name): static;
     public function match(string $url): ?Route;
 }

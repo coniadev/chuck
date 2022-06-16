@@ -124,7 +124,7 @@ test('Route prefix', function () {
     $route = Route::get('/albums', fn () => 'chuck')->prefix(pattern: 'api');
     expect($route->match('/api/albums'))->toBe($route);
 
-    $route = Route::get('albums', fn () => 'chuck')->prefix('api::', 'api/');
+    $route = Route::get('albums', fn () => 'chuck')->prefix('api/', 'api::');
     expect($route->name())->toBe('api::albums');
 
     $route = Route::get('albums', fn () => 'chuck')->prefix(name: 'api::');

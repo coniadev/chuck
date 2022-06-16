@@ -97,14 +97,14 @@ class Route implements RouteInterface
         return $this->methods;
     }
 
-    public function prefix(string $name = '', string $pattern = ''): static
+    public function prefix(string $pattern = '', string $name = ''): static
     {
-        if (!empty($name)) {
-            $this->name = $name . $this->name;
-        }
-
         if (!empty($pattern)) {
             $this->pattern = $pattern . $this->pattern;
+        }
+
+        if (!empty($name)) {
+            $this->name = $name . $this->name;
         }
 
         return $this;
