@@ -37,9 +37,11 @@ test('Middleware helper', function () {
 
 test('Static route helper', function () {
     $app = App::create($this->config());
-    $app->static('static', '/static', C::root() . C::DS . 'public' . C::DS . 'static');
+    $app->staticRoute('/static', C::root() . C::DS . 'public' . C::DS . 'static', 'static');
+    $app->staticRoute('/unnamedstatic', C::root() . C::DS . 'public' . C::DS . 'static');
 
     expect($app->router()->staticUrl('static', 'test.json'))->toBe('/static/test.json');
+    expect($app->router()->staticUrl('/unnamedstatic', 'test.json'))->toBe('/unnamedstatic/test.json');
 });
 
 

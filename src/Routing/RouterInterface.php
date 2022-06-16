@@ -14,9 +14,9 @@ interface RouterInterface
     public function addRoute(RouteInterface $route): void;
     public function addGroup(GroupInterface $group): void;
     public function addStatic(
-        string $name,
         string $prefix,
         string $dir,
+        ?string $name = null,
     ): void;
     public function routeUrl(string $__routeName__, mixed ...$args): string;
     public function staticUrl(

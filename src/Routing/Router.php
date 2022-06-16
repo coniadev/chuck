@@ -68,10 +68,21 @@ class Router implements RouterInterface
     }
 
     public function addStatic(
-        string $name,
         string $prefix,
         string $dir,
+        ?string $name = null,
     ): void {
+        if (empty($name)) {
+            $name = $prefix;
+        }
+
+        if (array_key_exists($name, $this->staticRoutes)) {
+            throw new RuntimeException(
+                'Duplicate static route: ' . $name . '. If you want to use the same ' .
+                    'url prefix you have to create static routes with names.'
+            );
+        }
+
         if (is_dir($dir)) {
             $this->staticRoutes[$name] = [
                 'prefix' => '/' . trim($prefix, '/') . '/',
@@ -80,6 +91,34 @@ class Router implements RouterInterface
         } else {
             throw new RuntimeException("The static directory does not exist: $dir");
         }
+    }
+
+    public function staticUrl(
+        string $name,
+        string $path,
+        bool $bust = false,
+        ?string $host = null
+    ): string {
+        $route = $this->staticRoutes[$name];
+
+        if ($bust) {
+            // Check if there is already a query parameter present
+            if (strpos($path, '?')) {
+                $file = strtok($path, '?');
+                $sep = '&';
+            } else {
+                $file = $path;
+                $sep = '?';
+            }
+
+            $buster =  $this->getCacheBuster($route['dir'], $file);
+
+            if (!empty($buster)) {
+                $path .= $sep . 'v=' . $buster;
+            }
+        }
+
+        return ($host ? trim($host, '/') : '') . $route['prefix'] . trim($path, '/');
     }
 
     public function addMiddleware(callable ...$middlewares): void
@@ -115,34 +154,6 @@ class Router implements RouterInterface
         } catch (Throwable) {
             return '';
         }
-    }
-
-    public function staticUrl(
-        string $name,
-        string $path,
-        bool $bust = false,
-        ?string $host = null
-    ): string {
-        $route = $this->staticRoutes[$name];
-
-        if ($bust) {
-            // Check if there is already a query parameter present
-            if (strpos($path, '?')) {
-                $file = strtok($path, '?');
-                $sep = '&';
-            } else {
-                $file = $path;
-                $sep = '?';
-            }
-
-            $buster =  $this->getCacheBuster($route['dir'], $file);
-
-            if (!empty($buster)) {
-                $path .= $sep . 'v=' . $buster;
-            }
-        }
-
-        return ($host ? trim($host, '/') : '') . $route['prefix'] . trim($path, '/');
     }
 
     protected function removeQueryString(string $url): string

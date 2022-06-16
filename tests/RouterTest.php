@@ -54,22 +54,22 @@ test('Fail to generate route url', function () {
 })->throws(RuntimeException::class, 'Route not found');
 
 
-test('Static routes', function () {
+test('Static routes: unnamed', function () {
     $router = new Router();
-    $router->addStatic('static', '/static', C::root() . C::DS . 'public' . C::DS . 'static');
+    $router->addStatic('/static', C::root() . C::DS . 'public' . C::DS . 'static');
 
-    expect($router->staticUrl('static', 'test.json'))->toBe('/static/test.json');
-    expect($router->staticUrl('static', 'test.json', true))->toMatch('/\?v=[a-f0-9]{8}$/');
-    expect($router->staticUrl('static', 'test.json?exists=true', true))->toMatch('/\?exists=true&v=[a-f0-9]{8}$/');
+    expect($router->staticUrl('/static', 'test.json'))->toBe('/static/test.json');
+    expect($router->staticUrl('/static', 'test.json', true))->toMatch('/\?v=[a-f0-9]{8}$/');
+    expect($router->staticUrl('/static', 'test.json?exists=true', true))->toMatch('/\?exists=true&v=[a-f0-9]{8}$/');
     expect($router->staticUrl(
-        'static',
+        '/static',
         'test.json',
         host: 'https://chuck.local/',
         bust: true,
     ))->toMatch('/https:\/\/chuck.local\/static\/test.json\?v=[a-f0-9]{8}$/');
     // Nonexistent files should not have a cachebuster attached
     expect($router->staticUrl(
-        'static',
+        '/static',
         'does-not-exist.json',
         host: 'https://chuck.local/',
         bust: true,
@@ -77,9 +77,31 @@ test('Static routes', function () {
 });
 
 
+test('Static routes: named', function () {
+    $router = new Router();
+    $router->addStatic('/static', C::root() . C::DS . 'public' . C::DS . 'static', 'staticroute');
+
+    expect($router->staticUrl('staticroute', 'test.json'))->toBe('/static/test.json');
+});
+
+
 test('Static routes to nonexistent directory', function () {
-    (new Router())->addStatic('static', '/static', C::root() . C::DS . 'fantasy' . C::DS . 'dir');
+    (new Router())->addStatic('/static', C::root() . C::DS . 'fantasy' . C::DS . 'dir');
 })->throws(RuntimeException::class, 'does not exist');
+
+
+test('Static route duplicate named', function () {
+    $router = new Router();
+    $router->addStatic('/static', C::root() . C::DS . 'public' . C::DS . 'static', 'static');
+    $router->addStatic('/anotherstatic', C::root() . C::DS . 'public' . C::DS . 'static', 'static');
+})->throws(RuntimeException::class, 'Duplicate static route: static');
+
+
+test('Static route duplicate unnamed', function () {
+    $router = new Router();
+    $router->addStatic('/static', C::root() . C::DS . 'public' . C::DS . 'static');
+    $router->addStatic('/static', C::root() . C::DS . 'public' . C::DS . 'static');
+})->throws(RuntimeException::class, 'Duplicate static route: /static');
 
 
 test('Dispatch closure', function () {

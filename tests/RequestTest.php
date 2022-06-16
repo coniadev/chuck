@@ -86,7 +86,7 @@ test('Generate route url :: unnamed', function () {
 
 test('Static routes', function () {
     $router = new Router();
-    $router->addStatic('static', '/static', C::root() . C::DS . 'public' . C::DS . 'static');
+    $router->addStatic('/static', C::root() . C::DS . 'public' . C::DS . 'static', 'static');
     $request = $this->request(router: $router);
 
     expect($request->staticUrl('static', 'test.json'))->toBe('http://www.example.com/static/test.json');
@@ -96,6 +96,12 @@ test('Static routes', function () {
     expect($request->staticUrl('static', 'test.json?exists=true', true))->toMatch(
         '/http:\/\/www.example.com\/static\/test\.json\?exists=true&v=[a-f0-9]{8}$/'
     );
+
+    $router = new Router();
+    $router->addStatic('/static', C::root() . C::DS . 'public' . C::DS . 'static');
+    $request = $this->request(router: $router);
+
+    expect($request->staticUrl('/static', 'test.json'))->toBe('http://www.example.com/static/test.json');
 });
 
 

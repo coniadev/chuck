@@ -60,12 +60,12 @@ class App
         $this->router->addGroup($group);
     }
 
-    public function static(
-        string $name,
+    public function staticRoute(
         string $prefix,
         string $path,
+        ?string $name = null,
     ): void {
-        $this->router->addStatic($name, $prefix, $path);
+        $this->router->addStatic($prefix, $path, $name);
     }
 
     public function middleware(callable ...$middlewares): void

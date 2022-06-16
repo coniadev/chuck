@@ -257,7 +257,7 @@ test('Resize width too large error',  function () {
 
 test('Static route', function () {
     $router = new Router();
-    $router->addStatic('assets', '/assets', C::root() . C::DS . 'public' . C::DS . 'assets');
+    $router->addStatic('/assets', C::root() . C::DS . 'public' . C::DS . 'assets', 'assets');
     $assets = new Assets(
         $this->paths['assets'],
         $this->paths['cache'],
@@ -279,8 +279,11 @@ test('Static route', function () {
 
 test('Static cache route', function () {
     $router = new Router();
-    $router->addStatic('cache', '/cache/assets', C::root() . C::DS .
-        'public' . C::DS . 'cache' . C::DS . 'assets');
+    $router->addStatic(
+        '/cache/assets',
+        C::root() . C::DS . 'public' . C::DS . 'cache' . C::DS . 'assets',
+        'cache'
+    );
     $assets = new Assets(
         $this->paths['assets'],
         $this->paths['cache'],
