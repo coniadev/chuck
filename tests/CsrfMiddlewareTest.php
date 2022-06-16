@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Chuck\App;
-use Chuck\Routing\Route;
 use Chuck\CsrfInterface;
 use Chuck\Middleware\Csrf;
 use Chuck\Tests\Setup\TestCase;

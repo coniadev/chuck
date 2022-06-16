@@ -13,7 +13,7 @@ abstract class Renderer implements RendererInterface
         protected RequestInterface $request,
         protected mixed $data,
         protected array $args,
-        protected mixed $settings = null,
+        protected mixed $options = null,
     ) {
     }
 

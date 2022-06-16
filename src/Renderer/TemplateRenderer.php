@@ -26,10 +26,10 @@ class TemplateRenderer extends Renderer
             throw new ValueError('No template passed to template renderer');
         }
 
-        if (is_string($this->settings)) {
-            $this->settings = [$this->settings];
+        if (is_string($this->options)) {
+            $this->options = [$this->options];
         } else {
-            if (!is_array($this->settings) || count($this->settings) === 0) {
+            if (!is_array($this->options) || count($this->options) === 0) {
                 throw new ValueError('No template dirs given');
             }
         }
@@ -37,7 +37,7 @@ class TemplateRenderer extends Renderer
         $request = $this->request;
         $config = $request->config();
         $template = new Engine(
-            $this->settings,
+            $this->options,
             defaults: [
                 'config' => $config,
                 'request' => $request,

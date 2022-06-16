@@ -48,14 +48,10 @@ class Migrations implements CommandInterface
                 echo $ddl;
                 echo "\n\nIf you want to create the table above, simply run\n\n";
                 echo "    php run create-migrations-table\n\n";
-                echo "If you need to change the table or column name add the following ";
-                echo "settings to your configuration\n\n:";
-                echo "\$yourConfig = [\n";
-                echo "    ...\n";
-                echo "    'migrationstable.name' => '<yourtablename>',\n";
-                echo "    'migrationstable.column' => '<yourcolumnname>',\n";
-                echo "    ...\n";
-                echo "];\n";
+                echo "If you need to change the table or column names set them via \n\n";
+                echo "    \$\\Chuck\\Config\\Connection::setMigrationsTable(...)\n";
+                echo "    \$\\Chuck\\Config\\Connection::setMigrationsColumnMigration(...)\n";
+                echo "    \$\\Chuck\\Config\\Connection::setMigrationsColumnApplied(...)\n";
             } else {
                 // An unsupported driver would have to be installed
                 // to be able to test meaningfully

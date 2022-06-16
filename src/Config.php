@@ -14,7 +14,6 @@ use Chuck\Renderer\{
     JsonRenderer,
     TextRenderer,
 };
-use Chuck\Util\Path as PathUtil;
 use Chuck\Config\{Connection, Scripts};
 
 
@@ -28,13 +27,13 @@ class Config implements ConfigInterface
 
     protected ?Closure $loggerCallback = null;
     protected ?LoggerInterface $logger = null;
-    /** @var array<string, array{class: class-string<Renderer>, settings: mixed}> */
+    /** @var array<string, array{class: class-string<Renderer>, options: mixed}> */
     protected array $renderers = [];
     /** @var array<string, Connection> */
     protected array $connections = [];
 
     /**
-     * Holds additional user defined settings/options
+     * Stores additional user defined settings
      *
      * @var array<string, mixed>
      */
@@ -53,8 +52,8 @@ class Config implements ConfigInterface
         $this->settings = $settings;
 
         $this->renderers = [
-            'text' => ['class' => TextRenderer::class, 'settings' => null],
-            'json' => ['class' => JsonRenderer::class, 'settings' => null],
+            'text' => ['class' => TextRenderer::class, 'options' => null],
+            'json' => ['class' => JsonRenderer::class, 'options' => null],
         ];
     }
 
@@ -111,16 +110,16 @@ class Config implements ConfigInterface
     }
 
     /** @param class-string<Renderer> $class */
-    public function addRenderer(string $name, string $class, mixed $settings = null): void
+    public function addRenderer(string $name, string $class, mixed $options = null): void
     {
         if (is_subclass_of($class, Renderer::class)) {
-            $this->renderers[$name] = ['class' => $class, 'settings' => $settings];
+            $this->renderers[$name] = ['class' => $class, 'options' => $options];
         } else {
             throw new ValueError('A renderer must extend ' . Renderer::class);
         }
     }
 
-    /** @return array<string, array{class: class-string<Renderer>, settings: mixed}> */
+    /** @return array<string, array{class: class-string<Renderer>, options: mixed}> */
     public function renderers(): array
     {
         return $this->renderers;
