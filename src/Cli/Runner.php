@@ -6,7 +6,6 @@ namespace Chuck\Cli;
 
 use \ErrorException;
 use Chuck\App;
-use Chuck\ConfigInterface;
 
 
 class Runner
@@ -71,8 +70,8 @@ class Runner
         } catch (ErrorException $e) {
             $cmd = $_SERVER['argv'][1];
 
-            echo "\nError while running command '$cmd'.\n";
-            echo "    Error message: " . $e->getMessage();
+            echo "\nError while running command '$cmd'.\n\n";
+            echo "    Error message: " . $e->getMessage() . "\n";
 
             return 1;
         }

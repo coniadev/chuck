@@ -80,7 +80,12 @@ class Handler
             $body .= preg_replace('/^<br>/', '', $trace);
         }
 
-        $response->body($body)->emit();
+        try {
+            $response->body($body)->emit();
+        } catch (Throwable) {
+            // No server request, most likley a CLI call
+        }
+
         $this->log($exception);
     }
 

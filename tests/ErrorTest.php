@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Chuck\Request;
+use Chuck\Routing\Router;
 use Chuck\Error\Handler;
 use Chuck\Error\HttpBadRequest;
 use Chuck\Error\HttpForbidden;
@@ -97,7 +99,6 @@ test('Handle HTTP Exceptions', function () {
 });
 
 
-
 test('Handle PHP Exceptions', function () {
     $err = new Handler($this->request());
     $err->setup();
@@ -109,6 +110,23 @@ test('Handle PHP Exceptions', function () {
     expect($output)->toBe('<h1>500 Internal Server Error</h1><h2>Division by zero</h2>');
 });
 
+
+test('Handle PHP Exceptions :: no server request', function () {
+    $savedMethod = $_SERVER['REQUEST_METHOD'];
+    unset($_SERVER['REQUEST_METHOD']);
+
+    $request = new Request($this->config(), new Router());
+    $err = new Handler($request);
+    $err->setup();
+
+    ob_start();
+    $err->handleException(new DivisionByZeroError('Division by zero'));
+    $output = ob_get_contents();
+    ob_end_clean();
+    expect($output)->toBe('');
+
+    $_SERVER['REQUEST_METHOD'] = $savedMethod;
+});
 
 
 test('Debug mode traceback', function () {
