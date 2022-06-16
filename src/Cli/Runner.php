@@ -51,61 +51,47 @@ class Runner
         }
     }
 
-    private static function setupErrorHandler(): void
-    {
-        set_error_handler(function (
-            int $level,
-            string $message,
-            string $file = '',
-            int $line = 0,
-        ): bool {
-            throw new ErrorException($message, $level, $level, $file, $line);
-        }, E_ALL);
-    }
-
     protected static function runCommand(App $app, CommandInterface $cmd): string|int
     {
-        try {
-            return $cmd->run($app);
-        } catch (ErrorException $e) {
-            $cmd = $_SERVER['argv'][1];
-
-            echo "\nError while running command '$cmd'.\n\n";
-            echo "    Error message: " . $e->getMessage() . "\n";
-
-            return 1;
-        }
+        return $cmd->run($app);
     }
 
     public static function run(App $app, array $scriptDirs = []): string|int
     {
-        self::setupErrorHandler();
-        $config = $app->config();
+        try {
+            $config = $app->config();
 
-        // add the custom script dir first to allow
-        // overriding of builtin scripts.
-        $scriptDirs = array_merge($scriptDirs, $config->scripts()->get());
+            // add the custom script dir first to allow
+            // overriding of builtin scripts.
+            $scriptDirs = array_merge($scriptDirs, $config->scripts()->get());
 
-        if (isset($_SERVER['argv'][1])) {
-            $script = $_SERVER['argv'][1] . '.php';
+            if (isset($_SERVER['argv'][1])) {
+                $script = $_SERVER['argv'][1] . '.php';
 
-            if ($_SERVER['argv'][1] === 'commands') {
-                self::showCommands($scriptDirs);
-                return 0;
-            } else {
-                foreach ($scriptDirs as $scriptDir) {
-                    $file = $scriptDir . DIRECTORY_SEPARATOR . $script;
+                if ($_SERVER['argv'][1] === 'commands') {
+                    self::showCommands($scriptDirs);
+                    return 0;
+                } else {
+                    foreach ($scriptDirs as $scriptDir) {
+                        $file = $scriptDir . DIRECTORY_SEPARATOR . $script;
 
-                    if (is_file($file)) {
-                        return self::runCommand($app, require $file);
+                        if (is_file($file)) {
+                            return self::runCommand($app, require $file);
+                        }
                     }
+                    echo "\nCommand not found.\n";
+                    return 1;
                 }
-                echo "\nCommand not found.\n";
-                return 1;
+            } else {
+                self::showHelp($scriptDirs);
+                return 0;
             }
-        } else {
-            self::showHelp($scriptDirs);
-            return 0;
+        } catch (ErrorException $e) {
+            echo "\nError while running command '";
+            echo (string)($_SERVER['argv'][1] ?? '<no command given>');
+            echo "'.\n\n    Error message: " . $e->getMessage() . "\n";
+
+            return 1;
         }
     }
 }
