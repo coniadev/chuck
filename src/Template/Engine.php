@@ -70,7 +70,7 @@ class Engine
 
     public function getBodyId(string $moniker): string
     {
-        return hash('xxh32', $moniker);
+        return hash('xxh3', $moniker);
     }
 
     protected function getPath(string $template): string

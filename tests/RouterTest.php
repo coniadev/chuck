@@ -416,3 +416,17 @@ test('All methods matching', function () {
     expect($router->match($this->request(method: 'DELETE', url: '/')))->toBe($route);
     expect($router->match($this->request(method: 'OPTIONS', url: '/')))->toBe($route);
 });
+
+
+test('Same pattern multiple methods', function () {
+    $router = new Router();
+    $puthead = (new Route('/', fn () => null, 'puthead'))->method('HEAD',  'Put');
+    $router->addRoute($puthead);
+    $get = (new Route('/', fn () => null, 'get'))->method('GET');
+    $router->addRoute($get);
+
+    expect($router->match($this->request(method: 'GET', url: '/')))->toBe($get);
+    expect($router->match($this->request(method: 'PUT', url: '/')))->toBe($puthead);
+    expect($router->match($this->request(method: 'HEAD', url: '/')))->toBe($puthead);
+    $router->match($this->request(method: 'POST', url: '/'));
+})->throws(HttpMethodNotAllowed::class);
