@@ -10,16 +10,22 @@ class Group implements GroupInterface
     /** @psalm-suppress PropertyNotSetInConstructor */
     protected RouterInterface $router;
 
+    protected string $namePrefix;
     protected ?string $renderer = null;
     protected ?string $controller = null;
     protected array $middlewares = [];
 
 
     public function __construct(
-        protected string $namePrefix,
         protected string $patternPrefix,
         protected \Closure $createClosure,
+        ?string $namePrefix = null,
     ) {
+        if ($namePrefix) {
+            $this->namePrefix = $namePrefix;
+        } else {
+            $this->namePrefix = $this->patternPrefix;
+        }
     }
 
     public function middleware(string|object ...$middlewares): static

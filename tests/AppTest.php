@@ -46,10 +46,10 @@ test('Static route helper', function () {
 test('Route helper', function () {
     $app = App::create($this->config());
     $app->add(Route::get('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums'));
-    $app->group(new Group('albums:', '/albums', function (Group $group) {
+    $app->group(new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
         $group->add(Route::get('/{name}', "$ctrl::albumName", 'name'));
-    }));
+    }, 'albums:'));
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
     expect($app->router()->routeUrl('albums:name', ['name' => 'symbolic']))->toBe('/albums/symbolic');

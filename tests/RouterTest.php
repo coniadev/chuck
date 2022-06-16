@@ -20,7 +20,7 @@ test('Matching', function () {
     $router->addRoute($index);
     $albums = new Route('/albums', fn () => null);
     $router->addRoute($albums);
-    $router->addGroup(new Group('albums:', '/albums', function (Group $group) {
+    $router->addGroup(new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
         $group->add(Route::get('/{name}', "$ctrl::albumName"));
     }));
@@ -30,7 +30,7 @@ test('Matching', function () {
     expect($router->match($this->request(method: 'GET', url: '')))->toBe($index);
     expect($router->match($this->request(method: 'GET', url: '/albums')))->toBe($albums);
     expect($router->match($this->request(method: 'GET', url: '/albums?q=Symbolic')))->toBe($albums);
-    expect($router->match($this->request(method: 'GET', url: '/albums/name'))->name())->toBe('albums:/{name}');
+    expect($router->match($this->request(method: 'GET', url: '/albums/name'))->name())->toBe('/albums/{name}');
 
     $router->match($this->request(method: 'GET', url: '/does-not-exist'));
 })->throws(HttpNotFound::class);

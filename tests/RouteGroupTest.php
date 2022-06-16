@@ -19,14 +19,14 @@ test('Matching :: named', function () {
     $index = new Route('/', fn () => null, 'index');
     $router->addRoute($index);
 
-    $group = new Group('albums:', '/albums', function (Group $group) {
+    $group = new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
 
         // overwrite group renderer
         $group->add(Route::get('/home', "$ctrl::albumHome", 'home'));
         $group->add(Route::get('/{name}', "$ctrl::albumName", 'name'));
         $group->add(Route::get('', "$ctrl::albumList", 'list'));
-    });
+    }, 'albums:');
     $group->create($router);
 
     expect($router->match($this->request(method: 'GET', url: ''))->name())->toBe('index');
@@ -42,7 +42,7 @@ test('Matching :: unnamed', function () {
     $index = new Route('/', fn () => null);
     $router->addRoute($index);
 
-    $group = new Group('albums:', '/albums', function (Group $group) {
+    $group = new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
 
         // overwrite group renderer
@@ -53,17 +53,17 @@ test('Matching :: unnamed', function () {
     $group->create($router);
 
     expect($router->match($this->request(method: 'GET', url: ''))->name())->toBe('/');
-    expect($router->match($this->request(method: 'GET', url: '/albums/symbolic'))->name())->toBe('albums:/{name}');
-    expect($router->match($this->request(method: 'GET', url: '/albums/home'))->name())->toBe('albums:/home');
-    expect($router->match($this->request(method: 'GET', url: '/albums'))->name())->toBe('albums:');
-    expect($router->routeUrl('albums:/{name}', name: 'symbolic'))->toBe('/albums/symbolic');
+    expect($router->match($this->request(method: 'GET', url: '/albums/symbolic'))->name())->toBe('/albums/{name}');
+    expect($router->match($this->request(method: 'GET', url: '/albums/home'))->name())->toBe('/albums/home');
+    expect($router->match($this->request(method: 'GET', url: '/albums'))->name())->toBe('/albums');
+    expect($router->routeUrl('/albums/{name}', name: 'symbolic'))->toBe('/albums/symbolic');
 });
 
 
 test('Renderer', function () {
     $router = new Router();
 
-    $group = (new Group('albums:', '/albums', function (Group $group) {
+    $group = (new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
 
         $group->add(Route::get('', "$ctrl::albumList"));
@@ -90,9 +90,9 @@ test('Controller prefixing', function () {
     $index = new Route('/', fn () => null);
     $router->addRoute($index);
 
-    $group = (new Group('albums-', '/albums', function (Group $group) {
+    $group = (new Group('/albums', function (Group $group) {
         $group->add(Route::get('-list', '::albumList', 'list'));
-    }))->controller(TestController::class);
+    }, 'albums-'))->controller(TestController::class);
     $group->create($router);
 
     $route = $router->match($this->request(method: 'GET', url: '/albums-list'));
@@ -104,7 +104,7 @@ test('Controller prefixing', function () {
 test('Controller prefixing error', function () {
     $router = new Router();
 
-    $group = (new Group('albums-', '/albums', function (Group $group) {
+    $group = (new Group('/albums', function (Group $group) {
         $group->add(Route::get('-list', function () {
         }));
     }))->controller(TestController::class);
@@ -116,7 +116,7 @@ test('Middleware', function () {
     $router = new Router();
     $router->addMiddleware(new TestMiddleware1());
 
-    $group = (new Group('albums:', '/albums', function (Group $group) {
+    $group = (new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
 
         $group->add(Route::get('', "$ctrl::albumList"));
