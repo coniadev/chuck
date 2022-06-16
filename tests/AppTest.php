@@ -45,10 +45,10 @@ test('Static route helper', function () {
 
 test('Route helper', function () {
     $app = App::create($this->config());
-    $app->add(Route::get('albums', '/albums', 'Chuck\Tests\Fixtures\TestController::textView'));
+    $app->add(Route::get('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums'));
     $app->group(new Group('albums:', '/albums', function (Group $group) {
         $ctrl = TestController::class;
-        $group->add(Route::get('name', '/{name}', "$ctrl::albumName"));
+        $group->add(Route::get('/{name}', "$ctrl::albumName", 'name'));
     }));
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
@@ -59,7 +59,7 @@ test('Route helper', function () {
 test('App run', function () {
     $request = $this->request(method: 'GET', url: '/');
     $app = new App($request, $request->config(), $request->router());
-    $app->add(Route::get('index', '/', 'Chuck\Tests\Fixtures\TestController::textView'));
+    $app->add(Route::get('/', 'Chuck\Tests\Fixtures\TestController::textView'));
     ob_start();
     $response = $app->run();
     $output = ob_get_contents();

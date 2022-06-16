@@ -17,6 +17,7 @@ const RIGHT_BRACE = '§§§£§§§';
 
 class Route implements RouteInterface
 {
+    protected string $name;
     protected array $args = [];
     protected array $methods = [];
     protected ?RendererConfig $renderer = null;
@@ -25,15 +26,15 @@ class Route implements RouteInterface
 
 
     /**
-     * @param $name The name of the route
      * @param $pattern The URL pattern of the route.
      * @param $view The callable view. Can be a closure, an invokable object or any other callable
+     * @param $name The name of the route. If not given the pattern will be hashed and used as name.
      * @param $params Optional arry which is stored alongside the route that can be consumed in the app
      */
     public function __construct(
-        protected string $name,
         protected string $pattern,
         callable|array|string $view,
+        ?string $name = null,
         protected array $params = [],
     ) {
         if (is_callable($view)) {
@@ -41,41 +42,47 @@ class Route implements RouteInterface
         } else {
             $this->view = $view;
         }
+
+        if ($name) {
+            $this->name = $name;
+        } else {
+            $this->name = $this->pattern;
+        }
     }
 
-    public static function get(string $name, string $pattern, callable|array|string $view, array $params = []): static
+    public static function get(string $pattern, callable|array|string $view, ?string $name = null, array $params = []): static
     {
-        return (new self($name, $pattern, $view, $params))->method('GET');
+        return (new self($pattern, $view, $name, $params))->method('GET');
     }
 
-    public static function post(string $name, string $pattern, callable|array|string $view, array $params = []): static
+    public static function post(string $pattern, callable|array|string $view, ?string $name = null, array $params = []): static
     {
-        return (new self($name, $pattern, $view, $params))->method('POST');
+        return (new self($pattern, $view, $name, $params))->method('POST');
     }
 
-    public static function put(string $name, string $pattern, callable|array|string $view, array $params = []): static
+    public static function put(string $pattern, callable|array|string $view, ?string $name = null, array $params = []): static
     {
-        return (new self($name, $pattern, $view, $params))->method('PUT');
+        return (new self($pattern, $view, $name, $params))->method('PUT');
     }
 
-    public static function patch(string $name, string $pattern, callable|array|string $view, array $params = []): static
+    public static function patch(string $pattern, callable|array|string $view, ?string $name = null, array $params = []): static
     {
-        return (new self($name, $pattern, $view, $params))->method('PATCH');
+        return (new self($pattern, $view, $name, $params))->method('PATCH');
     }
 
-    public static function delete(string $name, string $pattern, callable|array|string $view, array $params = []): static
+    public static function delete(string $pattern, callable|array|string $view, ?string $name = null, array $params = []): static
     {
-        return (new self($name, $pattern, $view, $params))->method('DELETE');
+        return (new self($pattern, $view, $name, $params))->method('DELETE');
     }
 
-    public static function head(string $name, string $pattern, callable|array|string $view, array $params = []): static
+    public static function head(string $pattern, callable|array|string $view, ?string $name = null, array $params = []): static
     {
-        return (new self($name, $pattern, $view, $params))->method('HEAD');
+        return (new self($pattern, $view, $name, $params))->method('HEAD');
     }
 
-    public static function options(string $name, string $pattern, callable|array|string $view, array $params = []): static
+    public static function options(string $pattern, callable|array|string $view, ?string $name = null, array $params = []): static
     {
-        return (new self($name, $pattern, $view, $params))->method('OPTIONS');
+        return (new self($pattern, $view, $name, $params))->method('OPTIONS');
     }
 
     public function method(string ...$args): static
@@ -280,7 +287,6 @@ class Route implements RouteInterface
 
     public function match(string $url): ?Route
     {
-
         if (preg_match($this->pattern(), $url, $matches)) {
             // Remove integer indexes from array
             $matches = array_filter(

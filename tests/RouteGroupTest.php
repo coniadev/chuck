@@ -14,18 +14,18 @@ use Chuck\Routing\{Router, Route, Group};
 uses(TestCase::class);
 
 
-test('Matching', function () {
+test('Matching :: named', function () {
     $router = new Router();
-    $index = new Route('index', '/', fn () => null);
+    $index = new Route('/', fn () => null, 'index');
     $router->addRoute($index);
 
     $group = new Group('albums:', '/albums', function (Group $group) {
         $ctrl = TestController::class;
 
         // overwrite group renderer
-        $group->add(Route::get('home', '/home', "$ctrl::albumHome"));
-        $group->add(Route::get('name', '/{name}', "$ctrl::albumName"));
-        $group->add(Route::get('list', '', "$ctrl::albumList"));
+        $group->add(Route::get('/home', "$ctrl::albumHome", 'home'));
+        $group->add(Route::get('/{name}', "$ctrl::albumName", 'name'));
+        $group->add(Route::get('', "$ctrl::albumList", 'list'));
     });
     $group->create($router);
 
@@ -37,18 +37,41 @@ test('Matching', function () {
 });
 
 
+test('Matching :: unnamed', function () {
+    $router = new Router();
+    $index = new Route('/', fn () => null);
+    $router->addRoute($index);
+
+    $group = new Group('albums:', '/albums', function (Group $group) {
+        $ctrl = TestController::class;
+
+        // overwrite group renderer
+        $group->add(Route::get('/home', "$ctrl::albumHome"));
+        $group->add(Route::get('/{name}', "$ctrl::albumName"));
+        $group->add(Route::get('', "$ctrl::albumList"));
+    });
+    $group->create($router);
+
+    expect($router->match($this->request(method: 'GET', url: ''))->name())->toBe('/');
+    expect($router->match($this->request(method: 'GET', url: '/albums/symbolic'))->name())->toBe('albums:/{name}');
+    expect($router->match($this->request(method: 'GET', url: '/albums/home'))->name())->toBe('albums:/home');
+    expect($router->match($this->request(method: 'GET', url: '/albums'))->name())->toBe('albums:');
+    expect($router->routeUrl('albums:/{name}', name: 'symbolic'))->toBe('/albums/symbolic');
+});
+
+
 test('Renderer', function () {
     $router = new Router();
 
     $group = (new Group('albums:', '/albums', function (Group $group) {
         $ctrl = TestController::class;
 
-        $group->add(Route::get('list', '', "$ctrl::albumList"));
+        $group->add(Route::get('', "$ctrl::albumList"));
 
         // overwrite group renderer
-        $group->add(Route::get('home', '/home', "$ctrl::albumHome")->render('template:home.php'));
+        $group->add(Route::get('/home', "$ctrl::albumHome")->render('template:home.php'));
 
-        $group->add(Route::get('name', '/{name}', "$ctrl::albumName"));
+        $group->add(Route::get('/{name}', "$ctrl::albumName"));
     }))->render('json');
     $group->create($router);
 
@@ -64,11 +87,11 @@ test('Renderer', function () {
 
 test('Controller prefixing', function () {
     $router = new Router();
-    $index = new Route('index', '/', fn () => null);
+    $index = new Route('/', fn () => null);
     $router->addRoute($index);
 
     $group = (new Group('albums-', '/albums', function (Group $group) {
-        $group->add(Route::get('list', '-list', '::albumList'));
+        $group->add(Route::get('-list', '::albumList', 'list'));
     }))->controller(TestController::class);
     $group->create($router);
 
@@ -82,7 +105,7 @@ test('Controller prefixing error', function () {
     $router = new Router();
 
     $group = (new Group('albums-', '/albums', function (Group $group) {
-        $group->add(Route::get('list', '-list', function () {
+        $group->add(Route::get('-list', function () {
         }));
     }))->controller(TestController::class);
     $group->create($router);
@@ -96,9 +119,9 @@ test('Middleware', function () {
     $group = (new Group('albums:', '/albums', function (Group $group) {
         $ctrl = TestController::class;
 
-        $group->add(Route::get('list', '', "$ctrl::albumList"));
-        $group->add(Route::get('home', '/home', "$ctrl::albumHome")->middleware(new TestMiddleware3()));
-        $group->add(Route::get('name', '/{name}', "$ctrl::albumName"));
+        $group->add(Route::get('', "$ctrl::albumList"));
+        $group->add(Route::get('/home', "$ctrl::albumHome")->middleware(new TestMiddleware3()));
+        $group->add(Route::get('/{name}', "$ctrl::albumName"));
     }))->middleware(new TestMiddleware2());
     $group->create($router);
 

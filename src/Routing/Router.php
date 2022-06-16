@@ -44,7 +44,10 @@ class Router implements RouterInterface
         $noMethodGiven = true;
 
         if (array_key_exists($name, $this->names)) {
-            throw new RuntimeException('Duplicate route name: ' . $name);
+            throw new RuntimeException(
+                'Duplicate route: ' . $name . '. If you want to use the same ' .
+                    'url pattern with different methods, you have to create routes with names.'
+            );
         }
 
         foreach ($route->methods() as $method) {

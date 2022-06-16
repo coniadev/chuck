@@ -33,7 +33,7 @@ test('Helper methods', function () {
 
 test('Route property :: initialized', function () {
     $router = new Router();
-    $router->addRoute(new Route('index', '/', fn (Request $request) => new Response('Chuck')));
+    $router->addRoute(new Route('/', fn (Request $request) => new Response('Chuck')));
     $request = $this->request(method: 'GET', url: '/', router: $router);
     $router->dispatch($request);
 
@@ -62,14 +62,25 @@ test('Url helpers', function () {
 });
 
 
-test('Generate route url', function () {
+test('Generate route url :: named', function () {
     $router = new Router();
-    $albums = new Route('albums', 'albums/{from}/{to}', fn () => null);
+    $albums = new Route('albums/{from}/{to}', fn () => null, 'albums');
     $router->addRoute($albums);
     $request = $this->request(router: $router);
 
     expect($request->routeUrl('albums', from: 1990, to: 1995))->toBe('http://www.example.com/albums/1990/1995');
     expect($request->routeUrl('albums', ['from' => 1988, 'to' => 1991]))->toBe('http://www.example.com/albums/1988/1991');
+});
+
+
+test('Generate route url :: unnamed', function () {
+    $router = new Router();
+    $albums = new Route('albums/{from}/{to}', fn () => null);
+    $router->addRoute($albums);
+    $request = $this->request(router: $router);
+
+    expect($request->routeUrl('albums/{from}/{to}', from: 1990, to: 1995))->toBe('http://www.example.com/albums/1990/1995');
+    expect($request->routeUrl('albums/{from}/{to}', ['from' => 1988, 'to' => 1991]))->toBe('http://www.example.com/albums/1988/1991');
 });
 
 
