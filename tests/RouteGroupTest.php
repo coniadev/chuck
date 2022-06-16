@@ -19,7 +19,7 @@ test('Matching', function () {
     $index = new Route('index', '/', fn () => null);
     $router->addRoute($index);
 
-    $group = Group::new('albums:', '/albums', function (Group $group) {
+    $group = new Group('albums:', '/albums', function (Group $group) {
         $ctrl = TestController::class;
 
         // overwrite group renderer
@@ -40,7 +40,7 @@ test('Matching', function () {
 test('Renderer', function () {
     $router = new Router();
 
-    $group = Group::new('albums:', '/albums', function (Group $group) {
+    $group = (new Group('albums:', '/albums', function (Group $group) {
         $ctrl = TestController::class;
 
         $group->add(Route::get('list', '', "$ctrl::albumList"));
@@ -49,7 +49,7 @@ test('Renderer', function () {
         $group->add(Route::get('home', '/home', "$ctrl::albumHome")->render('template:home.php'));
 
         $group->add(Route::get('name', '/{name}', "$ctrl::albumName"));
-    })->render('json');
+    }))->render('json');
     $group->create($router);
 
     $route = $router->match($this->request(method: 'GET', url: '/albums/human'));
@@ -67,9 +67,9 @@ test('Controller prefixing', function () {
     $index = new Route('index', '/', fn () => null);
     $router->addRoute($index);
 
-    $group = Group::new('albums-', '/albums', function (Group $group) {
+    $group = (new Group('albums-', '/albums', function (Group $group) {
         $group->add(Route::get('list', '-list', '::albumList'));
-    })->controller(TestController::class);
+    }))->controller(TestController::class);
     $group->create($router);
 
     $route = $router->match($this->request(method: 'GET', url: '/albums-list'));
@@ -81,10 +81,10 @@ test('Controller prefixing', function () {
 test('Controller prefixing error', function () {
     $router = new Router();
 
-    $group = Group::new('albums-', '/albums', function (Group $group) {
+    $group = (new Group('albums-', '/albums', function (Group $group) {
         $group->add(Route::get('list', '-list', function () {
         }));
-    })->controller(TestController::class);
+    }))->controller(TestController::class);
     $group->create($router);
 })->throws(ValueError::class, 'Cannot add controller');
 
@@ -93,13 +93,13 @@ test('Middleware', function () {
     $router = new Router();
     $router->addMiddleware(new TestMiddleware1());
 
-    $group = Group::new('albums:', '/albums', function (Group $group) {
+    $group = (new Group('albums:', '/albums', function (Group $group) {
         $ctrl = TestController::class;
 
         $group->add(Route::get('list', '', "$ctrl::albumList"));
         $group->add(Route::get('home', '/home', "$ctrl::albumHome")->middleware(new TestMiddleware3()));
         $group->add(Route::get('name', '/{name}', "$ctrl::albumName"));
-    })->middleware(new TestMiddleware2());
+    }))->middleware(new TestMiddleware2());
     $group->create($router);
 
     $route = $router->match($this->request(method: 'GET', url: '/albums/human'));

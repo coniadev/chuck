@@ -22,15 +22,7 @@ class Group implements GroupInterface
     ) {
     }
 
-    public static function new(
-        string $namePrefix,
-        string $patternPrefix,
-        \Closure $createClosure,
-    ): self {
-        return new self($namePrefix, $patternPrefix, $createClosure);
-    }
-
-    public function middleware(string|object ...$middlewares): self
+    public function middleware(string|object ...$middlewares): static
     {
         foreach ($middlewares as $middleware) {
             $this->middlewares[] = $middleware;
@@ -39,14 +31,14 @@ class Group implements GroupInterface
         return $this;
     }
 
-    public function controller(string $controller): self
+    public function controller(string $controller): static
     {
         $this->controller = $controller;
 
         return $this;
     }
 
-    public function render(string $renderer): self
+    public function render(string $renderer): static
     {
         $this->renderer = $renderer;
 

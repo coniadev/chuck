@@ -20,7 +20,7 @@ test('Matching', function () {
     $router->addRoute($index);
     $albums = new Route('albums', '/albums', fn () => null);
     $router->addRoute($albums);
-    $router->addGroup(Group::new('albums:', '/albums', function (Group $group) {
+    $router->addGroup(new Group('albums:', '/albums', function (Group $group) {
         $ctrl = TestController::class;
         $group->add(Route::get('name', '/{name}', "$ctrl::albumName"));
     }));
