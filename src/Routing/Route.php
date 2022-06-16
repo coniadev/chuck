@@ -43,42 +43,42 @@ class Route implements RouteInterface
         }
     }
 
-    public static function get(string $name, string $pattern, callable|array|string $view, array $params = []): self
+    public static function get(string $name, string $pattern, callable|array|string $view, array $params = []): static
     {
         return (new self($name, $pattern, $view, $params))->method('GET');
     }
 
-    public static function post(string $name, string $pattern, callable|array|string $view, array $params = []): self
+    public static function post(string $name, string $pattern, callable|array|string $view, array $params = []): static
     {
         return (new self($name, $pattern, $view, $params))->method('POST');
     }
 
-    public static function put(string $name, string $pattern, callable|array|string $view, array $params = []): self
+    public static function put(string $name, string $pattern, callable|array|string $view, array $params = []): static
     {
         return (new self($name, $pattern, $view, $params))->method('PUT');
     }
 
-    public static function patch(string $name, string $pattern, callable|array|string $view, array $params = []): self
+    public static function patch(string $name, string $pattern, callable|array|string $view, array $params = []): static
     {
         return (new self($name, $pattern, $view, $params))->method('PATCH');
     }
 
-    public static function delete(string $name, string $pattern, callable|array|string $view, array $params = []): self
+    public static function delete(string $name, string $pattern, callable|array|string $view, array $params = []): static
     {
         return (new self($name, $pattern, $view, $params))->method('DELETE');
     }
 
-    public static function head(string $name, string $pattern, callable|array|string $view, array $params = []): self
+    public static function head(string $name, string $pattern, callable|array|string $view, array $params = []): static
     {
         return (new self($name, $pattern, $view, $params))->method('HEAD');
     }
 
-    public static function options(string $name, string $pattern, callable|array|string $view, array $params = []): self
+    public static function options(string $name, string $pattern, callable|array|string $view, array $params = []): static
     {
         return (new self($name, $pattern, $view, $params))->method('OPTIONS');
     }
 
-    public function method(string ...$args): self
+    public function method(string ...$args): static
     {
         $this->methods = array_merge($this->methods, array_map(fn ($m) => strtoupper($m), $args));
 
@@ -90,7 +90,7 @@ class Route implements RouteInterface
         return $this->methods;
     }
 
-    public function prefix(string $name = '', string $pattern = ''): self
+    public function prefix(string $name = '', string $pattern = ''): static
     {
         if (!empty($name)) {
             $this->name = $name . $this->name;
@@ -103,7 +103,7 @@ class Route implements RouteInterface
         return $this;
     }
 
-    public function render(string $renderer, mixed ...$args): self
+    public function render(string $renderer, mixed ...$args): static
     {
         $this->renderer = new RendererConfig($renderer, $args);
 
@@ -116,14 +116,14 @@ class Route implements RouteInterface
     }
 
 
-    public function replaceMiddleware(callable|string ...$middlewares): self
+    public function replaceMiddleware(callable|string ...$middlewares): static
     {
         $this->middlewares = $middlewares;
 
         return $this;
     }
 
-    public function middleware(callable|string ...$middlewares): self
+    public function middleware(callable|string ...$middlewares): static
     {
         foreach ($middlewares as $middleware) {
             $this->middlewares[] = $middleware;

@@ -37,7 +37,7 @@ class Database implements DatabaseInterface
         $this->sqlDirs = $config->sql();
     }
 
-    public function setPrint(bool $print): self
+    public function setPrint(bool $print): static
     {
         $this->print = $print;
 
@@ -64,7 +64,7 @@ class Database implements DatabaseInterface
         return $this->sqlDirs;
     }
 
-    public function connect(): self
+    public function connect(): static
     {
         /** @psalm-suppress RedundantPropertyInitializationCheck */
         if (isset($this->conn)) {

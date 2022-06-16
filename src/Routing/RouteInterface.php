@@ -14,14 +14,14 @@ interface RouteInterface
     public function view(): Closure|array|string;
     public function name(): string;
     public function args(): array;
-    public function method(string ...$args): self;
+    public function method(string ...$args): static;
     public function methods(): array;
-    public function replaceMiddleware(callable|string ...$middlewares): self;
-    public function middleware(callable|string ...$middlewares): self;
+    public function replaceMiddleware(callable|string ...$middlewares): static;
+    public function middleware(callable|string ...$middlewares): static;
     public function middlewares(): array;
-    public function render(string $renderer, mixed ...$args): self;
+    public function render(string $renderer, mixed ...$args): static;
     public function controller(string $controller): void;
     public function getRenderer(): ?Renderer\Config;
-    public function prefix(string $name, string $pattern): self;
+    public function prefix(string $name, string $pattern): static;
     public function match(string $url): ?Route;
 }

@@ -13,11 +13,11 @@ interface DatabaseInterface
     public function getSqlDirs(): array;
     public function getPdoDriver(): string;
 
-    public function setPrint(bool $print): self;
+    public function setPrint(bool $print): static;
     public function shouldPrint(): bool;
 
     // Database operations
-    public function connect(): self;
+    public function connect(): static;
     public function getConn(): PDO;
     public function begin(): bool;
     public function commit(): bool;

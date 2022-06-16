@@ -9,7 +9,7 @@ use \ValueError;
 
 class ImageSize
 {
-    public function __construct(
+    public final function __construct(
         public int $origWidth,
         public int $origHeight,
         public int $newWidth,
@@ -108,7 +108,7 @@ class ImageSize
             throw new ValueError('Height and/or width must be given');
         }
 
-        return new self(
+        return new static(
             origWidth: $this->origWidth,
             origHeight: $this->origHeight,
             newWidth: (int)floor($newWidth),

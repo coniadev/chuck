@@ -41,7 +41,7 @@ class FileResponse extends Response
         $this->header('Content-Length', (string)filesize($this->file));
     }
 
-    public function sendfile(): self
+    public function sendfile(): static
     {
         $this->sendFile = true;
         $server = strtolower($_SERVER['SERVER_SOFTWARE']);
@@ -55,7 +55,7 @@ class FileResponse extends Response
         return $this;
     }
 
-    public function download(): self
+    public function download(): static
     {
         $this->header(
             'Content-Disposition',
@@ -65,7 +65,7 @@ class FileResponse extends Response
         return $this;
     }
 
-    public function body(string $body): self
+    public function body(string $body): static
     {
         throw new LogicException('The body cannot be set on a FileResponse instance.');
     }

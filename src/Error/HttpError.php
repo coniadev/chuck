@@ -16,7 +16,7 @@ abstract class HttpError extends Exception
         return (string)$this->getCode() . ' ' . $this->getMessage();
     }
 
-    public static function withSubtitle(string $subTitle): self
+    public static function withSubtitle(string $subTitle): static
     {
         /** @psalm-suppress UnsafeInstantiation */
         $exception = new static();

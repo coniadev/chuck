@@ -45,7 +45,7 @@ class Response implements ResponseInterface
         }
     }
 
-    public function statusCode(int $statusCode, ?string $reasonPhrase = null): self
+    public function statusCode(int $statusCode, ?string $reasonPhrase = null): static
     {
         $this->statusCode = $statusCode;
 
@@ -61,14 +61,14 @@ class Response implements ResponseInterface
         return $this->statusCode;
     }
 
-    public function charset(string $charset): self
+    public function charset(string $charset): static
     {
         $this->charset = $charset;
 
         return $this;
     }
 
-    public function protocol(string $protocol): self
+    public function protocol(string $protocol): static
     {
         $this->protocol = $protocol;
 
@@ -88,7 +88,7 @@ class Response implements ResponseInterface
         string $name,
         string $value,
         bool $replace = true,
-    ): self {
+    ): static {
         $this->validateHeaderName($name);
         $name = ucwords(strtolower($name), '-');
 
@@ -119,7 +119,7 @@ class Response implements ResponseInterface
         return $this->writtenHeaders;
     }
 
-    public function body(string $body): self
+    public function body(string $body): static
     {
         $this->body = $body;
 
