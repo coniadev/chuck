@@ -50,7 +50,7 @@ class App
         return $this->config;
     }
 
-    public function add(RouteInterface $route): void
+    public function route(RouteInterface $route): void
     {
         $this->router->addRoute($route);
     }

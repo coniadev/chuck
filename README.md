@@ -9,7 +9,7 @@ Chuck framework
     use Chuck\{App, Config, Route};
 
     $app = App::create(new Config('chuck'));
-    $app->add(Route::get('index', '/', 'Controller::view'));
+    $app->route(Route::get('index', '/', 'Controller::view'));
     $app->run();
 ```
 
@@ -55,7 +55,7 @@ Chuck framework
     $app->middleware(new Middleware());
 
     // Route specific middleware
-    $app->add(
+    $app->route(
         Route::get('index', '/', function (Request $request) {}))->middleware(
             function (RequestInterface $request, callable $next): $request {
             return $next($request);
@@ -72,7 +72,7 @@ Chuck framework
     $route = Route::get('index', '/', function (Request $request) {
         return [1, 2, 3];
     })->render('json');
-    $app->add($route);
+    $app->route($route);
 
     $route = (new Route('index', '/', function (Request $request) {}))->method('GET','POST');
 
