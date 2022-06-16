@@ -123,7 +123,7 @@ test('Handle PHP Exceptions :: no server request', function () {
     $err->handleException(new DivisionByZeroError('Division by zero'));
     $output = ob_get_contents();
     ob_end_clean();
-    expect($output)->toBe('');
+    expect(trim($output))->toBe('Division by zero');
 
     $_SERVER['REQUEST_METHOD'] = $savedMethod;
 });
