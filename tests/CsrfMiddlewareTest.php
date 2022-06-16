@@ -13,7 +13,7 @@ uses(TestCase::class);
 
 test('Csrf middleware', function () {
     $app = App::create($this->config());
-    $app->route(Route::get('/', 'Chuck\Tests\Fixtures\TestController::textView'));
+    $app->route('/', 'Chuck\Tests\Fixtures\TestController::textView');
     $app->middleware(new Csrf());
     ob_start();
     $app->run();

@@ -6,7 +6,6 @@ use Chuck\Tests\Setup\TestCase;
 use Chuck\App;
 use Chuck\Request;
 use Chuck\Response\Response;
-use Chuck\Routing\Route;
 
 uses(TestCase::class);
 
@@ -54,7 +53,7 @@ class ___EarlyResponseMiddleware
 
 test('Middleware flow', function () {
     $app = App::create($this->config());
-    $app->route(Route::get('/', 'Chuck\Tests\Fixtures\TestController::middlewareView'));
+    $app->route('/', 'Chuck\Tests\Fixtures\TestController::middlewareView');
     $app->middleware('___functionMiddleware');
     $app->middleware(new ___ObjectMiddleware(' last'));
 
@@ -69,7 +68,7 @@ test('Middleware flow', function () {
 
 test('Early response', function () {
     $app = App::create($this->config());
-    $app->route(Route::get('/', 'Chuck\Tests\Fixtures\TestController::middlewareView'));
+    $app->route('/', 'Chuck\Tests\Fixtures\TestController::middlewareView');
     $app->middleware(new ___EarlyResponseMiddleware('immediate response'));
     $app->middleware(new ___ObjectMiddleware(' second'));
 
@@ -85,7 +84,7 @@ test('Early response', function () {
 test('Middleware validation', function () {
     // debug => true activates middleware validation
     $app = App::create($this->config(debug: true));
-    $app->route(Route::get('/', 'Chuck\Tests\Fixtures\TestController::middlewareView'));
+    $app->route('/', 'Chuck\Tests\Fixtures\TestController::middlewareView');
     $app->middleware(function () {
     });
     $app->run();

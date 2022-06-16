@@ -45,23 +45,10 @@ test('Static route helper', function () {
 });
 
 
-test('Route helper', function () {
-    $app = App::create($this->config());
-    $app->route(Route::get('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums'));
-    $app->group(new Group('/albums', function (Group $group) {
-        $ctrl = TestController::class;
-        $group->add(Route::get('/{name}', "$ctrl::albumName", 'name'));
-    }, 'albums:'));
-
-    expect($app->router()->routeUrl('albums'))->toBe('/albums');
-    expect($app->router()->routeUrl('albums:name', ['name' => 'symbolic']))->toBe('/albums/symbolic');
-});
-
-
 test('App run', function () {
     $request = $this->request(method: 'GET', url: '/');
     $app = new App($request, $request->config(), $request->router());
-    $app->route(Route::get('/', 'Chuck\Tests\Fixtures\TestController::textView'));
+    $app->route('/', 'Chuck\Tests\Fixtures\TestController::textView');
     ob_start();
     $response = $app->run();
     $output = ob_get_contents();
@@ -70,4 +57,94 @@ test('App run', function () {
     expect($output)->toBe('success');
     expect(in_array('Content-Type: text/html; charset=UTF-8', $response->getWrittenHeaderList()))->toBe(true);
     expect(in_array('HTTP/1.1 200 OK', $response->getWrittenHeaderList()))->toBe(true);
+});
+
+
+test('App::addRoute/::addGroup helper', function () {
+    $app = App::create($this->config());
+    $route = new Route('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
+    $group = new Group('/albums', function (Group $group) {
+        $ctrl = TestController::class;
+        $group->add(Route::get('/{name}', "$ctrl::albumName", 'name'));
+    }, 'albums:');
+    $app->addRoute($route);
+    $app->addGroup($group);
+
+    expect($app->router()->routeUrl('albums'))->toBe('/albums');
+    expect($app->router()->routeUrl('albums:name', ['name' => 'symbolic']))->toBe('/albums/symbolic');
+});
+
+
+test('App::route helper', function () {
+    $app = App::create($this->config());
+    $app->route('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
+
+    expect($app->router()->routeUrl('albums'))->toBe('/albums');
+});
+
+
+test('App::get helper', function () {
+    $app = App::create($this->config());
+    $app->get('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
+
+    expect($app->router()->routeUrl('albums'))->toBe('/albums');
+});
+
+
+test('App::post helper', function () {
+    $app = App::create($this->config());
+    $app->post('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
+
+    expect($app->router()->routeUrl('albums'))->toBe('/albums');
+});
+
+
+test('App::put helper', function () {
+    $app = App::create($this->config());
+    $app->put('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
+
+    expect($app->router()->routeUrl('albums'))->toBe('/albums');
+});
+
+
+test('App::patch helper', function () {
+    $app = App::create($this->config());
+    $app->patch('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
+
+    expect($app->router()->routeUrl('albums'))->toBe('/albums');
+});
+
+
+test('App::delete helper', function () {
+    $app = App::create($this->config());
+    $app->delete('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
+
+    expect($app->router()->routeUrl('albums'))->toBe('/albums');
+});
+
+
+test('App::head helper', function () {
+    $app = App::create($this->config());
+    $app->head('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
+
+    expect($app->router()->routeUrl('albums'))->toBe('/albums');
+});
+
+
+test('App::options helper', function () {
+    $app = App::create($this->config());
+    $app->options('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
+
+    expect($app->router()->routeUrl('albums'))->toBe('/albums');
+});
+
+
+test('App::group helper', function () {
+    $app = App::create($this->config());
+    $app->group('/albums', function (Group $group) {
+        $ctrl = TestController::class;
+        $group->add(Route::get('/{name}', "$ctrl::albumName", 'name'));
+    }, 'albums:');
+
+    expect($app->router()->routeUrl('albums:name', ['name' => 'symbolic']))->toBe('/albums/symbolic');
 });
