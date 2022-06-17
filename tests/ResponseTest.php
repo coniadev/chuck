@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Chuck\Response\{Response, FileResponse, JsonResponse};
+use Chuck\Response\{Response, FileResponse};
 use Chuck\Tests\Setup\{TestCase, C};
 use Chuck\Error\HttpNotFound;
 
@@ -43,7 +43,7 @@ test('Set invalid header', function () {
 
 test('HEAD request', function () {
     $request = $this->request(method: 'head');
-    $response = $request->response('should not appear');
+    $response = $request->response->html('should not appear');
 
     expect((string)$response->getBody())->toBe('should not appear');
     ob_start();
@@ -56,7 +56,7 @@ test('HEAD request', function () {
 
 test('Request::response', function () {
     $request = $this->request();
-    $response = $request->response('Pull the Plug');
+    $response = $request->response->html('Pull the Plug');
 
     expect($response->getStatusCode())->toBe(200);
     expect((string)$response->getBody())->toBe('Pull the Plug');
@@ -65,7 +65,7 @@ test('Request::response', function () {
 
 test('Request::response::json', function () {
     $request = $this->request();
-    $response = $request->response()->json([1, 2, 3]);
+    $response = $request->response->json([1, 2, 3]);
 
     expect($response->getStatusCode())->toBe(200);
     expect((string)$response->getBody())->toBe('[1,2,3]');
@@ -75,7 +75,7 @@ test('Request::response::json', function () {
 test('Request::response::file', function () {
     $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.gif';
     $request = $this->request();
-    $response = $request->response()->file($file);
+    $response = $request->response->file($file);
 
     expect($response)->toBeInstanceOf(FileResponse::class);
 });

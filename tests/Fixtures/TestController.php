@@ -12,7 +12,12 @@ class TestController
 {
     public function textView(): string
     {
-        return 'success';
+        return 'text';
+    }
+
+    public function stringableView(): TestClass
+    {
+        return new TestClass();
     }
 
     public function arrayView(): array
@@ -22,7 +27,7 @@ class TestController
 
     public function middlewareView(Request $request): Response
     {
-        return $request->response(' view');
+        return $request->response->html(' view');
     }
 
     public function routeParams(string $string, float $float, Request $request, int $int): array

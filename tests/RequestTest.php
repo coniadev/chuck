@@ -23,8 +23,8 @@ test('Helper methods', function () {
 
     expect($request->config())->toBeInstanceOf(ConfigInterface::class);
     expect($request->router())->toBeInstanceOf(RouterInterface::class);
-    expect($request->response())->toBeInstanceOf(ResponseFactory::class);
-    expect($request->response('Chuck'))->toBeInstanceOf(ResponseInterface::class);
+    expect($request->response)->toBeInstanceOf(ResponseFactory::class);
+    expect($request->response->html('Chuck'))->toBeInstanceOf(ResponseInterface::class);
     expect($request->method())->toBe('GET');
     expect($request->methodIs('GET'))->toBe(true);
     expect($request->methodIs('POST'))->toBe(false);

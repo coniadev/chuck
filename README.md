@@ -29,7 +29,7 @@ Chuck framework
         return ['data' => [1, 2, 3]];
     })->render('json'));
     $router->add(Route::get('file', '/file', function (Request $request) {
-        return $request->response()->file('/path/to/file.zip');
+        return $request->response->file('/path/to/file.zip');
     }));
 
     // The ResponseFactory is optional

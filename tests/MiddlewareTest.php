@@ -45,7 +45,7 @@ class ___EarlyResponseMiddleware
 
     public function __invoke(Request $request, callable $_): Request|Response
     {
-        $response = $request->response($this->text);
+        $response = $request->response->html($this->text);
 
         return $response;
     }

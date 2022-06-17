@@ -7,8 +7,13 @@ namespace Chuck\Tests\Fixtures;
 
 class TestClass implements TestInterface
 {
-    function test(): string
+    public function test(): string
     {
         return '';
+    }
+
+    public function __toString(): string
+    {
+        return 'Stringable';
     }
 }

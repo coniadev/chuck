@@ -43,8 +43,7 @@ class Handler
 
     public function handleException(Throwable $exception): void
     {
-        /** @var ResponseInterface */
-        $response = $this->request->response(null);
+        $response = $this->request->response()->html(null);
         $debug = $this->request->config()->debug();
 
         if ($exception instanceof HttpError) {

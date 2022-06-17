@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Chuck;
 
 use Chuck\ResponseFactory;
-use Chuck\ResponseFactoryInterface;
-use Chuck\Response\ResponseInterface;
 use Chuck\Routing\RouteInterface;
 use Chuck\Routing\RouterInterface;
 use Chuck\Util\Http;
@@ -19,7 +17,7 @@ class Request implements RequestInterface
     public function __construct(
         protected ConfigInterface $config,
         protected RouterInterface $router,
-        protected ResponseFactoryInterface $responseFactory = new ResponseFactory(),
+        public readonly ResponseFactory $response = new ResponseFactory(),
     ) {
     }
 
@@ -137,17 +135,9 @@ class Request implements RequestInterface
         return $this->config;
     }
 
-    public function response(
-        ?string $body = null,
-        int $statusCode = 200,
-        /** @param list<array{name: string, value: string, replace: bool}> */
-        array $headers = [],
-    ): ResponseFactoryInterface|ResponseInterface {
-        if (func_num_args() === 0) {
-            return $this->responseFactory;
-        }
-
-        return $this->responseFactory->make($body, $statusCode, $headers);
+    public function response(): ResponseFactory
+    {
+        return $this->response;
     }
 
     public function __call(string $name, array $args)

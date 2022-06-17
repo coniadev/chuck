@@ -106,7 +106,7 @@ test('Static route duplicate unnamed', function () {
 
 test('Dispatch closure', function () {
     $router = new Router();
-    $index = new Route('/', fn (Request $request) => $request->response('Chuck', 200));
+    $index = new Route('/', fn (Request $request) => $request->response->html('Chuck', 200));
     $router->addRoute($index);
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/'));
@@ -127,18 +127,29 @@ test('View without renderer returning string', function () {
 });
 
 
-test('Dispatch class method as string', function () {
+test('Dispatch class method returning a string', function () {
     $router = new Router();
     $route = new Route('/text', 'Chuck\Tests\Fixtures\TestController::textView');
     $router->addRoute($route);
     $response = $router->dispatch($this->request(method: 'GET', url: '/text'));
 
     expect($response)->toBeInstanceOf(Response::class);
-    expect((string)$response->getBody())->toBe('success');
+    expect((string)$response->getBody())->toBe('text');
 });
 
 
-test('Dispatch class method as array', function () {
+test('Dispatch class method returning a stringable', function () {
+    $router = new Router();
+    $route = new Route('/text', 'Chuck\Tests\Fixtures\TestController::stringableView');
+    $router->addRoute($route);
+    $response = $router->dispatch($this->request(method: 'GET', url: '/text'));
+
+    expect($response)->toBeInstanceOf(Response::class);
+    expect((string)$response->getBody())->toBe('Stringable');
+});
+
+
+test('Dispatch class method returing an array with renderer', function () {
     $router = new Router();
     $route = Route::get('/text', [TestController::class, 'arrayView'])->render('json');
     $router->addRoute($route);
@@ -155,7 +166,7 @@ test('Dispatch invokable class', function () {
     {
         public function __invoke(Request $request)
         {
-            return $request->response('Schuldiner');
+            return $request->response->html('Schuldiner');
         }
     };
     $object = new Route('/object', '___InvocableClass');

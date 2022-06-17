@@ -12,15 +12,30 @@ use Chuck\Response\{
 };
 
 
-class ResponseFactory implements ResponseFactoryInterface
+class ResponseFactory
 {
-    public function make(
+    public function html(
         ?string $body = null,
         int $statusCode = 200,
         /** @param list<array{name: string, value: string, replace: bool}> */
         array $headers = [],
     ): ResponseInterface {
-        return new Response($body, $statusCode, $headers);
+        $response = new Response($body, $statusCode, $headers);
+        $response->header('Content-Type', 'text/html');
+
+        return $response;
+    }
+
+    public function text(
+        ?string $body = null,
+        int $statusCode = 200,
+        /** @param list<array{name: string, value: string, replace: bool}> */
+        array $headers = [],
+    ): ResponseInterface {
+        $response = new Response($body, $statusCode, $headers);
+        $response->header('Content-Type', 'text/plain');
+
+        return $response;
     }
 
     public function file(

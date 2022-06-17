@@ -262,14 +262,11 @@ class Router implements RouterInterface
             }
 
             if (is_string($result)) {
-                /** @var ResponseInterface */
-                return $request->response($result);
+                return $request->response()->html($result);
             } elseif ($result instanceof Stringable) {
-                /** @var ResponseInterface */
-                return $request->response($result->__toString());
+                return $request->response()->html($result->__toString());
             } else {
                 try {
-                    /** @var ResponseFactoryInterface */
                     return $request->response()->json($result);
                 } catch (JsonException) {
                     throw new RuntimeException('Cannot determine a response handler for the return type of the view');
