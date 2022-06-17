@@ -13,9 +13,10 @@ class TestControllerWithRequest
     {
     }
 
-    public function wrongReturnType(): array
+    public function wrongReturnType(): mixed
     {
-        return [];
+        // This provokes a json_encode error
+        return stream_context_create();
     }
 
     public function requestOnly(): string

@@ -115,6 +115,18 @@ test('Dispatch closure', function () {
 });
 
 
+test('View without renderer returning string', function () {
+    $router = new Router();
+    $index = new Route('/', fn () => 'Chuck');
+    $router->addRoute($index);
+
+    $response = $router->dispatch($this->request(method: 'GET', url: '/'));
+    expect($response)->toBeInstanceOf(Response::class);
+    // expect($response->headers()['Content-Type'][0]['value'])->toBe('text/html');
+    expect((string)$response->getBody())->toBe('Chuck');
+});
+
+
 test('Dispatch class method as string', function () {
     $router = new Router();
     $route = new Route('/text', 'Chuck\Tests\Fixtures\TestController::textView');
@@ -188,7 +200,7 @@ test('Dispatch wrong view return type', function () {
     $index = new Route('/', TestControllerWithRequest::class . '::wrongReturnType');
     $router->addRoute($index);
     $router->dispatch($this->request(method: 'GET', url: '/'));
-})->throws(RuntimeException::class, 'Cannot determine a handler');
+})->throws(RuntimeException::class, 'Cannot determine a response handler');
 
 
 test('Dispatch missing route', function () {

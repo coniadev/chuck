@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Chuck\Routing;
 
 use \Closure;
+use \ErrorException;
+use \JsonException;
 use \RuntimeException;
+use \Stringable;
 use \Throwable;
 use Chuck\Error\{HttpNotFound, HttpMethodNotAllowed};
 use Chuck\Error\HttpServerError;
@@ -261,9 +264,17 @@ class Router implements RouterInterface
             if (is_string($result)) {
                 /** @var ResponseInterface */
                 return $request->response($result);
+            } elseif ($result instanceof Stringable) {
+                /** @var ResponseInterface */
+                return $request->response($result->__toString());
+            } else {
+                try {
+                    /** @var ResponseFactoryInterface */
+                    return $request->response()->json($result);
+                } catch (JsonException) {
+                    throw new RuntimeException('Cannot determine a response handler for the return type of the view');
+                }
             }
-
-            throw new RuntimeException('Cannot determine a handler for the return type of the view');
         }
     }
 
