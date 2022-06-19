@@ -113,9 +113,15 @@ test('Request::param', function () {
     expect($request->param('chuck'))->toBe('schuldiner');
     expect($request->param('born'))->toBe('1967');
     expect($request->param('first_band'))->toBe('Mantas');
-    expect($request->param('doesnotexist'))->toBe(null);
     expect($request->param('doesnotexist', 'butthisdoes'))->toBe('butthisdoes');
 });
+
+
+test('Request::param failing', function () {
+    $request = $this->request();
+
+    expect($request->param('doesnotexist'))->toBe(null);
+})->throws(OutOfBoundsException::class);
 
 
 test('Request::params', function () {

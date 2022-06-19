@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck;
 
+use \OutOfBoundsException;
 use Chuck\ResponseFactory;
 use Chuck\Routing\RouteInterface;
 use Chuck\Routing\RouterInterface;
@@ -42,7 +43,7 @@ class Request implements RequestInterface
             return $default;
         }
 
-        return null;
+        throw new OutOfBoundsException("Key '$key' not found");
     }
 
     public function url(bool $stripQuery = false): string
