@@ -12,8 +12,8 @@ test('Simple rendering', function () {
     $tpl = new Engine($this->templates(), ['config' => $this->config()]);
 
     expect(
-        $this->fullTrim($tpl->render('simple', ['text' => 'rules']))
-    )->toBe('<h1>chuck</h1><p>rules</p>');
+        $this->fullTrim($tpl->render('simple', ['text' => 'rocks']))
+    )->toBe('<h1>chuck</h1><p>rocks</p>');
 });
 
 
@@ -21,8 +21,8 @@ test('Simple rendering (namespaced)', function () {
     $tpl = new Engine($this->namespacedTemplates(), ['config' => $this->config()]);
 
     expect(
-        $this->fullTrim($tpl->render('namespace:simple', ['text' => 'rules']))
-    )->toBe('<h1>chuck</h1><p>rules</p>');
+        $this->fullTrim($tpl->render('namespace:simple', ['text' => 'rocks']))
+    )->toBe('<h1>chuck</h1><p>rocks</p>');
 });
 
 
@@ -47,6 +47,21 @@ test('Raw rendering', function () {
 
     expect($tpl->render('raw', [
         'html' => '<b>chuck</b>',
+    ]))->toBe("&lt;b&gt;chuck&lt;/b&gt;<b>chuck</b>");
+});
+
+
+test('Raw rendering with Stringable', function () {
+    $tpl = new Engine($this->templates());
+
+    expect($tpl->render('raw', [
+        'html' => new class()
+        {
+            public function __toString(): string
+            {
+                return '<b>chuck</b>';
+            }
+        },
     ]))->toBe("&lt;b&gt;chuck&lt;/b&gt;<b>chuck</b>");
 });
 

@@ -19,9 +19,11 @@ class Template
     ) {
     }
 
-    public function __get(string $name): mixed
+    public function context(): array
     {
-        return Wrapper::wrap($this->context[$name]);
+        return array_map(function ($item): mixed {
+            return Wrapper::wrap($item);
+        }, $this->context);
     }
 
     public function escape(string $value): string

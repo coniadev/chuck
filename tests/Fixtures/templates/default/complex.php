@@ -1,9 +1,9 @@
 <?php require 'header.php'; ?>
 
 <body>
-    <h1><?= $this->headline ?></h1>
+    <h1><?= $headline ?></h1>
     <table>
-        <?php foreach ($this->array as $key => $value) : ?>
+        <?php foreach ($array as $key => $value) : ?>
             <tr>
                 <td><?= $this->e($key) ?></td>
                 <?php foreach ($value as $item) : ?>
@@ -11,7 +11,7 @@
                 <?php endforeach ?>
             </tr>
         <?php endforeach ?>
-    </table><?= $this->html->raw() ?>
+    </table><?= $html->raw() ?>
 </body>
 
 </html>

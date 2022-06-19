@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Chuck\Template;
 
 use \InvalidArgumentException;
-use \RuntimeException;
 use \Throwable;
 use \ValueError;
 use Chuck\Util\Path;
@@ -39,7 +38,7 @@ class Engine
             include $____template_path____;
         };
 
-        $template = new Template($this, $moniker, $context);
+        $template = new Template($this, $moniker, array_merge($this->defaults, $context));
 
         /** @var callable */
         $load = $load->bindTo($template);
@@ -47,7 +46,7 @@ class Engine
         ob_start();
 
         try {
-            $load($path, $this->defaults);
+            $load($path, $template->context());
         } catch (Throwable $e) {
             $error = $e;
         }

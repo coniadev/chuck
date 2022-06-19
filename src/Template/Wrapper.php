@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Chuck\Template;
 
 use \Traversable;
+use \Stringable;
 
 
 class Wrapper
@@ -19,7 +20,7 @@ class Wrapper
             return new ArrayValue($value);
         } elseif ($value instanceof Traversable) {
             return new IteratorValue($value);
-        } elseif (is_object($value) && method_exists($value, '__toString')) {
+        } elseif ($value instanceof Stringable) {
             return new Value((string)$value);
         } else {
             return $value;

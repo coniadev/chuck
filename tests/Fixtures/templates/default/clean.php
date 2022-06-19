@@ -1,1 +1,1 @@
-<?= $this->html->clean() ?>
+<?= $html->clean() ?>

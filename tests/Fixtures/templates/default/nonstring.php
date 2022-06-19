@@ -1,1 +1,1 @@
-<p><?= $this->request->url() ?></p>
+<p><?= $request->url() ?></p>
