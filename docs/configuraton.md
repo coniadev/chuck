@@ -1,0 +1,7 @@
+Configuration
+=============
+
+
+```
+    Add config example.
+```

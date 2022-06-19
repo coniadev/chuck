@@ -344,7 +344,7 @@ class Router implements RouterInterface
     }
 
     /**
-     * Finds the matching route and generates the response while
+     * Looks up the matching route and generates the response while
      * working of the middleware stack.
      *
      * @psalm-suppress InvalidReturnType
@@ -356,7 +356,7 @@ class Router implements RouterInterface
         /**
          * @psalm-suppress InaccessibleProperty
          *
-         * TODO: See README
+         * TODO: See docs/contributing.md
          */
         $this->route = $this->match($request);
 
