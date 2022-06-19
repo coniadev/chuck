@@ -27,4 +27,9 @@ class Value
     {
         return Html::clean($this->value, $extensions);
     }
+
+    public function empty(): bool
+    {
+        return empty($this->value);
+    }
 }

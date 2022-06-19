@@ -93,6 +93,16 @@ test('Helper function rendering', function () {
 });
 
 
+test('Empty helper method', function () {
+    $tpl = new Engine($this->templates());
+
+    expect($this->fullTrim($tpl->render('empty', [
+        'empty' => '',
+        'notempty' => '<b>not empty</b>',
+    ])))->toBe('&lt;b&gt;not empty&lt;/b&gt;');
+});
+
+
 test('Iterator rendering', function () {
     $tpl = new Engine($this->templates());
 
