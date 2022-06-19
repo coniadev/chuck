@@ -31,7 +31,7 @@ test('JSON Renderer', function () {
     expect($response->getBody())->toBe('[13,31,73]');
 
     $hasContentType = false;
-    foreach ($response->headers() as $key => $value) {
+    foreach ($response->headers()->list() as $key => $value) {
         if ($key === 'Content-Type' && $value['value'][0] === 'application/json') {
             $hasContentType = true;
         }
@@ -46,7 +46,7 @@ test('String Renderer', function () {
     $response = $renderer->response();
 
     $hasContentType = false;
-    foreach ($response->headers() as $key => $value) {
+    foreach ($response->headers()->list() as $key => $value) {
         if ($key === 'Content-Type' && $value['value'][0] === 'text/html') {
             $hasContentType = true;
         }
@@ -72,7 +72,7 @@ test('Template Renderer :: html (array of template dirs)', function () {
     $response = $renderer->response();
 
     $hasContentType = false;
-    foreach ($response->headers() as $key => $value) {
+    foreach ($response->headers()->list() as $key => $value) {
         if ($key === 'Content-Type' && $value['value'][0] === 'text/html') {
             $hasContentType = true;
         }
@@ -109,7 +109,7 @@ test('Template Renderer :: xhtml', function () {
     $response = $renderer->response();
 
     $hasContentType = false;
-    foreach ($response->headers() as $key => $value) {
+    foreach ($response->headers()->list() as $key => $value) {
         if ($key === 'Content-Type' && $value['value'][0] === 'application/xhtml+xml') {
             $hasContentType = true;
         }

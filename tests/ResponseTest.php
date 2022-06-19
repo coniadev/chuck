@@ -17,28 +17,19 @@ test('Create with body', function () {
 });
 
 
-test('Set header', function () {
-    $response = new Response(headers: [['name' => 'header-value', 'value' => 'value', 'replace' => false]]);
+test('Init with header', function () {
+    $response = new Response(headers: [['header-value', 'value', false]]);
 
-    expect(array_key_exists('Header-Value', $response->headers()))->toBe(true);
+    expect($response->headers->has('Header-Value'))->toBe(true);
 });
 
 
-test('Set header replace false', function () {
+test('Set header', function () {
     $response = new Response();
     $response->header('header-value', 'value', false);
-    $response->header('header-value', 'value2', false);
 
-    $headers = $response->headers();
-
-    expect(array_key_exists('Header-Value', $headers))->toBe(true);
-    expect(count($headers['Header-Value']['value']))->toBe(2);
+    expect($response->headers->has('Header-Value'))->toBe(true);
 });
-
-
-test('Set invalid header', function () {
-    new Response(headers: [['name' => 'wrong header', 'value' => 'value']]);
-})->throws(ValueError::class);
 
 
 test('HEAD request', function () {
@@ -91,7 +82,7 @@ test('Response defaults', function () {
     $response->emit();
     ob_end_clean();
 
-    expect($response->getWrittenHeaderList())->toBe([
+    expect($response->headers->emitted())->toBe([
         'Content-Type: text/html; charset=UTF-8',
         'HTTP/1.1 200 OK',
     ]);
@@ -101,7 +92,7 @@ test('Response defaults', function () {
 test('Response overwrite defaults', function () {
     $response = (new Response(
         'Pull the Plug',
-        headers: [['name' => 'Content-Type', 'value' => 'text/superior', 'replace' => false]]
+        headers: [['Content-Type', 'text/superior', false]]
     ))->protocol('1.2')->statusCode(404, 'The Plug is Pulled')->charset('UTF-32');
 
     expect($response->getStatusCode())->toBe(404);
@@ -111,7 +102,7 @@ test('Response overwrite defaults', function () {
     $response->emit();
     ob_end_clean();
 
-    expect($response->getWrittenHeaderList())->toBe([
+    expect($response->headers()->emitted())->toBe([
         'Content-Type: text/superior; charset=UTF-32',
         'HTTP/1.2 404 The Plug is Pulled',
     ]);
@@ -126,9 +117,9 @@ test('File response', function () {
     $response->emit(cleanOutputBuffer: false);
     ob_end_clean();
 
-    expect($response->getWrittenHeaderList())->toContain('Content-Type: image/gif');
-    expect($response->getWrittenHeaderList())->toContain('Content-Length: 43');
-    expect($response->getWrittenHeaderList())->not->toContain(
+    expect($response->headers()->emitted())->toContain('Content-Type: image/gif');
+    expect($response->headers()->emitted())->toContain('Content-Length: 43');
+    expect($response->headers()->emitted())->not->toContain(
         'Content-Disposition: attachment; filename="pixel.gif"'
     );
 });
@@ -142,7 +133,7 @@ test('File response as download', function () {
     $response->emit(cleanOutputBuffer: false);
     ob_end_clean();
 
-    expect($response->getWrittenHeaderList())->toContain(
+    expect($response->headers()->emitted())->toContain(
         'Content-Disposition: attachment; filename="pixel.gif"'
     );
 });
@@ -156,7 +147,7 @@ test('File response with sendfile', function () {
     ob_start();
     $response->emit(cleanOutputBuffer: false);
     ob_end_clean();
-    expect($response->getWrittenHeaderList())->toContain("X-Accel-Redirect: $file");
+    expect($response->headers()->emitted())->toContain("X-Accel-Redirect: $file");
 
 
     $_SERVER['SERVER_SOFTWARE'] = 'apache';
@@ -166,7 +157,7 @@ test('File response with sendfile', function () {
     ob_start();
     $response->emit(cleanOutputBuffer: false);
     ob_end_clean();
-    expect($response->getWrittenHeaderList())->toContain("X-Sendfile: $file");
+    expect($response->headers()->emitted())->toContain("X-Sendfile: $file");
 
     unset($_SERVER['SERVER_SOFTWARE']);
 });
