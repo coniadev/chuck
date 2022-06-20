@@ -11,12 +11,11 @@ abstract class Renderer implements RendererInterface
 {
     final public function __construct(
         protected RequestInterface $request,
-        protected mixed $data,
         protected array $args,
         protected mixed $options = null,
     ) {
     }
 
-    abstract public function render(): string;
-    abstract public function response(): ResponseInterface;
+    abstract public function render(mixed $data): string;
+    abstract public function response(mixed $data): ResponseInterface;
 }

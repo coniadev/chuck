@@ -10,13 +10,13 @@ use Chuck\Util\Json;
 
 class JsonRenderer extends Renderer
 {
-    public function render(): string
+    public function render(mixed $data): string
     {
-        return Json::encode($this->data);
+        return Json::encode($data);
     }
 
-    public function response(): JsonResponse
+    public function response(mixed $data): JsonResponse
     {
-        return new JsonResponse($this->data);
+        return new JsonResponse($data);
     }
 }

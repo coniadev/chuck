@@ -9,14 +9,23 @@ use Chuck\Renderer\TemplateRenderer;
 
 uses(TestCase::class);
 
+test('JSON Renderer :: render()', function () {
+    $renderer = new JsonRenderer($this->request(), []);
 
-test('JSON Renderer', function () {
-    $renderer = new JsonRenderer($this->request(), [
+    expect($renderer->render([
         'album' => 'Spiritual Healing',
         'released' => 1990,
-    ], []);
+    ]))->toBe('{"album":"Spiritual Healing","released":1990}');
+});
 
-    expect((string)$renderer->response()->getBody())->toBe('{"album":"Spiritual Healing","released":1990}');
+
+test('JSON Renderer :: response()', function () {
+    $renderer = new JsonRenderer($this->request(), []);
+
+    expect((string)$renderer->response([
+        'album' => 'Spiritual Healing',
+        'released' => 1990,
+    ])->getBody())->toBe('{"album":"Spiritual Healing","released":1990}');
 
     function __json__renderer_iterator()
     {
@@ -25,9 +34,9 @@ test('JSON Renderer', function () {
             yield $a;
         }
     }
-    $renderer = new JsonRenderer($this->request(), __json__renderer_iterator(), []);
+    $renderer = new JsonRenderer($this->request(), []);
 
-    $response = $renderer->response();
+    $response = $renderer->response(__json__renderer_iterator());
     expect($response->getBody())->toBe('[13,31,73]');
 
     $hasContentType = false;
@@ -42,8 +51,8 @@ test('JSON Renderer', function () {
 
 
 test('String Renderer', function () {
-    $renderer = new TextRenderer($this->request(), '<h1>Symbolic</h1>', ['contentType' => 'text/html']);
-    $response = $renderer->response();
+    $renderer = new TextRenderer($this->request(), ['contentType' => 'text/html']);
+    $response = $renderer->response('<h1>Symbolic</h1>');
 
     $hasContentType = false;
     foreach ($response->headers()->list() as $key => $value) {
@@ -58,18 +67,17 @@ test('String Renderer', function () {
 
 
 test('String Renderer :: wrong type', function () {
-    (new TextRenderer($this->request(), [1, 2, 3], []))->response();
+    (new TextRenderer($this->request(), []))->response([1, 2, 3]);
 })->throws(ValueError::class, 'Wrong type [array]');
 
 
 test('Template Renderer :: html (array of template dirs)', function () {
     $renderer = new TemplateRenderer(
         $this->request(),
-        ['text' => 'numbers', 'arr' => [1, 2, 3]],
         ['renderer'],
         $this->templates(),
     );
-    $response = $renderer->response();
+    $response = $renderer->response(['text' => 'numbers', 'arr' => [1, 2, 3]]);
 
     $hasContentType = false;
     foreach ($response->headers()->list() as $key => $value) {
@@ -86,11 +94,10 @@ test('Template Renderer :: html (array of template dirs)', function () {
 test('Template Renderer :: html (template dir as string)', function () {
     $renderer = new TemplateRenderer(
         $this->request(),
-        ['text' => 'numbers', 'arr' => [1, 2, 3]],
         ['renderer'],
         C::root() . C::DS . 'templates' . C::DS . 'default',
     );
-    $response = $renderer->response();
+    $response = $renderer->response(['text' => 'numbers', 'arr' => [1, 2, 3]]);
 
     expect($response->getBody())->toBe("<h1>chuck</h1>\n<p>numbers</p><p>1</p><p>2</p><p>3</p>");
 });
@@ -99,14 +106,13 @@ test('Template Renderer :: html (template dir as string)', function () {
 test('Template Renderer :: xhtml', function () {
     $renderer = new TemplateRenderer(
         $this->request(),
-        [],
         [
             'plain',
             'contentType' => 'application/xhtml+xml'
         ],
         $this->templates(),
     );
-    $response = $renderer->response();
+    $response = $renderer->response([]);
 
     $hasContentType = false;
     foreach ($response->headers()->list() as $key => $value) {
@@ -124,15 +130,15 @@ test('Template Renderer :: iterator', function () {
         yield 'text' => 'characters';
         yield 'arr' => ['a', 'b', 'c'];
     };
-    $renderer = new TemplateRenderer($this->request(), $iter(), ['renderer'], $this->templates());
-    $response = $renderer->response();
+    $renderer = new TemplateRenderer($this->request(), ['renderer'], $this->templates());
+    $response = $renderer->response($iter());
     expect($response->getBody())->toBe("<h1>chuck</h1>\n<p>characters</p><p>a</p><p>b</p><p>c</p>");
 });
 
 test('Template Renderer :: template missing', function () {
-    (new TemplateRenderer($this->request(), [], [], $this->templates()))->response();
+    (new TemplateRenderer($this->request(), [], $this->templates()))->response([]);
 })->throws(ValueError::class);
 
 test('Template Renderer :: template dirs missing', function () {
-    (new TemplateRenderer($this->request(), [], ['renderer'], []))->response();
+    (new TemplateRenderer($this->request(), ['renderer'], []))->response([]);
 })->throws(ValueError::class);

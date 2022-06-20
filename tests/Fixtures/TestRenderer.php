@@ -10,13 +10,13 @@ use Chuck\Renderer\Renderer;
 
 class TestRenderer extends Renderer
 {
-    public function render(): string
+    public function render(mixed $data): string
     {
-        return '';
+        return (string)$data;
     }
 
-    public function response(): Response
+    public function response(mixed $data): Response
     {
-        return new Response($this->render());
+        return new Response($this->render($data));
     }
 }

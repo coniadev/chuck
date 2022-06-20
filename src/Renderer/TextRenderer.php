@@ -4,28 +4,28 @@ declare(strict_types=1);
 
 namespace Chuck\Renderer;
 
-use \ErrorException;
+use \TypeError;
 use \ValueError;
 use Chuck\Response\Response;
 
 
 class TextRenderer extends Renderer
 {
-    public function render(): string
+    public function render(mixed $data): string
     {
-        return (string)$this->data;
+        return $data;
     }
 
-    public function response(): Response
+    public function response(mixed $data): Response
     {
         try {
-            return (new Response($this->render()))->header(
+            return (new Response($this->render($data)))->header(
                 'Content-Type',
                 ($this->args['contentType'] ?? null) ?: 'text/plain',
                 true,
             );
-        } catch (ErrorException) {
-            throw new ValueError('Text renderer error: Wrong type [' . gettype($this->data) . ']');
+        } catch (TypeError) {
+            throw new ValueError('Text renderer error: Wrong type [' . gettype($data) . ']');
         }
     }
 }

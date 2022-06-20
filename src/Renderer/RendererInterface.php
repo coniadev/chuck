@@ -9,6 +9,6 @@ use Chuck\Response\ResponseInterface;
 
 interface RendererInterface
 {
-    public function render(): String;
-    public function response(): ResponseInterface;
+    public function render(mixed $data): String;
+    public function response(mixed $data): ResponseInterface;
 }

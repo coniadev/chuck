@@ -12,12 +12,12 @@ use Chuck\Template\Engine;
 
 class TemplateRenderer extends Renderer
 {
-    public function render(): string
+    public function render(mixed $data): string
     {
-        if ($this->data instanceof \Traversable) {
-            $context = iterator_to_array($this->data);
+        if ($data instanceof \Traversable) {
+            $context = iterator_to_array($data);
         } else {
-            $context = $this->data ?? [];
+            $context = $data ?? [];
         }
 
         try {
@@ -50,9 +50,9 @@ class TemplateRenderer extends Renderer
         return $template->render($templateName, $context);
     }
 
-    public function response(): Response
+    public function response(mixed $data): Response
     {
-        return (new Response($this->render()))->header(
+        return (new Response($this->render($data)))->header(
             'Content-Type',
             ($this->args['contentType'] ?? null) ?: 'text/html',
             true

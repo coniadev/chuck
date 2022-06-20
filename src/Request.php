@@ -8,6 +8,7 @@ use \OutOfBoundsException;
 use Chuck\ResponseFactory;
 use Chuck\Routing\RouteInterface;
 use Chuck\Routing\RouterInterface;
+use Chuck\Renderer\RendererInterface;
 use Chuck\Util\Http;
 
 
