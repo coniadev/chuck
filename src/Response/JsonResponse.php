@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Chuck\Response;
 
+use Chuck\Util\Json;
+
 
 class JsonResponse extends Response
 {
@@ -13,15 +15,7 @@ class JsonResponse extends Response
         /** @param list<array{name: string, value: string, replace: bool}> */
         array $headers = [],
     ) {
-        $flags = JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR;
-
-        if ($data instanceof \Traversable) {
-            $body = json_encode(iterator_to_array($data), $flags);
-        } else {
-            $body = json_encode($data, $flags);
-        }
-
-        parent::__construct($body, $statusCode, $headers);
+        parent::__construct(Json::encode($data), $statusCode, $headers);
 
         $this->header('Content-Type', 'application/json', true);
     }

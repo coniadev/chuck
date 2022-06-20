@@ -17,5 +17,6 @@ abstract class Renderer implements RendererInterface
     ) {
     }
 
+    abstract public function render(): string;
     abstract public function response(): ResponseInterface;
 }

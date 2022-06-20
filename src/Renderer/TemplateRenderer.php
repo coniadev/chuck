@@ -12,7 +12,7 @@ use Chuck\Template\Engine;
 
 class TemplateRenderer extends Renderer
 {
-    public function response(): Response
+    public function render(): string
     {
         if ($this->data instanceof \Traversable) {
             $context = iterator_to_array($this->data);
@@ -47,7 +47,12 @@ class TemplateRenderer extends Renderer
             ]
         );
 
-        return (new Response($template->render($templateName, $context)))->header(
+        return $template->render($templateName, $context);
+    }
+
+    public function response(): Response
+    {
+        return (new Response($this->render()))->header(
             'Content-Type',
             ($this->args['contentType'] ?? null) ?: 'text/html',
             true
