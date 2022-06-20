@@ -138,7 +138,7 @@ class Logger implements LoggerInterface
             } elseif (is_null($value)) {
                 $substitudes[$placeholder] = '[null]';
             } else {
-                $substitudes[$placeholder] = '[' . gettype($value) . ']';
+                $substitudes[$placeholder] = '[' . get_debug_type($value) . ']';
             }
         }
 

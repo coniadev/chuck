@@ -27,8 +27,8 @@ test('Helper methods', function () {
     expect($request->response)->toBeInstanceOf(ResponseFactory::class);
     expect($request->response->html('Chuck'))->toBeInstanceOf(ResponseInterface::class);
     expect($request->method())->toBe('GET');
-    expect($request->methodIs('GET'))->toBe(true);
-    expect($request->methodIs('POST'))->toBe(false);
+    expect($request->isMethod('GET'))->toBe(true);
+    expect($request->isMethod('POST'))->toBe(false);
 });
 
 

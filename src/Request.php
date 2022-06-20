@@ -92,7 +92,7 @@ class Request implements RequestInterface
         return strtoupper($_SERVER['REQUEST_METHOD']);
     }
 
-    public function methodIs(string $method): bool
+    public function isMethod(string $method): bool
     {
         return strtoupper($method) === $this->method();
     }
@@ -116,6 +116,39 @@ class Request implements RequestInterface
             512, // PHP default value
             $flags,
         );
+    }
+
+    public function hasFile(string $key, bool $ignoreError = false): bool
+    {
+        $keyExists = array_key_exists($key, $_FILES);
+
+        if ($ignoreError) {
+            return $keyExists;
+        }
+
+        return $keyExists && ($_FILES[$key]['error'] ?? null) === UPLOAD_ERR_OK;
+    }
+
+    public function file(string $key): File
+    {
+        return new File($_FILES[$key]);
+    }
+
+    /** @return list<File> */
+    public function files(string $key): array
+    {
+        $files = [];
+
+        foreach ($_FILES[$key]['error'] as $key => $error) {
+            $files[] = new File([
+                'tmp_name' => $_FILES[$key]['tmp_name'][$key],
+                'name' => $_FILES[$key]['name'][$key],
+                'size' => $_FILES[$key]['size'][$key],
+                'error' => $error,
+            ]);
+        }
+
+        return $files;
     }
 
     /**

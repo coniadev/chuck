@@ -25,7 +25,7 @@ class TextRenderer extends Renderer
                 true,
             );
         } catch (TypeError) {
-            throw new ValueError('Text renderer error: Wrong type [' . gettype($data) . ']');
+            throw new ValueError('Text renderer error: Wrong type [' . get_debug_type($data) . ']');
         }
     }
 }

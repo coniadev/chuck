@@ -128,7 +128,7 @@ test('Message interpolation', function () {
     expect($output)->toContain('DateTime: 1987-05-25 13:31:23');
     expect($output)->toContain('Array: [Array [13,23,71]]');
     expect($output)->toContain('Object: [Instance of stdClass]');
-    expect($output)->toContain('Other: [resource]');
+    expect($output)->toContain('Other: [resource (stream-context)]');
     expect($output)->toContain('Null: [null]');
     expect($output)->toContain('Exception Message: The test exception');
 });
