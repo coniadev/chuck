@@ -69,12 +69,9 @@ test('Logger call without setup', function () {
 test('Add renderer', function () {
     $config = new Config('chuck');
     $config->addRenderer('test', TestRenderer::class);
-    $renderers = $config->renderers();
+    $renderer = $config->renderer($this->request(), 'test');
 
-    expect(count($renderers))->toBe(3);
-    expect(array_key_exists('test', $renderers))->toBe(true);
-    expect(array_key_exists('text', $renderers))->toBe(true);
-    expect(array_key_exists('json', $renderers))->toBe(true);
+    expect($renderer)->toBeInstanceOf(TestRenderer::class);
 });
 
 

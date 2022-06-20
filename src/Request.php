@@ -142,6 +142,11 @@ class Request implements RequestInterface
         return $this->response;
     }
 
+    public function renderer(string $type, mixed ...$args): RendererInterface
+    {
+        return $this->config->renderer($this, $type, ...$args);
+    }
+
     public function __call(string $name, array $args)
     {
         $func = $this->customMethods[$name];

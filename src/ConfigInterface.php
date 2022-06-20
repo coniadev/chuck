@@ -7,6 +7,7 @@ namespace Chuck;
 use Psr\Log\LoggerInterface;
 use Chuck\Config;
 use Chuck\Config\{Connection, Scripts};
+use Chuck\Renderer\RendererInterface;
 
 
 interface ConfigInterface
@@ -19,5 +20,5 @@ interface ConfigInterface
     public function logger(): ?LoggerInterface;
     public function connection(string $name = Config::DEFAULT,): Connection;
     public function scripts(): Scripts;
-    public function renderers(): array;
+    public function renderer(RequestInterface $request, string $type, mixed ...$args): RendererInterface;
 }

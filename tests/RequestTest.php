@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Chuck\ConfigInterface;
 use Chuck\Error\ExitException;
+use Chuck\Renderer\{JsonRenderer, TemplateRenderer};
 use Chuck\Request;
 use Chuck\ResponseFactory;
 use Chuck\Response\ResponseInterface;
@@ -193,4 +194,22 @@ test('Request::json', function () {
     ]);
     fclose($f);
     ob_end_clean();
+});
+
+
+test('Request::renderer', function () {
+    $request = $this->request();
+    $renderer = $request->renderer('json');
+
+    expect($renderer)->toBeInstanceOf(JsonRenderer::class);
+});
+
+
+test('Request::renderer with args', function () {
+    $config = $this->config();
+    $config->addRenderer('template', TemplateRenderer::class, $this->templates());
+    $request = $this->request(config: $config);
+    $renderer = $request->renderer('template', 'renderer');
+
+    expect($renderer)->toBeInstanceOf(TemplateRenderer::class);
 });

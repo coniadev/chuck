@@ -236,14 +236,15 @@ class Router implements RouterInterface
         }
     }
 
-    protected function getRenderer(RequestInterface $request, RendererConfig $rendererConfig): RendererInterface
-    {
-        $renderers = $request->config()->renderers();
-        $class = $renderers[$rendererConfig->type]['class'];
-        $options = $renderers[$rendererConfig->type]['options'];
-
-        /** @var RendererInterface */
-        return new $class($request, $rendererConfig->args, $options);
+    protected function getRenderer(
+        RequestInterface $request,
+        RendererConfig $rendererConfig
+    ): RendererInterface {
+        return $request->config()->renderer(
+            $request,
+            $rendererConfig->type,
+            ...$rendererConfig->args
+        );
     }
 
     protected function respond(RequestInterface $request, RouteInterface $route): ResponseInterface

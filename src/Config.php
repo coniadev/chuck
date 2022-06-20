@@ -13,6 +13,7 @@ use Chuck\Renderer\{
     Renderer,
     JsonRenderer,
     TextRenderer,
+    RendererInterface,
 };
 use Chuck\Config\{Connection, Scripts};
 
@@ -46,7 +47,7 @@ class Config implements ConfigInterface
         string $env = '',
         array $settings = []
     ) {
-        $this->app = $this->getApp($app);
+        $this->app = $this->validateApp($app);
         $this->debug = $debug;
         $this->env = $env;
         $this->settings = $settings;
@@ -57,7 +58,7 @@ class Config implements ConfigInterface
         ];
     }
 
-    protected function getApp(string $app): string
+    protected function validateApp(string $app): string
     {
         if (preg_match('/^[a-z0-9]{1,32}$/', $app)) {
             return $app;
@@ -119,10 +120,12 @@ class Config implements ConfigInterface
         }
     }
 
-    /** @return array<string, array{class: class-string<Renderer>, options: mixed}> */
-    public function renderers(): array
+    public function renderer(RequestInterface $request, string $type, mixed ...$args): RendererInterface
     {
-        return $this->renderers;
+        $class = $this->renderers[$type]['class'];
+        $options = $this->renderers[$type]['options'];
+
+        return new $class($request, $args, $options);
     }
 
 
