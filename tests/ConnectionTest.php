@@ -33,6 +33,25 @@ test('Driver specific dir', function () {
 });
 
 
+test('Add SQL dirs later', function () {
+    $conn = new Connection(
+        $this->getDsn(),
+        C::root() . C::DS . 'sql' . C::DS . 'default',
+    );
+
+    $conn->addSqlDirs([
+        'sqlite' => C::root() . C::DS . 'sql' . C::DS . 'additional',
+        'ignored' => C::root() . C::DS . 'sql' . C::DS . 'ignored',
+    ]);
+
+    $sql = $conn->sql();
+    expect(count($sql))->toBe(2);
+    // Driver specific must come first
+    expect($sql[0])->toEndWith('/additional');
+    expect($sql[1])->toEndWith('/default');
+});
+
+
 test('Mixed dirs format', function () {
     $conn = new Connection(
         $this->getDsn(),
@@ -63,6 +82,37 @@ test('Wrong sql format', function () {
         ]
     ]);
 })->throws(ValueError::class, 'string or an associative array');
+
+
+test('Migration directories', function () {
+    $conn = new Connection(
+        $this->getDsn(),
+        C::root() . C::DS . 'sql' . C::DS . 'default',
+        [C::root() . C::DS . 'migrations', C::root() . C::DS . 'sql' . C::DS . 'additional']
+    );
+    $migrations = $conn->migrations();
+
+    expect(count($migrations))->toBe(2);
+    expect($migrations[0])->toEndWith('/additional');
+    expect($migrations[1])->toEndWith('/migrations');
+});
+
+
+test('Agg migration directories later', function () {
+    $conn = new Connection(
+        $this->getDsn(),
+        C::root() . C::DS . 'sql' . C::DS . 'default',
+    );
+    $conn->addMigrationDirs([
+        C::root() . C::DS . 'migrations',
+        C::root() . C::DS . 'sql' . C::DS . 'additional'
+    ]);
+    $migrations = $conn->migrations();
+
+    expect(count($migrations))->toBe(2);
+    expect($migrations[0])->toEndWith('/additional');
+    expect($migrations[1])->toEndWith('/migrations');
+});
 
 
 test('Unsupported dsn', function () {

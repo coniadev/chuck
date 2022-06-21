@@ -189,9 +189,21 @@ class Connection
         return $this->fetchMode;
     }
 
+    public function addMigrationDirs(array|string $migrations): void
+    {
+        $migrations = $this->readDirs($migrations);
+        $this->migrations = array_merge($migrations, $this->migrations);
+    }
+
     public function migrations(): array
     {
         return $this->migrations;
+    }
+
+    public function addSqlDirs(array|string $sql): void
+    {
+        $sql = $this->readDirs($sql);
+        $this->sql = array_merge($sql, $this->sql);
     }
 
     public function sql(): array
