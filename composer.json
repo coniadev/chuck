@@ -1,8 +1,13 @@
 {
     "name": "conia/chuck",
-    "description": "",
-    "version": "0.1.0",
-    "type": "project",
+    "description": "A lightweight PHP framework",
+    "keywords": [
+        "framework",
+        "micro",
+        "api",
+        "router"
+    ],
+    "type": "library",
     "license": "MIT",
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -16,8 +21,7 @@
     "require": {
         "php": ">=8.1",
         "tgalopin/html-sanitizer": "^1.5",
-        "psr/log": "^3.0",
-        "psr/container": "^2.0"
+        "psr/log": "^3.0"
     },
     "autoload": {
         "psr-4": {
