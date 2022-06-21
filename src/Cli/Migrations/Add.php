@@ -26,7 +26,7 @@ class Add implements CommandInterface
         /**
          * @psalm-suppress InaccessibleProperty
          *
-         * TODO: see docs/contributing.md
+         * See docs/contributing.md
          */
         $this->conn = $opts->get('--conn', Config::DEFAULT);
         /** @psalm-suppress InaccessibleProperty */

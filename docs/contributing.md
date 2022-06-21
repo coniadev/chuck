@@ -39,11 +39,15 @@ MariaDB/MySQL
 ```
 
 
-## Psalm and suppressing InaccessibleProperty/MissingConstructor
+## Psalm and suppressing readonly property errors
 
 At the time of writing Psalm does not support readonly properties which 
 are not initialized in the constructor. The maintainers suggest to 
-suppress errors is the only appropriate way. Recheck on occasion.
+suppress errors is the only appropriate way. Recheck on occasion. Possible Errors:
+
+* InaccessibleProperty
+* MissingConstructor
+* RedundantPropertyInitializationCheck
 
 - https://github.com/vimeo/psalm/issues/7608
 

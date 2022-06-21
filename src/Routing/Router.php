@@ -357,7 +357,7 @@ class Router implements RouterInterface
         /**
          * @psalm-suppress InaccessibleProperty
          *
-         * TODO: See docs/contributing.md
+         * See docs/contributing.md
          */
         $this->route = $this->match($request);
 

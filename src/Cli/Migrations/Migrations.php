@@ -33,7 +33,7 @@ class Migrations implements CommandInterface
         /**
          * @psalm-suppress InaccessibleProperty
          *
-         * TODO: See docs/contributing.md
+         * See docs/contributing.md
          */
         $this->env = $env = new Environment($config);
         $opts = new Opts();

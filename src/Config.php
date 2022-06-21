@@ -32,6 +32,8 @@ class Config implements ConfigInterface
     protected array $renderers = [];
     /** @var array<string, Connection> */
     protected array $connections = [];
+    /** @psalm-suppress PropertyNotSetInConstructor */
+    protected readonly Scripts $scripts;
 
     /**
      * Stores additional user defined settings
@@ -165,6 +167,16 @@ class Config implements ConfigInterface
 
     public function scripts(): Scripts
     {
-        return new Scripts();
+        /**
+         * @psalm-suppress RedundantPropertyInitializationCheck
+         *
+         * See docs/contributing.md
+         */
+        if (!isset($this->scripts)) {
+            /** @psalm-suppress InaccessibleProperty */
+            $this->scripts = new Scripts();
+        }
+
+        return $this->scripts;
     }
 }
