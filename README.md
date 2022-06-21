@@ -2,13 +2,21 @@ Chuck Framework
 ===============
 
 Chuck is a lightweight and easily extendable PHP 8.1 web framework with focus 
-on a simple architecture. It features
+on a simple architecture. 
+
+> :warning: **Note**: This framework is under active development, some of the listed features are still experimental and subject to change. Large parts of the documentation are missing. 
+
+It features:
 
 * Routing
 * A pure PHP template engine with auto escaping
-* Database helpers (no ORM)
+* Database helpers (no ORM) with plain SQL migrations
+* Form and JSON validaton
 * Automatic image resizing
-* ... and more
+* Csrf protection
+* Session and cookie helpers
+* Custom middlewares
+* Logging (PHP builtin logging or PSR-3 support)
 
 ## Usage:
 
