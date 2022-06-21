@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Chuck\ConfigInterface;
 use Chuck\Error\ExitException;
+use Chuck\File;
 use Chuck\Renderer\{JsonRenderer, TemplateRenderer};
 use Chuck\Request;
 use Chuck\ResponseFactory;
@@ -212,4 +213,74 @@ test('Request::renderer with args', function () {
     $renderer = $request->renderer('template', 'renderer');
 
     expect($renderer)->toBeInstanceOf(TemplateRenderer::class);
+});
+
+
+test('Has file', function () {
+    $this->setupFile();
+    $request = $this->request();
+
+    expect($request->hasFile('myfile'))->toBe(true);
+});
+
+
+test("Doesn't have file", function () {
+    $this->setupFile();
+    $request = $this->request();
+
+    expect($request->hasFile('nofile'))->toBe(false);
+});
+
+
+test('Has multiple files', function () {
+    $this->setupFile(); // Single file
+    $request = $this->request();
+
+    expect($request->hasFile('myfile'))->toBe(true);
+    expect($request->hasFile('myfile') && $request->hasMultipleFiles('myfile'))->toBe(false);
+
+    $this->setupFiles(); // Uploaded as HTML array
+    $request = $this->request();
+
+    expect($request->hasFile('myfile'))->toBe(true);
+    expect($request->hasFile('myfile') && $request->hasMultipleFiles('myfile'))->toBe(true);
+});
+
+
+test("Get file instances", function () {
+    $this->setupFile();
+    $request = $this->request();
+    $file = $request->file('myfile');
+
+    expect($file)->toBeInstanceOf(File::class);
+    expect($file->isValid())->toBe(true);
+
+    $file = $request->file('failingfile');
+
+    expect($file)->toBeInstanceOf(File::class);
+    expect($file->isValid())->toBe(false);
+});
+
+
+test("Get files instances", function () {
+    $this->setupFiles(); // files array
+    $request = $this->request();
+    $files = $request->files('myfile');
+
+    expect(count($files))->toBe(2);
+    expect($files[0])->toBeInstanceOf(File::class);
+    expect($files[0]->isValid())->toBe(true);
+    expect($files[1])->toBeInstanceOf(File::class);
+    expect($files[1]->isValid())->toBe(false);
+});
+
+
+test("Get files instances with only one present", function () {
+    $this->setupFile(); // single file
+    $request = $this->request();
+    $files = $request->files('myfile');
+
+    expect(count($files))->toBe(1);
+    expect($files[0])->toBeInstanceOf(File::class);
+    expect($files[0]->isValid())->toBe(true);
 });

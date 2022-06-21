@@ -46,6 +46,8 @@ class TestCase extends BaseTestCase
         $_GET = [];
         global $_POST;
         $_POST = [];
+        global $_FILES;
+        $_FILES = [];
     }
 
     public function set(string $method, array $values): void
@@ -158,6 +160,43 @@ class TestCase extends BaseTestCase
         $request = new Request($config, $router);
 
         return $request;
+    }
+
+    public function setupFile()
+    {
+        global $_FILES;
+
+        $_FILES = [
+            'myfile' => [
+                'error'    => UPLOAD_ERR_OK,
+                'name'     => '../malic/chuck-test-file.php',
+                'size'     => 123,
+                'tmp_name' => __FILE__,
+                'type'     => 'text/plain'
+            ],
+            'failingfile' => [
+                'error'    => UPLOAD_ERR_PARTIAL,
+                'name'     => 'chuck-failing-test-file.php',
+                'size'     => 123,
+                'tmp_name' => '',
+                'type'     => 'text/plain'
+            ]
+        ];
+    }
+
+    public function setupFiles()
+    {
+        global $_FILES;
+
+        $_FILES = [
+            'myfile' => [
+                'error'    => [UPLOAD_ERR_OK, UPLOAD_ERR_PARTIAL],
+                'name'     => ['test.php', 'test2.php'],
+                'size'     => [123, 234],
+                'tmp_name' => [__FILE__, __FILE__],
+                'type'     => ['text/plain', 'text/plain']
+            ]
+        ];
     }
 
     public function fullTrim(string $text): string

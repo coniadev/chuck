@@ -12,4 +12,9 @@ class C
     {
         return  dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Fixtures';
     }
+
+    public static function tmp(): string
+    {
+        return  sys_get_temp_dir() . DIRECTORY_SEPARATOR;
+    }
 }

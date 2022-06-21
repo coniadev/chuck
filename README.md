@@ -65,6 +65,7 @@ on a simple architecture. It features
 * [Response](docs/response.md)
 * [Templates](docs/templates.md)
 * [Validation](docs/validation.md)
+* [File Uploads](docs/fileuploads.md)
 * [Sessions and Cookies](docs/sessionscookies.md)
 * [Middleware](docs/middleware.md)
 * [Renderers](docs/renderers.md)

@@ -118,15 +118,14 @@ class Request implements RequestInterface
         );
     }
 
-    public function hasFile(string $key, bool $ignoreError = false): bool
+    public function hasFile(string $key): bool
     {
-        $keyExists = array_key_exists($key, $_FILES);
+        return array_key_exists($key, $_FILES);
+    }
 
-        if ($ignoreError) {
-            return $keyExists;
-        }
-
-        return $keyExists && ($_FILES[$key]['error'] ?? null) === UPLOAD_ERR_OK;
+    public function hasMultipleFiles(string $key): bool
+    {
+        return array_key_exists($key, $_FILES) && is_array($_FILES[$key]['error']);
     }
 
     public function file(string $key): File
@@ -137,18 +136,21 @@ class Request implements RequestInterface
     /** @return list<File> */
     public function files(string $key): array
     {
-        $files = [];
-
-        foreach ($_FILES[$key]['error'] as $key => $error) {
-            $files[] = new File([
-                'tmp_name' => $_FILES[$key]['tmp_name'][$key],
-                'name' => $_FILES[$key]['name'][$key],
-                'size' => $_FILES[$key]['size'][$key],
-                'error' => $error,
-            ]);
+        if (is_array($_FILES[$key]['error'])) {
+            $files = [];
+            foreach ($_FILES[$key]['error'] as $idx => $error) {
+                $files[] = new File([
+                    'tmp_name' => $_FILES[$key]['tmp_name'][$idx],
+                    'name' => $_FILES[$key]['name'][$idx],
+                    'size' => $_FILES[$key]['size'][$idx],
+                    'type' => $_FILES[$key]['type'][$idx],
+                    'error' => $error,
+                ]);
+            }
+            return $files;
         }
 
-        return $files;
+        return [$this->file($key)];
     }
 
     /**
