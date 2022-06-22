@@ -175,8 +175,14 @@ class Connection
         return $this->options;
     }
 
-    public function print(): bool
+    public function print(bool $print): bool
     {
+        // Normally this is bad practise but setting print should
+        // only be used for debugging purposes
+        if (func_num_args() > 0) {
+            $this->print = $print;
+        }
+
         return $this->print;
     }
     public function driver(): string
