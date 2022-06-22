@@ -18,9 +18,9 @@ class App
     use AddsRoutes;
 
     public function __construct(
-        protected RequestInterface $request,
-        protected ConfigInterface $config,
-        protected RouterInterface $router,
+        private RequestInterface $request,
+        private ConfigInterface $config,
+        private RouterInterface $router,
     ) {
     }
 
