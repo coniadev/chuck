@@ -67,7 +67,7 @@ class App
         string $patternPrefix,
         Closure $createClosure,
         ?string $namePrefix = null,
-    ): GroupInterface {
+    ): Group {
         $group = new Group($patternPrefix, $createClosure, $namePrefix);
         $this->router->addGroup($group);
 
