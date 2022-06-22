@@ -29,7 +29,7 @@ class Connection
         protected readonly ?string $password = null,
         protected readonly array $options = [],
         protected readonly int $fetchMode = PDO::FETCH_BOTH,
-        protected readonly bool $print = false
+        protected bool $print = false
 
     ) {
         $this->driver = $this->readDriver($this->dsn);
@@ -175,7 +175,7 @@ class Connection
         return $this->options;
     }
 
-    public function print(bool $print): bool
+    public function print(bool $print = false): bool
     {
         // Normally this is bad practise but setting print should
         // only be used for debugging purposes
