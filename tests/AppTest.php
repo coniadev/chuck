@@ -65,7 +65,7 @@ test('App::addRoute/::addGroup helper', function () {
     $route = new Route('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
     $group = new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
-        $group->add(Route::get('/{name}', "$ctrl::albumName", 'name'));
+        $group->addRoute(Route::get('/{name}', "$ctrl::albumName", 'name'));
     }, 'albums:');
     $app->addRoute($route);
     $app->addGroup($group);
@@ -143,7 +143,7 @@ test('App::group helper', function () {
     $app = App::create($this->config());
     $app->group('/albums', function (Group $group) {
         $ctrl = TestController::class;
-        $group->add(Route::get('/{name}', "$ctrl::albumName", 'name'));
+        $group->addRoute(Route::get('/{name}', "$ctrl::albumName", 'name'));
     }, 'albums:');
 
     expect($app->router()->routeUrl('albums:name', ['name' => 'symbolic']))->toBe('/albums/symbolic');

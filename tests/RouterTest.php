@@ -22,7 +22,7 @@ test('Matching', function () {
     $router->addRoute($albums);
     $router->addGroup(new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
-        $group->add(Route::get('/{name}', "$ctrl::albumName"));
+        $group->addRoute(Route::get('/{name}', "$ctrl::albumName"));
     }));
 
     expect($router->match($this->request(method: 'GET', url: ''))->name())->toBe('index');
@@ -34,6 +34,20 @@ test('Matching', function () {
 
     $router->match($this->request(method: 'GET', url: '/does-not-exist'));
 })->throws(HttpNotFound::class);
+
+
+test('Matching with helpers', function () {
+    $router = new Router();
+    $index = $router->get('/', fn () => null, 'index');
+    $albums = $router->post('/albums', fn () => null);
+
+    expect($router->match($this->request(method: 'GET', url: ''))->name())->toBe('index');
+    expect($router->match($this->request(method: 'POST', url: '/albums'))->name())->toBe('/albums');
+    expect($router->match($this->request(method: 'GET', url: '')))->toBe($index);
+    expect($router->match($this->request(method: 'POST', url: '/albums')))->toBe($albums);
+
+    $router->match($this->request(method: 'GET', url: '/albums'));
+})->throws(HttpMethodNotAllowed::class);
 
 
 test('Generate route url', function () {

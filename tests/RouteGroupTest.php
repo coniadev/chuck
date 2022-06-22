@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Chuck\Error\HttpMethodNotAllowed;
 use Chuck\Tests\Setup\TestCase;
 use Chuck\Tests\Fixtures\{
     TestController,
@@ -22,10 +23,9 @@ test('Matching :: named', function () {
     $group = new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
 
-        // overwrite group renderer
-        $group->add(Route::get('/home', "$ctrl::albumHome", 'home'));
-        $group->add(Route::get('/{name}', "$ctrl::albumName", 'name'));
-        $group->add(Route::get('', "$ctrl::albumList", 'list'));
+        $group->addRoute(Route::get('/home', "$ctrl::albumHome", 'home'));
+        $group->addRoute(Route::get('/{name}', "$ctrl::albumName", 'name'));
+        $group->addRoute(Route::get('', "$ctrl::albumList", 'list'));
     }, 'albums:');
     $group->create($router);
 
@@ -45,10 +45,9 @@ test('Matching :: unnamed', function () {
     $group = new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
 
-        // overwrite group renderer
-        $group->add(Route::get('/home', "$ctrl::albumHome"));
-        $group->add(Route::get('/{name}', "$ctrl::albumName"));
-        $group->add(Route::get('', "$ctrl::albumList"));
+        $group->addRoute(Route::get('/home', "$ctrl::albumHome"));
+        $group->addRoute(Route::get('/{name}', "$ctrl::albumName"));
+        $group->addRoute(Route::get('', "$ctrl::albumList"));
     });
     $group->create($router);
 
@@ -60,18 +59,51 @@ test('Matching :: unnamed', function () {
 });
 
 
+test('Matching :: with helper methods', function () {
+    $router = new Router();
+    $index = new Route('/', fn () => null);
+    $router->addRoute($index);
+
+    $group = new Group('/helper', function (Group $group) {
+        $ctrl = TestController::class;
+
+        $group->get('/get', "$ctrl::albumHome", 'getroute');
+        $group->post('/post', "$ctrl::albumHome", 'postroute');
+        $group->put('/put', "$ctrl::albumHome", 'putroute');
+        $group->patch('/patch', "$ctrl::albumHome", 'patchroute');
+        $group->delete('/delete', "$ctrl::albumHome", 'deleteroute');
+        $group->options('/options', "$ctrl::albumHome", 'optionsroute');
+        $group->head('/head', "$ctrl::albumHome", 'headroute');
+        $group->route('/route', "$ctrl::albumHome", 'allroute');
+    }, 'helper:');
+    $group->create($router);
+
+    expect($router->match($this->request(method: 'GET', url: '/helper/get'))->name())->toBe('helper:getroute');
+    expect($router->match($this->request(method: 'POST', url: '/helper/post'))->name())->toBe('helper:postroute');
+    expect($router->match($this->request(method: 'PUT', url: '/helper/put'))->name())->toBe('helper:putroute');
+    expect($router->match($this->request(method: 'PATCH', url: '/helper/patch'))->name())->toBe('helper:patchroute');
+    expect($router->match($this->request(method: 'DELETE', url: '/helper/delete'))->name())->toBe('helper:deleteroute');
+    expect($router->match($this->request(method: 'OPTIONS', url: '/helper/options'))->name())->toBe('helper:optionsroute');
+    expect($router->match($this->request(method: 'HEAD', url: '/helper/head'))->name())->toBe('helper:headroute');
+    expect($router->match($this->request(method: 'GET', url: '/helper/route'))->name())->toBe('helper:allroute');
+    expect($router->match($this->request(method: 'HEAD', url: '/helper/route'))->name())->toBe('helper:allroute');
+    // raises not allowed
+    $router->match($this->request(method: 'GET', url: '/helper/delete'));
+})->throws(HttpMethodNotAllowed::class);
+
+
 test('Renderer', function () {
     $router = new Router();
 
     $group = (new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
 
-        $group->add(Route::get('', "$ctrl::albumList"));
+        $group->addRoute(Route::get('', "$ctrl::albumList"));
 
         // overwrite group renderer
-        $group->add(Route::get('/home', "$ctrl::albumHome")->render('template:home.php'));
+        $group->addRoute(Route::get('/home', "$ctrl::albumHome")->render('template:home.php'));
 
-        $group->add(Route::get('/{name}', "$ctrl::albumName"));
+        $group->addRoute(Route::get('/{name}', "$ctrl::albumName"));
     }))->render('json');
     $group->create($router);
 
@@ -91,7 +123,7 @@ test('Controller prefixing', function () {
     $router->addRoute($index);
 
     $group = (new Group('/albums', function (Group $group) {
-        $group->add(Route::get('-list', '::albumList', 'list'));
+        $group->addRoute(Route::get('-list', '::albumList', 'list'));
     }, 'albums-'))->controller(TestController::class);
     $group->create($router);
 
@@ -105,7 +137,7 @@ test('Controller prefixing error', function () {
     $router = new Router();
 
     $group = (new Group('/albums', function (Group $group) {
-        $group->add(Route::get('-list', function () {
+        $group->addRoute(Route::get('-list', function () {
         }));
     }))->controller(TestController::class);
     $group->create($router);
@@ -119,9 +151,9 @@ test('Middleware', function () {
     $group = (new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
 
-        $group->add(Route::get('', "$ctrl::albumList"));
-        $group->add(Route::get('/home', "$ctrl::albumHome")->middleware(new TestMiddleware3()));
-        $group->add(Route::get('/{name}', "$ctrl::albumName"));
+        $group->addRoute(Route::get('', "$ctrl::albumList"));
+        $group->addRoute(Route::get('/home', "$ctrl::albumHome")->middleware(new TestMiddleware3()));
+        $group->addRoute(Route::get('/{name}', "$ctrl::albumName"));
     }))->middleware(new TestMiddleware2());
     $group->create($router);
 

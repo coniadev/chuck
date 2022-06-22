@@ -1,0 +1,72 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Chuck\Routing;
+
+trait AddsRoutes
+{
+    public function route(string $pattern, callable|array|string $view, ?string $name = null, array $params = []): Route
+    {
+        $route = new Route($pattern, $view, $name, $params);
+        $this->addRoute($route);
+
+        return $route;
+    }
+
+    public function get(string $pattern, callable|array|string $view, ?string $name = null, array $params = []): Route
+    {
+        $route = Route::get($pattern, $view, $name, $params);
+        $this->addRoute($route);
+
+        return $route;
+    }
+
+    public function post(string $pattern, callable|array|string $view, ?string $name = null, array $params = []): Route
+    {
+        $route = Route::post($pattern, $view, $name, $params);
+        $this->addRoute($route);
+
+        return $route;
+    }
+
+    public function put(string $pattern, callable|array|string $view, ?string $name = null, array $params = []): Route
+    {
+        $route = Route::put($pattern, $view, $name, $params);
+        $this->addRoute($route);
+
+        return $route;
+    }
+
+    public function patch(string $pattern, callable|array|string $view, ?string $name = null, array $params = []): Route
+    {
+        $route = Route::patch($pattern, $view, $name, $params);
+        $this->addRoute($route);
+
+        return $route;
+    }
+
+    public function delete(string $pattern, callable|array|string $view, ?string $name = null, array $params = []): Route
+    {
+        $route = Route::delete($pattern, $view, $name, $params);
+        $this->addRoute($route);
+
+        return $route;
+    }
+
+    public function head(string $pattern, callable|array|string $view, ?string $name = null, array $params = []): Route
+    {
+        $route = Route::head($pattern, $view, $name, $params);
+        $this->addRoute($route);
+
+        return $route;
+    }
+
+    public function options(string $pattern, callable|array|string $view, ?string $name = null, array $params = []): Route
+    {
+        $route = Route::options($pattern, $view, $name, $params);
+        $this->addRoute($route);
+
+        return $route;
+    }
+}

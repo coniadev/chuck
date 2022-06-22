@@ -7,6 +7,8 @@ namespace Chuck\Routing;
 
 class Group implements GroupInterface
 {
+    use AddsRoutes;
+
     /** @psalm-suppress PropertyNotSetInConstructor */
     protected RouterInterface $router;
 
@@ -51,7 +53,7 @@ class Group implements GroupInterface
         return $this;
     }
 
-    public function add(RouteInterface $route): void
+    public function addRoute(RouteInterface $route): void
     {
         $route->prefix($this->patternPrefix, $this->namePrefix);
 

@@ -2,18 +2,22 @@
 
 ```php
     // Single route
-    $route = Route::get('index', '/', function (Request $request) {
+    $route = Route::get(/', function (Request $request) {
         return [1, 2, 3];
     })->render('json');
     $app->addRoute($route);
 
-    $route = (new Route('index', '/', function (Request $request) {}))->method('GET','POST');
+    $route = (new Route('/', function (Request $request) {}))->method('GET','POST');
 
 
     // Route groups
     $app->group(new Group('admin:', '/admin/', function (Group $group) {
-        $group->add(Route::get(...);
-        $group->add(Route::post(...);
+        $group->addRoute(Route::get(...);
+        $group->addRoute(Route::post(...);
+
+        // helpers 
+        $group->get('/api/users', () => []);
+        $group->post('/api/users', () => []);
     });
 ```
 

@@ -23,6 +23,8 @@ use Chuck\Util\Reflect;
 
 class Router implements RouterInterface
 {
+    use AddsRoutes;
+
     /** @psalm-suppress PropertyNotSetInConstructor */
     protected readonly Route $route;
     protected array $routes = [];
