@@ -195,7 +195,7 @@ class Connection
         return $this->fetchMode;
     }
 
-    public function addMigrationDirs(array|string $migrations): void
+    public function addMigrationDir(string $migrations): void
     {
         $migrations = $this->readDirs($migrations);
         $this->migrations = array_merge($migrations, $this->migrations);

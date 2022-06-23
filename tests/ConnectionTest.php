@@ -100,15 +100,13 @@ test('Migration directories', function () {
 });
 
 
-test('Agg migration directories later', function () {
+test('Add migration directories later', function () {
     $conn = new Connection(
         $this->getDsn(),
         C::root() . C::DS . 'sql' . C::DS . 'default',
     );
-    $conn->addMigrationDirs([
-        C::root() . C::DS . 'migrations',
-        C::root() . C::DS . 'sql' . C::DS . 'additional'
-    ]);
+    $conn->addMigrationDir(C::root() . C::DS . 'migrations');
+    $conn->addMigrationDir(C::root() . C::DS . 'sql' . C::DS . 'additional');
     $migrations = $conn->migrations();
 
     expect(count($migrations))->toBe(2);
