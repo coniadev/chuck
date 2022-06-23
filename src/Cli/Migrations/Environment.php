@@ -131,7 +131,7 @@ class Environment
 );";
             case 'pgsql':
                 return "CREATE TABLE $schema.$table (
-    $columnMigration text NOT NULL CHECK (char_length($columnMigration) <= 128),
+    $columnMigration text NOT NULL CHECK (char_length($columnMigration) <= 256),
     $columnApplied timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT pk_$table PRIMARY KEY ($columnMigration)
 );";
