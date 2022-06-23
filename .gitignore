@@ -3,12 +3,13 @@
 .env
 .php_cs.cache
 .phpunit.result.cache
+composer.lock
 /run
-tmp/
-/vendor
 /tests/Fixtures/migrations/*
 !/tests/Fixtures/migrations/000000*
 /tests/Fixtures/public/cache/*
 !/tests/Fixtures/public/cache/assets
 /tests/Fixtures/public/assets/*
 !/tests/Fixtures/public/cache/assets/cached.jpg
+/tmp
+/vendor
