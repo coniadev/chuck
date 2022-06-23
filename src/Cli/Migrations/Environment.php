@@ -124,18 +124,20 @@ class Environment
             case 'sqlite':
                 return "CREATE TABLE $table (
     $columnMigration text NOT NULL,
-    $columnApplied timestamp DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY ($columnMigration)
+    $columnApplied text DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY ($columnMigration),
+    CHECK(typeof(\"$columnMigration\") = \"text\" AND length(\"$columnMigration\") <= 256),
+    CHECK(typeof(\"$columnApplied\") = \"text\" AND length(\"$columnApplied\") = 19)
 );";
             case 'pgsql':
                 return "CREATE TABLE $schema.$table (
-    $columnMigration text NOT NULL,
+    $columnMigration text NOT NULL CHECK (char_length($columnMigration) <= 128),
     $columnApplied timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT pk_$table PRIMARY KEY ($columnMigration)
 );";
             case 'mysql':
                 return "CREATE TABLE $table (
-    $columnMigration varchar(255) NOT NULL,
+    $columnMigration varchar(256) NOT NULL,
     $columnApplied timestamp DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ($columnMigration)
 );";
