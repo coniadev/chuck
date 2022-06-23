@@ -61,8 +61,9 @@ class Add implements CommandInterface
         }
 
         $migrations = $config->connection($this->conn)->migrations();
-        // Get the last migrations directory from the list
-        $migrationsDir = end($migrations);
+        // Get the first migrations directory from the list (the last one added)
+        // TODO: let the user choose the migrations dir if there are more than one
+        $migrationsDir = $migrations[0];
 
         echo ($migrationsDir . PHP_EOL);
         if ($migrationsDir && strpos($migrationsDir, '/vendor') !== false) {
