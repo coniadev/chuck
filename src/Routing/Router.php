@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace Chuck\Routing;
 
-use \Closure;
-use \ErrorException;
 use \JsonException;
 use \RuntimeException;
 use \Stringable;
 use \Throwable;
 use Chuck\Error\{HttpNotFound, HttpMethodNotAllowed};
-use Chuck\Error\HttpServerError;
 use Chuck\Renderer\{
     Config as RendererConfig,
     RendererInterface,
@@ -203,41 +200,6 @@ class Router implements RouterInterface
         throw new HttpNotFound();
     }
 
-    protected function getViewResult(RouteInterface $route, RequestInterface $request): mixed
-    {
-        $view = $route->view();
-
-        if (is_callable($view)) {
-            return $view(...$this->getViewArgs($view, $request));
-        } elseif (is_array($view)) {
-            [$ctrlName, $method] = $view;
-        } else {
-            /** @var string $view */
-            if (!str_contains($view, '::')) {
-                $view .= '::__invoke';
-            }
-
-            [$ctrlName, $method] = explode('::', $view);
-        }
-
-
-        if (class_exists($ctrlName)) {
-            $ctrl = new $ctrlName(...Reflect::controllerConstructorParams($ctrlName, $request));
-
-            if (method_exists($ctrl, $method)) {
-                return $ctrl->$method(...$this->getViewArgs(
-                    Closure::fromCallable([$ctrl, $method]),
-                    $request
-                ));
-            } else {
-                $view = $ctrlName . '::' . $method;
-                throw HttpServerError::withSubTitle("Controller method not found $view");
-            }
-        } else {
-            throw HttpServerError::withSubTitle("Controller not found ${ctrlName}");
-        }
-    }
-
     protected function getRenderer(
         RequestInterface $request,
         RendererConfig $rendererConfig
@@ -251,7 +213,8 @@ class Router implements RouterInterface
 
     protected function respond(RequestInterface $request, RouteInterface $route): ResponseInterface
     {
-        $result = $this->getViewResult($route, $request);
+        $view = View::get($request, $route);
+        $result = $view->execute();
 
         if ($result instanceof ResponseInterface) {
             return $result;
@@ -276,54 +239,6 @@ class Router implements RouterInterface
                 }
             }
         }
-    }
-
-    /**
-     * Determines the arguments passed to the view
-     *
-     * - If a view parameter implements RequestInterface, the request will be passed.
-     * - If names of the view parameters match names of the route arguments
-     *   it will try to convert the argument to the parameter type and add it to
-     *   the returned args list.
-     * - Only string, float, int and RequestInterface are supported.
-     */
-    protected function getViewArgs(callable $view, RequestInterface $request): array
-    {
-        $args = [];
-        $rf = Reflect::getReflectionFunction($view);
-        $params = $rf->getParameters();
-        $routeArgs = $this->route->args();
-        $errMsg = 'View parameters cannot be resolved. Details: ';
-
-        foreach ($params as $param) {
-            $name = $param->getName();
-
-            try {
-                $args[$name] = match ((string)$param->getType()) {
-                    'int' => is_numeric($routeArgs[$name]) ?
-                        (int)$routeArgs[$name] :
-                        throw new RuntimeException($errMsg . "Cannot cast '$name' to int"),
-                    'float' => is_numeric($routeArgs[$name]) ?
-                        (float)$routeArgs[$name] :
-                        throw new RuntimeException($errMsg . "Cannot cast '$name' to float"),
-                    'string' => $routeArgs[$name],
-                    default => Reflect::getRequestParamOrError($request, $param, $name),
-                };
-            } catch (Throwable $e) {
-                // Check if the view parameter has a default value
-                if (!array_key_exists($name, $routeArgs) && $param->isOptional()) {
-                    $args[$name] = $param->getDefaultValue();
-
-                    continue;
-                }
-
-                throw new RuntimeException($errMsg . $e->getMessage());
-            }
-        }
-
-        assert(count($params) === count($args));
-
-        return $args;
     }
 
     /**

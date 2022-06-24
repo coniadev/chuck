@@ -103,7 +103,7 @@ test('Template Renderer :: html (template dir as string)', function () {
 });
 
 
-test('Template Renderer :: xhtml', function () {
+test('Template Renderer :: change content-type (named parameter)', function () {
     $renderer = new TemplateRenderer(
         $this->request(),
         [
