@@ -9,10 +9,12 @@ use Chuck\Response\ResponseInterface;
 use Chuck\Csrf as CsrfBase;
 
 
-class Csrf
+class Csrf implements MiddlewareInterface
 {
-    public function __invoke(RequestInterface $request, callable $next): RequestInterface|ResponseInterface
-    {
+    public function __invoke(
+        RequestInterface $request,
+        callable $next
+    ): RequestInterface|ResponseInterface {
         $request->addMethod('csrf', function (): CsrfBase {
             return new CsrfBase();;
         });

@@ -9,10 +9,12 @@ use Chuck\Response\ResponseInterface;
 use Chuck\Session as SessionBase;
 
 
-class Session
+class Session implements MiddlewareInterface
 {
-    public function __invoke(RequestInterface $request, callable $next): RequestInterface|ResponseInterface
-    {
+    public function __invoke(
+        RequestInterface $request,
+        callable $next
+    ): RequestInterface|ResponseInterface {
         $session = new SessionBase($request->config()->app());
         $session->start();
 
