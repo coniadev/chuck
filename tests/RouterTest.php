@@ -2,14 +2,16 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\{TestCase, C};
-use Chuck\Tests\Fixtures\TestMiddleware1;
-use Chuck\Tests\Fixtures\TestController;
-use Chuck\Tests\Fixtures\TestControllerWithRequest;
+use Chuck\Attribute\Render;
+use Chuck\Error\{HttpNotFound, HttpServerError, HttpMethodNotAllowed};
+use Chuck\Renderer\TemplateRenderer;
 use Chuck\Request;
 use Chuck\Response\Response;
 use Chuck\Routing\{Router, Route, Group};
-use Chuck\Error\{HttpNotFound, HttpServerError, HttpMethodNotAllowed};
+use Chuck\Tests\Fixtures\TestController;
+use Chuck\Tests\Fixtures\TestControllerWithRequest;
+use Chuck\Tests\Fixtures\TestMiddleware1;
+use Chuck\Tests\Setup\{TestCase, C};
 
 uses(TestCase::class);
 
@@ -199,6 +201,25 @@ test('Dispatch controller with request constructor', function () {
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/'));
     expect((string)$response->getBody())->toBe('Chuck\Request');
+});
+
+
+test('Dispatch closure with Render attribute', function () {
+    $config = $this->config();
+    $config->addRenderer('template', TemplateRenderer::class, $this->templates());
+
+    $router = new Router();
+    $index = new Route(
+        '/',
+        #[Render('template', 'plain', contentType: 'application/xhtml+xml')]
+        function () {
+            return [];
+        }
+    );
+    $router->addRoute($index);
+
+    $response = $router->dispatch($this->request(method: 'GET', url: '/', config: $config));
+    expect($this->fullTrim($response->getBody()))->toBe('<p>plain</p>');
 });
 
 

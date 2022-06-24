@@ -8,6 +8,7 @@ use \JsonException;
 use \RuntimeException;
 use \Stringable;
 use \Throwable;
+use Chuck\Attribute\Render;
 use Chuck\Error\{HttpNotFound, HttpMethodNotAllowed};
 use Chuck\Renderer\{
     Config as RendererConfig,
@@ -225,6 +226,12 @@ class Router implements RouterInterface
                 $renderer = $this->getRenderer($request, $rendererConfig);
 
                 return $renderer->response($result);
+            }
+
+            $renderAttributes = $view->attributes(Render::class);
+
+            if (count($renderAttributes) > 0) {
+                return $renderAttributes[0]->response($request, $result);
             }
 
             if (is_string($result)) {
