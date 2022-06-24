@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Routing;
 
+use \ReflectionFunctionAbstract;
 use \RuntimeException;
 use \Throwable;
 use Chuck\RequestInterface;
@@ -30,7 +31,7 @@ abstract class View
     }
 
     abstract public function execute(): mixed;
-    // abstract public function attributes(): array;
+    abstract public function attributes(): array;
 
     /**
      * Determines the arguments passed to the view
@@ -80,5 +81,13 @@ abstract class View
         assert(count($params) === count($args));
 
         return $args;
+    }
+
+    /** @return list<object> */
+    protected function getAttributes(ReflectionFunctionAbstract $reflector): array
+    {
+        return array_map(function ($a) {
+            return $a->newInstance();
+        }, $reflector->getAttributes());
     }
 }

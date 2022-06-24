@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Chuck\Routing;
 
 use \Closure;
+use \ReflectionMethod;
 use \Chuck\Error\HttpServerError;
 use Chuck\RequestInterface;
 use Chuck\Routing\RouteInterface;
@@ -13,6 +14,8 @@ use Chuck\Util\Reflect;
 
 class ControllerView extends View
 {
+    /** @psalm-suppress PropertyNotSetInConstructor */
+    protected array $attributes;
     protected object $controller;
     protected string $method;
 
@@ -58,8 +61,16 @@ class ControllerView extends View
         ));
     }
 
-    // public function attributes(): array
-    // {
-    // return [];
-    // }
+    public function attributes(): array
+    {
+        /** @psalm-suppress RedundantPropertyInitializationCheck */
+        if (!isset($this->attributes)) {
+            $this->attributes = $this->getAttributes(new ReflectionMethod(
+                $this->controller,
+                $this->method
+            ));
+        }
+
+        return $this->attributes;
+    }
 }

@@ -10,6 +10,7 @@ use Chuck\Response\Response;
 
 class TestController
 {
+    #[TestAttribute]
     public function textView(): string
     {
         return 'text';
