@@ -61,16 +61,9 @@ class ControllerView extends View
         ));
     }
 
-    public function attributes(): array
+    /** @param $filter ?class-string */
+    public function attributes(string $filter = null): array
     {
-        /** @psalm-suppress RedundantPropertyInitializationCheck */
-        if (!isset($this->attributes)) {
-            $this->attributes = $this->getAttributes(new ReflectionMethod(
-                $this->controller,
-                $this->method
-            ));
-        }
-
-        return $this->attributes;
+        return $this->getAttributes(new ReflectionMethod($this->controller, $this->method), $filter);
     }
 }

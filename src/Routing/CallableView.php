@@ -7,15 +7,12 @@ namespace Chuck\Routing;
 use \Closure;
 use \InvalidArgumentException;
 use \ReflectionFunction;
-use \ValueError;
 use Chuck\RequestInterface;
 use Chuck\Routing\RouteInterface;
 
 
 class CallableView extends View
 {
-    /** @psalm-suppress PropertyNotSetInConstructor */
-    protected array $attributes;
     /** @var Closure|callable-string */
     protected Closure|string $callable;
 
@@ -41,13 +38,9 @@ class CallableView extends View
         ));
     }
 
-    public function attributes(): array
+    /** @param $filter ?class-string */
+    public function attributes(string $filter = null): array
     {
-        /** @psalm-suppress RedundantPropertyInitializationCheck */
-        if (!isset($this->attributes)) {
-            $this->attributes = $this->getAttributes(new ReflectionFunction($this->callable));
-        }
-
-        return $this->attributes;
+        return $this->getAttributes(new ReflectionFunction($this->callable), $filter);
     }
 }

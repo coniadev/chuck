@@ -21,6 +21,7 @@ class TestController
         return new TestClass();
     }
 
+    #[TestAttribute, TestAttributeExt, TestAttributeDiff]
     public function arrayView(): array
     {
         return ['success' => true];

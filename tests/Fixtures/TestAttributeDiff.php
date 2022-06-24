@@ -7,6 +7,6 @@ namespace Chuck\Tests\Fixtures;
 use \Attribute;
 
 #[Attribute]
-class TestAttributeExt extends TestAttribute
+class TestAttributeDiff
 {
 }

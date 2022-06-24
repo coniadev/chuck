@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Chuck\Routing\Route;
 use Chuck\Routing\{View, CallableView, ControllerView};
-use Chuck\Tests\Fixtures\{TestController, TestAttribute, TestAttributeExt};
+use Chuck\Tests\Fixtures\{TestController, TestAttribute, TestAttributeExt, TestAttributeDiff};
 use Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
@@ -69,6 +69,30 @@ test('Controller [object, method]', function () {
     expect($view::class)->toBe(CallableView::class);
     expect($view->execute())->toBe('text');
     expect($view->attributes()[0])->toBeInstanceOf(TestAttribute::class);
+});
+
+
+test('Attribute filtering :: CallableView', function () {
+    $route = new Route('/', #[TestAttribute, TestAttributeExt, TestAttributeDiff] fn () => 'chuck');
+    $view = View::get($this->request(), $route);
+
+    expect($view::class)->toBe(CallableView::class);
+    expect(count($view->attributes()))->toBe(3);
+    expect(count($view->attributes(TestAttribute::class)))->toBe(2);
+    expect(count($view->attributes(TestAttributeExt::class)))->toBe(1);
+    expect(count($view->attributes(TestAttributeDiff::class)))->toBe(1);
+});
+
+
+test('Attribute filtering :: ControllerView', function () {
+    $route = new Route('/',  [TestController::class, 'arrayView']);
+    $view = View::get($this->request(), $route);
+
+    expect($view::class)->toBe(ControllerView::class);
+    expect(count($view->attributes()))->toBe(3);
+    expect(count($view->attributes(TestAttribute::class)))->toBe(2);
+    expect(count($view->attributes(TestAttributeExt::class)))->toBe(1);
+    expect(count($view->attributes(TestAttributeDiff::class)))->toBe(1);
 });
 
 

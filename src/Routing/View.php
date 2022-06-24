@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Routing;
 
+use \ReflectionAttribute;
 use \ReflectionFunctionAbstract;
 use \RuntimeException;
 use \Throwable;
@@ -13,6 +14,9 @@ use Chuck\Util\Reflect;
 
 abstract class View
 {
+    /** @psalm-suppress PropertyNotSetInConstructor */
+    protected array $attributes;
+
     public static function get(RequestInterface $request, RouteInterface $route): View
     {
         $view = $route->view();
@@ -31,7 +35,8 @@ abstract class View
     }
 
     abstract public function execute(): mixed;
-    abstract public function attributes(): array;
+    /** @param $filter ?class-string */
+    abstract public function attributes(string $filter = null): array;
 
     /**
      * Determines the arguments passed to the view
@@ -83,11 +88,22 @@ abstract class View
         return $args;
     }
 
-    /** @return list<object> */
-    protected function getAttributes(ReflectionFunctionAbstract $reflector): array
+    /** @param $filter class-string */
+    protected function getAttributes(ReflectionFunctionAbstract $reflector, string $filter = null): array
     {
-        return array_map(function ($a) {
-            return $a->newInstance();
-        }, $reflector->getAttributes());
+        /** @psalm-suppress RedundantPropertyInitializationCheck */
+        if (!isset($this->attributes)) {
+            $this->attributes = array_map(function ($attribute) {
+                return $attribute->newInstance();
+            }, $reflector->getAttributes());
+        }
+
+        if ($filter) {
+            return array_filter($this->attributes, function ($attribute) use ($filter) {
+                return $attribute instanceof $filter;
+            });
+        }
+
+        return $this->attributes;
     }
 }
