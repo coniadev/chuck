@@ -65,7 +65,7 @@ test('Middleware flow', function () {
     ob_end_clean();
 
     expect($output)->toBe('first view last');
-})->only();
+});
 
 
 test('Middleware flow with attribute', function () {
@@ -81,7 +81,7 @@ test('Middleware flow with attribute', function () {
     ob_end_clean();
 
     expect($output)->toBe('first attribute-string last');
-})->only();
+});
 
 
 test('Early response', function () {
