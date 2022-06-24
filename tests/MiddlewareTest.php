@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Chuck\Tests\Setup\TestCase;
 use Chuck\App;
+use Chuck\Routing\Route;
 use Chuck\Request;
 use Chuck\Response\Response;
 
@@ -53,9 +54,10 @@ class ___EarlyResponseMiddleware
 
 test('Middleware flow', function () {
     $app = App::create($this->config());
-    $app->route('/', 'Chuck\Tests\Fixtures\TestController::middlewareView');
+    $route = new Route('/', 'Chuck\Tests\Fixtures\TestController::middlewareView');
+    $route->middleware(new ___ObjectMiddleware(' last'));
+    $app->addRoute($route);
     $app->middleware('___functionMiddleware');
-    $app->middleware(new ___ObjectMiddleware(' last'));
 
     ob_start();
     $app->run();
@@ -63,7 +65,23 @@ test('Middleware flow', function () {
     ob_end_clean();
 
     expect($output)->toBe('first view last');
-});
+})->only();
+
+
+test('Middleware flow with attribute', function () {
+    $app = App::create($this->config());
+    $route = new Route('/', 'Chuck\Tests\Fixtures\TestController::attributedMiddlewareView');
+    $route->middleware(new ___ObjectMiddleware(' last'));
+    $app->addRoute($route);
+    $app->middleware('___functionMiddleware');
+
+    ob_start();
+    $app->run();
+    $output = ob_get_contents();
+    ob_end_clean();
+
+    expect($output)->toBe('first attribute-string last');
+})->only();
 
 
 test('Early response', function () {

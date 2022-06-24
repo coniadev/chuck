@@ -10,6 +10,7 @@ use \Stringable;
 use \Throwable;
 use Chuck\Attribute\Render;
 use Chuck\Error\{HttpNotFound, HttpMethodNotAllowed};
+use Chuck\Middleware\MiddlewareInterface;
 use Chuck\Renderer\{
     Config as RendererConfig,
     RendererInterface,
@@ -212,9 +213,11 @@ class Router implements RouterInterface
         );
     }
 
-    protected function respond(RequestInterface $request, RouteInterface $route): ResponseInterface
-    {
-        $view = View::get($request, $route);
+    protected function respond(
+        RequestInterface $request,
+        RouteInterface $route,
+        View $view,
+    ): ResponseInterface {
         $result = $view->execute();
 
         if ($result instanceof ResponseInterface) {
@@ -284,10 +287,13 @@ class Router implements RouterInterface
          * See docs/contributing.md
          */
         $this->route = $this->match($request);
+        $view = View::get($request, $this->route);
+        $middlewareAttributes = $view->attributes(MiddlewareInterface::class);
 
         $handlerStack = array_merge(
             $this->middlewares,
             $this->route->middlewares(),
+            $middlewareAttributes,
         );
 
         if ($request->config()->debug()) {
@@ -296,9 +302,10 @@ class Router implements RouterInterface
             }
         }
 
+
         // Add the view action to the end of the stack
-        $handlerStack[] = function (RequestInterface $req): ResponseInterface {
-            return $this->respond($req, $this->route);
+        $handlerStack[] = function (RequestInterface $req) use ($view): ResponseInterface {
+            return $this->respond($req, $this->route, $view);
         };
 
         /**

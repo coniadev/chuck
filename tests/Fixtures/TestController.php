@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Tests\Fixtures;
 
+use Chuck\Attribute\Render;
 use Chuck\Request;
 use Chuck\Response\Response;
 
@@ -30,6 +31,12 @@ class TestController
     public function middlewareView(Request $request): Response
     {
         return $request->response->html(' view');
+    }
+
+    #[Render('text'), TestMiddleware1]
+    public function attributedMiddlewareView(Request $request): Response
+    {
+        return new Response(' ' . $request->test());
     }
 
     public function routeParams(string $string, float $float, Request $request, int $int): array

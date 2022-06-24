@@ -4,14 +4,19 @@ declare(strict_types=1);
 
 namespace Chuck\Tests\Fixtures;
 
-use Chuck\Request;
-use Chuck\Response\Response;
+use \Attribute;
+use Chuck\Middleware\MiddlewareInterface;
+use Chuck\RequestInterface;
+use Chuck\Response\ResponseInterface;
 
 
-class TestMiddleware1
+#[Attribute]
+class TestMiddleware1 implements MiddlewareInterface
 {
-    public function __invoke(Request $request, callable $next): Request|Response
+    public function __invoke(RequestInterface $request, callable $next): RequestInterface|ResponseInterface
     {
+        $request->addMethod('test', fn () => 'attribute-string');
+
         return $next($request);
     }
 }
