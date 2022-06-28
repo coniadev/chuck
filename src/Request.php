@@ -57,6 +57,16 @@ class Request implements RequestInterface
         return $_SERVER['REQUEST_URI'];
     }
 
+    public function host(bool $stripPort = false): string
+    {
+        if ($stripPort) {
+            // Returns the path without query string
+            return trim(strtok($_SERVER['HTTP_HOST'], ':'));
+        }
+
+        return $_SERVER['HTTP_HOST'];
+    }
+
     public function serverUrl(bool $stripQuery = false): string
     {
         return Http::origin() . $this->url($stripQuery);

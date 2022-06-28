@@ -64,6 +64,21 @@ test('Url helpers', function () {
 });
 
 
+test('Host helpers', function () {
+    $request = $this->request();
+
+    expect($request->host())->toBe('www.example.com');
+
+    $save = $_SERVER['HTTP_HOST'];
+    $_SERVER['HTTP_HOST'] = 'www.example.com:80';
+
+    expect($request->host(stripPort: true))->toBe('www.example.com');
+    expect($request->host())->toBe('www.example.com:80');
+
+    $_SERVER['HTTP_HOST'] = $save;
+});
+
+
 test('Generate route url :: named', function () {
     $router = new Router();
     $albums = new Route('albums/{from}/{to}', fn () => null, 'albums');
