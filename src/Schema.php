@@ -4,48 +4,12 @@ declare(strict_types=1);
 
 namespace Chuck;
 
-use \Closure;
 use \TypeError;
 use \ValueError;
 use \RuntimeException;
-use Chuck\Util\Arrays;
-use Chuck\Util\Html;
+use Chuck\Schema\{Validator, Value};
+use Chuck\Util\{Arrays, Html};
 
-class Value
-{
-    public function __construct(
-        public mixed $value,
-        public mixed $pristine,
-        public null|array|string $error = null,
-    ) {
-    }
-}
-
-class Validator
-{
-    public string $name;
-    public string $message;
-    public bool $skipNull;
-    protected Closure $validator;
-
-    public function __construct(
-        string $name,
-        string $message,
-        Closure $validator,
-        bool $skipNull
-    ) {
-        $this->name = $name;
-        $this->message = $message;
-        $this->validator = $validator;
-        $this->skipNull = $skipNull;
-    }
-
-    public function validate(Value $value, string ...$args): bool
-    {
-        $func = $this->validator;
-        return $func($value, ...$args);
-    }
-}
 
 class Schema implements SchemaInterface
 {
