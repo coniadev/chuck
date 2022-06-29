@@ -71,7 +71,7 @@ test('Clean rendering', function () {
 
     expect($tpl->render('clean', [
         'html' => '<script src="/evil.js"></script><b>chuck</b>',
-    ]))->toBe("<strong>chuck</strong>");
+    ]))->toBe("<b>chuck</b>");
 });
 
 
@@ -88,7 +88,7 @@ test('Helper function rendering', function () {
     $tpl = new Engine($this->templates(), ['config' => $this->config()]);
 
     expect($this->fullTrim($tpl->render('helper')))->toBe(
-        '&lt;script&gt;&lt;script&gt;<strong>clean</strong>'
+        '&lt;script&gt;&lt;script&gt;<b>clean</b>'
     );
 });
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Chuck\Template;
 
 use \RuntimeException;
+use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
 use Chuck\Util\Html;
 
 
@@ -36,9 +37,12 @@ class Template
         return htmlspecialchars($value);
     }
 
-    public function clean(string $value, array $extensions = []): string
-    {
-        return Html::clean($value, $extensions);
+    public function clean(
+        string $value,
+        HtmlSanitizerConfig $config = null,
+        bool $removeEmptyLines = true,
+    ): string {
+        return Html::clean($value, $config, $removeEmptyLines);
     }
 
     public function raw(string $name): mixed

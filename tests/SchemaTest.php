@@ -4,6 +4,7 @@ declare(strict_types=1);
 // phpcs:disable Generic.Files.LineLength
 
 use Chuck\Schema;
+use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
 
 
 test('Type int', function () {
@@ -172,19 +173,32 @@ test('Type html', function () {
         'valid_html_5' => '',
     ];
 
-    $schema = new Schema();
-    $schema->add('valid_html_1', 'HTML', 'html:basic:code');
-    $schema->add('valid_html_2', 'HTML', 'html');
-    $schema->add('valid_html_3', 'HTML', 'html');
-    $schema->add('valid_html_4', 'HTML', 'html');
-    $schema->add('valid_html_5', 'HTML', 'html');
+
+    $schema =  new class() extends Schema
+    {
+        protected function rules(): void
+        {
+            $this->add('valid_html_1', 'HTML', 'html:sanitizerConfig');
+            $this->add('valid_html_2', 'HTML', 'html');
+            $this->add('valid_html_3', 'HTML', 'html');
+            $this->add('valid_html_4', 'HTML', 'html');
+            $this->add('valid_html_5', 'HTML', 'html');
+        }
+
+        protected function sanitizerConfig(): HtmlSanitizerConfig
+        {
+            return (new HtmlSanitizerConfig)
+                ->allowElement('a')
+                ->allowElement('code', ['data-attr']);
+        }
+    };
 
     expect($schema->validate($testData))->toBeTrue();
     expect($schema->errors()['errors'])->toHaveCount(0);
 
     $values = $schema->values();
-    expect('<a href="http://example.com/test">Test</a><code>let test &#61; 1;</code>')->toBe($values['valid_html_1']);
-    expect('<a href="http://example.com/test">Test</a>let test &#61; 1;')->toBe($values['valid_html_2']);
+    expect('<a>Test</a><code data-attr="test">let test &#61; 1;</code>')->toBe($values['valid_html_1']);
+    expect('<a href="http://example.com/test">Test</a><code>let test &#61; 1;</code>')->toBe($values['valid_html_2']);
     expect('1')->toBe($values['valid_html_3']);
     expect(null)->toBe($values['valid_html_4']);
     expect(null)->toBe($values['valid_html_5']);
@@ -194,6 +208,14 @@ test('Type html', function () {
     expect(null)->toBe($pristine['valid_html_4']);
     expect('')->toBe($pristine['valid_html_5']);
 });
+
+
+test('Type html :: too many arguments', function () {
+    $testData = ['html' => ''];
+    $schema = new Schema();
+    $schema->add('html', 'Html', 'html:too:many');
+    $schema->validate($testData);
+})->throws(RuntimeException::class, 'Too many arguments');
 
 
 test('Type plain', function () {

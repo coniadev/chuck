@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Chuck;
 
 use \Closure;
-use \RuntimeException;
 use \TypeError;
 use \ValueError;
+use \RuntimeException;
 use Chuck\Util\Arrays;
 use Chuck\Util\Html;
 
@@ -208,11 +208,13 @@ class Schema implements SchemaInterface
 
     protected function toHtml(mixed $pristine, array $args): Value
     {
-        if (count($args) === 0) {
-            $args = ['basic', 'list'];
-        }
+        $count = count($args);
 
-        $value = trim(Html::clean((string)$pristine, $args));
+        $value = match ($count) {
+            0 => trim(Html::clean((string)$pristine)),
+            1 => trim(Html::clean((string)$pristine, $this->{$args[0]}())),
+            default => throw new RuntimeException('Too many arguments for html validator'),
+        };
 
         if (empty($value)) {
             $value = null;

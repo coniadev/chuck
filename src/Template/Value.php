@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Template;
 
+use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
 use Chuck\Util\Html;
 
 
@@ -23,9 +24,11 @@ class Value
         return $this->value;
     }
 
-    public function clean(array $extensions = []): string
-    {
-        return Html::clean($this->value, $extensions);
+    public function clean(
+        HtmlSanitizerConfig $config = null,
+        bool $removeEmptyLines = true
+    ): string {
+        return Html::clean($this->value, $config, $removeEmptyLines);
     }
 
     public function empty(): bool
