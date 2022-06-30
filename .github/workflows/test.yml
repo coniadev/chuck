@@ -9,8 +9,10 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       DB_HOST: localhost
-      DB_USER: root
-      DB_PASSWORD: root
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      PGUSER: postgres
+      PGPASSWORD: postgres
       DB_NAME: chuck_test
     steps:
       - name: Setup PHP extensions
@@ -28,12 +30,15 @@ jobs:
       - name: Start mysql server and create test db
         run: |
           sudo systemctl start mysql.service
-          mysql -e 'CREATE DATABASE `${{ env.DB_NAME }}`;' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
+          mysql -e 'CREATE DATABASE `${{ env.DB_NAME }}`;' -u${{ env.MYSQL_USER }} -p${{ env.MYSQL_PASSWORD }}
 
       - name: Start postgresql server and create test db
         run: |
           sudo systemctl start postgresql.service
-          PGPASSWORD=${{ env.DB_PASSWORD }} psql -U ${{ env.DB_USER }} -d postgres -c 'CREATE DATABASE ${{ env.DB_NAME }};'
+          sudo -u postgres createdb chuck_test
 
       - name: Run tests
-        run: ./vendor/bin/pest
+        run: ./vendor/bin/pest --coverage
+
+      - name: Run Psalm
+        run: psalm --output-format=github
