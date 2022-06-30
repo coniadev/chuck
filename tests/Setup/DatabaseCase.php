@@ -146,13 +146,17 @@ class DatabaseCase extends TestCase
 
     protected static function getServerDsns(): array
     {
+        $dbHost = getenv("DB_HOST") ?: "localhost";
+        $dbName = getenv("DB_NAME") ?: "chuck_test_db";
+        $dbUser = getenv("DB_USER") ?: "chuck_test_user";
+        $dbPassword = getenv("DB_PASSWORD") ?: "chuck_test_password";
         return [
             [
                 'transactions' => true,
-                'dsn' => 'pgsql:host=localhost;dbname=chuck_test_db;user=chuck_test_user;password=chuck_test_password',
+                'dsn' => "pgsql:host=$dbHost;dbname=$dbName;user=$dbUser;password=$dbPassword",
             ], [
                 'transactions' => false,
-                'dsn' => 'mysql:host=127.0.0.1;dbname=chuck_test_db;user=chuck_test_user;password=chuck_test_password',
+                'dsn' => "mysql:host=$dbHost;dbname=$dbName;user=$dbUser;password=$dbPassword",
             ],
         ];
     }
