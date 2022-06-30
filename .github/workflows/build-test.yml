@@ -1,0 +1,31 @@
+name: Application Test
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-22.04
+    env:
+      DB_HOST: localhost
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: chuck_test
+    steps:
+      - name: Setup PHP extensions
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: cli, sqlite3, pgsql, mysql, gd, pcov, curl, xml, zip
+
+      - name: Install packages with composer
+        run: composer install
+
+      - name: Start mysql server and create test db
+        run: |
+          sudo systemctl start mysql.service
+          mysql -e 'CREATE DATABASE `${{ env.DB_NAME }}`;' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
+
+      - name: Run tests
+        run: .vendor/bin/pest
