@@ -5,12 +5,12 @@ Contributing
 
 ## Style Guide
 
-All pull requests must adhere to the 
+All pull requests must adhere to the
 [PSR-12 standard](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-12-extended-coding-style-guide.md).
 
 ## Unit Testing
 
-All pull requests must be accompanied by passing unit tests, complete code coverage and 
+All pull requests must be accompanied by passing unit tests, complete code coverage and
 static analysis running without errors.
 Chuck uses **Pest** for testing and **Psalm** as static analyzer.
 
@@ -22,7 +22,7 @@ Run the test suit with `./vendor/bin/pest` or `./vendor/bin/pest --coverage`.
 ###  Test suite requirements
 
 * Install PHP 8.1+ with the required extensions (see a Ubuntu example below)
-* PostgreSQL and MySQL/MariaDB for full coverage. 
+* PostgreSQL and MySQL/MariaDB for full coverage.
 * Composer (https://getcomposer.org/download/)
 * Clone this repository
 * Then `composer install`
@@ -34,11 +34,11 @@ Ubuntu 22.04 LTS example:
 
 The database servers:
 
-    apt install mariadb-server postgresql sqlite3 
+    apt install mariadb-server postgresql sqlite3
 
 ### Coverage
 
-Coverage relies on the PHP extension `pcov`. 
+Coverage relies on the PHP extension `pcov`.
 
 Note: Full coverage may only be reported if all three supported PDO drivers are installed
 which are sqlite, pgsql and mysql, and all test databases are set up. See next section.
@@ -63,9 +63,16 @@ MariaDB/MySQL
     GRANT ALL ON chuck_test_db.* TO chuck_test_user@localhost;
 ```
 
+These default credentials can be overwritten using the following environment variables:
+
+    DB_HOST
+    DB_NAME
+    DB_USER
+    DB_PASSWORD
+
 ### Temporary files
 
-Running the test suite will create some temporary files. We try to clean them up, but in 
+Running the test suite will create some temporary files. We try to clean them up, but in
 case of failing tests they might remain in the file system:
 
 * TODO: list them
@@ -80,8 +87,8 @@ Run:
 
 ### Psalm and suppressing readonly property errors
 
-At the time of writing Psalm does not support readonly properties which 
-are not initialized in the constructor. The maintainers suggest to 
+At the time of writing Psalm does not support readonly properties which
+are not initialized in the constructor. The maintainers suggest to
 suppress errors is the only appropriate way. Recheck on occasion. Possible Errors:
 
 * InaccessibleProperty
