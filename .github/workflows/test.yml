@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 jobs:
-  build-and-test:
+  test:
     runs-on: ubuntu-22.04
     env:
       DB_HOST: localhost
@@ -29,6 +29,11 @@ jobs:
         run: |
           sudo systemctl start mysql.service
           mysql -e 'CREATE DATABASE `${{ env.DB_NAME }}`;' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
+
+      - name: Start postgresql server and create test db
+        run: |
+          sudo systemctl start postgresql.service
+          PGPASSWORD=${{ env.DB_PASSWORD }} psql -U ${{ env.DB_USER }} -d postgres -c 'CREATE DATABASE ${{ env.DB_NAME }};'
 
       - name: Run tests
         run: ./vendor/bin/pest
