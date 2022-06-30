@@ -166,12 +166,12 @@ class DatabaseCase extends TestCase
         $dsns = [['transactions' => true, 'dsn' => 'sqlite:' . self::getDbFile()]];
 
         foreach (self::getServerDsns() as $dsn) {
-            // try {
+            try {
                 new PDO($dsn['dsn']);
                 $dsns[] = $dsn;
-            // } catch (Throwable) {
-            //     continue;
-            // }
+            } catch (Throwable) {
+                continue;
+            }
         }
 
         if ($transactionsOnly) {
