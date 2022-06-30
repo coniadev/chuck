@@ -148,17 +148,15 @@ class DatabaseCase extends TestCase
     {
         $dbHost = getenv("DB_HOST") ?: "localhost";
         $dbName = getenv("DB_NAME") ?: "chuck_test_db";
-        $mysqlUser = getenv("MYSQL_USER") ?: "chuck_test_user";
-        $mysqlPassword = getenv("MYSQL_PASSWORD") ?: "chuck_test_password";
-        $psqlUser = getenv("PGUSER") ?: "chuck_test_user";
-        $psqlPassword = getenv("PGPASSWORD") ?: "chuck_test_password";
+        $dbUser = getenv("DB_USER") ?: "chuck_test_user";
+        $dbPassword = getenv("DB_PASSWORD") ?: "chuck_test_password";
         return [
             [
                 'transactions' => true,
-                'dsn' => "pgsql:host=$dbHost;dbname=$dbName;user=$psqlUser;password=$psqlPassword",
+                'dsn' => "pgsql:host=$dbHost;dbname=$dbName;user=$dbUser;password=$dbPassword",
             ], [
                 'transactions' => false,
-                'dsn' => "mysql:host=$dbHost;dbname=$dbName;user=$mysqlUser;password=$mysqlPassword",
+                'dsn' => "mysql:host=$dbHost;dbname=$dbName;user=$dbUser;password=$dbPassword",
             ],
         ];
     }

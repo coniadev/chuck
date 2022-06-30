@@ -67,10 +67,8 @@ These default credentials can be overwritten using the following environment var
 
     DB_HOST
     DB_NAME
-    MYSQL_USER
-    MYSQL_PASSWORD
-    PGUSER
-    PGPASSWORD
+    DB_USER
+    DB_PASSWORD
 
 ### Temporary files
 
