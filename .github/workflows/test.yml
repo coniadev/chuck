@@ -35,7 +35,7 @@ jobs:
       - name: Start postgresql server and create test db
         run: |
           sudo systemctl start postgresql.service
-          sudo -u {{ env.PGUSER }} createdb {{ env.DB_NAME }}
+          sudo -u ${{ env.PGUSER }} createdb ${{ env.DB_NAME }}
 
       - name: Run tests
         run: ./vendor/bin/pest --coverage
