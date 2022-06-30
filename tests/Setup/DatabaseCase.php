@@ -151,7 +151,7 @@ class DatabaseCase extends TestCase
         $mysqlUser = getenv("MYSQL_USER") ?: "chuck_test_user";
         $mysqlPassword = getenv("MYSQL_PASSWORD") ?: "chuck_test_password";
         $psqlUser = getenv("PGUSER") ?: "chuck_test_user";
-        $psqlPassword = getenv("PGPASSWORD") ?: "chuck_test_user";
+        $psqlPassword = getenv("PGPASSWORD") ?: "chuck_test_password";
         return [
             [
                 'transactions' => true,
