@@ -9,11 +9,11 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       DB_HOST: localhost
+      DB_NAME: chuck_test
       MYSQL_USER: root
       MYSQL_PASSWORD: root
       PGUSER: postgres
       PGPASSWORD: postgres
-      DB_NAME: chuck_test
     steps:
       - name: Setup PHP extensions
         uses: shivammathur/setup-php@v2
@@ -35,10 +35,10 @@ jobs:
       - name: Start postgresql server and create test db
         run: |
           sudo systemctl start postgresql.service
-          sudo -u postgres createdb chuck_test
+          sudo -u {{ env.PGUSER }} createdb {{ env.DB_NAME }}
 
       - name: Run tests
         run: ./vendor/bin/pest --coverage
 
       - name: Run Psalm
-        run: psalm --output-format=github
+        run: ./vendor/bin/psalm --output-format=github
