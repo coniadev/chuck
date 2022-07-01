@@ -6,7 +6,7 @@ namespace Chuck\Template;
 
 use \InvalidArgumentException;
 use \Throwable;
-use \ValueError;
+use Chuck\Error\{InvalidTemplateFormat, TemplateNotFound};
 use Chuck\Util\Path;
 
 
@@ -79,7 +79,7 @@ class Engine
         [$namespace, $file] = match (count($segments)) {
             1 => [null, $segments[0]],
             2 => [$segments[0], $segments[1]],
-            default => throw new ValueError(
+            default => throw new InvalidTemplateFormat(
                 "Invalid template format: '$template'. Use 'namespace:template/path or template/path'."
             ),
         };
@@ -109,7 +109,7 @@ class Engine
             }
         }
 
-        throw new ValueError("Template '$template' not found");
+        throw new TemplateNotFound("Template '$template' not found");
     }
 
     public function exists(string $moniker): bool
@@ -117,7 +117,7 @@ class Engine
         try {
             $this->getPath($moniker);
             return true;
-        } catch (ValueError) {
+        } catch (TemplateNotFound) {
             return false;
         }
     }

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Chuck\Error\{InvalidTemplateFormat, TemplateNotFound};
 use Chuck\Tests\Setup\TestCase;
 use Chuck\Template\{Engine, Template};
 
@@ -214,7 +215,7 @@ test('Config error :: wrong template format I', function () {
     $tpl = new Engine($this->templates());
 
     $tpl->render('default:sub:index');
-})->throws(ValueError::class, 'Invalid template format');
+})->throws(InvalidTemplateFormat::class, 'Invalid template format');
 
 
 test('Config error :: wrong template format II', function () {
@@ -228,14 +229,14 @@ test('Render error :: missing template', function () {
     $tpl = new Engine($this->templates());
 
     $tpl->render('nonexistent');
-})->throws(ValueError::class, 'not found');
+})->throws(TemplateNotFound::class, 'not found');
 
 
 test('Render error :: template outside root directory', function () {
     $tpl = new Engine($this->templates());
 
     $tpl->render('../../../../../etc/passwd');
-})->throws(ValueError::class, 'not found');
+})->throws(TemplateNotFound::class, 'not found');
 
 
 test('Render error :: parse error', function () {
