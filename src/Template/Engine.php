@@ -38,7 +38,7 @@ class Engine
             include $____template_path____;
         };
 
-        $template = new Template($this, $moniker, array_merge($this->defaults, $context));
+        $template = $this->createTemplate($moniker, array_merge($this->defaults, $context));
 
         /** @var callable */
         $load = $load->bindTo($template);
@@ -65,6 +65,11 @@ class Engine
         }
 
         return $content;
+    }
+
+    protected function createTemplate(string $moniker, array $context): Template
+    {
+        return new Template($this, $moniker, $context);
     }
 
     public function getBodyId(string $moniker): string

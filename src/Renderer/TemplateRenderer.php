@@ -34,20 +34,9 @@ class TemplateRenderer extends Renderer
             }
         }
 
-        $request = $this->request;
-        $config = $request->config();
-        $template = new Engine(
-            $this->options,
-            defaults: [
-                'config' => $config,
-                'request' => $request,
-                'router' => $request->router(),
-                'debug' => $config->debug(),
-                'env' => $config->env(),
-            ]
-        );
+        $engine = $this->createEngine($this->options);
 
-        return $template->render($templateName, $context);
+        return $engine->render($templateName, $context);
     }
 
     public function response(mixed $data): Response
@@ -57,5 +46,24 @@ class TemplateRenderer extends Renderer
             ($this->args['contentType'] ?? null) ?: 'text/html',
             true
         );
+    }
+
+    protected function getDefaults(): array
+    {
+        $request = $this->request;
+        $config = $request->config();
+
+        return [
+            'config' => $config,
+            'request' => $request,
+            'router' => $request->router(),
+            'debug' => $config->debug(),
+            'env' => $config->env(),
+        ];
+    }
+
+    protected function createEngine(array $options): Engine
+    {
+        return new Engine($options, defaults: $this->getDefaults());
     }
 }
