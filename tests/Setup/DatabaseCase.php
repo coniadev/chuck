@@ -146,23 +146,21 @@ class DatabaseCase extends TestCase
 
     protected static function getServerDsns(): array
     {
-        $dbHost = getenv("DB_HOST") ?: "localhost";
+        $dbPgsqlHost = getenv("DB_PGSQL_HOST") ?: "localhost";
+        // MySQL tries to use a local socket when host=localhost
+        // is specified which does not work with WSL2/Windows.
+        $dbMysqlHost = getenv("DB_MYSQL_HOST") ?: "127.0.0.1";
         $dbName = getenv("DB_NAME") ?: "chuck_test_db";
         $dbUser = getenv("DB_USER") ?: "chuck_test_user";
         $dbPassword = getenv("DB_PASSWORD") ?: "chuck_test_password";
+
         return [
             [
                 'transactions' => true,
-                'dsn' => "pgsql:host=$dbHost;dbname=$dbName;user=$dbUser;password=$dbPassword",
+                'dsn' => "pgsql:host=$dbPgsqlHost;dbname=$dbName;user=$dbUser;password=$dbPassword",
             ], [
                 'transactions' => false,
-                'dsn' => "mysql:host=$dbHost;dbname=$dbName;user=$dbUser;password=$dbPassword",
-            ], [
-                // TODO|HACK: MySQL tries to use a local socket when host=localhost
-                // is specified which does not work with WSL2. So we add another
-                // mysql line to check both connection types.
-                'transactions' => false,
-                'dsn' => "mysql:host=127.0.0.1;dbname=$dbName;user=$dbUser;password=$dbPassword",
+                'dsn' => "mysql:host=$dbMysqlHost;dbname=$dbName;user=$dbUser;password=$dbPassword",
             ],
         ];
     }

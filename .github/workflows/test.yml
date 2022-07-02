@@ -6,7 +6,8 @@ jobs:
   test:
     runs-on: ubuntu-22.04
     env:
-      DB_HOST: localhost
+      DB_MYSQL_HOST: localhost
+      DB_PGSQL_HOST: localhost
       DB_NAME: chuck_test
       DB_USER: root
       DB_PASSWORD: root
