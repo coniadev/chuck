@@ -157,6 +157,12 @@ class DatabaseCase extends TestCase
             ], [
                 'transactions' => false,
                 'dsn' => "mysql:host=$dbHost;dbname=$dbName;user=$dbUser;password=$dbPassword",
+            ], [
+                // TODO|HACK: MySQL tries to use a local socket when host=localhost
+                // is specified which does not work with WSL2. So we add another
+                // mysql line to check both connection types.
+                'transactions' => false,
+                'dsn' => "mysql:host=127.0.0.1;dbname=$dbName;user=$dbUser;password=$dbPassword",
             ],
         ];
     }
