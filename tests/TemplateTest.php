@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Chuck\Error\{InvalidTemplateFormat, TemplateNotFound, NoSuchProperty, NoSuchMethod};
 use Chuck\Tests\Setup\TestCase;
-use Chuck\Template\{Engine, Template, Value};
+use Chuck\Template\{Engine, Template, Value, ArrayValue, IteratorValue, Wrapper};
 
 uses(TestCase::class);
 
@@ -49,6 +49,25 @@ test('Raw rendering', function () {
     expect($tpl->render('raw', [
         'html' => '<b>chuck</b>',
     ]))->toBe("&lt;b&gt;chuck&lt;/b&gt;<b>chuck</b>");
+});
+
+
+test('Wrapper', function () {
+    expect(Wrapper::wrap('string'))->toBeInstanceOf(Value::class);
+    expect(Wrapper::wrap(1))->toBe(1);
+    expect(Wrapper::wrap([]))->toBeInstanceOf(ArrayValue::class);
+    $iterator = (function () {
+        yield 1;
+    })();
+    expect(Wrapper::wrap($iterator))->toBeInstanceOf(IteratorValue::class);
+    $value = new Value('string');
+    expect(Wrapper::wrap($value))->toBeInstanceOf(Value::class);
+    expect(is_string(Wrapper::wrap($value)->raw()))->toBe(true);
+    expect(Wrapper::wrap($value))->toBeInstanceOf(Value::class);
+    $obj = new class()
+    {
+    };
+    expect(Wrapper::wrap($obj))->toBeInstanceOf($obj::class);
 });
 
 
