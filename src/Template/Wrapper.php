@@ -21,7 +21,7 @@ class Wrapper
         } elseif ($value instanceof Traversable) {
             return new IteratorValue($value);
         } elseif ($value instanceof Stringable) {
-            return new Value((string)$value);
+            return new Value($value);
         } else {
             return $value;
         }

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Chuck\Error\{InvalidTemplateFormat, TemplateNotFound};
+use Chuck\Error\{InvalidTemplateFormat, TemplateNotFound, NoSuchProperty, NoSuchMethod};
 use Chuck\Tests\Setup\TestCase;
-use Chuck\Template\{Engine, Template};
+use Chuck\Template\{Engine, Template, Value};
 
 uses(TestCase::class);
 
@@ -52,6 +52,71 @@ test('Raw rendering', function () {
 });
 
 
+test('Stringable value', function () {
+    $stringable = new class()
+    {
+        public string $value = 'test';
+
+        public function __toString(): string
+        {
+            return '<b>chuck</b>';
+        }
+
+        public function testMethod(): string
+        {
+            return $this->value . $this->value;
+        }
+    };
+    $value = new Value($stringable);
+
+    expect((string)$value)->toBe('&lt;b&gt;chuck&lt;/b&gt;');
+    expect($value->raw())->toBe($stringable);
+    expect($value->value)->toBe('test');
+    $value->value = 'chuck';
+    expect($value->value)->toBe('chuck');
+    expect($value->testMethod())->toBe('chuckchuck');
+});
+
+
+test('Stringable value :: getter throws', function () {
+    $stringable = new class()
+    {
+        public function __toString(): string
+        {
+            return '';
+        }
+    };
+    $value = new Value($stringable);
+    $value->test;
+})->throws(NoSuchProperty::class);
+
+
+test('Stringable value :: setter throws', function () {
+    $stringable = new class()
+    {
+        public function __toString(): string
+        {
+            return '';
+        }
+    };
+    $value = new Value($stringable);
+    $value->test = 'test';
+})->throws(NoSuchProperty::class);
+
+
+test('Stringable value :: method call throws', function () {
+    $stringable = new class()
+    {
+        public function __toString(): string
+        {
+            return '';
+        }
+    };
+    $value = new Value($stringable);
+    $value->test();
+})->throws(NoSuchMethod::class);
+
+
 test('Raw rendering with Stringable', function () {
     $tpl = new Engine($this->templates());
 
@@ -64,6 +129,29 @@ test('Raw rendering with Stringable', function () {
             }
         },
     ]))->toBe("&lt;b&gt;chuck&lt;/b&gt;<b>chuck</b>");
+});
+
+
+test('Rendering with Stringable', function () {
+    $tpl = new Engine($this->templates());
+    $stringable = new class()
+    {
+        public string $test = 'test';
+
+        public function __toString(): string
+        {
+            return '<b>chuck</b>';
+        }
+
+        public function testMethod(string $value): string
+        {
+            return $value . $value;
+        }
+    };
+
+    expect($this->fullTrim($tpl->render('stringable', [
+        'html' => $stringable,
+    ])))->toBe("&lt;b&gt;chuck&lt;/b&gt;<b>chuck</b>testmantismantis");
 });
 
 

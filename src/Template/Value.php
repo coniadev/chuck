@@ -4,19 +4,16 @@ declare(strict_types=1);
 
 namespace Chuck\Template;
 
+use \Exception;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
+use Chuck\Error\{NoSuchProperty, NoSuchMethod};
 use Chuck\Util\Html;
 
 
 class Value
 {
-    public function __construct(protected string $value)
+    public function __construct(protected mixed $value)
     {
-    }
-
-    public function __toString(): string
-    {
-        return htmlspecialchars($this->value);
     }
 
     public function raw(): mixed
@@ -28,11 +25,45 @@ class Value
         HtmlSanitizerConfig $config = null,
         bool $removeEmptyLines = true
     ): string {
-        return Html::clean($this->value, $config, $removeEmptyLines);
+        return Html::clean((string)$this->value, $config, $removeEmptyLines);
     }
 
     public function empty(): bool
     {
-        return empty($this->value);
+        return empty((string)$this->value);
+    }
+
+    public function __toString(): string
+    {
+        return htmlspecialchars((string)$this->value);
+    }
+
+    public function __get(string $name): mixed
+    {
+        // TODO: should we wrap properties to auto escape?
+        if (property_exists($this->value, $name)) {
+            return $this->value->{$name};
+        }
+
+        throw new NoSuchProperty('Property does not exists on the wrapped value');
+    }
+
+    public function __set(string $name, mixed $value): void
+    {
+        if (property_exists($this->value, $name)) {
+            $this->value->{$name} = $value;
+            return;
+        }
+
+        throw new NoSuchProperty('Property does not exists on the wrapped value');
+    }
+
+    public function __call(string $name, array $args): mixed
+    {
+        if (is_callable([$this->value, $name])) {
+            return $this->value->$name(...$args);
+        }
+
+        throw new NoSuchMethod('Method does not exists on the wrapped value');
     }
 }
