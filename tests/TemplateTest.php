@@ -55,11 +55,20 @@ test('Raw rendering', function () {
 test('Wrapper', function () {
     expect(Wrapper::wrap('string'))->toBeInstanceOf(Value::class);
     expect(Wrapper::wrap(1))->toBe(1);
-    expect(Wrapper::wrap([]))->toBeInstanceOf(ArrayValue::class);
+
+    $warray = Wrapper::wrap([]);
+    expect($warray)->toBeInstanceOf(ArrayValue::class);
+    expect(is_array($warray))->toBe(false);
+    expect(is_array($warray->raw()))->toBe(true);
+
     $iterator = (function () {
         yield 1;
     })();
-    expect(Wrapper::wrap($iterator))->toBeInstanceOf(IteratorValue::class);
+    $witerator = Wrapper::wrap($iterator);
+    expect($witerator)->toBeInstanceOf(IteratorValue::class);
+    expect($witerator->raw())->toBeInstanceOf(Traversable::class);
+    expect(is_iterable($witerator->raw()))->toBe(true);
+
     $value = new Value('string');
     expect(Wrapper::wrap($value))->toBeInstanceOf(Value::class);
     expect(Wrapper::wrap($value)->raw())->toBe('string');

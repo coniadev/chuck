@@ -16,10 +16,24 @@ use \ArrayIterator;
  */
 class ArrayValue extends ArrayIterator implements ValueInterface
 {
+    private array $array;
+
+    public function __construct(array $array = [], int $flags = 0)
+    {
+        parent::__construct($array, $flags);
+
+        $this->array = $array;
+    }
+
     public function current(): mixed
     {
         $value = parent::current();
 
         return Wrapper::wrap($value);
+    }
+
+    public function raw(): array
+    {
+        return $this->array;
     }
 }
