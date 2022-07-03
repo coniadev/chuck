@@ -62,6 +62,7 @@ test('Wrapper', function () {
     expect(Wrapper::wrap($iterator))->toBeInstanceOf(IteratorValue::class);
     $value = new Value('string');
     expect(Wrapper::wrap($value))->toBeInstanceOf(Value::class);
+    expect(Wrapper::wrap($value)->raw())->toBe('string');
     expect(is_string(Wrapper::wrap($value)->raw()))->toBe(true);
     expect(Wrapper::wrap($value))->toBeInstanceOf(Value::class);
     $obj = new class()

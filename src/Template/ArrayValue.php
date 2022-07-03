@@ -14,7 +14,7 @@ use \ArrayIterator;
  * @template TValue
  * @template-extends ArrayIterator<TKey, TValue>
  */
-class ArrayValue extends ArrayIterator
+class ArrayValue extends ArrayIterator implements ValueInterface
 {
     public function current(): mixed
     {

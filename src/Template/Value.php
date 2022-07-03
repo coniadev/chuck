@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Chuck\Template;
 
-use \Exception;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
 use Chuck\Error\{NoSuchProperty, NoSuchMethod};
 use Chuck\Util\Html;
 
 
-class Value
+class Value implements ValueInterface
 {
     public function __construct(protected mixed $value)
     {

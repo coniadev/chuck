@@ -20,7 +20,7 @@ class Wrapper
             return new ArrayValue($value);
         } elseif ($value instanceof Traversable) {
             return new IteratorValue($value);
-        } elseif ($value instanceof Value) {
+        } elseif ($value instanceof ValueInterface) {
             // Don't wrap already wrapped values again
             return $value;
         } elseif ($value instanceof Stringable) {
