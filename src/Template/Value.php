@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chuck\Template;
 
+use \Throwable;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
 use Chuck\Error\{NoSuchProperty, NoSuchMethod};
 use Chuck\Util\Html;
@@ -39,22 +40,21 @@ class Value implements ValueInterface
 
     public function __get(string $name): mixed
     {
-        // TODO: should we wrap properties to auto escape?
-        if (property_exists($this->value, $name)) {
+        try {
             return $this->value->{$name};
+        } catch (Throwable) {
+            throw new NoSuchProperty('Property does not exists on the wrapped value');
         }
-
-        throw new NoSuchProperty('Property does not exists on the wrapped value');
     }
 
     public function __set(string $name, mixed $value): void
     {
-        if (property_exists($this->value, $name)) {
+        try {
             $this->value->{$name} = $value;
             return;
+        } catch (Throwable) {
+            throw new NoSuchProperty('Property does not exists on the wrapped value');
         }
-
-        throw new NoSuchProperty('Property does not exists on the wrapped value');
     }
 
     public function __call(string $name, array $args): mixed

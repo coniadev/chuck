@@ -118,9 +118,14 @@ test('Stringable value :: setter throws', function () {
         {
             return '';
         }
+
+        public function __set(string $n, mixed $v): void
+        {
+            if ($n && $v === null) throw new ValueError();
+        }
     };
     $value = new Value($stringable);
-    $value->test = 'test';
+    $value->test = null;
 })->throws(NoSuchProperty::class);
 
 
