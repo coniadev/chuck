@@ -14,15 +14,15 @@ class Wrapper
     {
         if (is_string($value)) {
             return new Value($value);
+        } elseif ($value instanceof ValueInterface) {
+            // Don't wrap already wrapped values again
+            return $value;
         } elseif (is_numeric($value)) {
             return $value;
         } elseif (is_array($value)) {
             return new ArrayValue($value);
         } elseif ($value instanceof Traversable) {
             return new IteratorValue($value);
-        } elseif ($value instanceof ValueInterface) {
-            // Don't wrap already wrapped values again
-            return $value;
         } elseif ($value instanceof Stringable) {
             return new Value($value);
         } else {
