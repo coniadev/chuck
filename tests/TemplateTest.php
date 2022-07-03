@@ -56,10 +56,11 @@ test('Wrapper', function () {
     expect(Wrapper::wrap('string'))->toBeInstanceOf(Value::class);
     expect(Wrapper::wrap(1))->toBe(1);
 
-    $warray = Wrapper::wrap([]);
+    $warray = Wrapper::wrap([1, 2, 3]);
     expect($warray)->toBeInstanceOf(ArrayValue::class);
     expect(is_array($warray))->toBe(false);
     expect(is_array($warray->raw()))->toBe(true);
+    expect(count($warray))->toBe(3);
 
     $iterator = (function () {
         yield 1;

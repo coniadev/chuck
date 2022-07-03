@@ -18,7 +18,7 @@ class ArrayValue extends ArrayIterator implements ValueInterface
 {
     private array $array;
 
-    public function __construct(array $array = [], int $flags = 0)
+    public function __construct(array $array, int $flags = 0)
     {
         parent::__construct($array, $flags);
 
