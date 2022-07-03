@@ -91,10 +91,12 @@ test('Stringable value', function () {
 
     expect((string)$value)->toBe('&lt;b&gt;chuck&lt;/b&gt;');
     expect($value->raw())->toBe($stringable);
-    expect($value->value)->toBe('test');
+    expect($value->value)->toBeInstanceOf(Value::class);
+    expect((string)$value->value)->toBe('test');
     $value->value = 'chuck';
-    expect($value->value)->toBe('chuck');
-    expect($value->testMethod())->toBe('chuckchuck');
+    expect((string)$value->value)->toBe('chuck');
+    expect($value->testMethod())->toBeInstanceOf(Value::class);
+    expect((string)$value->testMethod())->toBe('chuckchuck');
 });
 
 

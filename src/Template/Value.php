@@ -41,7 +41,7 @@ class Value implements ValueInterface
     public function __get(string $name): mixed
     {
         try {
-            return $this->value->{$name};
+            return Wrapper::wrap($this->value->{$name});
         } catch (Throwable) {
             throw new NoSuchProperty('Property does not exists on the wrapped value');
         }
@@ -60,7 +60,7 @@ class Value implements ValueInterface
     public function __call(string $name, array $args): mixed
     {
         if (is_callable([$this->value, $name])) {
-            return $this->value->$name(...$args);
+            return Wrapper::wrap($this->value->$name(...$args));
         }
 
         throw new NoSuchMethod('Method does not exists on the wrapped value');
