@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Chuck\Template;
 
 use \IteratorIterator;
-use \Traversable;
+use \Iterator;
 
 /**
  * Copied from https://psalm.dev/r/ea5148ab32
@@ -19,15 +19,6 @@ use \Traversable;
  */
 class IteratorValue extends IteratorIterator implements ValueInterface
 {
-    private Traversable $iterator;
-
-    public function __construct(Traversable $iterator, ?string $class = null)
-    {
-        parent::__construct($iterator, $class);
-
-        $this->iterator = $iterator;
-    }
-
     public function current(): mixed
     {
         $value = parent::current();
@@ -35,8 +26,8 @@ class IteratorValue extends IteratorIterator implements ValueInterface
         return Wrapper::wrap($value);
     }
 
-    public function raw(): Traversable
+    public function raw(): Iterator
     {
-        return $this->iterator;
+        return $this->getInnerIterator();
     }
 }
