@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
-use Chuck\Util\Html;
+use Conia\Chuck\Util\Html;
 
 const MALFORMED = '
         <header>Test</header>

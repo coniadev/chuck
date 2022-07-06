@@ -1,2 +1,2 @@
-<?= $html ?><?= $html->raw() ?><?= $html->test ?><?= $html->testMethod('mantis') ?>
+<?= $html ?><?= $html->raw() ?><?= $html->test ?><?= $html->testMethod('mantas') ?>
 

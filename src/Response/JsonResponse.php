@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Response;
+namespace Conia\Chuck\Response;
 
-use Chuck\Util\Json;
+use Conia\Chuck\Util\Json;
 
 
 class JsonResponse extends Response

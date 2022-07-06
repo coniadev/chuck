@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-use Chuck\App;
-use Chuck\SessionInterface;
-use Chuck\Middleware\Session;
-use Chuck\Tests\Setup\TestCase;
+use Conia\Chuck\App;
+use Conia\Chuck\SessionInterface;
+use Conia\Chuck\Middleware\Session;
+use Conia\Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
 
 
 test('Session middleware', function () {
     $app = App::create($this->config());
-    $app->route('/', 'Chuck\Tests\Fixtures\TestController::textView');
+    $app->route('/', 'Conia\Chuck\Tests\Fixtures\TestController::textView');
     $app->middleware(new Session($this->request()->config()->app()));
     ob_start();
     $app->run();

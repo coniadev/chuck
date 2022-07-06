@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\{C, TestCase};
-use Chuck\Renderer\JsonRenderer;
-use Chuck\Renderer\TextRenderer;
-use Chuck\Renderer\TemplateRenderer;
+use Conia\Chuck\Tests\Setup\{C, TestCase};
+use Conia\Chuck\Renderer\JsonRenderer;
+use Conia\Chuck\Renderer\TextRenderer;
+use Conia\Chuck\Renderer\TemplateRenderer;
 
 uses(TestCase::class);
 

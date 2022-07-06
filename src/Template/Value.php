@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Template;
+namespace Conia\Chuck\Template;
 
 use \Throwable;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
-use Chuck\Error\{NoSuchProperty, NoSuchMethod};
-use Chuck\Util\Html;
+use Conia\Chuck\Error\{NoSuchProperty, NoSuchMethod};
+use Conia\Chuck\Util\Html;
 
 
 class Value implements ValueInterface

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\{TestCase, C};
-use Chuck\Cli\Runner;
+use Conia\Chuck\Tests\Setup\{TestCase, C};
+use Conia\Chuck\Cli\Runner;
 
 uses(TestCase::class);
 

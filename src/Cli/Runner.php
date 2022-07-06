@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Cli;
+namespace Conia\Chuck\Cli;
 
 use \ErrorException;
-use Chuck\App;
+use Conia\Chuck\App;
 
 
 class Runner

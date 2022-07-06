@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Tests\Setup;
+namespace Conia\Chuck\Tests\Setup;
 
 use \PDO;
 use \Throwable;
-use Chuck\Config;
-use Chuck\Config\Connection;
-use Chuck\Database\Database;
-use Chuck\Tests\Setup\{TestCase, C};
+use Conia\Chuck\Config;
+use Conia\Chuck\Config\Connection;
+use Conia\Chuck\Database\Database;
+use Conia\Chuck\Tests\Setup\{TestCase, C};
 
 
 class DatabaseCase extends TestCase

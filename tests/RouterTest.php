@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-use Chuck\Attribute\Render;
-use Chuck\Error\{HttpNotFound, HttpServerError, HttpMethodNotAllowed};
-use Chuck\Renderer\TemplateRenderer;
-use Chuck\Request;
-use Chuck\Response\Response;
-use Chuck\Routing\{Router, Route, Group};
-use Chuck\Tests\Fixtures\TestController;
-use Chuck\Tests\Fixtures\TestControllerWithRequest;
-use Chuck\Tests\Fixtures\TestMiddleware1;
-use Chuck\Tests\Setup\{TestCase, C};
+use Conia\Chuck\Attribute\Render;
+use Conia\Chuck\Error\{HttpNotFound, HttpServerError, HttpMethodNotAllowed};
+use Conia\Chuck\Renderer\TemplateRenderer;
+use Conia\Chuck\Request;
+use Conia\Chuck\Response\Response;
+use Conia\Chuck\Routing\{Router, Route, Group};
+use Conia\Chuck\Tests\Fixtures\TestController;
+use Conia\Chuck\Tests\Fixtures\TestControllerWithRequest;
+use Conia\Chuck\Tests\Fixtures\TestMiddleware1;
+use Conia\Chuck\Tests\Setup\{TestCase, C};
 
 uses(TestCase::class);
 
@@ -145,7 +145,7 @@ test('View without renderer returning string', function () {
 
 test('Dispatch class method returning a string', function () {
     $router = new Router();
-    $route = new Route('/text', 'Chuck\Tests\Fixtures\TestController::textView');
+    $route = new Route('/text', 'Conia\Chuck\Tests\Fixtures\TestController::textView');
     $router->addRoute($route);
     $response = $router->dispatch($this->request(method: 'GET', url: '/text'));
 
@@ -156,7 +156,7 @@ test('Dispatch class method returning a string', function () {
 
 test('Dispatch class method returning a stringable', function () {
     $router = new Router();
-    $route = new Route('/text', 'Chuck\Tests\Fixtures\TestController::stringableView');
+    $route = new Route('/text', 'Conia\Chuck\Tests\Fixtures\TestController::stringableView');
     $router->addRoute($route);
     $response = $router->dispatch($this->request(method: 'GET', url: '/text'));
 
@@ -200,7 +200,7 @@ test('Dispatch controller with request constructor', function () {
     $router->addRoute($index);
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/'));
-    expect((string)$response->getBody())->toBe('Chuck\Request');
+    expect((string)$response->getBody())->toBe('Conia\Chuck\Request');
 });
 
 
@@ -265,7 +265,7 @@ test('Dispatch view with route params', function () {
     $response = $router->dispatch($this->request(method: 'GET', url: '/symbolic/7.13-23'));
     expect($router->getRoute())->toBeInstanceOf(Route::class);
     expect((string)$response->getBody())->toBe(
-        '{"string":"symbolic","float":7.13,"int":23,"request":"Chuck\\\\Request"}'
+        '{"string":"symbolic","float":7.13,"int":23,"request":"Conia\\\\Chuck\\\\Request"}'
     );
 });
 
@@ -361,7 +361,7 @@ test('Dispatch view with route params including request', function () {
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/17/spiritual-healing-23.31'));
     expect((string)$response->getBody())->toBe(
-        '{"string":"spiritual-healing","float":23.31,"int":17,"request":"Chuck\\\\Request"}'
+        '{"string":"spiritual-healing","float":23.31,"int":17,"request":"Conia\\\\Chuck\\\\Request"}'
     );
 });
 

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Renderer;
+namespace Conia\Chuck\Renderer;
 
-use Chuck\Response\ResponseInterface;
+use Conia\Chuck\Response\ResponseInterface;
 
 
 interface RendererInterface

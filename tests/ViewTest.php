@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Chuck\Routing\Route;
-use Chuck\Routing\{View, CallableView, ControllerView};
-use Chuck\Tests\Fixtures\{TestController, TestAttribute, TestAttributeExt, TestAttributeDiff};
-use Chuck\Tests\Setup\TestCase;
+use Conia\Chuck\Routing\Route;
+use Conia\Chuck\Routing\{View, CallableView, ControllerView};
+use Conia\Chuck\Tests\Fixtures\{TestController, TestAttribute, TestAttributeExt, TestAttributeDiff};
+use Conia\Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
 
@@ -39,7 +39,7 @@ test('Function', function () {
 
 
 test('Controller String', function () {
-    $route = new Route('/', '\Chuck\Tests\Fixtures\TestController::textView');
+    $route = new Route('/', '\Conia\Chuck\Tests\Fixtures\TestController::textView');
     $route->match('/');
     $view = View::get($this->request(), $route);
 

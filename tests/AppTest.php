@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\{TestCase, C};
-use Chuck\Routing\{Router, Route, Group};
-use Chuck\Response\Response;
-use Chuck\{App, Request, Config};
+use Conia\Chuck\Tests\Setup\{TestCase, C};
+use Conia\Chuck\Routing\{Router, Route, Group};
+use Conia\Chuck\Response\Response;
+use Conia\Chuck\{App, Request, Config};
 
 uses(TestCase::class);
 
@@ -48,7 +48,7 @@ test('Static route helper', function () {
 test('App run', function () {
     $request = $this->request(method: 'GET', url: '/');
     $app = new App($request, $request->config(), $request->router());
-    $app->route('/', 'Chuck\Tests\Fixtures\TestController::textView');
+    $app->route('/', 'Conia\Chuck\Tests\Fixtures\TestController::textView');
     ob_start();
     $response = $app->run();
     $output = ob_get_contents();

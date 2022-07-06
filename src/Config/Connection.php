@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Config;
+namespace Conia\Chuck\Config;
 
 use \PDO;
 use \RuntimeException;
 use \ValueError;
-use Chuck\Util\Arrays;
+use Conia\Chuck\Util\Arrays;
 
 class Connection
 {

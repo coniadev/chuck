@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Tests\Setup;
+namespace Conia\Chuck\Tests\Setup;
 
 class C
 {

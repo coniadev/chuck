@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Chuck;
+namespace Conia\Chuck;
 
 use Psr\Log\LoggerInterface;
-use Chuck\Config;
-use Chuck\Config\{Connection, Scripts};
-use Chuck\Renderer\RendererInterface;
+use Conia\Chuck\Config;
+use Conia\Chuck\Config\{Connection, Scripts};
+use Conia\Chuck\Renderer\RendererInterface;
 
 
 interface ConfigInterface

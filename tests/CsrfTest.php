@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Chuck\Session;
-use Chuck\Csrf;
-use Chuck\Tests\Setup\TestCase;
+use Conia\Chuck\Session;
+use Conia\Chuck\Csrf;
+use Conia\Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
 

@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Cli\Migrations;
+namespace Conia\Chuck\Cli\Migrations;
 
 use \PDOException;
 use \RuntimeException;
 use \Throwable;
-use Chuck\App;
-use Chuck\Cli\{Opts, CommandInterface};
-use Chuck\ConfigInterface;
-use Chuck\Config\Connection;
-use Chuck\Database\DatabaseInterface;
+use Conia\Chuck\App;
+use Conia\Chuck\Cli\{Opts, CommandInterface};
+use Conia\Chuck\ConfigInterface;
+use Conia\Chuck\Config\Connection;
+use Conia\Chuck\Database\DatabaseInterface;
 
 
 class Migrations implements CommandInterface
@@ -49,9 +49,9 @@ class Migrations implements CommandInterface
                 echo "\n\nIf you want to create the table above, simply run\n\n";
                 echo "    php run create-migrations-table\n\n";
                 echo "If you need to change the table or column names set them via \n\n";
-                echo "    \$\\Chuck\\Config\\Connection::setMigrationsTable(...)\n";
-                echo "    \$\\Chuck\\Config\\Connection::setMigrationsColumnMigration(...)\n";
-                echo "    \$\\Chuck\\Config\\Connection::setMigrationsColumnApplied(...)\n";
+                echo "    \$\\Conia\\Chuck\\Config\\Connection::setMigrationsTable(...)\n";
+                echo "    \$\\Conia\\Chuck\\Config\\Connection::setMigrationsColumnMigration(...)\n";
+                echo "    \$\\Conia\\Chuck\\Config\\Connection::setMigrationsColumnApplied(...)\n";
             } else {
                 // An unsupported driver would have to be installed
                 // to be able to test meaningfully

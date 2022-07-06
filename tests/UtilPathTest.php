@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\{TestCase, C};
-use Chuck\Util\Path;
+use Conia\Chuck\Tests\Setup\{TestCase, C};
+use Conia\Chuck\Util\Path;
 
 uses(TestCase::class);
 

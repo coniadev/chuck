@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Routing;
+namespace Conia\Chuck\Routing;
 
 use \Closure;
 use \InvalidArgumentException;
 use \ValueError;
 
-use Chuck\Util\Arrays;
-use Chuck\Renderer\Config as RendererConfig;
+use Conia\Chuck\Util\Arrays;
+use Conia\Chuck\Renderer\Config as RendererConfig;
 
 const LEFT_BRACE = '§§§€§§§';
 const RIGHT_BRACE = '§§§£§§§';

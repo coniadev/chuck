@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\TestCase;
-use Chuck\Util\Reflect;
-use Chuck\Request;
-use Chuck\Response\Response;
+use Conia\Chuck\Tests\Setup\TestCase;
+use Conia\Chuck\Util\Reflect;
+use Conia\Chuck\Request;
+use Conia\Chuck\Response\Response;
 
 uses(TestCase::class);
 

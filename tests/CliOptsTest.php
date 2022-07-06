@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Chuck\Cli\Opts;
-use Chuck\Tests\Setup\TestCase;
+use Conia\Chuck\Cli\Opts;
+use Conia\Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
 

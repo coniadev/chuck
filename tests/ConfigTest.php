@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\{DatabaseCase, C};
-use Chuck\Tests\Fixtures\TestRenderer;
-use Chuck\Config;
-use Chuck\Config\Connection;
-use Chuck\Logger;
+use Conia\Chuck\Tests\Setup\{DatabaseCase, C};
+use Conia\Chuck\Tests\Fixtures\TestRenderer;
+use Conia\Chuck\Config;
+use Conia\Chuck\Config\Connection;
+use Conia\Chuck\Logger;
 
 uses(DatabaseCase::class);
 

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Chuck\Response\Headers;
-use Chuck\Tests\Setup\TestCase;
+use Conia\Chuck\Response\Headers;
+use Conia\Chuck\Tests\Setup\TestCase;
 
 
 uses(TestCase::class);

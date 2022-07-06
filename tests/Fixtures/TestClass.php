@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Tests\Fixtures;
+namespace Conia\Chuck\Tests\Fixtures;
 
 
 class TestClass implements TestInterface

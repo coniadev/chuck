@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Assets;
+namespace Conia\Chuck\Assets;
 
 use \RuntimeException;
-use Chuck\Util\{Image, Path};
+use Conia\Chuck\Util\{Image, Path};
 
 
 abstract class AbstractImage

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Database;
+namespace Conia\Chuck\Database;
 
 use \InvalidArgumentException;
 use \PDO;

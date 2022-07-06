@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Error;
+namespace Conia\Chuck\Error;
 
 use Throwable;
 

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Chuck;
+namespace Conia\Chuck;
 
 use \TypeError;
 use \ValueError;
 use \RuntimeException;
-use Chuck\Schema\{Validator, Value};
-use Chuck\Util\{Arrays, Html};
+use Conia\Chuck\Schema\{Validator, Value};
+use Conia\Chuck\Util\{Arrays, Html};
 
 
 class Schema implements SchemaInterface

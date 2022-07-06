@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\TestCase;
-use Chuck\Routing\Route;
+use Conia\Chuck\Tests\Setup\TestCase;
+use Conia\Chuck\Routing\Route;
 
 uses(TestCase::class);
 

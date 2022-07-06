@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Cli;
+namespace Conia\Chuck\Cli;
 
-use Chuck\App;
+use Conia\Chuck\App;
 
 
 interface CommandInterface

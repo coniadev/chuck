@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Chuck;
+namespace Conia\Chuck;
 
 use \OutOfBoundsException;
-use Chuck\ResponseFactory;
-use Chuck\Routing\RouteInterface;
-use Chuck\Routing\RouterInterface;
-use Chuck\Renderer\RendererInterface;
-use Chuck\Util\Http;
+use Conia\Chuck\ResponseFactory;
+use Conia\Chuck\Routing\RouteInterface;
+use Conia\Chuck\Routing\RouterInterface;
+use Conia\Chuck\Renderer\RendererInterface;
+use Conia\Chuck\Util\Http;
 
 
 class Request implements RequestInterface

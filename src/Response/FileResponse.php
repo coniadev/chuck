@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Response;
+namespace Conia\Chuck\Response;
 
 use \finfo;
 use \LogicException;
 use \RuntimeException;
-use Chuck\Error\HttpNotFound;
+use Conia\Chuck\Error\HttpNotFound;
 
 
 class FileResponse extends Response

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Attribute;
+namespace Conia\Chuck\Attribute;
 
 use \Attribute;
-use \Chuck\RequestInterface;
-use \Chuck\Response\ResponseInterface;
+use Conia\Chuck\RequestInterface;
+use Conia\Chuck\Response\ResponseInterface;
 
 
 #[Attribute]

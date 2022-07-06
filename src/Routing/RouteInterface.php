@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Routing;
+namespace Conia\Chuck\Routing;
 
 use \Closure;
-use Chuck\Renderer;
+use Conia\Chuck\Renderer;
 
 
 interface RouteInterface

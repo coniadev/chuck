@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Util;
+namespace Conia\Chuck\Util;
 
 use \ArgumentCountError;
 use \Closure;
@@ -14,8 +14,8 @@ use \ReflectionParameter;
 use \Throwable;
 use \TypeError;
 
-use Chuck\RequestInterface;
-use Chuck\Response\ResponseInterface;
+use Conia\Chuck\RequestInterface;
+use Conia\Chuck\Response\ResponseInterface;
 
 
 class Reflect

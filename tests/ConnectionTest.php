@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\{DatabaseCase, C};
-use Chuck\Config\Connection;
+use Conia\Chuck\Tests\Setup\{DatabaseCase, C};
+use Conia\Chuck\Config\Connection;
 
 uses(DatabaseCase::class);
 

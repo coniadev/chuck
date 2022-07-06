@@ -11,8 +11,8 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\{DatabaseCase, C};
-use Chuck\Cli\Runner;
+use Conia\Chuck\Tests\Setup\{DatabaseCase, C};
+use Conia\Chuck\Cli\Runner;
 
 uses(DatabaseCase::class);
 

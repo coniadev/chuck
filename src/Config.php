@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Chuck;
+namespace Conia\Chuck;
 
 use \Closure;
 use \InvalidArgumentException;
 use \Throwable;
 use \ValueError;
 use Psr\Log\LoggerInterface;
-use Chuck\Renderer\{
+use Conia\Chuck\Renderer\{
     Renderer,
     JsonRenderer,
     TextRenderer,
     RendererInterface,
 };
-use Chuck\Config\{Connection, Scripts};
+use Conia\Chuck\Config\{Connection, Scripts};
 
 
 class Config implements ConfigInterface

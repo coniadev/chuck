@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Template;
+namespace Conia\Chuck\Template;
 
 use \RuntimeException;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
-use Chuck\Util\Html;
+use Conia\Chuck\Util\Html;
 
 
 class Template

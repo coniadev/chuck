@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Chuck\Routing\Router;
-use Chuck\Tests\Setup\{TestCase, C};
-use Chuck\Assets\{Assets, Image, CachedImage};
+use Conia\Chuck\Routing\Router;
+use Conia\Chuck\Tests\Setup\{TestCase, C};
+use Conia\Chuck\Assets\{Assets, Image, CachedImage};
 
 
 uses(TestCase::class);

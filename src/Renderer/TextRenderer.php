@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Renderer;
+namespace Conia\Chuck\Renderer;
 
 use \TypeError;
 use \ValueError;
-use Chuck\Response\Response;
+use Conia\Chuck\Response\Response;
 
 
 class TextRenderer extends Renderer

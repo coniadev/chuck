@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Routing;
+namespace Conia\Chuck\Routing;
 
-use Chuck\RequestInterface;
-use Chuck\Response\ResponseInterface;
+use Conia\Chuck\RequestInterface;
+use Conia\Chuck\Response\ResponseInterface;
 
 
 interface RouterInterface

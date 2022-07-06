@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Chuck\Error\{InvalidTemplateFormat, TemplateNotFound, NoSuchProperty, NoSuchMethod};
-use Chuck\Tests\Setup\TestCase;
-use Chuck\Template\{Engine, Template, Value, ArrayValue, IteratorValue, Wrapper};
+use Conia\Chuck\Error\{InvalidTemplateFormat, TemplateNotFound, NoSuchProperty, NoSuchMethod};
+use Conia\Chuck\Tests\Setup\TestCase;
+use Conia\Chuck\Template\{Engine, Template, Value, ArrayValue, IteratorValue, Wrapper};
 
 uses(TestCase::class);
 
@@ -188,7 +188,7 @@ test('Rendering with Stringable', function () {
 
     expect($this->fullTrim($tpl->render('stringable', [
         'html' => $stringable,
-    ])))->toBe("&lt;b&gt;chuck&lt;/b&gt;<b>chuck</b>testmantismantis");
+    ])))->toBe("&lt;b&gt;chuck&lt;/b&gt;<b>chuck</b>testmantasmantas");
 });
 
 

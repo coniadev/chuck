@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Config;
+namespace Conia\Chuck\Config;
 
 use \ValueError;
-use Chuck\Util\Path as PathUtil;
+use Conia\Chuck\Util\Path as PathUtil;
 
 
 trait PathTrait

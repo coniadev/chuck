@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Middleware;
+namespace Conia\Chuck\Middleware;
 
-use Chuck\RequestInterface;
-use Chuck\Response\ResponseInterface;
-use Chuck\Session as SessionBase;
+use Conia\Chuck\RequestInterface;
+use Conia\Chuck\Response\ResponseInterface;
+use Conia\Chuck\Session as SessionBase;
 
 
 class Session implements MiddlewareInterface

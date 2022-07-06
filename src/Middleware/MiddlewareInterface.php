@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Middleware;
+namespace Conia\Chuck\Middleware;
 
-use Chuck\RequestInterface;
-use Chuck\Response\ResponseInterface;
+use Conia\Chuck\RequestInterface;
+use Conia\Chuck\Response\ResponseInterface;
 
 
 interface MiddlewareInterface

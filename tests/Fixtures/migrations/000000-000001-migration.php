@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Chuck\ConfigInterface;
-use Chuck\Config\Connection;
-use Chuck\Database\DatabaseInterface;
-use Chuck\Database\MigrationInterface;
+use Conia\Chuck\ConfigInterface;
+use Conia\Chuck\Config\Connection;
+use Conia\Chuck\Database\DatabaseInterface;
+use Conia\Chuck\Database\MigrationInterface;
 
 
 if (class_exists('TestMigration_1')) {

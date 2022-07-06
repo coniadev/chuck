@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Renderer;
+namespace Conia\Chuck\Renderer;
 
-use Chuck\Response\ResponseInterface;
-use Chuck\RequestInterface;
+use Conia\Chuck\Response\ResponseInterface;
+use Conia\Chuck\RequestInterface;
 
 abstract class Renderer implements RendererInterface
 {

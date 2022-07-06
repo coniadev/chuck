@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-use Chuck\ConfigInterface;
-use Chuck\Error\ExitException;
-use Chuck\File;
-use Chuck\Renderer\{JsonRenderer, TemplateRenderer};
-use Chuck\Request;
-use Chuck\ResponseFactory;
-use Chuck\Response\ResponseInterface;
-use Chuck\Response\Response;
-use Chuck\Routing\Route;
-use Chuck\Routing\RouteInterface;
-use Chuck\Routing\Router;
-use Chuck\Routing\RouterInterface;
-use Chuck\Tests\Setup\{TestCase, C};
+use Conia\Chuck\ConfigInterface;
+use Conia\Chuck\Error\ExitException;
+use Conia\Chuck\File;
+use Conia\Chuck\Renderer\{JsonRenderer, TemplateRenderer};
+use Conia\Chuck\Request;
+use Conia\Chuck\ResponseFactory;
+use Conia\Chuck\Response\ResponseInterface;
+use Conia\Chuck\Response\Response;
+use Conia\Chuck\Routing\Route;
+use Conia\Chuck\Routing\RouteInterface;
+use Conia\Chuck\Routing\Router;
+use Conia\Chuck\Routing\RouterInterface;
+use Conia\Chuck\Tests\Setup\{TestCase, C};
 
 
 uses(TestCase::class);

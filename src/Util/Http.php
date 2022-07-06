@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Util;
+namespace Conia\Chuck\Util;
 
 use \ValueError;
-use Chuck\Error\ExitException;
+use Conia\Chuck\Error\ExitException;
 
 
 class Http

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Tests\Fixtures;
+namespace Conia\Chuck\Tests\Fixtures;
 
-use Chuck\Request;
+use Conia\Chuck\Request;
 
 
 class TestControllerWithRequest

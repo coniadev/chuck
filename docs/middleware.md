@@ -1,7 +1,7 @@
 ### Middleware:
 
 ```php
-    use Chuck\{App, Config, Route, RequestInterface};
+    use Conia\Chuck\{App, Config, Route, RequestInterface};
 
     class Middleware {
         public function __invoke(RequestInterface $request, callable $next) {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Template;
+namespace Conia\Chuck\Template;
 
 use \Traversable;
 use \Stringable;

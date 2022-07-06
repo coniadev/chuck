@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-use Chuck\Error\HttpMethodNotAllowed;
-use Chuck\Tests\Setup\TestCase;
-use Chuck\Tests\Fixtures\{
+use Conia\Chuck\Error\HttpMethodNotAllowed;
+use Conia\Chuck\Tests\Setup\TestCase;
+use Conia\Chuck\Tests\Fixtures\{
     TestController,
     TestMiddleware1,
     TestMiddleware2,
     TestMiddleware3
 };
-use Chuck\Routing\{Router, Route, Group};
+use Conia\Chuck\Routing\{Router, Route, Group};
 
 uses(TestCase::class);
 

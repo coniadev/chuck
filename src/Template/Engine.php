@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Template;
+namespace Conia\Chuck\Template;
 
 use \InvalidArgumentException;
 use \Throwable;
-use Chuck\Error\{InvalidTemplateFormat, TemplateNotFound};
-use Chuck\Util\Path;
+use Conia\Chuck\Error\{InvalidTemplateFormat, TemplateNotFound};
+use Conia\Chuck\Util\Path;
 
 
 class Engine

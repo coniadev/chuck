@@ -25,12 +25,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Chuck\\": "src"
+            "Conia\\Chuck\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Chuck\\Tests\\": "tests"
+            "Conia\\Chuck\\Tests\\": "tests"
         }
     },
     "config": {

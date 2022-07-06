@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck;
+namespace Conia\Chuck;
 
 use \Throwable;
 use Psr\Log\{LoggerInterface, InvalidArgumentException};

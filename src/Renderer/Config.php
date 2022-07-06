@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Renderer;
+namespace Conia\Chuck\Renderer;
 
 
 class Config

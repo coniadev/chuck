@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Chuck\ResponseFactory;
-use Chuck\Response\{Response, FileResponse, JsonResponse};
-use Chuck\Tests\Setup\{C, TestCase};
+use Conia\Chuck\ResponseFactory;
+use Conia\Chuck\Response\{Response, FileResponse, JsonResponse};
+use Conia\Chuck\Tests\Setup\{C, TestCase};
 
 
 uses(TestCase::class);

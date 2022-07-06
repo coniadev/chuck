@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Cli\Migrations;
+namespace Conia\Chuck\Cli\Migrations;
 
-use Chuck\App;
-use Chuck\Cli\{CommandInterface, Opts};
-use Chuck\Config;
-use Chuck\ConfigInterface;
+use Conia\Chuck\App;
+use Conia\Chuck\Cli\{CommandInterface, Opts};
+use Conia\Chuck\Config;
+use Conia\Chuck\ConfigInterface;
 
 
 /** @psalm-suppress MissingConstructor */
@@ -117,10 +117,10 @@ class Add implements CommandInterface
 declare(strict_types=1);
 
 use \PDO;
-use Chuck\Config;
-use Chuck\Config\Connection;
-use Chuck\Database\Database;
-use Chuck\Database\MigrationInterface;
+use Conia\Chuck\Config;
+use Conia\Chuck\Config\Connection;
+use Conia\Chuck\Database\Database;
+use Conia\Chuck\Database\MigrationInterface;
 
 
 class $className implements MigrationInterface

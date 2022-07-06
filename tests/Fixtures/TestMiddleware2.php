@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Tests\Fixtures;
+namespace Conia\Chuck\Tests\Fixtures;
 
-use Chuck\Request;
-use Chuck\Response\Response;
+use Conia\Chuck\Request;
+use Conia\Chuck\Response\Response;
 
 
 class TestMiddleware2

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Chuck;
+namespace Conia\Chuck;
 
-use Chuck\Response\{
+use Conia\Chuck\Response\{
     ResponseInterface,
     JsonResponse,
     FileResponse,

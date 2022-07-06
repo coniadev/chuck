@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Chuck\Response\{Response, FileResponse};
-use Chuck\Tests\Setup\{TestCase, C};
-use Chuck\Error\HttpNotFound;
+use Conia\Chuck\Response\{Response, FileResponse};
+use Conia\Chuck\Tests\Setup\{TestCase, C};
+use Conia\Chuck\Error\HttpNotFound;
 
 
 uses(TestCase::class);

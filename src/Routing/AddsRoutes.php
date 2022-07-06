@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Routing;
+namespace Conia\Chuck\Routing;
 
 use \Closure;
 

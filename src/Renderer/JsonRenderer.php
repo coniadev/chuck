@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Renderer;
+namespace Conia\Chuck\Renderer;
 
-use Chuck\Response\JsonResponse;
-use Chuck\Util\Json;
+use Conia\Chuck\Response\JsonResponse;
+use Conia\Chuck\Util\Json;
 
 
 class JsonRenderer extends Renderer

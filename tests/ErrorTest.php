@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-use Chuck\Request;
-use Chuck\Routing\Router;
-use Chuck\Error\Handler;
-use Chuck\Error\HttpBadRequest;
-use Chuck\Error\HttpForbidden;
-use Chuck\Error\HttpNotFound;
-use Chuck\Error\HttpMethodNotAllowed;
-use Chuck\Error\HttpServerError;
-use Chuck\Error\HttpUnauthorized;
-use Chuck\Tests\Setup\TestCase;
+use Conia\Chuck\Request;
+use Conia\Chuck\Routing\Router;
+use Conia\Chuck\Error\Handler;
+use Conia\Chuck\Error\HttpBadRequest;
+use Conia\Chuck\Error\HttpForbidden;
+use Conia\Chuck\Error\HttpNotFound;
+use Conia\Chuck\Error\HttpMethodNotAllowed;
+use Conia\Chuck\Error\HttpServerError;
+use Conia\Chuck\Error\HttpUnauthorized;
+use Conia\Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
 

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\TestCase;
-use Chuck\App;
-use Chuck\Routing\Route;
-use Chuck\Request;
-use Chuck\Response\Response;
+use Conia\Chuck\Tests\Setup\TestCase;
+use Conia\Chuck\App;
+use Conia\Chuck\Routing\Route;
+use Conia\Chuck\Request;
+use Conia\Chuck\Response\Response;
 
 uses(TestCase::class);
 
@@ -54,7 +54,7 @@ class ___EarlyResponseMiddleware
 
 test('Middleware flow', function () {
     $app = App::create($this->config());
-    $route = new Route('/', 'Chuck\Tests\Fixtures\TestController::middlewareView');
+    $route = new Route('/', 'Conia\Chuck\Tests\Fixtures\TestController::middlewareView');
     $route->middleware(new ___ObjectMiddleware(' last'));
     $app->addRoute($route);
     $app->middleware('___functionMiddleware');
@@ -70,7 +70,7 @@ test('Middleware flow', function () {
 
 test('Middleware flow with attribute', function () {
     $app = App::create($this->config());
-    $route = new Route('/', 'Chuck\Tests\Fixtures\TestController::attributedMiddlewareView');
+    $route = new Route('/', 'Conia\Chuck\Tests\Fixtures\TestController::attributedMiddlewareView');
     $route->middleware(new ___ObjectMiddleware(' last'));
     $app->addRoute($route);
     $app->middleware('___functionMiddleware');
@@ -86,7 +86,7 @@ test('Middleware flow with attribute', function () {
 
 test('Early response', function () {
     $app = App::create($this->config());
-    $app->route('/', 'Chuck\Tests\Fixtures\TestController::middlewareView');
+    $app->route('/', 'Conia\Chuck\Tests\Fixtures\TestController::middlewareView');
     $app->middleware(new ___EarlyResponseMiddleware('immediate response'));
     $app->middleware(new ___ObjectMiddleware(' second'));
 
@@ -102,7 +102,7 @@ test('Early response', function () {
 test('Middleware validation', function () {
     // debug => true activates middleware validation
     $app = App::create($this->config(debug: true));
-    $app->route('/', 'Chuck\Tests\Fixtures\TestController::middlewareView');
+    $app->route('/', 'Conia\Chuck\Tests\Fixtures\TestController::middlewareView');
     $app->middleware(function () {
     });
     $app->run();

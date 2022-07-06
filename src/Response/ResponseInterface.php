@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Response;
+namespace Conia\Chuck\Response;
 
 
 interface ResponseInterface

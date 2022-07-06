@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Chuck\App;
-use Chuck\Cli\CommandInterface;
+use Conia\Chuck\App;
+use Conia\Chuck\Cli\CommandInterface;
 
 
 class ErrorScript implements CommandInterface

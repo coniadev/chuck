@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Renderer;
+namespace Conia\Chuck\Renderer;
 
 use \ErrorException;
 use \ValueError;
-use Chuck\Response\Response;
-use Chuck\Template\Engine;
+use Conia\Chuck\Response\Response;
+use Conia\Chuck\Template\Engine;
 
 
 class TemplateRenderer extends Renderer

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Routing;
+namespace Conia\Chuck\Routing;
 
 use \Closure;
 use \ReflectionMethod;
-use \Chuck\Error\HttpServerError;
-use Chuck\RequestInterface;
-use Chuck\Routing\RouteInterface;
-use Chuck\Util\Reflect;
+use Conia\Chuck\Error\HttpServerError;
+use Conia\Chuck\RequestInterface;
+use Conia\Chuck\Routing\RouteInterface;
+use Conia\Chuck\Util\Reflect;
 
 
 class ControllerView extends View

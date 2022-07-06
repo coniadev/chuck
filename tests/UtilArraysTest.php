@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Chuck\Util\Arrays;
+use Conia\Chuck\Util\Arrays;
 
 
 test('Array group by', function () {

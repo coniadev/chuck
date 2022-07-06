@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Chuck;
+namespace Conia\Chuck;
 
 use \Closure;
-use Chuck\Error\Handler;
-use Chuck\Response\ResponseInterface;
-use Chuck\Routing\GroupInterface;
-use Chuck\Routing\RouteInterface;
-use Chuck\Routing\{Group, Router, RouterInterface, AddsRoutes};
+use Conia\Chuck\Error\Handler;
+use Conia\Chuck\Response\ResponseInterface;
+use Conia\Chuck\Routing\GroupInterface;
+use Conia\Chuck\Routing\RouteInterface;
+use Conia\Chuck\Routing\{Group, Router, RouterInterface, AddsRoutes};
 
 
 /** @psalm-consistent-constructor */

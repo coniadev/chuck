@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Tests\Setup;
+namespace Conia\Chuck\Tests\Setup;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Psr\Log\LoggerInterface;
 
 use \ValueError;
-use Chuck\App;
-use Chuck\Config;
-use Chuck\ConfigInterface;
-use Chuck\Logger;
-use Chuck\Request;
-use Chuck\Routing\Router;
-use Chuck\Routing\RouterInterface;
+use Conia\Chuck\App;
+use Conia\Chuck\Config;
+use Conia\Chuck\ConfigInterface;
+use Conia\Chuck\Logger;
+use Conia\Chuck\Request;
+use Conia\Chuck\Routing\Router;
+use Conia\Chuck\Routing\RouterInterface;
 
 
 class TestCase extends BaseTestCase

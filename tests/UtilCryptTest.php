@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Chuck\Tests\Setup\TestCase;
-use Chuck\Util\Crypt;
+use Conia\Chuck\Tests\Setup\TestCase;
+use Conia\Chuck\Util\Crypt;
 
 uses(TestCase::class);
 

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Routing;
+namespace Conia\Chuck\Routing;
 
 use \Closure;
 use \InvalidArgumentException;
 use \ReflectionFunction;
-use Chuck\RequestInterface;
-use Chuck\Routing\RouteInterface;
+use Conia\Chuck\RequestInterface;
+use Conia\Chuck\Routing\RouteInterface;
 
 
 class CallableView extends View

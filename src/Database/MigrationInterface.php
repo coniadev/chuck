@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Database;
+namespace Conia\Chuck\Database;
 
-use Chuck\ConfigInterface;
-use Chuck\Config\Connection;
-use Chuck\Database\DatabaseInterface;
+use Conia\Chuck\ConfigInterface;
+use Conia\Chuck\Config\Connection;
+use Conia\Chuck\Database\DatabaseInterface;
 
 
 interface MigrationInterface

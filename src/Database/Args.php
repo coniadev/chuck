@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Database;
+namespace Conia\Chuck\Database;
 
-use Chuck\Util\Arrays;
+use Conia\Chuck\Util\Arrays;
 
 
 class Args

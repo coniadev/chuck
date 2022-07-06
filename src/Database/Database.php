@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Database;
+namespace Conia\Chuck\Database;
 
 use \PDO;
 use \RuntimeException;
 
-use Chuck\Database\DatabaseInterface;
-use Chuck\Database\QueryInterface;
-use Chuck\Config\Connection;
+use Conia\Chuck\Database\DatabaseInterface;
+use Conia\Chuck\Database\QueryInterface;
+use Conia\Chuck\Config\Connection;
 
 
 class Database implements DatabaseInterface

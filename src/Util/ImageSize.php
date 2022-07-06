@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Util;
+namespace Conia\Chuck\Util;
 
 use \ValueError;
 

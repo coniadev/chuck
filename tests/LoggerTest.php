@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Chuck\Logger;
+use Conia\Chuck\Logger;
 
 
 beforeEach(function () {

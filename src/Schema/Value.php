@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Schema;
+namespace Conia\Chuck\Schema;
 
 
 class Value

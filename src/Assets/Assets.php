@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Assets;
+namespace Conia\Chuck\Assets;
 
 use \RuntimeException;
-use Chuck\RequestInterface;
+use Conia\Chuck\RequestInterface;
 
 
 class Assets

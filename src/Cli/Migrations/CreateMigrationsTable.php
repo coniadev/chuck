@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Cli\Migrations;
+namespace Conia\Chuck\Cli\Migrations;
 
 use \Throwable;
-use Chuck\App;
-use Chuck\Cli\CommandInterface;
+use Conia\Chuck\App;
+use Conia\Chuck\Cli\CommandInterface;
 
 
 class CreateMigrationsTable implements CommandInterface

@@ -27,7 +27,7 @@ It features:
 ### Quick Start using the `App::create` helper:
 
 ```php
-    use Chuck\{App, Config, Route, Request};
+    use Conia\Chuck\{App, Config, Route, Request};
 
     $app = App::create(new Config('chuck'));
     $app->route('/', '\Namespace\Controller::index');
@@ -43,8 +43,8 @@ It features:
 ### App initialization without helper:
 
 ```php
-    use Chuck\{App, Config, Router, Route, Request, ResponseFactory};
-    use Chuck\Error\Handler;
+    use Conia\Chuck\{App, Config, Router, Route, Request, ResponseFactory};
+    use Conia\Chuck\Error\Handler;
 
     $config = new Config('chuck');
 

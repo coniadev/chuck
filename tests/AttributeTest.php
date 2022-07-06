@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Chuck\Attribute\Render;
-use Chuck\Renderer\TemplateRenderer;
-use Chuck\Tests\Setup\TestCase;
+use Conia\Chuck\Attribute\Render;
+use Conia\Chuck\Renderer\TemplateRenderer;
+use Conia\Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
 

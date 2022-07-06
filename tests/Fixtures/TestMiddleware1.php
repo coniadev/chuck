@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Chuck\Tests\Fixtures;
+namespace Conia\Chuck\Tests\Fixtures;
 
 use \Attribute;
-use Chuck\Middleware\MiddlewareInterface;
-use Chuck\RequestInterface;
-use Chuck\Response\ResponseInterface;
+use Conia\Chuck\Middleware\MiddlewareInterface;
+use Conia\Chuck\RequestInterface;
+use Conia\Chuck\Response\ResponseInterface;
 
 
 #[Attribute]
