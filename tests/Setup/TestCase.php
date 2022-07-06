@@ -114,13 +114,6 @@ class TestCase extends BaseTestCase
         ]);
     }
 
-    public function namespacedTemplates(array $templates = []): array
-    {
-        return array_merge($templates, [
-            'namespace' => C::root() . C::DS . 'templates' . C::DS . 'default',
-        ]);
-    }
-
     public function app(Config $config = null): App
     {
         return App::create($config ?? $this->config());

@@ -7,7 +7,7 @@ namespace Conia\Chuck\Renderer;
 use \ErrorException;
 use \ValueError;
 use Conia\Chuck\Response\Response;
-use Conia\Chuck\Template\Engine;
+use Conia\Boiler\Engine;
 
 
 class TemplateRenderer extends Renderer

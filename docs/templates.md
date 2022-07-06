@@ -1,6 +1,12 @@
 Templates
 =========
 
+Require the template engine
+
+    composer require conia/boiler
+
+Use it:
+
 
     use Conia\Chuck\{App, Config, Router, Route, Request, ResponseFactory};
     use Conia\Chuck\Renderer\TemplateRenderer;
