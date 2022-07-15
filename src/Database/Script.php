@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Database;
 
-use \InvalidArgumentException;
-
+use InvalidArgumentException;
 
 class Script
 {
@@ -26,7 +25,6 @@ class Script
             // Add the pdo driver to args to allow dynamic
             // queries based on the platform.
             ['pdodriver' => $this->db->getPdoDriver()],
-
             $args->get()
         ));
 
@@ -60,12 +58,14 @@ class Script
         // match everything starting with : and a letter
         // exclude multiple colons, like type casts (::text)
         // (would not find a var if it is at the very beginning of script)
-        if (preg_match_all(
-            '/[^:]:[a-zA-Z][a-zA-Z0-9_]*/',
-            $script,
-            $result,
-            PREG_PATTERN_ORDER
-        )) {
+        if (
+            preg_match_all(
+                '/[^:]:[a-zA-Z][a-zA-Z0-9_]*/',
+                $script,
+                $result,
+                PREG_PATTERN_ORDER
+            )
+        ) {
             $argsArray = $args->get();
             $newArgs = [];
 

@@ -85,7 +85,7 @@ test('Attribute filtering :: CallableView', function () {
 
 
 test('Attribute filtering :: ControllerView', function () {
-    $route = new Route('/',  [TestController::class, 'arrayView']);
+    $route = new Route('/', [TestController::class, 'arrayView']);
     $view = View::get($this->request(), $route);
 
     expect($view::class)->toBe(ControllerView::class);

@@ -8,7 +8,6 @@ use Conia\Chuck\Attribute\Render;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response\Response;
 
-
 class TestController
 {
     #[TestAttribute]

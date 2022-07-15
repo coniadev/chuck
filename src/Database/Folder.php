@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Database;
 
-use \RuntimeException;
-
+use RuntimeException;
 
 class Folder
 {

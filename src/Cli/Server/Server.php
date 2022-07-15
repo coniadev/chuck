@@ -7,7 +7,6 @@ namespace Conia\Chuck\Cli\Server;
 use Conia\Chuck\App;
 use Conia\Chuck\Cli\{CommandInterface, Opts};
 
-
 class Server implements CommandInterface
 {
     public static string $group = 'General';

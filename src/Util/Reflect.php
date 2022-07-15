@@ -4,19 +4,17 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Util;
 
-use \ArgumentCountError;
-use \Closure;
-use \ReflectionClass;
-use \ReflectionFunction;
-use \ReflectionMethod;
-use \ReflectionObject;
-use \ReflectionParameter;
-use \Throwable;
-use \TypeError;
-
+use ArgumentCountError;
+use Closure;
+use ReflectionClass;
+use ReflectionFunction;
+use ReflectionMethod;
+use ReflectionObject;
+use ReflectionParameter;
+use Throwable;
+use TypeError;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Response\ResponseInterface;
-
 
 class Reflect
 {
@@ -38,7 +36,9 @@ class Reflect
         $type = $param->getType();
         $requestType = (string)$type ?: false;
 
-        if (!$requestType) return false;
+        if (!$requestType) {
+            return false;
+        }
 
         if (class_exists($requestType) || interface_exists($requestType)) {
             $requestTypeCls = new ReflectionClass($requestType);
@@ -72,9 +72,11 @@ class Reflect
             foreach ($types as $type) {
                 $returnTypeCls = new ReflectionClass($type);
 
-                if (!($returnTypeCls->implementsInterface(RequestInterface::class) ||
+                if (
+                    !($returnTypeCls->implementsInterface(RequestInterface::class) ||
                     $returnTypeCls->implementsInterface(ResponseInterface::class)
-                )) {
+                    )
+                ) {
                     throw new TypeError("Wrong return type $returnType");
                 }
             }
@@ -123,7 +125,9 @@ class Reflect
         $rc = new ReflectionClass($class);
         $constructor = $rc->getConstructor();
 
-        if (empty($constructor)) return [];
+        if (empty($constructor)) {
+            return [];
+        }
 
         $params = $constructor->getParameters();
         $args = [];

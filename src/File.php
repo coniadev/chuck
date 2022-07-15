@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-use \RuntimeException;
-
+use RuntimeException;
 
 class File
 {
@@ -46,7 +45,7 @@ class File
             throw new RuntimeException('File already exists');
         }
 
-        if (move_uploaded_file($this->tmpName, $target)) {;
+        if (move_uploaded_file($this->tmpName, $target)) {
             // move_uploaded_file will always fail when running in CLI
             // @codeCoverageIgnoreStart
             return $target;

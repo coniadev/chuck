@@ -6,7 +6,6 @@ namespace Conia\Chuck\Error;
 
 use Throwable;
 
-
 class HttpNotFound extends HttpError
 {
     public function __construct(

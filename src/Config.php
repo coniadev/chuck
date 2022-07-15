@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-use \Closure;
-use \InvalidArgumentException;
-use \Throwable;
-use \ValueError;
+use Closure;
+use InvalidArgumentException;
+use Throwable;
+use ValueError;
 use Psr\Log\LoggerInterface;
 use Conia\Chuck\Renderer\{
     Renderer,
@@ -16,7 +16,6 @@ use Conia\Chuck\Renderer\{
     RendererInterface,
 };
 use Conia\Chuck\Config\{Connection, Scripts};
-
 
 class Config implements ConfigInterface
 {

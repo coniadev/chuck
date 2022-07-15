@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Renderer;
 
-use \TypeError;
-use \ValueError;
+use TypeError;
+use ValueError;
 use Conia\Chuck\Response\Response;
-
 
 class TextRenderer extends Renderer
 {

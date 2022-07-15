@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Database;
 
-use \PDO;
-use \RuntimeException;
-
+use PDO;
+use RuntimeException;
 use Conia\Chuck\Database\DatabaseInterface;
 use Conia\Chuck\Database\QueryInterface;
 use Conia\Chuck\Config\Connection;
-
 
 class Database implements DatabaseInterface
 {
@@ -125,7 +123,9 @@ class Database implements DatabaseInterface
         foreach ($this->sqlDirs as $path) {
             $exists = is_dir($path . DIRECTORY_SEPARATOR . $key);
 
-            if ($exists) break;
+            if ($exists) {
+                break;
+            }
         }
 
         if (!$exists) {

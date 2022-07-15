@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Config;
 
-use \ValueError;
+use ValueError;
 use Conia\Chuck\Util\Path as PathUtil;
-
 
 trait PathTrait
 {

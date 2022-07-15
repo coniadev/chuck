@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Cli\Migrations;
 
-use \PDO;
+use PDO;
 use Conia\Chuck\Cli\Opts;
 use Conia\Chuck\Config;
 use Conia\Chuck\Config\Connection;
 use Conia\Chuck\ConfigInterface;
 use Conia\Chuck\Database\{Database, DatabaseInterface};
-
 
 class Environment
 {

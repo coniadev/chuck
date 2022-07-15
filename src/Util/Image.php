@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Util;
 
-use \ErrorException;
-use \GdImage;
-use \InvalidArgumentException;
-use \RuntimeException;
-
+use ErrorException;
+use GdImage;
+use InvalidArgumentException;
+use RuntimeException;
 
 class Image
 {

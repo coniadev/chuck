@@ -6,7 +6,6 @@ namespace Conia\Chuck;
 
 use Conia\Chuck\Routing\RouterInterface;
 
-
 interface RequestInterface
 {
     public function config(): ConfigInterface;

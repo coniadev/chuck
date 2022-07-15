@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Conia\Chuck\Response\Headers;
 use Conia\Chuck\Tests\Setup\TestCase;
 
-
 uses(TestCase::class);
 
 

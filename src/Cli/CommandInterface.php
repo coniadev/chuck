@@ -6,7 +6,6 @@ namespace Conia\Chuck\Cli;
 
 use Conia\Chuck\App;
 
-
 interface CommandInterface
 {
     public function run(App $app): string|int;

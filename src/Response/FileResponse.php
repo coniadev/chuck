@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Response;
 
-use \finfo;
-use \LogicException;
-use \RuntimeException;
+use finfo;
+use LogicException;
+use RuntimeException;
 use Conia\Chuck\Error\HttpNotFound;
-
 
 class FileResponse extends Response
 {

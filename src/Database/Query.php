@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Database;
 
-use \InvalidArgumentException;
-use \PDO;
-
+use InvalidArgumentException;
+use PDO;
 
 class PreparedQuery
 {

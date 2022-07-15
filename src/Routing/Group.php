@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Routing;
 
-
 class Group implements GroupInterface
 {
     use AddsRoutes;

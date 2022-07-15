@@ -6,7 +6,6 @@ namespace Conia\Chuck\Database;
 
 use Conia\Chuck\Util\Arrays;
 
-
 class Args
 {
     protected ArgType $type;

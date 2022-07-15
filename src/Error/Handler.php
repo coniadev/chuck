@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Error;
 
-use \ErrorException;
-use \Throwable;
+use ErrorException;
+use Throwable;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Response\ResponseInterface;
 use Conia\Chuck\Error\HttpError;
@@ -14,7 +14,6 @@ use Conia\Chuck\Error\HttpForbidden;
 use Conia\Chuck\Error\HttpNotFound;
 use Conia\Chuck\Error\HttpServerError;
 use Conia\Chuck\Error\HttpUnauthorized;
-
 
 class Handler
 {

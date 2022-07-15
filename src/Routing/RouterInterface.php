@@ -7,7 +7,6 @@ namespace Conia\Chuck\Routing;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Response\ResponseInterface;
 
-
 interface RouterInterface
 {
     public function getRoute(): RouteInterface;

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Util;
 
-
 class Path
 {
     public static function inside(string $parent, string $path): bool

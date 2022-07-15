@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Routing;
 
-use \Closure;
+use Closure;
 use Conia\Chuck\Renderer;
-
 
 interface RouteInterface
 {

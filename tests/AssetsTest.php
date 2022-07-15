@@ -6,7 +6,6 @@ use Conia\Chuck\Routing\Router;
 use Conia\Chuck\Tests\Setup\{TestCase, C};
 use Conia\Chuck\Assets\{Assets, Image, CachedImage};
 
-
 uses(TestCase::class);
 
 
@@ -186,7 +185,6 @@ test('Crop portrait into bounding box', function () {
     expect(str_ends_with(
         $path,
         'assets' . C::DS . 'sub' . C::DS . 'portrait-200x200c.png'
-
     ))->toBe(true);
     expect(is_file($path))->toBe(true);
     expect(imagesx($image->get()))->toBe(200);
@@ -220,35 +218,35 @@ test('Recreate cached file', function () {
 });
 
 
-test('Resize one side 0 when cropping',  function () {
+test('Resize one side 0 when cropping', function () {
     $assets = new Assets($this->paths['assets'], $this->paths['cache']);
     $assetImage = $assets->image($this->landscape);
     $assetImage->resize(200, 0, true);
 })->throws(ValueError::class, 'Image cropping error');
 
 
-test('Resize height < 0 error',  function () {
+test('Resize height < 0 error', function () {
     $assets = new Assets($this->paths['assets'], $this->paths['cache']);
     $assetImage = $assets->image($this->landscape);
     $assetImage->resize(200, -1);
 })->throws(ValueError::class, 'not be smaller than 0');
 
 
-test('Resize width < 0 error',  function () {
+test('Resize width < 0 error', function () {
     $assets = new Assets($this->paths['assets'], $this->paths['cache']);
     $assetImage = $assets->image($this->landscape);
     $assetImage->resize(-1, 200);
 })->throws(ValueError::class, 'not be smaller than 0');
 
 
-test('Resize height too large error',  function () {
+test('Resize height too large error', function () {
     $assets = new Assets($this->paths['assets'], $this->paths['cache']);
     $assetImage = $assets->image($this->landscape);
     $assetImage->resize(200, 10000);
 })->throws(ValueError::class, 'not be larger than');
 
 
-test('Resize width too large error',  function () {
+test('Resize width too large error', function () {
     $assets = new Assets($this->paths['assets'], $this->paths['cache']);
     $assetImage = $assets->image($this->landscape);
     $assetImage->resize(10000, 200);

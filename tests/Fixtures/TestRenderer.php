@@ -7,7 +7,6 @@ namespace Conia\Chuck\Tests\Fixtures;
 use Conia\Chuck\Response\Response;
 use Conia\Chuck\Renderer\Renderer;
 
-
 class TestRenderer extends Renderer
 {
     public function render(mixed $data): string

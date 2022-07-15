@@ -9,7 +9,6 @@ use Conia\Chuck\Config;
 use Conia\Chuck\Config\{Connection, Scripts};
 use Conia\Chuck\Renderer\RendererInterface;
 
-
 interface ConfigInterface
 {
     public function app(): string;

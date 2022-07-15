@@ -7,7 +7,6 @@ use Conia\Chuck\Config\Connection;
 use Conia\Chuck\Database\DatabaseInterface;
 use Conia\Chuck\Database\MigrationInterface;
 
-
 if (class_exists('TestMigration_1')) {
     return new TestMigration_1();
 }

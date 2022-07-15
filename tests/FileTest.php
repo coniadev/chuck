@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Conia\Chuck\File;
 use Conia\Chuck\Tests\Setup\{TestCase, C};
 
-
 uses(TestCase::class);
 
 

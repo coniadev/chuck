@@ -8,7 +8,6 @@ use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Response\ResponseInterface;
 use Conia\Chuck\Csrf as CsrfBase;
 
-
 class Csrf implements MiddlewareInterface
 {
     public function __invoke(
@@ -16,7 +15,8 @@ class Csrf implements MiddlewareInterface
         callable $next
     ): RequestInterface|ResponseInterface {
         $request->addMethod('csrf', function (): CsrfBase {
-            return new CsrfBase();;
+            return new CsrfBase();
+            ;
         });
 
         return $next($request);

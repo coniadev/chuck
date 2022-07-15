@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Response;
 
-
 interface ResponseInterface
 {
     public function statusCode(int $statusCode, ?string $reasonPhrase = null): static;

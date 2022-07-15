@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-use \OutOfBoundsException;
+use OutOfBoundsException;
 use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Routing\RouteInterface;
 use Conia\Chuck\Routing\RouterInterface;
 use Conia\Chuck\Renderer\RendererInterface;
 use Conia\Chuck\Util\Http;
-
 
 class Request implements RequestInterface
 {
@@ -118,7 +117,9 @@ class Request implements RequestInterface
     ): mixed {
         $body = $this->body($stream);
 
-        if (empty($body)) return null;
+        if (empty($body)) {
+            return null;
+        }
 
         return json_decode(
             $body,

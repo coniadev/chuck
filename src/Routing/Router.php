@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Routing;
 
-use \JsonException;
-use \RuntimeException;
-use \Stringable;
-use \Throwable;
+use JsonException;
+use RuntimeException;
+use Stringable;
+use Throwable;
 use Conia\Chuck\Attribute\Render;
 use Conia\Chuck\Error\{HttpNotFound, HttpMethodNotAllowed};
 use Conia\Chuck\Middleware\MiddlewareInterface;
@@ -18,7 +18,6 @@ use Conia\Chuck\Renderer\{
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Response\ResponseInterface;
 use Conia\Chuck\Util\Reflect;
-
 
 class Router implements RouterInterface
 {

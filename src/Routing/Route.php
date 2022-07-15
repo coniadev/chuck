@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Routing;
 
-use \Closure;
-use \InvalidArgumentException;
-use \ValueError;
-
+use Closure;
+use InvalidArgumentException;
+use ValueError;
 use Conia\Chuck\Util\Arrays;
 use Conia\Chuck\Renderer\Config as RendererConfig;
 

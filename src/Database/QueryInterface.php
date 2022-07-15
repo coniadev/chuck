@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Database;
 
-
 interface QueryInterface
 {
     public function __construct(DatabaseInterface $db, string $script, Args $args);

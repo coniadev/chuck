@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Database;
 
-use \PDO;
-
+use PDO;
 
 interface DatabaseInterface
 {

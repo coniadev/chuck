@@ -7,7 +7,6 @@ namespace Conia\Chuck\Util;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizer;
 
-
 class Html
 {
     public static function clean(

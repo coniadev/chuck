@@ -7,7 +7,6 @@ namespace Conia\Chuck\Renderer;
 use Conia\Chuck\Response\JsonResponse;
 use Conia\Chuck\Util\Json;
 
-
 class JsonRenderer extends Renderer
 {
     public function render(mixed $data): string

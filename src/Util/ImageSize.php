@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Util;
 
-use \ValueError;
-
+use ValueError;
 
 class ImageSize
 {
-    public final function __construct(
+    final public function __construct(
         public int $origWidth,
         public int $origHeight,
         public int $newWidth,

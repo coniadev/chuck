@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Attribute;
 
-use \Attribute;
+use Attribute;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Response\ResponseInterface;
-
 
 #[Attribute]
 class Render

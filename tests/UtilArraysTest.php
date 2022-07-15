@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Conia\Chuck\Util\Arrays;
 
-
 test('Array group by', function () {
     $data = [
         ['key' => 'leprosy', 'value' => 13],

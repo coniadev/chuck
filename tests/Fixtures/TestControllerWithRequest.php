@@ -6,7 +6,6 @@ namespace Conia\Chuck\Tests\Fixtures;
 
 use Conia\Chuck\Request;
 
-
 class TestControllerWithRequest
 {
     public function __construct(protected Request $request)

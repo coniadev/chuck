@@ -463,7 +463,7 @@ test('Multiple methods matching I', function () {
 
 test('Multiple methods matching II', function () {
     $router = new Router();
-    $route = (new Route('/', fn () => null))->method('gEt',  'Put');
+    $route = (new Route('/', fn () => null))->method('gEt', 'Put');
     $router->addRoute($route);
 
     expect($router->match($this->request(method: 'GET', url: '/')))->toBe($route);
@@ -500,7 +500,7 @@ test('All methods matching', function () {
 
 test('Same pattern multiple methods', function () {
     $router = new Router();
-    $puthead = (new Route('/', fn () => null, 'puthead'))->method('HEAD',  'Put');
+    $puthead = (new Route('/', fn () => null, 'puthead'))->method('HEAD', 'Put');
     $router->addRoute($puthead);
     $get = (new Route('/', fn () => null, 'get'))->method('GET');
     $router->addRoute($get);

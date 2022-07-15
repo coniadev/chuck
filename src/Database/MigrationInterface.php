@@ -8,7 +8,6 @@ use Conia\Chuck\ConfigInterface;
 use Conia\Chuck\Config\Connection;
 use Conia\Chuck\Database\DatabaseInterface;
 
-
 interface MigrationInterface
 {
     public function run(DatabaseInterface $db, ConfigInterface $config, Connection $conn): void;

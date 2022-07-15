@@ -8,7 +8,6 @@ use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Response\ResponseInterface;
 use Conia\Chuck\Session as SessionBase;
 
-
 class Session implements MiddlewareInterface
 {
     public function __invoke(

@@ -6,7 +6,6 @@ namespace Conia\Chuck\Error;
 
 use Throwable;
 
-
 class HttpServerError extends HttpError
 {
     public function __construct(

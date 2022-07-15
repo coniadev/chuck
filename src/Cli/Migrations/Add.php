@@ -9,7 +9,6 @@ use Conia\Chuck\Cli\{CommandInterface, Opts};
 use Conia\Chuck\Config;
 use Conia\Chuck\ConfigInterface;
 
-
 /** @psalm-suppress MissingConstructor */
 class Add implements CommandInterface
 {

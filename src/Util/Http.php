@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Util;
 
-use \ValueError;
+use ValueError;
 use Conia\Chuck\Error\ExitException;
-
 
 class Http
 {

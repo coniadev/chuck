@@ -11,7 +11,6 @@ use Conia\Chuck\Response\{
     Response,
 };
 
-
 class ResponseFactory
 {
     public function html(

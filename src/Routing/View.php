@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Routing;
 
-use \ReflectionAttribute;
-use \ReflectionFunctionAbstract;
-use \RuntimeException;
-use \Throwable;
+use ReflectionAttribute;
+use ReflectionFunctionAbstract;
+use RuntimeException;
+use Throwable;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Util\Reflect;
-
 
 abstract class View
 {

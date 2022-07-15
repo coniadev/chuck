@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-use \Throwable;
+use Throwable;
 use Psr\Log\{LoggerInterface, InvalidArgumentException};
-
 
 class Logger implements LoggerInterface
 {

@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Tests\Fixtures;
 
-use \Attribute;
+use Attribute;
 use Conia\Chuck\Middleware\MiddlewareInterface;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Response\ResponseInterface;
-
 
 #[Attribute]
 class TestMiddleware1 implements MiddlewareInterface

@@ -6,7 +6,6 @@ use Conia\Chuck\Response\{Response, FileResponse};
 use Conia\Chuck\Tests\Setup\{TestCase, C};
 use Conia\Chuck\Error\HttpNotFound;
 
-
 uses(TestCase::class);
 
 

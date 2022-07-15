@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Routing;
 
-use \Closure;
-use \ReflectionMethod;
+use Closure;
+use ReflectionMethod;
 use Conia\Chuck\Error\HttpServerError;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Routing\RouteInterface;
 use Conia\Chuck\Util\Reflect;
-
 
 class ControllerView extends View
 {

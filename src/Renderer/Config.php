@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Renderer;
 
-
 class Config
 {
     public function __construct(

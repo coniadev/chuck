@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Assets;
 
-use \RuntimeException;
+use RuntimeException;
 use Conia\Chuck\RequestInterface;
-
 
 class Assets
 {

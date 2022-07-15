@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Cli;
 
-use \ValueError;
-
+use ValueError;
 
 /**
  * PHP's native `getopt` stops after the first "non-option" argument

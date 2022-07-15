@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Error;
 
-use \Exception;
-
+use Exception;
 
 class InvalidTemplateFormat extends Exception
 {

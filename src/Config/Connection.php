@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Config;
 
-use \PDO;
-use \RuntimeException;
-use \ValueError;
+use PDO;
+use RuntimeException;
+use ValueError;
 use Conia\Chuck\Util\Arrays;
 
 class Connection
@@ -30,7 +30,6 @@ class Connection
         protected readonly array $options = [],
         protected readonly int $fetchMode = PDO::FETCH_BOTH,
         protected bool $print = false
-
     ) {
         $this->driver = $this->readDriver($this->dsn);
         $this->sql = $this->readDirs($sql);

@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Conia\Chuck\Tests\Setup\{TestCase, C};
 use Conia\Chuck\Util\Image;
 
-
 uses(TestCase::class);
 
 beforeEach(function () {

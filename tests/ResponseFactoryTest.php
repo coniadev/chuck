@@ -6,7 +6,6 @@ use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Response\{Response, FileResponse, JsonResponse};
 use Conia\Chuck\Tests\Setup\{C, TestCase};
 
-
 uses(TestCase::class);
 
 

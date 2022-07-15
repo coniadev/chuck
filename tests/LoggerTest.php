@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Conia\Chuck\Logger;
 
-
 beforeEach(function () {
     // capture output of error_log calls in a temporary file
     // to prevent it printed to the console.

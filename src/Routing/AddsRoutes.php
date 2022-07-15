@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Routing;
 
-use \Closure;
-
+use Closure;
 
 trait AddsRoutes
 {

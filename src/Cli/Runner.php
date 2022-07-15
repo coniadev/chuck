@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Cli;
 
-use \ErrorException;
+use ErrorException;
 use Conia\Chuck\App;
-
 
 class Runner
 {

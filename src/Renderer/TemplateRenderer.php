@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Renderer;
 
-use \ErrorException;
-use \ValueError;
+use ErrorException;
+use ValueError;
 use Conia\Chuck\Response\Response;
 use Conia\Boiler\Engine;
-
 
 class TemplateRenderer extends Renderer
 {

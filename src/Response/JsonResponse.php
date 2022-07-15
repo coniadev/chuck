@@ -6,7 +6,6 @@ namespace Conia\Chuck\Response;
 
 use Conia\Chuck\Util\Json;
 
-
 class JsonResponse extends Response
 {
     public function __construct(

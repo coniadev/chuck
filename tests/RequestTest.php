@@ -16,7 +16,6 @@ use Conia\Chuck\Routing\Router;
 use Conia\Chuck\Routing\RouterInterface;
 use Conia\Chuck\Tests\Setup\{TestCase, C};
 
-
 uses(TestCase::class);
 
 

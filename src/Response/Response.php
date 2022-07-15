@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Response;
 
-
 class Response implements ResponseInterface
 {
     public readonly Headers $headers;

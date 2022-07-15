@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Cli\Migrations;
 
-use \PDOException;
-use \RuntimeException;
-use \Throwable;
+use PDOException;
+use RuntimeException;
+use Throwable;
 use Conia\Chuck\App;
 use Conia\Chuck\Cli\{Opts, CommandInterface};
 use Conia\Chuck\ConfigInterface;
 use Conia\Chuck\Config\Connection;
 use Conia\Chuck\Database\DatabaseInterface;
-
 
 class Migrations implements CommandInterface
 {

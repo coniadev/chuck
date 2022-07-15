@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-use \RuntimeException;
+use RuntimeException;
 use Conia\Chuck\Util\Http;
-
 
 class Session implements SessionInterface
 {

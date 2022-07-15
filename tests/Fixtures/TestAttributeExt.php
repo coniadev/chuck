@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Tests\Fixtures;
 
-use \Attribute;
+use Attribute;
 
 #[Attribute]
 class TestAttributeExt extends TestAttribute
