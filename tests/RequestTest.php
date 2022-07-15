@@ -212,6 +212,21 @@ test('Request::json', function () {
 });
 
 
+test('Request::json empty', function () {
+    // Simulates the php://input stream with a temp file
+    ob_start();
+    $request = $this->request();
+    $f = tmpfile();
+    $streamName = stream_get_meta_data($f)['uri'];
+    fwrite($f, '');
+    rewind($f);
+
+    expect($request->json(stream: $streamName))->toBe(null);
+    fclose($f);
+    ob_end_clean();
+});
+
+
 test('Request::renderer', function () {
     $request = $this->request();
     $renderer = $request->renderer('json');
