@@ -99,13 +99,13 @@ class Migrations implements CommandInterface
             }
 
             switch (pathinfo($migration, PATHINFO_EXTENSION)) {
-                case 'sql';
+                case 'sql':
                     $result = $this->migrateSQL($db, $migration, $script, $showStacktrace);
                     break;
-                case 'tpql';
+                case 'tpql':
                     $result = $this->migrateTPQL($db, $config, $conn, $migration, $showStacktrace);
                     break;
-                case 'php';
+                case 'php':
                     $result = $this->migratePHP($db, $config, $conn, $migration, $showStacktrace);
                     break;
             }
