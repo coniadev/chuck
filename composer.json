@@ -15,7 +15,6 @@
         "phpunit/phpunit": "^9",
         "pestphp/pest": "^1",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
-        "sirbrillig/phpcs-variable-analysis": "^2.11",
         "vimeo/psalm": "^5.0.0-beta1",
         "conia/boiler": "dev-main"
     },

@@ -10,10 +10,4 @@
             <property name="absoluteLineLimit" value="0"/>
         </properties>
     </rule>
-
-    <rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
-		<properties>
-			<property name="ignoreUnusedRegexp" value="/^(_|__|___)$/"/>
-		</properties>
-	</rule>
 </ruleset>
