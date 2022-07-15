@@ -15,7 +15,7 @@ use Conia\Chuck\Renderer\{
     TextRenderer,
     RendererInterface,
 };
-use Conia\Chuck\Config\{Connection, Scripts};
+use Conia\Chuck\Config\Scripts;
 
 class Config implements ConfigInterface
 {
@@ -127,21 +127,6 @@ class Config implements ConfigInterface
         $options = $this->renderers[$type]['options'];
 
         return new $class($request, $args, $options);
-    }
-
-
-    public function addConnection(Connection $conn, string $name = self::DEFAULT): void
-    {
-        if (!isset($this->connections[$name])) {
-            $this->connections[$name] = $conn;
-        } else {
-            throw new ValueError("A connection with the name '$name' already exists");
-        }
-    }
-
-    public function connection(string $name = self::DEFAULT): Connection
-    {
-        return $this->connections[$name];
     }
 
     public function setupLogger(Closure $callback): void

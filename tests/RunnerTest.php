@@ -37,7 +37,7 @@ test('List commands', function () {
     ob_end_clean();
 
     expect($result)->toBe(0);
-    expect($content)->toBe("add-migration\ncreate-migrations-table\nmigrations\nserver\n");
+    expect($content)->toBe("server\n");
 });
 
 
@@ -63,7 +63,6 @@ test('Pass additional dir', function () {
     ob_end_clean();
 
     expect($result)->toBe(0);
-    expect($content)->toContain('add-migration');
     expect($content)->toContain('error-script');
 });
 
