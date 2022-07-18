@@ -4,19 +4,23 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Server;
 
-use Conia\Chuck\App;
-use Conia\Cli\{CommandInterface, Opts};
+use Conia\Chuck\Config;
+use Conia\Cli\Command;
+use Conia\Cli\Opts;
 
-class Server implements CommandInterface
+class Server extends Command
 {
-    public static string $group = 'General';
-    public static string $title = 'Start the development server';
-    public static string $desc = 'php run serve [-p | --port <port>]';
+    protected string $group = 'General';
+    protected string $title = 'Start the development server';
+    protected string $description = 'php run serve [-p | --port <port>]';
 
-    public function run(App $app): string|int
+    public function __construct(protected readonly Config $config)
     {
-        $config = $app->config();
-        $publicDir = $config->get('path.public', getcwd() . DIRECTORY_SEPARATOR . 'public');
+    }
+
+    public function run(): string|int
+    {
+        $publicDir = $this->config->get('path.public', getcwd() . DIRECTORY_SEPARATOR . 'public');
 
         if (!is_dir($publicDir)) {
             if (is_file(getcwd() . DIRECTORY_SEPARATOR . 'index.php')) {

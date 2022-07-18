@@ -14,8 +14,8 @@
             <exclude>
                 <directory suffix=".php">src/Scripts</directory>
                 <directory suffix=".php">bin</directory>
-                <file>src/Cli/Server/Server.php</file>
-                <file>src/Cli/Server/Router.php</file>
+                <file>src/Server/Server.php</file>
+                <file>src/Server/Router.php</file>
             </exclude>
         </whitelist>
     </filter>
