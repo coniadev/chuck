@@ -16,6 +16,5 @@ interface ConfigInterface
     public function has(string $key): bool;
     public function get(string $key, mixed $default = null): mixed;
     public function logger(): ?LoggerInterface;
-    public function scripts(): Scripts;
     public function renderer(RequestInterface $request, string $type, mixed ...$args): RendererInterface;
 }

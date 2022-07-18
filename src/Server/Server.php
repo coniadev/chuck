@@ -8,6 +8,7 @@ use Conia\Chuck\Config;
 use Conia\Cli\Command;
 use Conia\Cli\Opts;
 
+/** @psalm-suppress PropertyNotSetInConstructor */
 class Server extends Command
 {
     protected string $group = 'General';
@@ -35,7 +36,7 @@ class Server extends Command
             }
         }
 
-        $port = (string)$config->get('server.port', '1983');
+        $port = (string)$this->config->get('server.port', '1983');
 
         $opts = new Opts();
         $port = $opts->get('-p', $opts->get('--port', $port));

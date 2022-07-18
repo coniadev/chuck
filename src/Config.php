@@ -15,7 +15,6 @@ use Conia\Chuck\Renderer\{
     TextRenderer,
     RendererInterface,
 };
-use Conia\Chuck\Config\Scripts;
 
 class Config implements ConfigInterface
 {
@@ -29,10 +28,6 @@ class Config implements ConfigInterface
     protected ?LoggerInterface $logger = null;
     /** @var array<string, array{class: class-string<Renderer>, options: mixed}> */
     protected array $renderers = [];
-    /** @var array<string, Connection> */
-    protected array $connections = [];
-    /** @psalm-suppress PropertyNotSetInConstructor */
-    protected readonly Scripts $scripts;
 
     /**
      * Stores additional user defined settings
@@ -147,20 +142,5 @@ class Config implements ConfigInterface
         }
 
         return null;
-    }
-
-    public function scripts(): Scripts
-    {
-        /**
-         * @psalm-suppress RedundantPropertyInitializationCheck
-         *
-         * See docs/contributing.md
-         */
-        if (!isset($this->scripts)) {
-            /** @psalm-suppress InaccessibleProperty */
-            $this->scripts = new Scripts();
-        }
-
-        return $this->scripts;
     }
 }
