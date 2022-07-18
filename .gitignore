@@ -3,8 +3,10 @@
 .env
 .php_cs.cache
 .phpunit.result.cache
+__pycache__
 composer.lock
 /run
+/site
 /tests/Fixtures/migrations/*
 !/tests/Fixtures/migrations/000000*
 /tests/Fixtures/public/cache/*
