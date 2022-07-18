@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck\Cli\Server;
+namespace Conia\Chuck\Server;
 
 use Conia\Chuck\App;
-use Conia\Chuck\Cli\{CommandInterface, Opts};
+use Conia\Cli\{CommandInterface, Opts};
 
 class Server implements CommandInterface
 {
