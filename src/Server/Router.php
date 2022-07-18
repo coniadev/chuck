@@ -6,7 +6,6 @@ function logit(string $msg): void
 {
     $hostPort = "[" . $_SERVER["REMOTE_ADDR"] . "]:" . $_SERVER["REMOTE_PORT"];
 
-
     $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
         strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') ? "[XHR]" : "";
     $method = isset($_SERVER['REQUEST_METHOD']) ?
@@ -24,27 +23,30 @@ function logit(string $msg): void
 }
 
 
-$publicDir = getenv('PUBLIC_DIR');
-$url = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+if (PHP_SAPI !== 'cli') {
+    $uri = $_SERVER['REQUEST_URI'];
+    $publicDir = getenv('PUBLIC_DIR');
+    $url = urldecode(parse_url($uri, PHP_URL_PATH));
 
-// patch SCRIPT_NAME and pass the request to index.php
-logit($_SERVER['REQUEST_URI']);
+    // patch SCRIPT_NAME and pass the request to index.php
+    logit($uri);
 
-// serve existing files as-is
-if ($publicDir) {
-    if (is_file($publicDir . $url)) {
+    // serve existing files as-is
+    if ($publicDir) {
+        if (is_file($publicDir . $url)) {
+            return false;
+        }
+
+        if (is_file($publicDir . rtrim($url, '/') . '/index.html')) {
+            return false;
+        }
+
+        $_SERVER['SCRIPT_NAME'] = 'index.php';
+
+        /** @psalm-suppress UnresolvableInclude */
+        require_once $publicDir . '/index.php';
+        return true;
+    } else {
         return false;
     }
-
-    if (is_file($publicDir . rtrim($url, '/') . '/index.html')) {
-        return false;
-    }
-
-    $_SERVER['SCRIPT_NAME'] = 'index.php';
-
-    /** @psalm-suppress UnresolvableInclude */
-    require_once $publicDir . '/index.php';
-    return true;
-} else {
-    return false;
 }
