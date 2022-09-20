@@ -25,7 +25,7 @@ function logit(string $msg): void
 
 if (PHP_SAPI !== 'cli') {
     $uri = $_SERVER['REQUEST_URI'];
-    $publicDir = getenv('PUBLIC_DIR');
+    $publicDir = getenv('DOCUMENT_ROOT');
     $url = urldecode(parse_url($uri, PHP_URL_PATH));
 
     // patch SCRIPT_NAME and pass the request to index.php
