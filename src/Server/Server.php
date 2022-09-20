@@ -11,6 +11,7 @@ use Conia\Cli\Opts;
 /** @psalm-suppress PropertyNotSetInConstructor */
 class Server extends Command
 {
+    protected string $name = 'server';
     protected string $group = 'General';
     protected string $title = 'Start the development server';
     protected string $description = 'php run serve [-p | --port <port>]';
