@@ -12,9 +12,7 @@ use Conia\Cli\Opts;
 class Server extends Command
 {
     protected string $name = 'server';
-    protected string $group = 'General';
-    protected string $title = 'Start the development server';
-    protected string $description = 'php run serve [-p | --port <port>]';
+    protected string $description = 'Serve the application on the builtin PHP server';
 
     public function __construct(protected readonly Config $config)
     {
