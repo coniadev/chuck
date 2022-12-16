@@ -23,9 +23,8 @@ class App
     ) {
     }
 
-    public static function create(
-        ConfigInterface $config,
-    ): static {
+    public static function create(ConfigInterface $config): static
+    {
         $router = new Router();
         $request = new Request($config, $router);
 

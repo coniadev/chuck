@@ -11,14 +11,12 @@ use Conia\Chuck\Routing\RouterInterface;
 use Conia\Chuck\Renderer\RendererInterface;
 use Conia\Chuck\Util\Http;
 
-class Request implements RequestInterface
+readonly class Request implements RequestInterface
 {
-    protected array $customMethods = [];
-
     public function __construct(
         protected ConfigInterface $config,
         protected RouterInterface $router,
-        public readonly ResponseFactory $response = new ResponseFactory(),
+        public ResponseFactory $response = new ResponseFactory(),
     ) {
     }
 
@@ -164,15 +162,6 @@ class Request implements RequestInterface
         return [$this->file($key)];
     }
 
-    /**
-     * Adds a custom method to the request which can be used
-     * in views and middlewares, like $request->customMethod().
-     */
-    public function addMethod(string $name, callable $callable): void
-    {
-        $this->customMethods[$name] = $callable;
-    }
-
     public function router(): RouterInterface
     {
         return $this->router;
@@ -191,12 +180,5 @@ class Request implements RequestInterface
     public function renderer(string $type, mixed ...$args): RendererInterface
     {
         return $this->config->renderer($this, $type, ...$args);
-    }
-
-    public function __call(string $name, array $args)
-    {
-        $func = $this->customMethods[$name];
-
-        return $func->call($this, ...$args);
     }
 }
