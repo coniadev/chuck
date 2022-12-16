@@ -184,16 +184,6 @@ test('Request::redirect permanent', function () {
 });
 
 
-test('Request::addMethod', function () {
-    $request = $this->request();
-    $request->addMethod('founder', function (): string {
-        return 'Chuck Schuldiner';
-    });
-
-    expect($request->founder())->toBe('Chuck Schuldiner');
-});
-
-
 test('Request::json', function () {
     // Simulates the php://input stream with a temp file
     ob_start();

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck\Middleware;
+namespace Conia\Chuck;
 
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Response\ResponseInterface;
