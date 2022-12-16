@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use RuntimeException;
-use Conia\Chuck\Util\Http;
+use Conia\Chuck\Util\Uri;
 
 class Session implements SessionInterface
 {
@@ -156,7 +156,7 @@ class Session implements SessionInterface
         int $expires = 3600,
     ): void {
         $_SESSION[$this->rememberedUriKey] = [
-            'uri' => Http::fullRequestUri(),
+            'uri' => Uri::url(),
             'expires' => time() + $expires,
         ];
     }

@@ -52,14 +52,17 @@ test('Route method :: uninitialized', function () {
 test('Url helpers', function () {
     $request = $this->request();
 
-    expect($request->url())->toBe('/');
-    expect($request->serverUrl())->toBe('http://www.example.com/');
+    expect($request->path())->toBe('/');
+    expect($request->url())->toBe('http://www.example.com/');
 
-    $this->setUrl('albums?from=1988&to=1991');
-    expect($request->url())->toBe('/albums?from=1988&to=1991');
-    expect($request->serverUrl())->toBe('http://www.example.com/albums?from=1988&to=1991');
-    expect($request->url(stripQuery: true))->toBe('/albums');
-    expect($request->serverUrl(stripQuery: true))->toBe('http://www.example.com/albums');
+    $this->setRequestUri('albums?from=1988&to=1991');
+    expect($request->scheme())->toBe('http');
+    expect($request->host())->toBe('www.example.com');
+    expect($request->origin())->toBe('http://www.example.com');
+    expect($request->path())->toBe('/albums?from=1988&to=1991');
+    expect($request->url())->toBe('http://www.example.com/albums?from=1988&to=1991');
+    expect($request->path(stripQuery: true))->toBe('/albums');
+    expect($request->url(stripQuery: true))->toBe('http://www.example.com/albums');
 });
 
 

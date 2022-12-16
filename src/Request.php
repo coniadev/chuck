@@ -9,7 +9,7 @@ use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Routing\RouteInterface;
 use Conia\Chuck\Routing\RouterInterface;
 use Conia\Chuck\Renderer\RendererInterface;
-use Conia\Chuck\Util\Http;
+use Conia\Chuck\Util\Uri;
 
 readonly class Request implements RequestInterface
 {
@@ -44,34 +44,34 @@ readonly class Request implements RequestInterface
         throw new OutOfBoundsException("Key '$key' not found");
     }
 
+    public function scheme(): string
+    {
+        return Uri::scheme();
+    }
+
+    public function origin(): string
+    {
+        return Uri::origin();
+    }
+
     public function url(bool $stripQuery = false): string
     {
-        if ($stripQuery) {
-            // Returns the path without query string
-            return trim(strtok($_SERVER['REQUEST_URI'], '?'));
-        }
-
-        return $_SERVER['REQUEST_URI'];
+        return Uri::url($stripQuery);
     }
 
     public function host(bool $stripPort = false): string
     {
-        if ($stripPort) {
-            // Returns the path without query string
-            return trim(strtok($_SERVER['HTTP_HOST'], ':'));
-        }
-
-        return $_SERVER['HTTP_HOST'];
+        return Uri::host($stripPort);
     }
 
-    public function serverUrl(bool $stripQuery = false): string
+    public function path(bool $stripQuery = false): string
     {
-        return Http::origin() . $this->url($stripQuery);
+        return Uri::path($stripQuery);
     }
 
     public function redirect(string $url, int $code = 302): never
     {
-        Http::redirect($url, $code);
+        Uri::redirect($url, $code);
     }
 
     public function route(): RouteInterface
@@ -81,7 +81,7 @@ readonly class Request implements RequestInterface
 
     public function routeUrl(string $name, mixed ...$args): string
     {
-        return Http::origin() . $this->router->routeUrl($name, ...$args);
+        return Uri::origin() . $this->router->routeUrl($name, ...$args);
     }
 
     public function staticUrl(string $name, string $path, bool $bust = false): string
@@ -89,7 +89,7 @@ readonly class Request implements RequestInterface
         return $this->router()->staticUrl(
             $name,
             $path,
-            host: Http::origin(),
+            host: Uri::origin(),
             bust: $bust,
         );
     }

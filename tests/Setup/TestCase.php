@@ -34,12 +34,17 @@ class TestCase extends BaseTestCase
 
     protected function tearDown(): void
     {
-        unset($_SERVER['HTTPS']);
         unset($_SERVER['HTTP_HOST']);
         unset($_SERVER['REQUEST_METHOD']);
         unset($_SERVER['REQUEST_URI']);
         unset($_SERVER['SERVER_PROTOCOL']);
         unset($_SERVER['argv']);
+
+        // HTTPS values
+        unset($_SERVER['HTTPS']);
+        unset($_SERVER['HTTP_X_FORWARDED_PROTO']);
+        unset($_SERVER['REQUEST_SCHEME']);
+
         global $_GET;
         $_GET = [];
         global $_POST;
@@ -71,7 +76,7 @@ class TestCase extends BaseTestCase
         $_SERVER['REQUEST_METHOD'] = strtoupper($method);
     }
 
-    public function setUrl(string $url): void
+    public function setRequestUri(string $url): void
     {
         if (substr($url, 0, 1) === '/') {
             $_SERVER['REQUEST_URI'] = $url;
@@ -85,14 +90,20 @@ class TestCase extends BaseTestCase
         $_SERVER['HTTP_HOST'] = $host;
     }
 
-    public function enableHttps(): void
+    public function enableHttps(?string $serverKey = null): void
     {
-        $_SERVER['HTTPS'] = 'on';
+        if ($serverKey) {
+            $_SERVER[$serverKey] = 'https';
+        } else {
+            $_SERVER['HTTPS'] = 'on';
+        }
     }
 
     public function disableHttps(): void
     {
         unset($_SERVER['HTTPS']);
+        unset($_SERVER['REQUEST_SCHEME']);
+        unset($_SERVER['HTTP_X_FORWARDED_PROTO']);
     }
 
     public function config(bool $debug = false): Config
@@ -129,7 +140,7 @@ class TestCase extends BaseTestCase
         }
 
         if ($url) {
-            $this->setUrl($url);
+            $this->setRequestUri($url);
         }
 
         if (is_bool($https)) {
