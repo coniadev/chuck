@@ -1,5 +1,7 @@
 <?php
 
+// phpcs:disable PSR1.Files.SideEffects -- readonly classes are not yet supported by phpcs
+
 declare(strict_types=1);
 
 namespace Conia\Chuck;
@@ -13,7 +15,7 @@ use Conia\Chuck\Routing\RouterInterface;
 use Conia\Chuck\Renderer\RendererInterface;
 use Conia\Chuck\Util\Uri;
 
-readonly class Request implements RequestInterface
+readonly class Request implements RequestInterface // phpcs:ignore
 {
     public function __construct(
         protected ConfigInterface $config,
@@ -30,6 +32,9 @@ readonly class Request implements RequestInterface
 
     public function param(string $key, ?string $default = null): null|string|array
     {
+        class Hans
+        {
+        }
         // prefer GET parameters
         if (array_key_exists($key, $_GET)) {
             return $_GET[$key];
@@ -206,3 +211,4 @@ readonly class Request implements RequestInterface
         return $this->config->renderer($this, $type, ...$args);
     }
 }
+// phpcs:enable

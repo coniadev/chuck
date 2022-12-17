@@ -6,5 +6,5 @@ namespace Conia\Chuck\Tests\Fixtures;
 
 interface TestInterface
 {
-    function test(): string;
+    public function test(): string;
 }

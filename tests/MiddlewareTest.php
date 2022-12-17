@@ -8,6 +8,7 @@ use Conia\Chuck\Routing\Route;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response\Response;
 
+// phpcs:disable
 uses(TestCase::class);
 
 
@@ -51,6 +52,7 @@ class ___EarlyResponseMiddleware
         return $response;
     }
 }
+// phpcs:enable
 
 test('Middleware flow', function () {
     $app = App::create($this->config());

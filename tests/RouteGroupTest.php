@@ -83,8 +83,12 @@ test('Matching :: with helper methods', function () {
     expect($router->match($this->request(method: 'PUT', url: '/helper/put'))->name())->toBe('helper:putroute');
     expect($router->match($this->request(method: 'PATCH', url: '/helper/patch'))->name())->toBe('helper:patchroute');
     expect($router->match($this->request(method: 'DELETE', url: '/helper/delete'))->name())->toBe('helper:deleteroute');
-    expect($router->match($this->request(method: 'OPTIONS', url: '/helper/options'))->name())->toBe('helper:optionsroute');
-    expect($router->match($this->request(method: 'HEAD', url: '/helper/head'))->name())->toBe('helper:headroute');
+    expect($router->match(
+        $this->request(method: 'OPTIONS', url: '/helper/options')
+    )->name())->toBe('helper:optionsroute');
+    expect($router->match(
+        $this->request(method: 'HEAD', url: '/helper/head')
+    )->name())->toBe('helper:headroute');
     expect($router->match($this->request(method: 'GET', url: '/helper/route'))->name())->toBe('helper:allroute');
     expect($router->match($this->request(method: 'HEAD', url: '/helper/route'))->name())->toBe('helper:allroute');
     // raises not allowed

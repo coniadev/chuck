@@ -49,38 +49,66 @@ class Route implements RouteInterface
         }
     }
 
-    public static function get(string $pattern, Closure|array|string $view, ?string $name = null, array $params = []): static
-    {
+    public static function get(
+        string $pattern,
+        Closure|array|string $view,
+        ?string $name = null,
+        array $params = []
+    ): static {
         return (new self($pattern, $view, $name, $params))->method('GET');
     }
 
-    public static function post(string $pattern, Closure|array|string $view, ?string $name = null, array $params = []): static
-    {
+    public static function post(
+        string $pattern,
+        Closure|array|string $view,
+        ?string $name = null,
+        array $params = []
+    ): static {
         return (new self($pattern, $view, $name, $params))->method('POST');
     }
 
-    public static function put(string $pattern, Closure|array|string $view, ?string $name = null, array $params = []): static
-    {
+    public static function put(
+        string $pattern,
+        Closure|array|string $view,
+        ?string $name = null,
+        array $params = []
+    ): static {
         return (new self($pattern, $view, $name, $params))->method('PUT');
     }
 
-    public static function patch(string $pattern, Closure|array|string $view, ?string $name = null, array $params = []): static
-    {
+    public static function patch(
+        string $pattern,
+        Closure|array|string $view,
+        ?string $name = null,
+        array $params = []
+    ): static {
         return (new self($pattern, $view, $name, $params))->method('PATCH');
     }
 
-    public static function delete(string $pattern, Closure|array|string $view, ?string $name = null, array $params = []): static
-    {
+    public static function delete(
+        string $pattern,
+        Closure|array|string $view,
+        ?string $name = null,
+        array $params = []
+    ): static {
         return (new self($pattern, $view, $name, $params))->method('DELETE');
     }
 
-    public static function head(string $pattern, Closure|array|string $view, ?string $name = null, array $params = []): static
-    {
+    public static function head(
+        string $pattern,
+        Closure|array|string $view,
+        ?string $name = null,
+        array $params = []
+    ): static {
         return (new self($pattern, $view, $name, $params))->method('HEAD');
     }
 
-    public static function options(string $pattern, Closure|array|string $view, ?string $name = null, array $params = []): static
-    {
+    public static function options(
+        string $pattern,
+        Closure|array|string $view,
+        ?string $name = null,
+        array $params = []
+    ): static {
         return (new self($pattern, $view, $name, $params))->method('OPTIONS');
     }
 

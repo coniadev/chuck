@@ -6,7 +6,7 @@ namespace Conia\Chuck\Tests\Setup;
 
 class C
 {
-    const DS = DIRECTORY_SEPARATOR;
+    public const DS = DIRECTORY_SEPARATOR;
 
     public static function root(): string
     {

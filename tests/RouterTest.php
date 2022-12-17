@@ -178,6 +178,7 @@ test('Dispatch class method returing an array with renderer', function () {
 
 test('Dispatch invokable class', function () {
     $router = new Router();
+    // phpcs:disable
     class ___InvocableClass
     {
         public function __invoke(Request $request)
@@ -185,6 +186,7 @@ test('Dispatch invokable class', function () {
             return $request->response->html('Schuldiner');
         }
     };
+    // phpcs:enable
     $object = new Route('/object', '___InvocableClass');
     $router->addRoute($object);
 

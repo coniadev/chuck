@@ -88,7 +88,10 @@ test('Generate route url :: named', function () {
     $request = $this->request(router: $router);
 
     expect($request->routeUrl('albums', from: 1990, to: 1995))->toBe('http://www.example.com/albums/1990/1995');
-    expect($request->routeUrl('albums', ['from' => 1988, 'to' => 1991]))->toBe('http://www.example.com/albums/1988/1991');
+    expect($request->routeUrl(
+        'albums',
+        ['from' => 1988, 'to' => 1991]
+    ))->toBe('http://www.example.com/albums/1988/1991');
 });
 
 
@@ -98,8 +101,15 @@ test('Generate route url :: unnamed', function () {
     $router->addRoute($albums);
     $request = $this->request(router: $router);
 
-    expect($request->routeUrl('albums/{from}/{to}', from: 1990, to: 1995))->toBe('http://www.example.com/albums/1990/1995');
-    expect($request->routeUrl('albums/{from}/{to}', ['from' => 1988, 'to' => 1991]))->toBe('http://www.example.com/albums/1988/1991');
+    expect($request->routeUrl(
+        'albums/{from}/{to}',
+        from: 1990,
+        to: 1995
+    ))->toBe('http://www.example.com/albums/1990/1995');
+    expect($request->routeUrl(
+        'albums/{from}/{to}',
+        ['from' => 1988, 'to' => 1991]
+    ))->toBe('http://www.example.com/albums/1988/1991');
 });
 
 

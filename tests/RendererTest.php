@@ -27,6 +27,7 @@ test('JSON Renderer :: response()', function () {
         'released' => 1990,
     ])->getBody())->toBe('{"album":"Spiritual Healing","released":1990}');
 
+    // phpcs:disable
     function __json__renderer_iterator()
     {
         $arr = [13, 31, 73];
@@ -34,6 +35,7 @@ test('JSON Renderer :: response()', function () {
             yield $a;
         }
     }
+    // phpcs:enable
     $renderer = new JsonRenderer($this->request(), []);
 
     $response = $renderer->response(__json__renderer_iterator());

@@ -22,11 +22,13 @@ test('Closure', function () {
 
 
 test('Function', function () {
+    // phpcs:disable
     #[TestAttribute]
     function ____view_test____(string $name): string
     {
         return $name;
     }
+    // phpcs:enable
 
     $route = new Route('/{name}', '____view_test____');
     $route->match('/symbolic');
