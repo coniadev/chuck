@@ -12,7 +12,7 @@ jobs:
       - name: Setup PHP extensions
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: '8.2'
           extensions: gd, pcov, curl, xml, zip
 
       - name: Checkout repo
@@ -26,6 +26,9 @@ jobs:
 
       - name: Run Psalm
         run: ./vendor/bin/psalm --output-format=github
+
+      - name: Run PHP Code Sniffer
+        run: ./vendor/bin/phpcs -s -p --ignore=tests/Fixtures src tests
 
   docs:
     needs: test

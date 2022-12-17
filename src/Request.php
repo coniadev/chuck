@@ -32,9 +32,6 @@ readonly class Request implements RequestInterface // phpcs:ignore
 
     public function param(string $key, ?string $default = null): null|string|array
     {
-        class Hans
-        {
-        }
         // prefer GET parameters
         if (array_key_exists($key, $_GET)) {
             return $_GET[$key];
