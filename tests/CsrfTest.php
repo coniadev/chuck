@@ -50,6 +50,10 @@ test('Csrf verify header', function () {
 
     expect($csrf->verify())->toBe(false);
 
+    $_SERVER['HTTP_X_CSRF_TOKEN'] = 666;
+
+    expect($csrf->verify())->toBe(false);
+
     unset($_SERVER['HTTP_X_CSRF_TOKEN']);
     unset($_SESSION['csrftokens']);
 });

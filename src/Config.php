@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use Closure;
-use InvalidArgumentException;
+use OutOfBoundsException;
 use Throwable;
 use ValueError;
 use Psr\Log\LoggerInterface;
@@ -85,8 +85,8 @@ class Config implements ConfigInterface
                 return $default;
             }
 
-            throw new InvalidArgumentException(
-                "Chuck Error: The configuration key '$key' does not exist"
+            throw new OutOfBoundsException(
+                "The configuration key '$key' does not exist"
             );
         }
     }

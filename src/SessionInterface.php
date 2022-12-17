@@ -8,6 +8,7 @@ interface SessionInterface
 {
     public function start(): void;
     public function forget(): void;
+    /** @param non-empty-string $key */
     public function get(string $key): mixed;
     public function set(string $key, mixed $value): void;
     public function has(string $key): bool;

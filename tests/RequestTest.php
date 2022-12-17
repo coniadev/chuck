@@ -269,7 +269,7 @@ test('Has multiple files', function () {
 });
 
 
-test("Get file instances", function () {
+test('Get file instances', function () {
     $this->setupFile();
     $request = $this->request();
     $file = $request->file('myfile');
@@ -284,7 +284,7 @@ test("Get file instances", function () {
 });
 
 
-test("Get files instances", function () {
+test('Get files instances', function () {
     $this->setupFiles(); // files array
     $request = $this->request();
     $files = $request->files('myfile');
@@ -297,7 +297,7 @@ test("Get files instances", function () {
 });
 
 
-test("Get files instances with only one present", function () {
+test('Get files instances with only one present', function () {
     $this->setupFile(); // single file
     $request = $this->request();
     $files = $request->files('myfile');
@@ -306,3 +306,9 @@ test("Get files instances with only one present", function () {
     expect($files[0])->toBeInstanceOf(File::class);
     expect($files[0]->isValid())->toBe(true);
 });
+
+
+test('File instance not available', function () {
+    $request = $this->request();
+    $files = $request->file('does-not-exist');
+})->throws(RuntimeException::class);

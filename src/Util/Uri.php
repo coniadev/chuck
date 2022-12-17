@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Util;
 
+use ErrorException;
 use ValueError;
 use Conia\Chuck\Error\ExitException;
 
@@ -51,22 +52,27 @@ class Uri
 
     public static function path(bool $stripQuery = false): string
     {
-        $uri = $_SERVER['REQUEST_URI'] ?? '';
+        $path = $_SERVER['REQUEST_URI'] ?? null;
+
+        if ($path === null) {
+            throw new ValueError('Unable to read path. REQUEST_URI not available');
+        }
 
         if ($stripQuery) {
             // Returns the path without query string
-            return trim(strtok($uri, '?'));
+            $path = strtok($path, '?');
         }
 
-        return $uri;
+        if (!filter_var('http://example.com' . $path, FILTER_VALIDATE_URL)) {
+            throw new ValueError('Invalid path');
+        }
+
+        return $path;
     }
 
-    public static function url(bool $stripQuery = false): string|false
+    public static function url(bool $stripQuery = false): string
     {
-        return filter_var(
-            self::origin() . self::path($stripQuery),
-            FILTER_VALIDATE_URL
-        );
+        return self::origin() . self::path($stripQuery);
     }
 
     public static function redirect(string $url, int $code = 302): never

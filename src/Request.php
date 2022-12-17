@@ -98,7 +98,7 @@ readonly class Request implements RequestInterface
 
     public function method(): string
     {
-        return strtoupper($_SERVER['REQUEST_METHOD']);
+        return strtoupper($_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN');
     }
 
     public function isMethod(string $method): bool

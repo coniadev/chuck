@@ -43,7 +43,7 @@ class FileResponse extends Response
     public function sendfile(): static
     {
         $this->sendFile = true;
-        $server = strtolower($_SERVER['SERVER_SOFTWARE']);
+        $server = strtolower($_SERVER['SERVER_SOFTWARE'] ?? '');
 
         if (strpos($server, 'nginx') !== false) {
             $this->header('X-Accel-Redirect', $this->file);

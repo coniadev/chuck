@@ -66,6 +66,18 @@ test('Uri path', function () {
 });
 
 
+test('Uri failing path I', function () {
+    unset($_SERVER['REQUEST_URI']);
+    Uri::path();
+})->throws(ValueError::class, 'Unable to read path');
+
+
+test('Uri failing path II', function () {
+    $this->setRequestUri(' /%%%%%   ');
+    Uri::path();
+})->throws(ValueError::class, 'Invalid path');
+
+
 test('Uri url', function () {
     $this->setRequestUri('/albums?from=1988&to=1991');
 

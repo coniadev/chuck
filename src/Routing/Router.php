@@ -10,7 +10,7 @@ use Stringable;
 use Throwable;
 use Conia\Chuck\Attribute\Render;
 use Conia\Chuck\Error\{HttpNotFound, HttpMethodNotAllowed};
-use Conia\Chuck\Middleware\MiddlewareInterface;
+use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\Renderer\{
     Config as RendererConfig,
     RendererInterface,
@@ -167,7 +167,7 @@ class Router implements RouterInterface
 
     public function match(RequestInterface $request): Route
     {
-        $url = $this->removeQueryString($_SERVER['REQUEST_URI']);
+        $url = $this->removeQueryString($_SERVER['REQUEST_URI'] ?? '');
         $requestMethod = $request->method();
 
         // Matching routes should be found quite quickly

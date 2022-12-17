@@ -55,6 +55,10 @@ class Csrf implements CsrfInterface
             return false;
         }
 
-        return hash_equals($savedToken, $token);
+        if (is_string($token) && !empty($token)) {
+            return hash_equals($savedToken, $token);
+        }
+
+        return false;
     }
 }

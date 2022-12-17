@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Response;
 
+use ErrorException;
+use OutOfBoundsException;
+
 class Response implements ResponseInterface
 {
     public readonly Headers $headers;
@@ -83,8 +86,12 @@ class Response implements ResponseInterface
             $this->reasonPhrase
         );
 
-        if (strtoupper($_SERVER['REQUEST_METHOD']) === 'HEAD') {
-            return;
+        if (isset($_SERVER['REQUEST_METHOD'])) {
+            if (strtoupper($_SERVER['REQUEST_METHOD']) === 'HEAD') {
+                return;
+            }
+        } else {
+            throw new OutOfBoundsException('REQUEST_METHOD not set');
         }
 
         $body = $this->getBody();

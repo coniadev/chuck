@@ -34,7 +34,13 @@ test('Session unset', function () {
 test('Session throws when missing', function () {
     $session = new Session($this->request()->config()->app());
     $session->get('To exist in this world may be a mistake');
-})->throws(Exception::class, 'Undefined array key');
+})->throws(OutOfBoundsException::class, 'To exist in this world may be a mistake');
+
+
+test('Session get default', function () {
+    $session = new Session($this->request()->config()->app());
+    expect($session->get('Rick', 'Rozz'))->toBe('Rozz');
+});
 
 
 test('Flash messages all', function () {

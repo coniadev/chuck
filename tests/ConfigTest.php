@@ -42,7 +42,7 @@ test('Missing key', function () {
     $config = new Config('chuck');
 
     $config->get('missing');
-})->throws(InvalidArgumentException::class, 'does not exist');
+})->throws(OutOfBoundsException::class, 'does not exist');
 
 
 test('Logger setup', function () {

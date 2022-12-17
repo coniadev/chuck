@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
+use OutOfBoundsException;
 use RuntimeException;
 use Conia\Chuck\Util\Uri;
 
 class Session implements SessionInterface
 {
+    /**
+     * @param non-empty-string $flashMessagesKey
+     * @param non-empty-string $rememberedUriKey
+     */
     public function __construct(
         protected string $name,
         protected string $flashMessagesKey = 'flash_messages',
@@ -64,13 +69,22 @@ class Session implements SessionInterface
         session_destroy();
     }
 
+    /**
+     * @param non-empty-string $key
+     */
     public function get(string $key, mixed $default = null): mixed
     {
-        if (!$this->has($key) && func_num_args() > 1) {
-            return $default;
-        }
+        if ($this->has($key)) {
+            return $_SESSION[$key];
+        } else {
+            if (func_num_args() > 1) {
+                return $default;
+            }
 
-        return $_SESSION[$key];
+            throw new OutOfBoundsException(
+                "The session key '$key' does not exist"
+            );
+        }
     }
 
     public function set(string $key, mixed $value): void
