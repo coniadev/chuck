@@ -5,29 +5,41 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use RuntimeException;
+use TypeError;
+use Throwable;
 
 class File
 {
     public readonly string $name;
-    public readonly string $tmpName;
-    public readonly string $type;
-    public readonly int $size;
-    public readonly int $error;
 
-    public function __construct(array $file)
+    public function __construct(
+        string $name,
+        public readonly string $tmpName,
+        public readonly string $type,
+        public readonly int $size,
+        public readonly int $error,
+    ) {
+        $this->name = $this->getName($name);
+    }
+
+    /**
+     * @param $array array{name: string, tmp_name: string, type: string, size: int, error: int}
+     */
+    public static function fromArray(array $array): self
     {
-        if (is_array($file['name'])) {
-            throw new RuntimeException(
-                'Files are uploaded via HTML array, like: ' .
-                    '<input type="file" name="fieldname[]"/>'
+        try {
+            return new self(
+                $array['name'],
+                $array['tmp_name'],
+                $array['type'],
+                $array['size'],
+                $array['error'],
             );
+        } catch (TypeError) {
+            throw new RuntimeException('Cannot read file. Could be a multi file upload.');
+        } catch (Throwable $e) {
+            throw new RuntimeException('Cannot read file. Could be a wrong array format.');
         }
-
-        $this->name = $this->getName($file['name']);
-        $this->tmpName = $file['tmp_name'];
-        $this->type = $file['type'];
-        $this->size = $file['size'];
-        $this->error = $file['error'];
     }
 
     public function move(string $target, bool $force = true): string

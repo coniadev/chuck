@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
+use ErrorException;
 use OutOfBoundsException;
+use RuntimeException;
 use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Routing\RouteInterface;
 use Conia\Chuck\Routing\RouterInterface;
@@ -129,37 +131,59 @@ readonly class Request implements RequestInterface
 
     public function hasFile(string $key): bool
     {
-        return array_key_exists($key, $_FILES);
+        return isset($_FILES[$key]);
     }
 
     public function hasMultipleFiles(string $key): bool
     {
-        return array_key_exists($key, $_FILES) && is_array($_FILES[$key]['error']);
+        /** @psalm-suppress TypeDoesNotContainType, PossiblyInvalidArrayOffset */
+        return isset($_FILES[$key]) && is_array($_FILES[$key]['error']);
     }
 
-    public function file(string $key): File
+    /** @param non-empty-string $field */
+    public function file(string $field): File
     {
-        return new File($_FILES[$key]);
+        try {
+            return File::fromArray($_FILES[$field]);
+        } catch (ErrorException) {
+            throw new RuntimeException("Cannot read file '$field'");
+        }
     }
 
-    /** @return list<File> */
-    public function files(string $key): array
+    /**
+     * Transforms the cumbersome PHP multi upload array layout
+     * into a sane format.
+     *
+     * Psalm does not support multi file uploads yet and complains
+     * about type issues. We need to suppres some of the errors.
+     *
+     * @param non-empty-string $field
+     * @return list<File>
+     * @psalm-suppress TypeDoesNotContainType, InvalidArrayAccess
+     */
+    public function files(string $field): array
     {
-        if (is_array($_FILES[$key]['error'])) {
+        if (isset($_FILES[$field]['error']) && is_array($_FILES[$field]['error'])) {
             $files = [];
-            foreach ($_FILES[$key]['error'] as $idx => $error) {
-                $files[] = new File([
-                    'tmp_name' => $_FILES[$key]['tmp_name'][$idx],
-                    'name' => $_FILES[$key]['name'][$idx],
-                    'size' => $_FILES[$key]['size'][$idx],
-                    'type' => $_FILES[$key]['type'][$idx],
-                    'error' => $error,
-                ]);
+
+            foreach ($_FILES[$field]['error'] as $idx => $error) {
+                $f = $_FILES[$field] ?? null;
+
+                if ($f) {
+                    $files[] = new File(
+                        $f['name'][$idx],
+                        $f['tmp_name'][$idx],
+                        $f['type'][$idx],
+                        $f['size'][$idx],
+                        $error,
+                    );
+                }
             }
+
             return $files;
         }
 
-        return [$this->file($key)];
+        return [$this->file($field)];
     }
 
     public function router(): RouterInterface

@@ -24,7 +24,7 @@ afterEach(function () {
 
 test('Instantiation', function () {
     $this->setupFile();
-    $file = new File($_FILES['myfile']);
+    $file = File::fromArray($_FILES['myfile']);
 
     expect(str_ends_with($file->tmpName, 'TestCase.php'))->toBe(true);
     expect($file->name)->toBe('chuck-test-file.php');
@@ -34,19 +34,24 @@ test('Instantiation', function () {
 });
 
 
-test('Instantiation failing', function () {
+test('Instantiation failing I', function () {
     $this->setupFiles(); // Uploaded as HTML array
-    new File($_FILES['myfile']);
-})->throws(RuntimeException::class, 'HTML array');
+    File::fromArray($_FILES['myfile']);
+})->throws(RuntimeException::class, 'multi file upload');
+
+
+test('Instantiation failing II', function () {
+    File::fromArray(['chuck' => 666]);
+})->throws(RuntimeException::class, 'wrong array format');
 
 
 test('Validation', function () {
     $this->setupFile();
-    $file = new File($_FILES['myfile']);
+    $file = File::fromArray($_FILES['myfile']);
 
     expect($file->isValid())->toBe(true);
 
-    $file = new File($_FILES['failingfile']);
+    $file = File::fromArray($_FILES['failingfile']);
 
     expect($file->isValid())->toBe(false);
 });
@@ -54,13 +59,13 @@ test('Validation', function () {
 
 test('Move with force', function () {
     $this->setupFile();
-    $file = new File($_FILES['myfile']);
+    $file = File::fromArray($_FILES['myfile']);
 
     expect($file->move(C::tmp()))->toBe($this->tmpFile);
     expect($file->move($this->tmpFile))->toBe($this->tmpFile);
     expect($file->move($this->tmpFileNewName))->toBe($this->tmpFileNewName);
 
-    $file = new File($_FILES['failingfile']);
+    $file = File::fromArray($_FILES['failingfile']);
 
     expect($file->isValid())->toBe(false);
 });
@@ -68,7 +73,7 @@ test('Move with force', function () {
 
 test('Move without force', function () {
     $this->setupFile();
-    $file = new File($_FILES['myfile']);
+    $file = File::fromArray($_FILES['myfile']);
 
     touch($this->tmpFile);
     $file->move(C::tmp(), false);
@@ -77,7 +82,7 @@ test('Move without force', function () {
 
 test('Move failing file', function () {
     $this->setupFile();
-    $file = new File($_FILES['failingfile']);
+    $file = File::fromArray($_FILES['failingfile']);
 
     $file->move(C::tmp());
 })->throws(RuntimeException::class, 'file is invalid');
