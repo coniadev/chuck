@@ -20,18 +20,26 @@ class App
         private RequestInterface $request,
         private ConfigInterface $config,
         private RouterInterface $router,
+        private Registry $registry,
     ) {
+        $registry->add(RequestInterface::class, $request);
+        $registry->add($request::class, $request);
+        $registry->add(ConfigInterface::class, $config);
+        $registry->add($config::class, $config);
+        $registry->add(RouterInterface::class, $router);
+        $registry->add($router::class, $router);
     }
 
     public static function create(ConfigInterface $config): static
     {
+        $registry = new Registry();
         $router = new Router();
-        $request = new Request($config, $router);
+        $request = new Request($config);
 
         $errorHandler = new Handler($request);
         $errorHandler->setup();
 
-        $app = new static($request, $config, $router);
+        $app = new static($request, $config, $router, $registry);
 
         return $app;
     }
@@ -83,6 +91,11 @@ class App
     public function middleware(callable ...$middlewares): void
     {
         $this->router->addMiddleware(...$middlewares);
+    }
+
+    public function register(string $key, mixed $value = null): void
+    {
+        $this->registry->add($key, $value);
     }
 
     public function run(): ResponseInterface

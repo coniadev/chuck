@@ -58,11 +58,11 @@ test('Image does not exist', function () {
 })->throws(RuntimeException::class, 'does not exist');
 
 
-test('Initialized without Request', function () {
+test('Initialized without Router', function () {
     $assets = new Assets($this->paths['assets'], $this->paths['cache']);
     $image = $assets->image($this->square);
     $image->url(false);
-})->throws(RuntimeException::class, 'initialized without request');
+})->throws(RuntimeException::class, 'initialized without router');
 
 
 test('Resize to width', function () {
@@ -259,7 +259,7 @@ test('Static route', function () {
     $assets = new Assets(
         $this->paths['assets'],
         $this->paths['cache'],
-        $this->request(router: $router)
+        $router,
     );
     $image = $assets->image($this->portrait);
 
@@ -276,6 +276,7 @@ test('Static route', function () {
 
 
 test('Static cache route', function () {
+    $this->request();
     $router = new Router();
     $router->addStatic(
         '/cache/assets',
@@ -285,7 +286,7 @@ test('Static cache route', function () {
     $assets = new Assets(
         $this->paths['assets'],
         $this->paths['cache'],
-        $this->request(router: $router)
+        $router
     );
     $image = $assets->image($this->portrait)->resize(200);
 

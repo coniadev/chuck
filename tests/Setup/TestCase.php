@@ -11,6 +11,7 @@ use Conia\Chuck\App;
 use Conia\Chuck\Config;
 use Conia\Chuck\ConfigInterface;
 use Conia\Chuck\Logger;
+use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Routing\Router;
 use Conia\Chuck\Routing\RouterInterface;
@@ -128,11 +129,17 @@ class TestCase extends BaseTestCase
         return App::create($config ?? $this->config());
     }
 
+    public function registry(): Registry
+    {
+        $registry = new Registry();
+
+        return $registry;
+    }
+
     public function request(
         ?string $method = null,
         ?string $url = null,
         ?bool $https = null,
-        ?RouterInterface $router = null,
         ?ConfigInterface $config = null,
     ): Request {
         if ($method) {
@@ -155,11 +162,7 @@ class TestCase extends BaseTestCase
             $config = $this->config();
         }
 
-        if ($router === null) {
-            $router = new Router();
-        }
-
-        $request = new Request($config, $router);
+        $request = new Request($config);
 
         return $request;
     }

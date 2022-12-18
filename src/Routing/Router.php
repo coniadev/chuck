@@ -15,6 +15,7 @@ use Conia\Chuck\Renderer\{
     Config as RendererConfig,
     RendererInterface,
 };
+use Conia\Chuck\Registry;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Response\ResponseInterface;
 use Conia\Chuck\Util\Reflect;

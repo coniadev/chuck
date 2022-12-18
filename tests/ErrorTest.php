@@ -115,7 +115,7 @@ test('Handle PHP Exceptions :: no server request', function () {
     $savedMethod = $_SERVER['REQUEST_METHOD'];
     unset($_SERVER['REQUEST_METHOD']);
 
-    $request = new Request($this->config(), new Router());
+    $request = new Request($this->config());
     $err = new Handler($request);
     $err->setup();
 

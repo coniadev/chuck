@@ -47,7 +47,7 @@ test('Static route helper', function () {
 
 test('App run', function () {
     $request = $this->request(method: 'GET', url: '/');
-    $app = new App($request, $request->config(), $request->router());
+    $app = new App($request, $this->config(), new Router(), $this->registry());
     $app->route('/', 'Conia\Chuck\Tests\Fixtures\TestController::textView');
     ob_start();
     $response = $app->run();

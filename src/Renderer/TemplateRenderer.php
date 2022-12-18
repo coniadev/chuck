@@ -55,7 +55,6 @@ class TemplateRenderer extends Renderer
         return [
             'config' => $config,
             'request' => $request,
-            'router' => $request->router(),
             'debug' => $config->debug(),
             'env' => $config->env(),
         ];
