@@ -57,11 +57,11 @@ abstract class AbstractImage
 
     protected function getUrl(string $staticRouteName, bool $bust, ?string $host): string
     {
-        if ($this->assets->request === null) {
-            throw new RuntimeException('Assets instance initialized without request');
+        if ($this->assets->router === null) {
+            throw new RuntimeException('Assets instance initialized without router');
         }
 
-        $router = $this->assets->request->router();
+        $router = $this->assets->router;
         return $router->staticUrl(
             $staticRouteName,
             $this->relativePath,

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Conia\Chuck\Assets;
 
 use RuntimeException;
-use Conia\Chuck\RequestInterface;
+use Conia\Chuck\Routing\RouterInterface;
 
 class Assets
 {
@@ -15,7 +15,7 @@ class Assets
     public function __construct(
         string $assetsPath,
         string $cachePath,
-        public readonly ?RequestInterface $request = null,
+        public readonly ?RouterInterface $router = null,
         public readonly string $staticRouteAssets = 'assets',
         public readonly string $staticRouteCache = 'cache',
     ) {
