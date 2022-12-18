@@ -8,6 +8,7 @@ use ReflectionAttribute;
 use ReflectionFunctionAbstract;
 use RuntimeException;
 use Throwable;
+use Conia\Chuck\Registry;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Util\Reflect;
 
@@ -16,12 +17,15 @@ abstract class View
     /** @psalm-suppress PropertyNotSetInConstructor */
     protected array $attributes;
 
-    public static function get(RequestInterface $request, RouteInterface $route): View
-    {
+    public static function get(
+        RequestInterface $request,
+        RouteInterface $route,
+        Registry $registry,
+    ): View {
         $view = $route->view();
 
         if (is_callable($view)) {
-            return new CallableView($request, $route, $view);
+            return new CallableView($request, $route, $registry, $view);
         } else {
             /**
              * @psalm-suppress PossiblyInvalidArgument
@@ -29,7 +33,7 @@ abstract class View
              * According to Psalm, $view could be a Closure. But since we
              * checked for is_callable before, this can never happen.
              */
-            return new ControllerView($request, $route, $view);
+            return new ControllerView($request, $route, $registry, $view);
         }
     }
 

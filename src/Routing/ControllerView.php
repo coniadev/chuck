@@ -6,6 +6,7 @@ namespace Conia\Chuck\Routing;
 
 use Closure;
 use ReflectionMethod;
+use Conia\Chuck\Registry;
 use Conia\Chuck\Error\HttpServerError;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Routing\RouteInterface;
@@ -21,6 +22,7 @@ class ControllerView extends View
     public function __construct(
         protected RequestInterface $request,
         protected RouteInterface $route,
+        protected Registry $registry,
         /** @var callable-array|string */
         array|string $view,
     ) {

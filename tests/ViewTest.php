@@ -13,7 +13,7 @@ uses(TestCase::class);
 test('Closure', function () {
     $route = new Route('/', #[TestAttribute] fn () => 'chuck');
     $route->match('/');
-    $view = View::get($this->request(), $route);
+    $view = View::get($this->request(), $route, $this->registry());
 
     expect($view::class)->toBe(CallableView::class);
     expect($view->execute())->toBe('chuck');
@@ -32,7 +32,7 @@ test('Function', function () {
 
     $route = new Route('/{name}', '____view_test____');
     $route->match('/symbolic');
-    $view = View::get($this->request(), $route);
+    $view = View::get($this->request(), $route, $this->registry());
 
     expect($view::class)->toBe(CallableView::class);
     expect($view->execute())->toBe('symbolic');
@@ -43,7 +43,7 @@ test('Function', function () {
 test('Controller String', function () {
     $route = new Route('/', '\Conia\Chuck\Tests\Fixtures\TestController::textView');
     $route->match('/');
-    $view = View::get($this->request(), $route);
+    $view = View::get($this->request(), $route, $this->registry());
 
     expect($view::class)->toBe(ControllerView::class);
     expect($view->execute())->toBe('text');
@@ -54,7 +54,7 @@ test('Controller String', function () {
 test('Controller [class, method]', function () {
     $route = new Route('/', [TestController::class, 'textView']);
     $route->match('/');
-    $view = View::get($this->request(), $route);
+    $view = View::get($this->request(), $route, $this->registry());
 
     expect($view::class)->toBe(ControllerView::class);
     expect($view->execute())->toBe('text');
@@ -66,7 +66,7 @@ test('Controller [object, method]', function () {
     $controller = new TestController();
     $route = new Route('/', [$controller, 'textView']);
     $route->match('/');
-    $view = View::get($this->request(), $route);
+    $view = View::get($this->request(), $route, $this->registry());
 
     expect($view::class)->toBe(CallableView::class);
     expect($view->execute())->toBe('text');
@@ -76,7 +76,7 @@ test('Controller [object, method]', function () {
 
 test('Attribute filtering :: CallableView', function () {
     $route = new Route('/', #[TestAttribute, TestAttributeExt, TestAttributeDiff] fn () => 'chuck');
-    $view = View::get($this->request(), $route);
+    $view = View::get($this->request(), $route, $this->registry());
 
     expect($view::class)->toBe(CallableView::class);
     expect(count($view->attributes()))->toBe(3);
@@ -88,7 +88,7 @@ test('Attribute filtering :: CallableView', function () {
 
 test('Attribute filtering :: ControllerView', function () {
     $route = new Route('/', [TestController::class, 'arrayView']);
-    $view = View::get($this->request(), $route);
+    $view = View::get($this->request(), $route, $this->registry());
 
     expect($view::class)->toBe(ControllerView::class);
     expect(count($view->attributes()))->toBe(3);
@@ -100,5 +100,5 @@ test('Attribute filtering :: ControllerView', function () {
 
 test('Wrong argument :: CallableView', function () {
     $route = new Route('/', fn () => null);
-    new CallableView($this->request(), $route, 'nocallable');
+    new CallableView($this->request(), $route, $this->registry(), 'nocallable');
 })->throws(InvalidArgumentException::class);

@@ -279,7 +279,7 @@ class Router implements RouterInterface
      *
      * See notes at the return statement.
      */
-    public function dispatch(RequestInterface $request): ResponseInterface
+    public function dispatch(RequestInterface $request, Registry $registry): ResponseInterface
     {
         /**
          * @psalm-suppress InaccessibleProperty
@@ -287,7 +287,7 @@ class Router implements RouterInterface
          * See docs/contributing.md
          */
         $this->route = $this->match($request);
-        $view = View::get($request, $this->route);
+        $view = View::get($request, $this->route, $registry);
         $middlewareAttributes = $view->attributes(MiddlewareInterface::class);
 
         $handlerStack = array_merge(

@@ -60,6 +60,16 @@ test('App run', function () {
 });
 
 
+test('App::register helper', function () {
+    $request = $this->request(method: 'GET', url: '/');
+    $app = new App($request, $this->config(), new Router(), $this->registry());
+    $app->register('Chuck', 'Schuldiner');
+    $registry = $app->registry();
+
+    expect($registry->get('Chuck'))->toBe('Schuldiner');
+});
+
+
 test('App::addRoute/::addGroup helper', function () {
     $app = App::create($this->config());
     $route = new Route('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');

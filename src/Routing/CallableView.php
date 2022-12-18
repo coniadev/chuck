@@ -7,6 +7,7 @@ namespace Conia\Chuck\Routing;
 use Closure;
 use InvalidArgumentException;
 use ReflectionFunction;
+use Conia\Chuck\Registry;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Routing\RouteInterface;
 
@@ -18,6 +19,7 @@ class CallableView extends View
     public function __construct(
         protected RequestInterface $request,
         protected RouteInterface $route,
+        protected Registry $registry,
         /** @var callable-array|callable-string|Closure */
         array|string|Closure $callable,
     ) {

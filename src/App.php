@@ -59,6 +59,11 @@ class App
         return $this->config;
     }
 
+    public function registry(): Registry
+    {
+        return $this->registry;
+    }
+
     public function addRoute(RouteInterface $route): void
     {
         $this->router->addRoute($route);
@@ -100,7 +105,7 @@ class App
 
     public function run(): ResponseInterface
     {
-        $response = $this->router->dispatch($this->request);
+        $response = $this->router->dispatch($this->request, $this->registry);
         $response->emit();
 
         return $response;
