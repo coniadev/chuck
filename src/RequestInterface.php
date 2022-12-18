@@ -9,7 +9,6 @@ use Conia\Chuck\Routing\RouterInterface;
 interface RequestInterface
 {
     public function config(): ConfigInterface;
-    public function router(): RouterInterface;
     public function response(): ResponseFactory;
     public function method(): string;
 }

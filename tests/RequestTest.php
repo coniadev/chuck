@@ -10,10 +10,6 @@ use Conia\Chuck\Request;
 use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Response\ResponseInterface;
 use Conia\Chuck\Response\Response;
-use Conia\Chuck\Routing\Route;
-use Conia\Chuck\Routing\RouteInterface;
-use Conia\Chuck\Routing\Router;
-use Conia\Chuck\Routing\RouterInterface;
 use Conia\Chuck\Tests\Setup\{TestCase, C};
 
 uses(TestCase::class);
@@ -23,30 +19,12 @@ test('Helper methods', function () {
     $request = $this->request();
 
     expect($request->config())->toBeInstanceOf(ConfigInterface::class);
-    expect($request->router())->toBeInstanceOf(RouterInterface::class);
     expect($request->response)->toBeInstanceOf(ResponseFactory::class);
     expect($request->response->html('Chuck'))->toBeInstanceOf(ResponseInterface::class);
     expect($request->method())->toBe('GET');
     expect($request->isMethod('GET'))->toBe(true);
     expect($request->isMethod('POST'))->toBe(false);
 });
-
-
-test('Route property :: initialized', function () {
-    $router = new Router();
-    $router->addRoute(new Route('/', fn (Request $request) => new Response('Chuck')));
-    $request = $this->request(method: 'GET', url: '/', router: $router);
-    $router->dispatch($request);
-
-    expect($request->route())->toBeInstanceOf(RouteInterface::class);
-});
-
-
-test('Route method :: uninitialized', function () {
-    $request = $this->request();
-
-    expect($request->route())->toBeInstanceOf(RouteInterface::class);
-})->throws(RuntimeException::class, 'Route is not initialized');
 
 
 test('Url helpers', function () {
@@ -78,59 +56,6 @@ test('Host helpers', function () {
     expect($request->host())->toBe('www.example.com:80');
 
     $_SERVER['HTTP_HOST'] = $save;
-});
-
-
-test('Generate route url :: named', function () {
-    $router = new Router();
-    $albums = new Route('albums/{from}/{to}', fn () => null, 'albums');
-    $router->addRoute($albums);
-    $request = $this->request(router: $router);
-
-    expect($request->routeUrl('albums', from: 1990, to: 1995))->toBe('http://www.example.com/albums/1990/1995');
-    expect($request->routeUrl(
-        'albums',
-        ['from' => 1988, 'to' => 1991]
-    ))->toBe('http://www.example.com/albums/1988/1991');
-});
-
-
-test('Generate route url :: unnamed', function () {
-    $router = new Router();
-    $albums = new Route('albums/{from}/{to}', fn () => null);
-    $router->addRoute($albums);
-    $request = $this->request(router: $router);
-
-    expect($request->routeUrl(
-        'albums/{from}/{to}',
-        from: 1990,
-        to: 1995
-    ))->toBe('http://www.example.com/albums/1990/1995');
-    expect($request->routeUrl(
-        'albums/{from}/{to}',
-        ['from' => 1988, 'to' => 1991]
-    ))->toBe('http://www.example.com/albums/1988/1991');
-});
-
-
-test('Static routes', function () {
-    $router = new Router();
-    $router->addStatic('/static', C::root() . C::DS . 'public' . C::DS . 'static', 'static');
-    $request = $this->request(router: $router);
-
-    expect($request->staticUrl('static', 'test.json'))->toBe('http://www.example.com/static/test.json');
-    expect($request->staticUrl('static', 'test.json', true))->toMatch(
-        '/http:\/\/www.example.com\/static\/test\.json\?v=[a-f0-9]{8}$/'
-    );
-    expect($request->staticUrl('static', 'test.json?exists=true', true))->toMatch(
-        '/http:\/\/www.example.com\/static\/test\.json\?exists=true&v=[a-f0-9]{8}$/'
-    );
-
-    $router = new Router();
-    $router->addStatic('/static', C::root() . C::DS . 'public' . C::DS . 'static');
-    $request = $this->request(router: $router);
-
-    expect($request->staticUrl('/static', 'test.json'))->toBe('http://www.example.com/static/test.json');
 });
 
 

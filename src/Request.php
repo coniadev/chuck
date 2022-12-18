@@ -10,8 +10,6 @@ use ErrorException;
 use OutOfBoundsException;
 use RuntimeException;
 use Conia\Chuck\ResponseFactory;
-use Conia\Chuck\Routing\RouteInterface;
-use Conia\Chuck\Routing\RouterInterface;
 use Conia\Chuck\Renderer\RendererInterface;
 use Conia\Chuck\Util\Uri;
 
@@ -19,7 +17,6 @@ readonly class Request implements RequestInterface // phpcs:ignore
 {
     public function __construct(
         protected ConfigInterface $config,
-        protected RouterInterface $router,
         public ResponseFactory $response = new ResponseFactory(),
     ) {
     }
@@ -76,26 +73,6 @@ readonly class Request implements RequestInterface // phpcs:ignore
     public function redirect(string $url, int $code = 302): never
     {
         Uri::redirect($url, $code);
-    }
-
-    public function route(): RouteInterface
-    {
-        return $this->router->getRoute();
-    }
-
-    public function routeUrl(string $name, mixed ...$args): string
-    {
-        return Uri::origin() . $this->router->routeUrl($name, ...$args);
-    }
-
-    public function staticUrl(string $name, string $path, bool $bust = false): string
-    {
-        return $this->router()->staticUrl(
-            $name,
-            $path,
-            host: Uri::origin(),
-            bust: $bust,
-        );
     }
 
     public function method(): string
@@ -186,11 +163,6 @@ readonly class Request implements RequestInterface // phpcs:ignore
         }
 
         return [$this->file($field)];
-    }
-
-    public function router(): RouterInterface
-    {
-        return $this->router;
     }
 
     public function config(): ConfigInterface
