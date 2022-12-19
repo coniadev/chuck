@@ -6,6 +6,7 @@ namespace Conia\Chuck\View;
 
 use Closure;
 use ReflectionMethod;
+use ReflectionClass;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Error\HttpServerError;
 use Conia\Chuck\RequestInterface;
@@ -22,10 +23,12 @@ class ControllerView extends View
     public function __construct(
         protected RequestInterface $request,
         protected RouteInterface $route,
-        protected Registry $registry,
+        Registry $registry,
         /** @var callable-array|string */
         array|string $view,
     ) {
+        $this->registry = $registry;
+
         if (is_array($view)) {
             [$controllerName, $method] = $view;
         } else {
@@ -38,7 +41,10 @@ class ControllerView extends View
         }
 
         if (class_exists($controllerName)) {
-            $this->controller = new $controllerName(...Reflect::controllerConstructorParams($controllerName, $request));
+            $rc = new ReflectionClass($controllerName);
+            $constructor = $rc->getConstructor();
+            $args = $constructor ? $this->getArgs($constructor, $this->route->args()) : [];
+            $this->controller = $rc->newInstance(...$args);
 
             if (method_exists($this->controller, $method)) {
                 $this->method = $method;
@@ -55,9 +61,10 @@ class ControllerView extends View
     {
         $method = $this->method;
 
-        return $this->controller->$method(...$this->getViewArgs(
-            $this->request,
-            Closure::fromCallable([$this->controller, $method]),
+        return $this->controller->$method(...$this->getArgs(
+            Reflect::getReflectionFunction(
+                Closure::fromCallable([$this->controller, $method])
+            ),
             $this->route->args(),
         ));
     }

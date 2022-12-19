@@ -73,7 +73,8 @@ class Reflect
                 $returnTypeCls = new ReflectionClass($type);
 
                 if (
-                    !($returnTypeCls->implementsInterface(RequestInterface::class) ||
+                    !(
+                        $returnTypeCls->implementsInterface(RequestInterface::class) ||
                     $returnTypeCls->implementsInterface(ResponseInterface::class)
                     )
                 ) {
@@ -105,39 +106,5 @@ class Reflect
         if ($nextType !== 'callable') {
             throw new TypeError("Middleware's second parameter must be of type 'callable'");
         }
-    }
-
-    public static function getRequestParamOrError(
-        RequestInterface $request,
-        ReflectionParameter $param,
-        string $name,
-    ): RequestInterface {
-        if (!self::paramImplementsRequestInterface($param)) {
-            throw new TypeError("The type of the view paramter '$name' is not supported.");
-        }
-
-        return $request;
-    }
-
-    public static function controllerConstructorParams(string $class, RequestInterface $request): array
-    {
-        /** @var class-string $class */
-        $rc = new ReflectionClass($class);
-        $constructor = $rc->getConstructor();
-
-        if (empty($constructor)) {
-            return [];
-        }
-
-        $params = $constructor->getParameters();
-        $args = [];
-
-        foreach ($params as $param) {
-            if (self::paramImplementsRequestInterface($param)) {
-                $args[$param->getName()] = $request;
-            }
-        }
-
-        return $args;
     }
 }

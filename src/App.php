@@ -28,6 +28,10 @@ class App
         $registry->add($config::class, $config);
         $registry->add(RouterInterface::class, $router);
         $registry->add($router::class, $router);
+        $registry->add(App::class, $this);
+
+        // Self register Registry for autowiring
+        $registry->add($registry::class, $registry);
     }
 
     public static function create(ConfigInterface $config): static

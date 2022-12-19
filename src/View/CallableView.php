@@ -10,6 +10,7 @@ use ReflectionFunction;
 use Conia\Chuck\Registry;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Routing\RouteInterface;
+use Conia\Chuck\Util\Reflect;
 
 class CallableView extends View
 {
@@ -19,10 +20,12 @@ class CallableView extends View
     public function __construct(
         protected RequestInterface $request,
         protected RouteInterface $route,
-        protected Registry $registry,
+        Registry $registry,
         /** @var callable-array|callable-string|Closure */
         array|string|Closure $callable,
     ) {
+        $this->registry = $registry;
+
         if (is_callable($callable)) {
             $this->callable = Closure::fromCallable($callable);
         } else {
@@ -32,9 +35,8 @@ class CallableView extends View
 
     public function execute(): mixed
     {
-        return ($this->callable)(...$this->getViewArgs(
-            $this->request,
-            $this->callable,
+        return ($this->callable)(...$this->getArgs(
+            Reflect::getReflectionFunction($this->callable),
             $this->route->args(),
         ));
     }

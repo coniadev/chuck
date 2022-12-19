@@ -129,9 +129,18 @@ class TestCase extends BaseTestCase
         return App::create($config ?? $this->config());
     }
 
-    public function registry(): Registry
-    {
+    public function registry(
+        ?RequestInterface $request = null,
+        ?ConfigInterface $config = null,
+    ): Registry {
         $registry = new Registry();
+        $request = $request ?: $this->request();
+        $config = $config ?: $this->config();
+
+        $registry->add(RequestInterface::class, $request);
+        $registry->add($request::class, $request);
+        $registry->add(ConfigInterface::class, $config);
+        $registry->add($config::class, $config);
 
         return $registry;
     }

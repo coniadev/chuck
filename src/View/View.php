@@ -5,9 +5,14 @@ declare(strict_types=1);
 namespace Conia\Chuck\View;
 
 use ReflectionAttribute;
+use ReflectionFunction;
 use ReflectionFunctionAbstract;
+use ReflectionMethod;
+use ReflectionNamedType;
+use ReflectionParameter;
 use RuntimeException;
 use Throwable;
+use Conia\Chuck\Error\UntypedViewParameter;
 use Conia\Chuck\Registry;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Routing\RouteInterface;
@@ -17,6 +22,7 @@ abstract class View
 {
     /** @psalm-suppress PropertyNotSetInConstructor */
     protected array $attributes;
+    protected Registry $registry;
 
     public static function get(
         RequestInterface $request,
@@ -42,8 +48,19 @@ abstract class View
     /** @param $filter ?class-string */
     abstract public function attributes(string $filter = null): array;
 
+    protected function resolve(ReflectionParameter $param): mixed
+    {
+        $type = $param->getType();
+
+        if ($type === null) {
+            throw new UntypedViewParameter('View paramters must provide a type');
+        }
+
+        return $this->registry->resolve((string)$type);
+    }
+
     /**
-     * Determines the arguments passed to the view
+     * Determines the arguments passed to the view and/or controller constructor
      *
      * - If a view parameter implements RequestInterface, the request will be passed.
      * - If names of the view parameters match names of the route arguments
@@ -51,13 +68,11 @@ abstract class View
      *   the returned args list.
      * - Only string, float, int and RequestInterface are supported.
      */
-    protected function getViewArgs(
-        RequestInterface $request,
-        callable $view,
+    protected function getArgs(
+        ReflectionFunction|ReflectionMethod $rf,
         array $routeArgs,
     ): array {
         $args = [];
-        $rf = Reflect::getReflectionFunction($view);
         $params = $rf->getParameters();
         $errMsg = 'View parameters cannot be resolved. Details: ';
 
@@ -73,8 +88,10 @@ abstract class View
                         (float)$routeArgs[$name] :
                         throw new RuntimeException($errMsg . "Cannot cast '$name' to float"),
                     'string' => $routeArgs[$name],
-                    default => Reflect::getRequestParamOrError($request, $param, $name),
+                    default => $this->resolve($param),
                 };
+            } catch (UntypedViewParameter $e) {
+                throw $e;
             } catch (Throwable $e) {
                 // Check if the view parameter has a default value
                 if (!array_key_exists($name, $routeArgs) && $param->isOptional()) {

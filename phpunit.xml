@@ -15,7 +15,7 @@
                 <directory suffix=".php">src/Scripts</directory>
                 <directory suffix=".php">bin</directory>
                 <file>src/Server/Server.php</file>
-                <file>src/Server/Router.php</file>
+                <file>src/Server/CliRouter.php</file>
             </exclude>
         </whitelist>
     </filter>

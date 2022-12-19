@@ -331,7 +331,7 @@ test('Dispatch view with unsupported param', function () {
     $router->addRoute($index);
 
     $router->dispatch($this->request(method: 'GET', url: '/symbolic'), $this->registry());
-})->throws(RuntimeException::class, 'is not supported');
+})->throws(RuntimeException::class, 'View parameters cannot be resolved');
 
 
 test('Access uninitialized route', function () {

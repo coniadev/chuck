@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Conia\Chuck\Error\UntypedViewParameter;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\View\{View, CallableView, ControllerView};
 use Conia\Chuck\Tests\Fixtures\{TestController, TestAttribute, TestAttributeExt, TestAttributeDiff};
@@ -102,3 +103,11 @@ test('Wrong argument :: CallableView', function () {
     $route = new Route('/', fn () => null);
     new CallableView($this->request(), $route, $this->registry(), 'nocallable');
 })->throws(InvalidArgumentException::class);
+
+
+test('Untyped closure parameter', function () {
+    $route = new Route('/', #[TestAttribute] fn ($param) => 'chuck');
+    $route->match('/');
+    $view = View::get($this->request(), $route, $this->registry());
+    $view->execute();
+})->throws(UntypedViewParameter::class);
