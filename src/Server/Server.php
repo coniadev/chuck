@@ -30,7 +30,7 @@ class Server extends Command
         exec(
             "DOCUMENT_ROOT=$docroot php -S localhost:$port " .
                 "    -t $docroot" . DIRECTORY_SEPARATOR . ' ' .
-                __DIR__ . DIRECTORY_SEPARATOR . 'Router.php'
+                __DIR__ . DIRECTORY_SEPARATOR . 'CliRouter.php'
         );
 
         return 0;
