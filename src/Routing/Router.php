@@ -19,6 +19,7 @@ use Conia\Chuck\Registry;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Response\ResponseInterface;
 use Conia\Chuck\Util\Reflect;
+use Conia\Chuck\View\View;
 
 class Router implements RouterInterface
 {

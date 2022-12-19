@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Conia\Chuck\Routing\Route;
-use Conia\Chuck\Routing\{View, CallableView, ControllerView};
+use Conia\Chuck\View\{View, CallableView, ControllerView};
 use Conia\Chuck\Tests\Fixtures\{TestController, TestAttribute, TestAttributeExt, TestAttributeDiff};
 use Conia\Chuck\Tests\Setup\TestCase;
 

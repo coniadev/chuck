@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck\Routing;
+namespace Conia\Chuck\View;
 
 use ReflectionAttribute;
 use ReflectionFunctionAbstract;
@@ -10,6 +10,7 @@ use RuntimeException;
 use Throwable;
 use Conia\Chuck\Registry;
 use Conia\Chuck\RequestInterface;
+use Conia\Chuck\Routing\RouteInterface;
 use Conia\Chuck\Util\Reflect;
 
 abstract class View

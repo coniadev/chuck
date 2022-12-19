@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck\Routing;
+namespace Conia\Chuck\View;
 
 use Closure;
 use ReflectionMethod;
