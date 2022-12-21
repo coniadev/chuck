@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Conia\Chuck\Registry;
 
 use Closure;
+use RuntimeException;
 
 class Entry
 {
@@ -19,14 +20,9 @@ class Entry
     ) {
         $this->paramName = trim($paramName);
 
-        if (!empty($this->paramName) && !str_starts_with('$', $this->paramName)) {
-            throw RuntimeException("Registry::add's \$paramName parameter must start with a '$'");
+        if (!empty($this->paramName) && !str_starts_with($this->paramName, '$')) {
+            throw new RuntimeException("Registry::add's \$paramName parameter must start with a '$'");
         }
-    }
-
-    public function id(): string
-    {
-        return $this->id . $this->paramName;
     }
 
     public function shouldReify(): bool
@@ -48,6 +44,10 @@ class Entry
 
     public function args(array|Closure $args): self
     {
+        if ($this->value instanceof Closure) {
+            throw new RuntimeException('Closure values in the registry cannot have arguments');
+        }
+
         $this->args = $args;
 
         return $this;

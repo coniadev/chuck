@@ -7,6 +7,7 @@ namespace Conia\Chuck\Registry;
 use Closure;
 use OutOfBoundsException;
 use ReflectionClass;
+use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionNamedType;
 use ReflectionParameter;
@@ -59,6 +60,9 @@ class Registry
 
     public function resolve(string $id, string $paramName = ''): object
     {
+        $paramName = $paramName ?
+            (str_starts_with($paramName, '$') ? $paramName : '$'. $paramName) :
+            '';
         // 1. See if there's a entry with a bound parameter name:
         //    e. g. '\Namespace\MyClass$myParameter'
         //    If $paramName is emtpy an existing unbound entry should
@@ -85,8 +89,16 @@ class Registry
     {
         $value = $entry->value();
 
+        if ($value instanceof Closure) {
+            // Get the instance from the registered closure
+            $rf = new ReflectionFunction($value);
+            $args = $this->resolveArgs($rf);
+
+            return $this->reifyAndReturn($entry, $value(...$args));
+        }
+
         if (is_object($value)) {
-            // Return early if it is an instance
+            // Already an instance, no need to reify
             return $value;
         }
 
@@ -97,24 +109,23 @@ class Registry
         if (isset($args)) {
             // Don't autowire if $args are given
             if ($args instanceof Closure) {
-                $instance = $this->fromClosure($value, $args);
-            } else {
-                $instance = $this->fromArgs($value, $args);
+                return $this->reifyAndReturn($entry, $this->fromArgsClosure($value, $args));
             }
-        } elseif ($value instanceof Closure) {
-            // Get the instance from the registered closure
-            $rf = new ReflectionFunction($value);
-            $instance = $value(...$this->resolveArgs($rf));
-        } else {
-            // $value is a string, no args given for the entry
-            $instance = $this->resolve($value);
+
+            return $this->reifyAndReturn($entry, $this->fromArgsArray($value, $args));
         }
 
+        // $value is a string, no args given for the entry
+        return $this->reifyAndReturn($entry, $this->resolve($value));
+    }
+
+    protected function reifyAndReturn(Entry $entry, object $value): object
+    {
         if ($entry->shouldReify()) {
-            $entry->update($instance);
+            $entry->update($value);
         }
 
-        return $instance;
+        return $value;
     }
 
     public function resolveParam(ReflectionParameter $param): object
@@ -122,10 +133,9 @@ class Registry
         $type = $param->getType();
 
         if ($type instanceof ReflectionNamedType) {
-            return $this->resolve($type->getName(), $param->getName());
+            return $this->resolve($type->getName(), '$' . $param->getName());
         } else {
             if ($type) {
-                error_log(print_r($type, true));
                 throw new UnsupportedResolveParameter(
                     "Autowiring does not support union or intersection types.\nSource: " .
                     $this->getParamInfo($param)
@@ -181,16 +191,17 @@ class Registry
     }
 
     /** @param class-string $class */
-    protected function fromArgs(string $class, array $args): object
+    protected function fromArgsArray(string $class, array $args): object
     {
         return new $class(...$args);
     }
 
     /** @param class-string $class */
-    protected function fromClosure(string $class, Closure $callback): object
+    protected function fromArgsClosure(string $class, Closure $callback): object
     {
         $rf = new ReflectionFunction($callback);
+        $args = $this->resolveArgs($rf);
 
-        return new $class(...$callback(...$this->resolveArgs($rf)));
+        return new $class(...$callback(...$args));
     }
 }

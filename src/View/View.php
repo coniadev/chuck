@@ -80,8 +80,6 @@ abstract class View
                 };
             } catch (UntypedResolveParameter) {
                 throw new UntypedViewParameter('View paramters must provide a type: ' . $param->getName());
-            } catch (UntypedViewParameter $e) {
-                throw $e;
             } catch (Throwable $e) {
                 // Check if the view parameter has a default value
                 if (!array_key_exists($name, $routeArgs) && $param->isOptional()) {
