@@ -13,7 +13,7 @@ use ReflectionParameter;
 use RuntimeException;
 use Throwable;
 use Conia\Chuck\Error\UntypedViewParameter;
-use Conia\Chuck\Registry;
+use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Routing\RouteInterface;
 use Conia\Chuck\Util\Reflect;

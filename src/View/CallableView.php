@@ -7,7 +7,7 @@ namespace Conia\Chuck\View;
 use Closure;
 use InvalidArgumentException;
 use ReflectionFunction;
-use Conia\Chuck\Registry;
+use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Routing\RouteInterface;
 use Conia\Chuck\Util\Reflect;

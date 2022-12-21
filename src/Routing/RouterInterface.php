@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Routing;
 
-use Conia\Chuck\Registry;
+use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Response\ResponseInterface;
 

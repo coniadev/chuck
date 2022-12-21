@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-class RegistryEntry
+class Entry
 {
     protected array $args = [];
     protected bool $reify = false;

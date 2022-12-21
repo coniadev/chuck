@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Conia\Chuck\Registry;
+use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Error\Unresolvable;
 use Conia\Chuck\Error\UntypedResolveParameter;
 use Conia\Chuck\Tests\Fixtures\TestClass;

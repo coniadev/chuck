@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck;
+namespace Conia\Chuck\Registry;
 
 use Throwable;
 use OutOfBoundsException;
@@ -21,7 +21,7 @@ class Registry
         string $with = '',
     ): void {
         $with = trim($with);
-        $entry = new RegistryEntry($abstract, $concrete, $with);
+        $entry = new Entry($abstract, $concrete, $with);
         $this->entries[$abstract . $with] = $entry;
 
         return $entry;
