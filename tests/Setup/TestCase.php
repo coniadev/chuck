@@ -11,7 +11,7 @@ use Conia\Chuck\App;
 use Conia\Chuck\Config;
 use Conia\Chuck\ConfigInterface;
 use Conia\Chuck\Logger;
-use Conia\Chuck\Registry;
+use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Routing\Router;
 use Conia\Chuck\Routing\RouterInterface;

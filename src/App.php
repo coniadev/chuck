@@ -7,6 +7,7 @@ namespace Conia\Chuck;
 use Closure;
 use Conia\Chuck\Error\Handler;
 use Conia\Chuck\Response\ResponseInterface;
+use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Routing\GroupInterface;
 use Conia\Chuck\Routing\RouteInterface;
 use Conia\Chuck\Routing\{Group, Router, RouterInterface, AddsRoutes};

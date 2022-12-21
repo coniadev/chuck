@@ -2,20 +2,16 @@
 
 declare(strict_types=1);
 
+use Conia\Chuck\Config;
+use Conia\Chuck\ConfigInterface;
+use Conia\Chuck\Request;
+use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Error\Unresolvable;
 use Conia\Chuck\Error\UntypedResolveParameter;
 use Conia\Chuck\Tests\Fixtures\TestClass;
 use Conia\Chuck\Tests\Fixtures\TestClassUntypedConstructor;
 use Conia\Chuck\Tests\Fixtures\TestClassWithConstructor;
-
-test('Add value without key', function () {
-    $registry = new Registry();
-    $registry->add(Registry::class);
-
-    expect($registry->get(Registry::class))->toBe(Registry::class);
-});
-
 
 test('Add value with key', function () {
     $registry = new Registry();
@@ -27,19 +23,22 @@ test('Add value with key', function () {
 
 test('Check if registered', function () {
     $registry = new Registry();
-    $registry->add(Registry::class);
+    $registry->add(RequestInterface::class, Request::class);
 
-    expect($registry->has(Registry::class))->toBe(true);
+    expect($registry->has(RequestInterface::class))->toBe(true);
     expect($registry->has('registry'))->toBe(false);
 });
 
 
 test('Instantiate', function () {
     $registry = new Registry();
-    $registry->add(Registry::class);
-    $r = $registry->new(Registry::class);
+    $registry->add('registry', Registry::class);
+    $registry->add('request', Request::class);
+    $reg = $registry->new('registry');
+    $req = $registry->new('request', new Config('chuck'));
 
-    expect(is_a($r, Registry::class))->toBe(true);
+    expect($reg instanceof Registry)->toBe(true);
+    expect($req instanceof Request)->toBe(true);
 });
 
 
@@ -62,15 +61,7 @@ test('Resolve simple class', function () {
     $registry = new Registry();
     $registry->add('class', stdClass::class);
 
-    expect($registry->resolve('class')::class)->toBe(stdClass::class);
-});
-
-
-test('Resolve simple class where id is the class name', function () {
-    $registry = new Registry();
-    $registry->add(stdClass::class);
-
-    expect($registry->resolve(stdClass::class)::class)->toBe(stdClass::class);
+    expect($registry->resolve('class') instanceof stdClass)->toBe(true);
 });
 
 
