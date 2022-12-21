@@ -13,6 +13,7 @@ class Entry
     protected array|Closure|null $args = null;
     protected bool $reify = true;
 
+    /** @param object|class-string $value */
     public function __construct(
         readonly protected string $id,
         protected object|string $value,
@@ -53,6 +54,7 @@ class Entry
         return $this;
     }
 
+    /** @return object|class-string */
     public function value(): object|string
     {
         return $this->value;

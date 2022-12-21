@@ -7,6 +7,7 @@ namespace Conia\Chuck;
 use Closure;
 use Conia\Chuck\Error\Handler;
 use Conia\Chuck\Response\ResponseInterface;
+use Conia\Chuck\Registry\Entry;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Routing\GroupInterface;
 use Conia\Chuck\Routing\RouteInterface;
@@ -103,9 +104,10 @@ class App
         $this->router->addMiddleware(...$middlewares);
     }
 
-    public function register(string $key, mixed $value = null): void
+    /** @param object|class-string $value */
+    public function register(string $key, object|string $value): Entry
     {
-        $this->registry->add($key, $value);
+        return $this->registry->add($key, $value);
     }
 
     public function run(): ResponseInterface

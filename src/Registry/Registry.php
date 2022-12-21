@@ -9,6 +9,7 @@ use OutOfBoundsException;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
+use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
 use RuntimeException;
@@ -21,6 +22,7 @@ class Registry
 {
     protected array $entries = [];
 
+    /** @param object|class-string $value */
     public function add(
         string $id,
         object|string $value,
@@ -61,7 +63,7 @@ class Registry
     public function resolve(string $id, string $paramName = ''): object
     {
         $paramName = $paramName ?
-            (str_starts_with($paramName, '$') ? $paramName : '$'. $paramName) :
+            (str_starts_with($paramName, '$') ? $paramName : '$' . $paramName) :
             '';
         // 1. See if there's a entry with a bound parameter name:
         //    e. g. '\Namespace\MyClass$myParameter'
@@ -153,7 +155,11 @@ class Registry
     {
         $type = $param->getType();
         $rf = $param->getDeclaringFunction();
-        $rc = $rf->getDeclaringClass();
+        $rc = null;
+
+        if ($rf instanceof ReflectionMethod) {
+            $rc = $rf->getDeclaringClass();
+        }
 
         return ($rc ? $rc->getName() . '::' : '') .
             ($rf->getName() . '(..., ') .
