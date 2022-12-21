@@ -139,19 +139,19 @@ class Registry
         } else {
             if ($type) {
                 throw new UnsupportedResolveParameter(
-                    "Autowiring does not support union or intersection types.\nSource: " .
+                    "Autowiring does not support union or intersection types. Source: \n" .
                     $this->getParamInfo($param)
                 );
             } else {
                 throw new UntypedResolveParameter(
-                    "Autowired classes need to have typed constructor parameters.\nSource: " .
+                    "Autowired classes need to have typed constructor parameters. Source: \n" .
                     $this->getParamInfo($param)
                 );
             }
         }
     }
 
-    protected function getParamInfo(ReflectionParameter $param): string
+    public function getParamInfo(ReflectionParameter $param): string
     {
         $type = $param->getType();
         $rf = $param->getDeclaringFunction();

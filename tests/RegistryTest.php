@@ -163,35 +163,58 @@ test('Is not reified', function () {
 });
 
 
-test('Resolve class with untyped constructor', function () {
+test('Parameter info class', function () {
+    $rc = new ReflectionClass(TestClassUnionTypeConstructor::class);
+    $c = $rc->getConstructor();
+    $p = $c->getParameters()[0];
+    $registry = new Registry();
+    $s = 'Conia\Chuck\Tests\Fixtures\TestClassUnionTypeConstructor::__construct(' .
+            '..., Conia\Chuck\Config|Conia\Chuck\Request $param, ...)';
+
+    expect($registry->getParamInfo($p))->toBe($s);
+});
+
+
+test('Parameter info function', function () {
+    $rf = new ReflectionFunction(function (Config $config) {
+    });
+    $p = $rf->getParameters()[0];
+    $registry = new Registry();
+    $s = 'P\Tests\RegistryTest::{closure}(..., Conia\Chuck\Config $config, ...)';
+
+    expect($registry->getParamInfo($p))->toBe($s);
+});
+
+
+test('Reject class with untyped constructor', function () {
     $registry = new Registry();
 
     $registry->resolve(TestClassUntypedConstructor::class);
 })->throws(UntypedResolveParameter::class);
 
 
-test('Resolve class with unsupported constructor union types', function () {
+test('Reject class with unsupported constructor union types', function () {
     $registry = new Registry();
 
     $registry->resolve(TestClassUnionTypeConstructor::class);
 })->throws(UnsupportedResolveParameter::class);
 
 
-test('Resolve class with unsupported constructor intersection types', function () {
+test('Reject class with unsupported constructor intersection types', function () {
     $registry = new Registry();
 
     $registry->resolve(TestClassIntersectionTypeConstructor::class);
 })->throws(UnsupportedResolveParameter::class);
 
 
-test('Resolve unresolvable class', function () {
+test('Reject unresolvable class', function () {
     $registry = new Registry();
 
     $registry->resolve(GdImage::class);
 })->throws(Unresolvable::class, 'Details:');
 
 
-test('Resolve non existent class', function () {
+test('Reject non existent class', function () {
     $registry = new Registry();
 
     $registry->resolve('NonExistent');
