@@ -7,7 +7,6 @@ namespace Conia\Chuck\Routing;
 use Closure;
 use InvalidArgumentException;
 use ValueError;
-use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\Renderer\Config as RendererConfig;
 
 const LEFT_BRACE = '§§§€§§§';
@@ -20,6 +19,7 @@ class Route implements RouteInterface
 
     protected string $name;
     protected array $args = [];
+    /** @var list<string> */
     protected array $methods = [];
     protected ?RendererConfig $renderer = null;
 
@@ -116,6 +116,7 @@ class Route implements RouteInterface
         return $this;
     }
 
+    /** @psalm-return list<string> */
     public function methods(): array
     {
         return $this->methods;

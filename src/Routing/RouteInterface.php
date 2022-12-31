@@ -15,6 +15,7 @@ interface RouteInterface
     public function name(): string;
     public function args(): array;
     public function method(string ...$args): static;
+    /** @psalm-return list<string> */
     public function methods(): array;
     /** @param list<Conia\Chuck\MiddlewareInterface> $middlewares */
     public function replaceMiddleware(array $middlewares): static;
