@@ -31,6 +31,7 @@ class Router implements RouterInterface
     protected readonly RouteInterface $route;
     /** @var array<string, list<RouteInterface>> */
     protected array $routes = [];
+    /** @var array<string, StaticRoute> */
     protected array $staticRoutes = [];
     /** @var array<string, RouteInterface> */
     protected array $names = [];
@@ -92,10 +93,10 @@ class Router implements RouterInterface
         }
 
         if (is_dir($dir)) {
-            $this->staticRoutes[$name] = [
-                'prefix' => '/' . trim($prefix, '/') . '/',
-                'dir' => $dir,
-            ];
+            $this->staticRoutes[$name] = new StaticRoute(
+                prefix: '/' . trim($prefix, '/') . '/',
+                dir: $dir,
+            );
         } else {
             throw new RuntimeException("The static directory does not exist: $dir");
         }
@@ -119,14 +120,14 @@ class Router implements RouterInterface
                 $sep = '?';
             }
 
-            $buster =  $this->getCacheBuster($route['dir'], $file);
+            $buster =  $this->getCacheBuster($route->dir, $file);
 
             if (!empty($buster)) {
                 $path .= $sep . 'v=' . $buster;
             }
         }
 
-        return ($host ? trim($host, '/') : '') . $route['prefix'] . trim($path, '/');
+        return ($host ? trim($host, '/') : '') . $route->prefix . trim($path, '/');
     }
 
     /** @psalm-suppress MixedArgument */
