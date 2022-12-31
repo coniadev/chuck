@@ -271,7 +271,8 @@ class Route implements RouteInterface
             if (is_array($args[0] ?? null)) {
                 $args = $args[0];
             } else {
-                if (!Arrays::isAssoc($args)) {
+                // Check if args is an associative array
+                if (array_keys($args) === range(0, count($args) - 1)) {
                     throw new InvalidArgumentException(
                         'Route::url: either pass an associative array or named arguments'
                     );
