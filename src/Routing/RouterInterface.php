@@ -25,7 +25,7 @@ interface RouterInterface
         bool $bust = false,
         string $host = null
     ): string;
-    public function match(RequestInterface $request): ?Route;
+    public function match(RequestInterface $request): ?RouteInterface;
     public function dispatch(RequestInterface $request, Registry $registry): ResponseInterface;
     public function middleware(callable ...$middlewares): static;
     public function middlewares(): array;

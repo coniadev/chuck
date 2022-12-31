@@ -12,7 +12,6 @@ use Throwable;
 use Conia\Chuck\Attribute\Render;
 use Conia\Chuck\Error\{HttpNotFound, HttpMethodNotAllowed};
 use Conia\Chuck\MiddlewareInterface;
-use Conia\Chuck\MiddlewareWrapper;
 use Conia\Chuck\Renderer\{
     Config as RendererConfig,
     RendererInterface,
@@ -29,9 +28,11 @@ class Router implements RouterInterface
     use AddsMiddleware;
 
     /** @psalm-suppress PropertyNotSetInConstructor */
-    protected readonly Route $route;
+    protected readonly RouteInterface $route;
+    /** @var array<string, list<RouteInterface>> */
     protected array $routes = [];
     protected array $staticRoutes = [];
+    /** @var array<string, RouteInterface> */
     protected array $names = [];
 
     protected const ALL = 'ALL';
@@ -128,6 +129,7 @@ class Router implements RouterInterface
         return ($host ? trim($host, '/') : '') . $route['prefix'] . trim($path, '/');
     }
 
+    /** @psalm-suppress MixedArgument */
     public function routeUrl(string $__routeName__, mixed ...$args): string
     {
         $route = $this->names[$__routeName__] ?? null;
@@ -157,12 +159,11 @@ class Router implements RouterInterface
     }
 
 
-    public function match(RequestInterface $request): Route
+    public function match(RequestInterface $request): RouteInterface
     {
         $url = $this->removeQueryString($_SERVER['REQUEST_URI'] ?? '');
         $requestMethod = $request->method();
 
-        // Matching routes should be found quite quickly
         foreach ([$requestMethod, self::ALL] as $method) {
             foreach ($this->routes[$method] ?? [] as $route) {
                 if ($route->match($url)) {
@@ -174,14 +175,19 @@ class Router implements RouterInterface
         // We know now, that the route does not match.
         // Check if it would match one of the remaining methods
         $wrongMethod = false;
-        foreach ($this->routes as $method => $route) {
-            if ($method === $requestMethod || $method === self::ALL) {
-                continue;
-            }
+        $remainingMethods = array_keys($this->routes);
 
+        foreach ([$requestMethod, self::ALL] as $method) {
+            if (($key = array_search($method, $remainingMethods)) !== false) {
+                unset($remainingMethods[$key]);
+            }
+        }
+
+        foreach ($remainingMethods as $method) {
             foreach ($this->routes[$method] as $route) {
                 if ($route->match($url)) {
                     $wrongMethod = true;
+                    break;
                 }
             }
         }
@@ -209,6 +215,11 @@ class Router implements RouterInterface
         RouteInterface $route,
         View $view,
     ): ResponseInterface {
+        /**
+         * @psalm-suppress MixedAssignment
+         *
+         * Later in the function we check the type of $result.
+         * */
         $result = $view->execute();
 
         if ($result instanceof ResponseInterface) {
@@ -225,6 +236,7 @@ class Router implements RouterInterface
             $renderAttributes = $view->attributes(Render::class);
 
             if (count($renderAttributes) > 0) {
+                assert($renderAttributes[0] instanceof Render);
                 return $renderAttributes[0]->response($request, $result);
             }
 
@@ -291,6 +303,7 @@ class Router implements RouterInterface
         /** @var list<MiddlewareInterface> */
         $middlewareAttributes = $view->attributes(MiddlewareInterface::class);
 
+        /** @var list<MiddlewareInterface> */
         $handlerStack = array_merge(
             $this->middlewares,
             $this->route->middlewares(),
