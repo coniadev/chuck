@@ -99,12 +99,6 @@ test('Attribute filtering :: ControllerView', function () {
 });
 
 
-test('Wrong argument :: CallableView', function () {
-    $route = new Route('/', fn () => null);
-    new CallableView($this->request(), $route, $this->registry(), 'nocallable');
-})->throws(InvalidArgumentException::class);
-
-
 test('Untyped closure parameter', function () {
     $route = new Route('/', #[TestAttribute] fn ($param) => 'chuck');
     $route->match('/');

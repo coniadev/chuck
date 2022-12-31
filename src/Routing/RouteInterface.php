@@ -10,6 +10,7 @@ use Conia\Chuck\Renderer;
 interface RouteInterface
 {
     public function url(array $args): string;
+    /** @property Closure|list{string, string}|string */
     public function view(): Closure|array|string;
     public function name(): string;
     public function args(): array;

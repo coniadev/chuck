@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\View;
 
-use ReflectionAttribute;
 use ReflectionFunctionAbstract;
-use ReflectionNamedType;
-use ReflectionParameter;
 use RuntimeException;
 use Throwable;
 use Conia\Chuck\Error\UntypedResolveParameter;
@@ -15,7 +12,6 @@ use Conia\Chuck\Error\UntypedViewParameter;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Routing\RouteInterface;
-use Conia\Chuck\Util\Reflect;
 
 abstract class View
 {
@@ -31,6 +27,11 @@ abstract class View
         $view = $route->view();
 
         if (is_callable($view)) {
+            /**
+             * @psalm-suppress MixedArgumentTypeCoercion
+             *
+             * We check if $view is a callable but psalm complains anyway.
+             */
             return new CallableView($request, $route, $registry, $view);
         } else {
             /**
@@ -54,12 +55,17 @@ abstract class View
      * - If names of the view parameters match names of the route arguments
      *   it will try to convert the argument to the parameter type and add it to
      *   the returned args list.
-     * - Only string, float, int and RequestInterface are supported.
+     * - If the parameter is typed, try to resolve it via registry or
+     *   autowiring.
+     * - Otherwise fail.
+     *
+     * @psalm-suppress MixedAssignment -- $args values are mixed
      */
     protected function getArgs(
         ReflectionFunctionAbstract $rf,
         array $routeArgs,
     ): array {
+        /** @var array<string, mixed> */
         $args = [];
         $params = $rf->getParameters();
         $errMsg = 'View parameters cannot be resolved. Details: ';
@@ -82,7 +88,7 @@ abstract class View
                 throw new UntypedViewParameter('View paramters must provide a type: ' . $param->getName());
             } catch (Throwable $e) {
                 // Check if the view parameter has a default value
-                if (!array_key_exists($name, $routeArgs) && $param->isOptional()) {
+                if (!array_key_exists($name, $routeArgs) && $param->isDefaultValueAvailable()) {
                     $args[$name] = $param->getDefaultValue();
 
                     continue;

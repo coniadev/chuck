@@ -24,15 +24,16 @@ class ControllerView extends View
         protected RequestInterface $request,
         protected RouteInterface $route,
         Registry $registry,
-        /** @var callable-array|string */
-        array|string $view,
+        /** @var string|list{string, string} */
+        string|array $view,
     ) {
         $this->registry = $registry;
 
         if (is_array($view)) {
             [$controllerName, $method] = $view;
+            assert(is_string($controllerName));
+            assert(is_string($method));
         } else {
-            /** @var string $view */
             if (!str_contains($view, '::')) {
                 $view .= '::__invoke';
             }
@@ -61,6 +62,12 @@ class ControllerView extends View
     {
         $method = $this->method;
 
+        /**
+         * We check in the constructor if this is a valid object and
+         * if the method exists. We can safely suppress this.
+         *
+         * @psalm-suppress MixedMethodCall
+         */
         return $this->controller->$method(...$this->getArgs(
             Reflect::getReflectionFunction(
                 Closure::fromCallable([$this->controller, $method])

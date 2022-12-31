@@ -21,7 +21,6 @@ class Route implements RouteInterface
     protected array $methods = [];
     protected ?RendererConfig $renderer = null;
     protected array $middlewares = [];
-    protected Closure|array|string $view;
 
 
     /**
@@ -32,16 +31,11 @@ class Route implements RouteInterface
      */
     public function __construct(
         protected string $pattern,
-        Closure|array|string $view,
+        /** @property Closure|list{string, string}|string */
+        protected Closure|array|string $view,
         ?string $name = null,
         protected array $params = [],
     ) {
-        if (is_callable($view)) {
-            $this->view = Closure::fromCallable($view);
-        } else {
-            $this->view = $view;
-        }
-
         if ($name) {
             $this->name = $name;
         } else {
@@ -51,6 +45,7 @@ class Route implements RouteInterface
 
     public static function get(
         string $pattern,
+        /** @property Closure|list{string, string}|string */
         Closure|array|string $view,
         ?string $name = null,
         array $params = []
@@ -60,6 +55,7 @@ class Route implements RouteInterface
 
     public static function post(
         string $pattern,
+        /** @property Closure|list{string, string}|string */
         Closure|array|string $view,
         ?string $name = null,
         array $params = []
@@ -302,6 +298,7 @@ class Route implements RouteInterface
         return $url;
     }
 
+    /** @return Closure|string|list{string, string} */
     public function view(): Closure|array|string
     {
         return $this->view;
