@@ -69,7 +69,7 @@ class Session implements SessionInterface
         session_destroy();
     }
 
-    /** * @param non-empty-string $key */
+    /** @param non-empty-string $key */
     public function get(string $key, mixed $default = null): mixed
     {
         if ($this->has($key)) {
@@ -95,13 +95,13 @@ class Session implements SessionInterface
         $_SESSION[$key] = $value;
     }
 
-    /** * @param non-empty-string $key */
+    /** @param non-empty-string $key */
     public function has(string $key): bool
     {
         return isset($_SESSION[$key]);
     }
 
-    /** * @param non-empty-string $key */
+    /** @param non-empty-string $key */
     public function unset(string $key): void
     {
         unset($_SESSION[$key]);

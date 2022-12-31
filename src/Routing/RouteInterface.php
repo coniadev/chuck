@@ -16,8 +16,9 @@ interface RouteInterface
     public function args(): array;
     public function method(string ...$args): static;
     public function methods(): array;
-    public function replaceMiddleware(callable|string ...$middlewares): static;
-    public function middleware(callable|string ...$middlewares): static;
+    /** @param list<Conia\Chuck\MiddlewareInterface> $middlewares */
+    public function replaceMiddleware(array $middlewares): static;
+    public function middleware(callable ...$middlewares): static;
     public function middlewares(): array;
     public function render(string $renderer, mixed ...$args): static;
     public function controller(string $controller): void;

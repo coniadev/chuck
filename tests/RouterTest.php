@@ -371,10 +371,10 @@ test('Dispatch view with route params including request', function () {
 test('Middleware add', function () {
     $router = new Router();
 
-    $router->addMiddleware(function (Request $request, callable $next): Response|Request {
+    $router->middleware(function (Request $request, callable $next): Response|Request {
         return $next($request);
     });
-    $router->addMiddleware(new TestMiddleware1());
+    $router->middleware(new TestMiddleware1());
 
     expect(count($router->middlewares()))->toBe(2);
 });

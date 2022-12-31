@@ -12,7 +12,7 @@ use Conia\Chuck\Response\ResponseInterface;
 #[Attribute]
 class TestMiddleware1 implements MiddlewareInterface
 {
-    public function __invoke(RequestInterface $request, callable $next): RequestInterface|ResponseInterface
+    public function __invoke(RequestInterface $request, callable $next): ResponseInterface
     {
         return $next($request);
     }

@@ -7,7 +7,7 @@ namespace Conia\Chuck\Routing;
 use Closure;
 use InvalidArgumentException;
 use ValueError;
-use Conia\Chuck\Util\Arrays;
+use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\Renderer\Config as RendererConfig;
 
 const LEFT_BRACE = '§§§€§§§';
@@ -16,11 +16,12 @@ const RIGHT_BRACE = '§§§£§§§';
 
 class Route implements RouteInterface
 {
+    use AddsMiddleware;
+
     protected string $name;
     protected array $args = [];
     protected array $methods = [];
     protected ?RendererConfig $renderer = null;
-    protected array $middlewares = [];
 
 
     /**
@@ -143,28 +144,6 @@ class Route implements RouteInterface
     public function getRenderer(): ?RendererConfig
     {
         return $this->renderer;
-    }
-
-
-    public function replaceMiddleware(callable|string ...$middlewares): static
-    {
-        $this->middlewares = $middlewares;
-
-        return $this;
-    }
-
-    public function middleware(callable|string ...$middlewares): static
-    {
-        foreach ($middlewares as $middleware) {
-            $this->middlewares[] = $middleware;
-        }
-
-        return $this;
-    }
-
-    public function middlewares(): array
-    {
-        return $this->middlewares;
     }
 
     /**

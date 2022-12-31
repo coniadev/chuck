@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Routing;
 
+use Closure;
 use JsonException;
 use RuntimeException;
 use Stringable;
@@ -11,6 +12,7 @@ use Throwable;
 use Conia\Chuck\Attribute\Render;
 use Conia\Chuck\Error\{HttpNotFound, HttpMethodNotAllowed};
 use Conia\Chuck\MiddlewareInterface;
+use Conia\Chuck\MiddlewareWrapper;
 use Conia\Chuck\Renderer\{
     Config as RendererConfig,
     RendererInterface,
@@ -24,13 +26,13 @@ use Conia\Chuck\View\View;
 class Router implements RouterInterface
 {
     use AddsRoutes;
+    use AddsMiddleware;
 
     /** @psalm-suppress PropertyNotSetInConstructor */
     protected readonly Route $route;
     protected array $routes = [];
     protected array $staticRoutes = [];
     protected array $names = [];
-    protected array $middlewares = [];
 
     protected const ALL = 'ALL';
 
@@ -124,18 +126,6 @@ class Router implements RouterInterface
         }
 
         return ($host ? trim($host, '/') : '') . $route['prefix'] . trim($path, '/');
-    }
-
-    public function addMiddleware(callable ...$middlewares): void
-    {
-        foreach ($middlewares as $middleware) {
-            $this->middlewares[] = $middleware;
-        }
-    }
-
-    public function middlewares(): array
-    {
-        return $this->middlewares;
     }
 
     public function routeUrl(string $__routeName__, mixed ...$args): string
@@ -253,32 +243,41 @@ class Router implements RouterInterface
     }
 
     /**
-     * Recursively calls the callables in the middleware/view handler stack.
-     * The last one is assumed to be the view/action.
+     * Recursively calls the callables in the middleware/view handler stack
+     * and then the view callable.
+     *
+     * @psalm-param list<MiddlewareInterface> $handlerStack
+     * @psalm-param Closure(RequestInterface):ResponseInterface $viewClosure
      */
     protected function workOffStack(
-        RequestInterface|ResponseInterface $requestResponse,
+        RequestInterface $request,
         array $handlerStack,
-    ): RequestInterface|ResponseInterface {
-        if (count($handlerStack) > 1) {
-            return $handlerStack[0](
-                $requestResponse,
-                function (RequestInterface $reqResp) use ($handlerStack): RequestInterface|ResponseInterface {
-                    return $this->workOffStack($reqResp, array_slice($handlerStack, 1));
+        Closure $viewClosure,
+    ): ResponseInterface {
+        return match (count($handlerStack)) {
+            0 => $viewClosure($request),
+            1 => $handlerStack[0]($request, $viewClosure),
+            default => $handlerStack[0](
+                $request,
+                function (
+                    RequestInterface $req
+                ) use (
+                    $handlerStack,
+                    $viewClosure
+                ): ResponseInterface {
+                    return $this->workOffStack(
+                        $req,
+                        array_slice($handlerStack, 1),
+                        $viewClosure
+                    );
                 }
-            );
-        } else {
-            return $handlerStack[0]($requestResponse);
-        }
+            )
+        };
     }
 
     /**
      * Looks up the matching route and generates the response while
-     * working of the middleware stack.
-     *
-     * @psalm-suppress InvalidReturnType
-     *
-     * See notes at the return statement.
+     * working off the middleware stack.
      */
     public function dispatch(RequestInterface $request, Registry $registry): ResponseInterface
     {
@@ -289,6 +288,7 @@ class Router implements RouterInterface
          */
         $this->route = $this->match($request);
         $view = View::get($request, $this->route, $registry);
+        /** @var list<MiddlewareInterface> */
         $middlewareAttributes = $view->attributes(MiddlewareInterface::class);
 
         $handlerStack = array_merge(
@@ -297,26 +297,17 @@ class Router implements RouterInterface
             $middlewareAttributes,
         );
 
+        /* MUSS NOCH RAUS */
         if ($request->config()->debug()) {
             foreach ($handlerStack as $middleware) {
                 Reflect::validateMiddleware($middleware);
             }
         }
 
-
-        // Add the view action to the end of the stack
-        $handlerStack[] = function (RequestInterface $req) use ($view): ResponseInterface {
+        $viewClosure = function (RequestInterface $req) use ($view): ResponseInterface {
             return $this->respond($req, $this->route, $view);
         };
 
-        /**
-         * @psalm-suppress InvalidReturnStatement
-         *
-         * workOffStack is guaranteed to return a Response in the end.
-         * The union type is necessarry to allow recursive calls where
-         * the callables deeper down mostly return a Request. But the
-         * result at the end should always be a Response.
-         */
-        return $this->workOffStack($request, $handlerStack);
+        return $this->workOffStack($request, $handlerStack, $viewClosure);
     }
 }

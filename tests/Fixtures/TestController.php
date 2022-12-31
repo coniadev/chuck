@@ -29,6 +29,7 @@ class TestController
 
     public function middlewareView(Request $request): Response
     {
+        error_log('controller');
         return $request->response->html(' view');
     }
 

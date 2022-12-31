@@ -12,5 +12,5 @@ interface MiddlewareInterface
     public function __invoke(
         RequestInterface $request,
         callable $next
-    ): RequestInterface|ResponseInterface;
+    ): ResponseInterface;
 }

@@ -101,7 +101,7 @@ class App
 
     public function middleware(callable ...$middlewares): void
     {
-        $this->router->addMiddleware(...$middlewares);
+        $this->router->middleware(...$middlewares);
     }
 
     /** @param object|class-string $value */

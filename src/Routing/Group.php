@@ -7,6 +7,7 @@ namespace Conia\Chuck\Routing;
 class Group implements GroupInterface
 {
     use AddsRoutes;
+    use AddsMiddleware;
 
     /** @psalm-suppress PropertyNotSetInConstructor */
     protected RouterInterface $router;
@@ -14,7 +15,6 @@ class Group implements GroupInterface
     protected string $namePrefix;
     protected ?string $renderer = null;
     protected ?string $controller = null;
-    protected array $middlewares = [];
 
 
     public function __construct(
@@ -27,15 +27,6 @@ class Group implements GroupInterface
         } else {
             $this->namePrefix = $this->patternPrefix;
         }
-    }
-
-    public function middleware(string|object ...$middlewares): static
-    {
-        foreach ($middlewares as $middleware) {
-            $this->middlewares[] = $middleware;
-        }
-
-        return $this;
     }
 
     public function controller(string $controller): static
@@ -65,7 +56,7 @@ class Group implements GroupInterface
         }
 
         if (!empty($this->middlewares)) {
-            $route->replaceMiddleware(...array_merge($this->middlewares, $route->middlewares()));
+            $route->replaceMiddleware(array_merge($this->middlewares, $route->middlewares()));
         }
 
         $this->router->addRoute($route);

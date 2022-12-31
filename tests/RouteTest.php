@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 use Conia\Chuck\Tests\Setup\TestCase;
 use Conia\Chuck\Routing\Route;
+use Conia\Chuck\MiddlewareWrapper;
+use Conia\Chuck\Tests\Fixtures\{
+    TestMiddleware1,
+    TestMiddleware2,
+};
 
 uses(TestCase::class);
 
@@ -172,4 +177,14 @@ test('Route name named', function () {
     $route = Route::get('/albums', fn () => 'chuck', 'albumroute');
 
     expect($route->name())->toBe('albumroute');
+});
+
+test('Route middleware', function () {
+    $route = Route::get('/', fn () => 'chuck');
+    $route->middleware(new TestMiddleware1());
+    $route->middleware(new TestMiddleware2());
+    $middlewares = $route->middlewares();
+
+    expect($middlewares[0])->toBeInstanceOf(TestMiddleware1::class);
+    expect($middlewares[1])->toBeInstanceOf(MiddlewareWrapper::class);
 });

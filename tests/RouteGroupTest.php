@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Conia\Chuck\MiddlewareWrapper;
 use Conia\Chuck\Error\HttpMethodNotAllowed;
 use Conia\Chuck\Tests\Setup\TestCase;
 use Conia\Chuck\Tests\Fixtures\{
@@ -150,7 +151,6 @@ test('Controller prefixing error', function () {
 
 test('Middleware', function () {
     $router = new Router();
-    $router->addMiddleware(new TestMiddleware1());
 
     $group = (new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
@@ -162,13 +162,13 @@ test('Middleware', function () {
     $group->create($router);
 
     $route = $router->match($this->request(method: 'GET', url: '/albums/human'));
-    $mws = $route->middlewares();
-    expect(count($mws))->toBe(1);
-    expect($mws[0])->toBeInstanceOf(TestMiddleware2::class);
+    $middlewares = $route->middlewares();
+    expect(count($middlewares))->toBe(1);
+    expect($middlewares[0])->toBeInstanceOf(MiddlewareWrapper::class);
 
     $route = $router->match($this->request(method: 'GET', url: '/albums/home'));
-    $mws = $route->middlewares();
-    expect(count($mws))->toBe(2);
-    expect($mws[0])->toBeInstanceOf(TestMiddleware2::class);
-    expect($mws[1])->toBeInstanceOf(TestMiddleware3::class);
+    $middlewares = $route->middlewares();
+    expect(count($middlewares))->toBe(2);
+    expect($middlewares[0])->toBeInstanceOf(MiddlewareWrapper::class);
+    expect($middlewares[1])->toBeInstanceOf(MiddlewareWrapper::class);
 });
