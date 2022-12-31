@@ -58,10 +58,10 @@ class Session implements SessionInterface
                 session_name(),
                 '',
                 time() - 42000,
-                $params["path"],
-                $params["domain"],
-                $params["secure"],
-                $params["httponly"]
+                (string)$params["path"],
+                (string)$params["domain"],
+                (bool)$params["secure"],
+                (bool)$params["httponly"]
             );
         }
 
@@ -69,9 +69,7 @@ class Session implements SessionInterface
         session_destroy();
     }
 
-    /**
-     * @param non-empty-string $key
-     */
+    /** * @param non-empty-string $key */
     public function get(string $key, mixed $default = null): mixed
     {
         if ($this->has($key)) {
@@ -87,16 +85,23 @@ class Session implements SessionInterface
         }
     }
 
+    /**
+     * @psalm-suppress MixedAssignment
+     *
+     * @param non-empty-string $key
+     * */
     public function set(string $key, mixed $value): void
     {
         $_SESSION[$key] = $value;
     }
 
+    /** * @param non-empty-string $key */
     public function has(string $key): bool
     {
         return isset($_SESSION[$key]);
     }
 
+    /** * @param non-empty-string $key */
     public function unset(string $key): void
     {
         unset($_SESSION[$key]);
@@ -117,27 +122,38 @@ class Session implements SessionInterface
         string $message,
         string $queue = 'default',
     ): void {
-        if (!isset($_SESSION[$this->flashMessagesKey])) {
-            $_SESSION[$this->flashMessagesKey] = [];
+        $fmKey = $this->flashMessagesKey;
+
+        if (isset($_SESSION[$fmKey]) && is_array($_SESSION[$fmKey])) {
+            $_SESSION[$fmKey][] = [
+                'message' => htmlspecialchars($message),
+                'queue' => htmlspecialchars($queue),
+            ];
+
+            return;
         }
 
-        $_SESSION[$this->flashMessagesKey][] = [
+        $_SESSION[$fmKey] = [[
             'message' => htmlspecialchars($message),
             'queue' => htmlspecialchars($queue),
-        ];
+        ]];
     }
 
     public function popFlashes(?string $queue = null): array
     {
+        $fmKey = $this->flashMessagesKey;
+
         if ($queue === null) {
-            $flashes = $_SESSION[$this->flashMessagesKey];
-            $_SESSION[$this->flashMessagesKey] = [];
+            /** @var array */
+            $flashes = $_SESSION[$fmKey];
+            $_SESSION[$fmKey] = [];
         } else {
             $key = 0;
             $keys = [];
             $flashes = [];
 
-            foreach ($_SESSION[$this->flashMessagesKey] as $flash) {
+            /** @var array{message: string, queue: string} $flash */
+            foreach ($_SESSION[$fmKey] as $flash) {
                 if ($flash['queue'] === $queue) {
                     $flashes[] = $flash;
                     $keys[] = $key;
@@ -147,7 +163,14 @@ class Session implements SessionInterface
             }
 
             foreach (array_reverse($keys) as $key) {
-                unset($_SESSION[$this->flashMessagesKey][$key]);
+                if (
+                    ($_SESSION[$fmKey] ?? null) &&
+                    is_array($_SESSION[$fmKey])
+                ) {
+                    if (isset($_SESSION[$fmKey][$key])) {
+                        unset($_SESSION[$fmKey][$key]);
+                    }
+                }
             }
         }
 
@@ -156,27 +179,32 @@ class Session implements SessionInterface
 
     public function hasFlashes(?string $queue = null): bool
     {
+        /** @var array */
+        $messages = $_SESSION[$this->flashMessagesKey] ?? [];
+
         if ($queue) {
             return count(array_filter(
-                $_SESSION[$this->flashMessagesKey] ?? [],
+                $messages,
                 fn (array $f) => $f['queue'] === $queue,
             )) > 0;
         }
 
-        return count($_SESSION[$this->flashMessagesKey] ?? []) > 0;
+        return count($messages) > 0;
     }
 
     public function rememberRequestUri(
         int $expires = 3600,
     ): void {
-        $_SESSION[$this->rememberedUriKey] = [
+        $rememberedUri = [
             'uri' => Uri::url(),
             'expires' => time() + $expires,
         ];
+        $_SESSION[$this->rememberedUriKey] = $rememberedUri;
     }
 
     public function getRememberedUri(): string
     {
+        /** @var array{uri: string, expires: int}|null */
         $rememberedUri = $_SESSION[$this->rememberedUriKey] ?? null;
 
         if ($rememberedUri) {
