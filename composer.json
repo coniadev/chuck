@@ -21,7 +21,6 @@
     "require": {
         "php": ">=8.1",
         "psr/log": "^3.0",
-        "symfony/html-sanitizer": "^6.2",
         "conia/cli": "dev-main"
     },
     "autoload": {
