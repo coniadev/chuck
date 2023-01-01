@@ -115,7 +115,6 @@ readonly class Request implements RequestInterface // phpcs:ignore
 
     public function hasMultipleFiles(string $key): bool
     {
-        /** @psalm-suppress TypeDoesNotContainType, PossiblyInvalidArrayOffset */
         return isset($_FILES[$key]) && is_array($_FILES[$key]['error']);
     }
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Response;
 
-use ErrorException;
 use OutOfBoundsException;
 
 class Response implements ResponseInterface
@@ -15,7 +14,7 @@ class Response implements ResponseInterface
     protected ?string $reasonPhrase = null;
 
     public function __construct(
-        protected mixed $body = null,
+        protected ?string $body = null,
         protected int $statusCode = 200,
         /** @param list<array{name: string, value: string, replace: bool}> */
         array $headers = [],

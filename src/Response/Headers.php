@@ -30,9 +30,10 @@ class Headers
     protected array $emittedHeaders = [];
 
     public function __construct(
-        /** @param list<array{string, string, ?bool}> */
+        /** @param list<list{string, string, ?bool}>|null */
         array $headers = []
     ) {
+        /** @var list{string, string, ?bool} $header */
         foreach ($headers as $header) {
             $this->add($header[0], $header[1], $header[2] ?? true);
         }
