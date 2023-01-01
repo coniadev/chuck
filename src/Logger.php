@@ -18,13 +18,14 @@ class Logger implements LoggerInterface
     public const ALERT = 700;
     public const EMERGENCY = 800;
 
+    /** @var array<int, non-empty-string> */
     protected array $levelLabels;
 
     /**
      *
      */
     public function __construct(
-        protected ?int $minimumLevel = self::DEBUG,
+        protected int $minimumLevel = self::DEBUG,
         protected ?string $logfile = null,
     ) {
         $this->levelLabels = [
@@ -45,6 +46,8 @@ class Logger implements LoggerInterface
         array $context = [],
     ): void {
         $message = (string)$message;
+        assert(is_int($level) || is_numeric($level));
+        $level = (int)$level;
 
         if ($level < $this->minimumLevel) {
             return;
@@ -115,6 +118,11 @@ class Logger implements LoggerInterface
     {
         $substitudes = array();
 
+        /**
+         * @psalm-suppress MixedAssignment
+         *
+         * $values types are exhaustively checked
+         */
         foreach ($context as $key => $value) {
             $placeholder = '{' . $key . '}';
 
