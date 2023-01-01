@@ -130,7 +130,6 @@ class Router implements RouterInterface
         return ($host ? trim($host, '/') : '') . $route->prefix . trim($path, '/');
     }
 
-    /** @psalm-suppress MixedArgument */
     public function routeUrl(string $__routeName__, mixed ...$args): string
     {
         $route = $this->names[$__routeName__] ?? null;

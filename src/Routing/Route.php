@@ -7,6 +7,7 @@ namespace Conia\Chuck\Routing;
 use Closure;
 use InvalidArgumentException;
 use ValueError;
+use Stringable;
 use Conia\Chuck\Renderer\Config as RendererConfig;
 
 const LEFT_BRACE = '§§§€§§§';
@@ -19,10 +20,11 @@ class Route implements RouteInterface
 
     protected string $name;
     protected array $args = [];
-    /** @var list<string> */
-    protected array $methods = [];
+    /** @var null|list<string> */
+    protected ?array $methods = null;
     protected ?RendererConfig $renderer = null;
-
+    /** @var Closure|list{string, string}|string */
+    protected Closure|array|string $view;
 
     /**
      * @param $pattern The URL pattern of the route.
@@ -32,11 +34,19 @@ class Route implements RouteInterface
      */
     public function __construct(
         protected string $pattern,
-        /** @property Closure|list{string, string}|string */
-        protected Closure|array|string $view,
+        /** @param callable|list{string, string}|non-empty-string */
+        callable|array|string $view,
         ?string $name = null,
         protected array $params = [],
     ) {
+        if (is_callable($view)) {
+            /** @var callable $view -- this is somehow necessary */
+            $this->view = Closure::fromCallable($view);
+        } else {
+            /** @var list{string, string}|non-empty-string $view */
+            $this->view = $view;
+        }
+
         if ($name) {
             $this->name = $name;
         } else {
@@ -109,17 +119,18 @@ class Route implements RouteInterface
         return (new self($pattern, $view, $name, $params))->method('OPTIONS');
     }
 
+    /** @no-named-arguments */
     public function method(string ...$args): static
     {
-        $this->methods = array_merge($this->methods, array_map(fn ($m) => strtoupper($m), $args));
+        $this->methods = array_merge($this->methods ?? [], array_map(fn ($m) => strtoupper($m), $args));
 
         return $this;
     }
 
-    /** @psalm-return list<string> */
+    /** @return list<string> */
     public function methods(): array
     {
-        return $this->methods;
+        return $this->methods ?? [];
     }
 
     public function prefix(string $pattern = '', string $name = ''): static
@@ -243,6 +254,11 @@ class Route implements RouteInterface
         return $this->restoreInnerBraces($pattern);
     }
 
+    /**
+     * @psalm-suppress MixedAssignment
+     *
+     * Types are checked in the body.
+     */
     public function url(mixed ...$args): string
     {
         $url = '/' . ltrim($this->pattern, '/');
@@ -259,27 +275,37 @@ class Route implements RouteInterface
                 }
             }
 
+            /**
+             * @psalm-suppress MixedAssignment
+             *
+             * We check if $value can be transformed into a string, Psalm
+             * complains anyway.
+             */
             foreach ($args as $name => $value) {
-                // basic variables
-                $url = preg_replace(
-                    '/\{' . $name . '(:.*?)?\}/',
-                    urlencode((string)$value),
-                    $url,
-                );
+                if (is_scalar($value) or ($value instanceof Stringable)) {
+                    // basic variables
+                    $url = preg_replace(
+                        '/\{' . (string)$name . '(:.*?)?\}/',
+                        urlencode((string)$value),
+                        $url,
+                    );
 
-                // remainder variables
-                $url = preg_replace(
-                    '/\.\.\.' . $name . '/',
-                    urlencode((string)$value),
-                    $url,
-                );
+                    // remainder variables
+                    $url = preg_replace(
+                        '/\.\.\.' . (string)$name . '/',
+                        urlencode((string)$value),
+                        $url,
+                    );
+                } else {
+                    throw new InvalidArgumentException('No valid url argument');
+                }
             }
         }
 
         return $url;
     }
 
-    /** @return Closure|string|list{string, string} */
+    /** @return Closure|list{string, string}|string */
     public function view(): Closure|array|string
     {
         return $this->view;

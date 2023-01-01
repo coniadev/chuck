@@ -27,11 +27,6 @@ abstract class View
         $view = $route->view();
 
         if (is_callable($view)) {
-            /**
-             * @psalm-suppress MixedArgumentTypeCoercion
-             *
-             * We check if $view is a callable but psalm complains anyway.
-             */
             return new CallableView($request, $route, $registry, $view);
         } else {
             /**

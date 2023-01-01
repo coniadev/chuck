@@ -104,8 +104,18 @@ test('Parameter matching brace error III', function () {
 
 test('Url construction :: regular parameters', function () {
     $route = new Route('/contributed/{from:\d+}/{to:\d\d\d}', fn () => null);
+    $obj = new class(1991) extends stdClass
+    {
+        public function __construct(protected int $val)
+        {
+        }
+        public function __toString(): string
+        {
+            return (string)$this->val;
+        }
+    };
 
-    expect($route->url(['from' => '1983', 'to' => '1991']))->toBe('/contributed/1983/1991');
+    expect($route->url(['from' => 1983, 'to' => $obj]))->toBe('/contributed/1983/1991');
     expect($route->url(from: 1983, to: 1991))->toBe('/contributed/1983/1991');
 });
 
@@ -121,7 +131,14 @@ test('Url construction :: no parameters', function () {
 test('Url construction :: invalid call', function () {
     $route = new Route('/albums', fn () => null);
 
-    expect($route->url(1, 2))->toBe('/albums');
+    $route->url(1, 2);
+})->throws(InvalidArgumentException::class);
+
+
+test('Url construction :: invalid parameters', function () {
+    $route = new Route('/contributed/{from:\d+}/{to:\d\d\d}', fn () => null);
+
+    $route->url(from: 1983, to: []);
 })->throws(InvalidArgumentException::class);
 
 
