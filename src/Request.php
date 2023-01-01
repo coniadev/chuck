@@ -115,6 +115,12 @@ readonly class Request implements RequestInterface // phpcs:ignore
 
     public function hasMultipleFiles(string $key): bool
     {
+        /**
+         * @psalm-suppress TypeDoesNotContainType
+         *
+         * Psalm does not support multi file uploads yet and complains
+         * about type issues. We need to suppres some of the errors.
+         */
         return isset($_FILES[$key]) && is_array($_FILES[$key]['error']);
     }
 
@@ -144,6 +150,10 @@ readonly class Request implements RequestInterface // phpcs:ignore
         if (isset($_FILES[$field]['error']) && is_array($_FILES[$field]['error'])) {
             $files = [];
 
+            /**
+             * @var int $idx
+             * @var int $error
+             * */
             foreach ($_FILES[$field]['error'] as $idx => $error) {
                 $f = $_FILES[$field] ?? null;
 
@@ -152,7 +162,7 @@ readonly class Request implements RequestInterface // phpcs:ignore
                         $f['name'][$idx],
                         $f['tmp_name'][$idx],
                         $f['type'][$idx],
-                        $f['size'][$idx],
+                        (int)$f['size'][$idx],
                         $error,
                     );
                 }
