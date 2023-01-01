@@ -11,7 +11,7 @@ use Conia\Chuck\Response\ResponseInterface;
 #[Attribute]
 class Render
 {
-    protected mixed $args;
+    protected array $args;
 
     public function __construct(protected string $renderer, mixed ...$args)
     {

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use Psr\Log\LoggerInterface;
-use Conia\Chuck\Config\Scripts;
 use Conia\Chuck\Renderer\RendererInterface;
 
 interface ConfigInterface
