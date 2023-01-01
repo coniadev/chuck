@@ -28,5 +28,6 @@ interface RouterInterface
     public function match(RequestInterface $request): ?RouteInterface;
     public function dispatch(RequestInterface $request, Registry $registry): ResponseInterface;
     public function middleware(callable ...$middlewares): static;
+    /** @return list<\Conia\Chuck\MiddlewareInterface> */
     public function middlewares(): array;
 }

@@ -9,18 +9,22 @@ use Conia\Chuck\MiddlewareWrapper;
 
 trait AddsMiddleware
 {
-    /** @var list<MiddlewareInterface> */
-    protected array $middlewares = [];
+    /** @var null|list<MiddlewareInterface> */
+    protected ?array $middlewares = null;
 
     public function middleware(callable ...$middlewares): static
     {
+        $new = [];
+
         foreach ($middlewares as $middleware) {
             if ($middleware instanceof MiddlewareInterface) {
-                $this->middlewares[] = $middleware;
+                $new[] = $middleware;
             } else {
-                $this->middlewares[] = new MiddlewareWrapper($middleware);
+                $new[] = new MiddlewareWrapper($middleware);
             }
         }
+
+        $this->middlewares = array_merge($this->middlewares ?? [], $new);
 
         return $this;
     }
@@ -28,7 +32,7 @@ trait AddsMiddleware
     /** @return list<MiddlewareInterface> */
     public function middlewares(): array
     {
-        return $this->middlewares;
+        return $this->middlewares ?: [];
     }
 
     /** @psalm-param list<MiddlewareInterface> $middlewares */

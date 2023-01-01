@@ -303,9 +303,8 @@ class Router implements RouterInterface
         /** @var list<MiddlewareInterface> */
         $middlewareAttributes = $view->attributes(MiddlewareInterface::class);
 
-        /** @var list<MiddlewareInterface> */
         $handlerStack = array_merge(
-            $this->middlewares,
+            $this->middlewares ?? [],
             $this->route->middlewares(),
             $middlewareAttributes,
         );
