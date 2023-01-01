@@ -7,12 +7,17 @@ namespace Conia\Chuck\Routing;
 use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\MiddlewareWrapper;
 
+/**
+ * @psalm-import-type MiddlewareCallable from \Conia\Chuck\MiddlewareInterface
+ */
+
 trait AddsMiddleware
 {
-    /** @var null|list<MiddlewareInterface> */
-    protected ?array $middlewares = null;
+    /** @var array<never, never>|list<MiddlewareInterface> */
+    protected array $middlewares = [];
 
-    public function middleware(callable ...$middlewares): static
+    /** @param array<never, never>|list<MiddlewareInterface|MiddlewareCallable> $middlewares */
+    public function middleware(MiddlewareInterface|callable ...$middlewares): static
     {
         $new = [];
 
@@ -24,15 +29,15 @@ trait AddsMiddleware
             }
         }
 
-        $this->middlewares = array_merge($this->middlewares ?? [], $new);
+        $this->middlewares = array_merge($this->middlewares, $new);
 
         return $this;
     }
 
-    /** @return list<MiddlewareInterface> */
+    /** @return array<never, never>|list<MiddlewareInterface> */
     public function middlewares(): array
     {
-        return $this->middlewares ?: [];
+        return $this->middlewares;
     }
 
     /** @psalm-param list<MiddlewareInterface> $middlewares */

@@ -8,6 +8,10 @@ use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Response\ResponseInterface;
 
+/**
+ * @psalm-import-type MiddlewareCallable from \Conia\Chuck\MiddlewareInterface
+ */
+
 interface RouterInterface
 {
     public function getRoute(): RouteInterface;
@@ -27,7 +31,10 @@ interface RouterInterface
     ): string;
     public function match(RequestInterface $request): ?RouteInterface;
     public function dispatch(RequestInterface $request, Registry $registry): ResponseInterface;
+
+    /** @param array<never, never>|list<\Conia\Chuck\MiddlewareInterface|MiddlewareCallable> $middlewares */
     public function middleware(callable ...$middlewares): static;
+
     /** @return list<\Conia\Chuck\MiddlewareInterface> */
     public function middlewares(): array;
 }

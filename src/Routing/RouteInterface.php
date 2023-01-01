@@ -7,20 +7,31 @@ namespace Conia\Chuck\Routing;
 use Closure;
 use Conia\Chuck\Renderer;
 
+/**
+ * @psalm-import-type MiddlewareCallable from \Conia\Chuck\MiddlewareInterface
+ */
+
 interface RouteInterface
 {
     public function url(mixed ...$args): string;
+
     /** @return Closure|list{string, string}|string */
     public function view(): Closure|array|string;
     public function name(): string;
     public function args(): array;
+
     /** @no-named-arguments */
     public function method(string ...$args): static;
+
     /** @return list<string> */
     public function methods(): array;
+
     /** @param list<\Conia\Chuck\MiddlewareInterface> $middlewares */
     public function replaceMiddleware(array $middlewares): static;
+
+    /** @param array<never, never>|list<\Conia\Chuck\MiddlewareInterface|MiddlewareCallable> $middlewares */
     public function middleware(callable ...$middlewares): static;
+
     /** @return list<\Conia\Chuck\MiddlewareInterface> */
     public function middlewares(): array;
     public function render(string $renderer, mixed ...$args): static;
