@@ -14,7 +14,6 @@ use Conia\Chuck\Routing\GroupInterface;
 use Conia\Chuck\Routing\RouteInterface;
 use Conia\Chuck\Routing\{Group, Router, RouterInterface, AddsRoutes};
 
-
 /** @psalm-consistent-constructor */
 class App
 {
@@ -102,7 +101,10 @@ class App
     }
 
     /**
-     * @param MiddlewareInterface|callable(RequestInterface, callable):\Conia\Chuck\Response\ResponseInterface $middlewares
+     * @param MiddlewareInterface|callable(
+     *     RequestInterface,
+     *     callable
+     * ):\Conia\Chuck\Response\ResponseInterface $middlewares
      *
      * TODO: Why can't we import the custom psalm type MiddlewareCallable from MiddlewareInterface
      */

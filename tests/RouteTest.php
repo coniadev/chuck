@@ -104,6 +104,9 @@ test('Parameter matching brace error III', function () {
 
 test('Url construction :: regular parameters', function () {
     $route = new Route('/contributed/{from:\d+}/{to:\d\d\d}', fn () => null);
+
+    // The editor removes the space
+    // phpcs:disable PSR12.Classes.AnonClassDeclaration.SpaceAfterKeyword
     $obj = new class(1991) extends stdClass
     {
         public function __construct(protected int $val)

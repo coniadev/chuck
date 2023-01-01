@@ -13,11 +13,11 @@ use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Renderer\RendererInterface;
 use Conia\Chuck\Util\Uri;
 
-readonly class Request implements RequestInterface // phpcs:ignore
+class Request implements RequestInterface // phpcs:ignore
 {
     public function __construct(
-        protected ConfigInterface $config,
-        public ResponseFactory $response = new ResponseFactory(),
+        readonly protected ConfigInterface $config,
+        readonly public ResponseFactory $response = new ResponseFactory(),
     ) {
     }
 
