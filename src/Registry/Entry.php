@@ -13,7 +13,10 @@ class Entry
     protected array|Closure|null $args = null;
     protected bool $reify = true;
 
-    /** @param object|class-string $value */
+    /**
+     * @param non-empty-string $id
+     * @param object|class-string $value
+     * */
     public function __construct(
         readonly protected string $id,
         protected object|string $value,

@@ -20,9 +20,13 @@ use Conia\Chuck\Error\UnsupportedResolveParameter;
 
 class Registry
 {
+    /** @var array<never, never>|array<string, Entry> */
     protected array $entries = [];
 
-    /** @param object|class-string $value */
+    /**
+     * @param non-empty-string $id
+     * @param object|class-string $value
+     * */
     public function add(
         string $id,
         object|string $value,
@@ -57,6 +61,7 @@ class Registry
 
     public function new(string $id, mixed ...$args): object
     {
+        /** @psalm-suppress MixedMethodCall */
         return new ($this->get($id))(...$args);
     }
 
@@ -65,12 +70,11 @@ class Registry
         $paramName = $paramName ?
             (str_starts_with($paramName, '$') ? $paramName : '$' . $paramName) :
             '';
+
         // 1. See if there's a entry with a bound parameter name:
         //    e. g. '\Namespace\MyClass$myParameter'
         //    If $paramName is emtpy an existing unbound entry should
         //    be found on first try.
-        // 2. See if there is an unbound entry:
-        //    e. g. '\Namespace\MyClass'
         $entry = $this->entries[$id . $paramName] ??
             $this->entries[$id] ??
             null;
@@ -79,7 +83,9 @@ class Registry
             return $this->resolveEntry($entry);
         }
 
-        // Autowiring: $id does not exists as an entry in the registry
+        // 2. See if there is an unbound entry:
+        //    e. g. '\Namespace\MyClass'
+        //    Autowiring: $id does not exists as an entry in the registry
         if (class_exists($id)) {
             return $this->autowire($id);
         }
@@ -96,6 +102,7 @@ class Registry
             $rf = new ReflectionFunction($value);
             $args = $this->resolveArgs($rf);
 
+            /** @psalm-suppress MixedArgument */
             return $this->reifyAndReturn($entry, $value(...$args));
         }
 
@@ -140,12 +147,12 @@ class Registry
             if ($type) {
                 throw new UnsupportedResolveParameter(
                     "Autowiring does not support union or intersection types. Source: \n" .
-                    $this->getParamInfo($param)
+                        $this->getParamInfo($param)
                 );
             } else {
                 throw new UntypedResolveParameter(
                     "Autowired classes need to have typed constructor parameters. Source: \n" .
-                    $this->getParamInfo($param)
+                        $this->getParamInfo($param)
                 );
             }
         }
@@ -199,6 +206,7 @@ class Registry
     /** @param class-string $class */
     protected function fromArgsArray(string $class, array $args): object
     {
+        /** @psalm-suppress MixedMethodCall */
         return new $class(...$args);
     }
 
@@ -208,6 +216,7 @@ class Registry
         $rf = new ReflectionFunction($callback);
         $args = $this->resolveArgs($rf);
 
+        /** @psalm-suppress MixedMethodCall */
         return new $class(...$callback(...$args));
     }
 }
