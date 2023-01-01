@@ -24,29 +24,26 @@ class Config implements ConfigInterface
     protected readonly string $env;
     protected readonly string $app;
 
+    /** @var null|Closure():LoggerInterface */
     protected ?Closure $loggerCallback = null;
     protected ?LoggerInterface $logger = null;
     /** @var array<string, array{class: class-string<Renderer>, options: mixed}> */
     protected array $renderers = [];
 
+
+
     /**
-     * Stores additional user defined settings
-     *
-     * @var array<string, mixed>
+     * @param array<never, never>|array<string, mixed> -- Stores additional user defined settings
      */
-    protected array $settings;
-
-
     public function __construct(
         string $app,
         bool $debug = false,
         string $env = '',
-        array $settings = []
+        protected array $settings = [],
     ) {
         $this->app = $this->validateApp($app);
         $this->debug = $debug;
         $this->env = $env;
-        $this->settings = $settings;
 
         $this->renderers = [
             'text' => ['class' => TextRenderer::class, 'options' => null],
@@ -119,14 +116,17 @@ class Config implements ConfigInterface
     public function renderer(RequestInterface $request, string $type, mixed ...$args): RendererInterface
     {
         $class = $this->renderers[$type]['class'];
+        /** @psalm-suppress MixedAssignment -- options are mixed values by nature */
         $options = $this->renderers[$type]['options'];
 
         return new $class($request, $args, $options);
     }
 
-    public function setupLogger(Closure $callback): void
+    /** @param callable():LoggerInterface $callable */
+    public function setupLogger(callable $callback): void
     {
-        $this->loggerCallback = $callback;
+        /** @var Closure():LoggerInterface */
+        $this->loggerCallback = Closure::fromCallable($callback);
     }
 
     public function logger(): ?LoggerInterface

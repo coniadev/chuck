@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Psr\Log\LoggerInterface;
 use Conia\Chuck\Tests\Setup\{TestCase, C};
 use Conia\Chuck\Tests\Fixtures\TestRenderer;
 use Conia\Chuck\Config;
@@ -47,7 +48,7 @@ test('Missing key', function () {
 
 test('Logger setup', function () {
     $config = new Config('chuck');
-    $config->setupLogger(function () {
+    $config->setupLogger(function (): LoggerInterface {
         $logfile = C::root() . C::DS . 'log' . C::DS . bin2hex(random_bytes(4)) . '.log';
         return new Logger(Logger::DEBUG, $logfile);
     });
