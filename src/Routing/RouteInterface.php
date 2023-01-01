@@ -29,7 +29,7 @@ interface RouteInterface
     /** @param list<\Conia\Chuck\MiddlewareInterface> $middlewares */
     public function replaceMiddleware(array $middlewares): static;
 
-    /** @param array<never, never>|list<\Conia\Chuck\MiddlewareInterface|MiddlewareCallable> $middlewares */
+    /** @param \Conia\Chuck\MiddlewareInterface|MiddlewareCallable $middlewares */
     public function middleware(callable ...$middlewares): static;
 
     /** @return list<\Conia\Chuck\MiddlewareInterface> */

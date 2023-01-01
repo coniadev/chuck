@@ -6,12 +6,14 @@ namespace Conia\Chuck;
 
 use Closure;
 use Conia\Chuck\Error\Handler;
+use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\Response\ResponseInterface;
 use Conia\Chuck\Registry\Entry;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Routing\GroupInterface;
 use Conia\Chuck\Routing\RouteInterface;
 use Conia\Chuck\Routing\{Group, Router, RouterInterface, AddsRoutes};
+
 
 /** @psalm-consistent-constructor */
 class App
@@ -99,12 +101,20 @@ class App
         $this->router->addStatic($prefix, $path, $name);
     }
 
-    public function middleware(callable ...$middlewares): void
+    /**
+     * @param MiddlewareInterface|callable(RequestInterface, callable):\Conia\Chuck\Response\ResponseInterface $middlewares
+     *
+     * TODO: Why can't we import the custom psalm type MiddlewareCallable from MiddlewareInterface
+     */
+    public function middleware(MiddlewareInterface|callable ...$middlewares): void
     {
         $this->router->middleware(...$middlewares);
     }
 
-    /** @param object|class-string $value */
+    /**
+     * @param non-empty-string $key
+     * @param object|class-string $value
+     * */
     public function register(string $key, object|string $value): Entry
     {
         return $this->registry->add($key, $value);

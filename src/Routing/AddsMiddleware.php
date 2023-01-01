@@ -16,7 +16,7 @@ trait AddsMiddleware
     /** @var array<never, never>|list<MiddlewareInterface> */
     protected array $middlewares = [];
 
-    /** @param array<never, never>|list<MiddlewareInterface|MiddlewareCallable> $middlewares */
+    /** @param MiddlewareInterface|MiddlewareCallable $middlewares */
     public function middleware(MiddlewareInterface|callable ...$middlewares): static
     {
         $new = [];
