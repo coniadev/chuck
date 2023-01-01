@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use RuntimeException;
-use TypeError;
 use Throwable;
 
 class File
@@ -27,17 +26,19 @@ class File
      */
     public static function fromArray(array $array): self
     {
+        if (isset($array['name']) && is_array($array['name'])) {
+            throw new RuntimeException('Cannot read file. Could be a multi file upload.');
+        }
+
         try {
             return new self(
-                $array['name'],
-                $array['tmp_name'],
-                $array['type'],
-                $array['size'],
-                $array['error'],
+                (string)$array['name'],
+                (string)$array['tmp_name'],
+                (string)$array['type'],
+                (int)$array['size'],
+                (int)$array['error'],
             );
-        } catch (TypeError) {
-            throw new RuntimeException('Cannot read file. Could be a multi file upload.');
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             throw new RuntimeException('Cannot read file. Could be a wrong array format.');
         }
     }
