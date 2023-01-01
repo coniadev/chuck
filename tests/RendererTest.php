@@ -70,7 +70,7 @@ test('String Renderer', function () {
 
 test('String Renderer :: wrong type', function () {
     (new TextRenderer($this->request(), []))->response([1, 2, 3]);
-})->throws(ValueError::class, 'Wrong type [array]');
+})->throws(ValueError::class, 'wrong type [array]');
 
 
 test('Template Renderer :: html (array of template dirs)', function () {
@@ -144,3 +144,8 @@ test('Template Renderer :: template missing', function () {
 test('Template Renderer :: template dirs missing', function () {
     (new TemplateRenderer($this->request(), ['renderer'], []))->response([]);
 })->throws(ValueError::class);
+
+test('Template Renderer :: wrong context', function () {
+    $renderer = new TemplateRenderer($this->request(), ['renderer'], $this->templates());
+    $renderer->response(new stdClass());
+})->throws(InvalidArgumentException::class);

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Conia\Chuck\Renderer;
 
 use ErrorException;
+use InvalidArgumentException;
 use ValueError;
+use Traversable;
 use Conia\Chuck\Response\Response;
 use Conia\Boiler\Engine;
 
@@ -13,14 +15,16 @@ class TemplateRenderer extends Renderer
 {
     public function render(mixed $data): string
     {
-        if ($data instanceof \Traversable) {
+        if ($data instanceof Traversable) {
             $context = iterator_to_array($data);
+        } elseif (is_array($data)) {
+            $context = $data;
         } else {
-            $context = $data ?? [];
+            throw new InvalidArgumentException('Template context must be an array or a Traversable');
         }
 
         try {
-            $templateName = $this->args[0];
+            $templateName = (string)$this->args[0];
         } catch (ErrorException) {
             throw new ValueError('No template passed to template renderer');
         }
@@ -42,7 +46,7 @@ class TemplateRenderer extends Renderer
     {
         return (new Response($this->render($data)))->header(
             'Content-Type',
-            ($this->args['contentType'] ?? null) ?: 'text/html',
+            (string)(($this->args['contentType'] ?? null) ?: 'text/html'),
             true
         );
     }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Renderer;
 
-use TypeError;
+use ErrorException;
 use ValueError;
 use Conia\Chuck\Response\Response;
 
@@ -12,7 +12,7 @@ class TextRenderer extends Renderer
 {
     public function render(mixed $data): string
     {
-        return $data;
+        return (string)$data;
     }
 
     public function response(mixed $data): Response
@@ -20,11 +20,15 @@ class TextRenderer extends Renderer
         try {
             return (new Response($this->render($data)))->header(
                 'Content-Type',
-                ($this->args['contentType'] ?? null) ?: 'text/plain',
+                (string)(($this->args['contentType'] ?? null) ?: 'text/plain'),
                 true,
             );
-        } catch (TypeError) {
-            throw new ValueError('Text renderer error: Wrong type [' . get_debug_type($data) . ']');
+        } catch (ErrorException $e) {
+            throw new ValueError(
+                'Text renderer error: Probably wrong type [' .
+                    get_debug_type($data) .
+                    "]\n" . $e->getMessage()
+            );
         }
     }
 }
