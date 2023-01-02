@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Renderer;
 
-use ErrorException;
-use ValueError;
+use Throwable;
+use Conia\Chuck\Error\ValueError;
 use Conia\Chuck\Response\Response;
 
 class TextRenderer extends Renderer
@@ -23,7 +23,7 @@ class TextRenderer extends Renderer
                 (string)(($this->args['contentType'] ?? null) ?: 'text/plain'),
                 true,
             );
-        } catch (ErrorException $e) {
+        } catch (Throwable $e) {
             throw new ValueError(
                 'Text renderer error: Probably wrong type [' .
                     get_debug_type($data) .

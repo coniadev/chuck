@@ -6,11 +6,10 @@ namespace Conia\Chuck\Routing;
 
 use Closure;
 use JsonException;
-use RuntimeException;
 use Stringable;
 use Throwable;
 use Conia\Chuck\Attribute\Render;
-use Conia\Chuck\Error\{HttpNotFound, HttpMethodNotAllowed};
+use Conia\Chuck\Error\{HttpNotFound, HttpMethodNotAllowed, RuntimeException};
 use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\Renderer\{
     Config as RendererConfig,

@@ -6,9 +6,9 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-use ErrorException;
-use OutOfBoundsException;
-use RuntimeException;
+use Throwable;
+use Conia\Chuck\Error\OutOfBoundsException;
+use Conia\Chuck\Error\RuntimeException;
 use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Renderer\RendererInterface;
 use Conia\Chuck\Util\Uri;
@@ -129,7 +129,7 @@ class Request implements RequestInterface // phpcs:ignore
     {
         try {
             return File::fromArray($_FILES[$field]);
-        } catch (ErrorException) {
+        } catch (Throwable) {
             throw new RuntimeException("Cannot read file '$field'");
         }
     }

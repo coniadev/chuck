@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Renderer;
 
-use ErrorException;
-use InvalidArgumentException;
-use ValueError;
+use Throwable;
 use Traversable;
+use Conia\Chuck\Error\InvalidArgumentException;
+use Conia\Chuck\Error\ValueError;
 use Conia\Chuck\Response\Response;
 use Conia\Boiler\Engine;
 
@@ -25,7 +25,7 @@ class TemplateRenderer extends Renderer
 
         try {
             $templateName = (string)$this->args[0];
-        } catch (ErrorException) {
+        } catch (Throwable) {
             throw new ValueError('No template passed to template renderer');
         }
 

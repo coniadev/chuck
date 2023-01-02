@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-use RuntimeException;
 use Throwable;
+use Conia\Chuck\Error\RuntimeException;
 
 class File
 {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Response;
 
-use OutOfBoundsException;
+use Conia\Chuck\Error\OutOfBoundsException;
 
 class Response implements ResponseInterface
 {

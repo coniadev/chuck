@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use Closure;
-use OutOfBoundsException;
 use Throwable;
-use ValueError;
 use Psr\Log\LoggerInterface;
+use Conia\Chuck\Error\OutOfBoundsException;
+use Conia\Chuck\Error\ValueError;
 use Conia\Chuck\Renderer\{
     Renderer,
     JsonRenderer,

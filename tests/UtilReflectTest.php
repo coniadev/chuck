@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Conia\Chuck\Error\TypeError;
 use Conia\Chuck\Tests\Setup\TestCase;
 use Conia\Chuck\Util\Reflect;
 use Conia\Chuck\Request;

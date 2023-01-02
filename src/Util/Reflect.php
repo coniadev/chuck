@@ -12,7 +12,7 @@ use ReflectionMethod;
 use ReflectionObject;
 use ReflectionParameter;
 use Throwable;
-use TypeError;
+use Conia\Chuck\Error\TypeError;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Response\ResponseInterface;
 
@@ -73,9 +73,8 @@ class Reflect
                 $returnTypeCls = new ReflectionClass($type);
 
                 if (
-                    !(
-                        $returnTypeCls->implementsInterface(RequestInterface::class) ||
-                    $returnTypeCls->implementsInterface(ResponseInterface::class)
+                    !($returnTypeCls->implementsInterface(RequestInterface::class) ||
+                        $returnTypeCls->implementsInterface(ResponseInterface::class)
                     )
                 ) {
                     throw new TypeError("Wrong return type $returnType");

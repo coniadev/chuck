@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Conia\Chuck\View;
 
 use ReflectionFunctionAbstract;
-use RuntimeException;
 use Throwable;
+use Conia\Chuck\Error\RuntimeException;
 use Conia\Chuck\Error\UntypedResolveParameter;
 use Conia\Chuck\Error\UntypedViewParameter;
 use Conia\Chuck\Registry\Registry;

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Conia\Chuck\Error\ValueError;
 use Conia\Chuck\Tests\Setup\{TestCase, C};
 use Conia\Chuck\Util\Image;
 

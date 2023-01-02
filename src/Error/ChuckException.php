@@ -4,6 +4,6 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Error;
 
-class UntypedViewParameter extends RuntimeException
+interface ChuckException
 {
 }

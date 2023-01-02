@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Conia\Chuck\Error\ValueError;
 use Conia\Chuck\Tests\Setup\{C, TestCase};
 use Conia\Chuck\Renderer\JsonRenderer;
 use Conia\Chuck\Renderer\TextRenderer;

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Util;
 
-use ErrorException;
 use GdImage;
-use InvalidArgumentException;
-use RuntimeException;
+use Throwable;
+use Conia\Chuck\Error\InvalidArgumentException;
+use Conia\Chuck\Error\RuntimeException;
 
 class Image
 {
@@ -47,7 +47,7 @@ class Image
                         'File "' . $path . '" is not a valid jpg, webp, png or gif image.'
                     );
             }
-        } catch (ErrorException) {
+        } catch (Throwable) {
             throw new InvalidArgumentException(
                 'File "' . $path . '" is not a valid jpg, webp, png or gif image.'
             );

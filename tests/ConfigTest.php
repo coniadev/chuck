@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-use Psr\Log\LoggerInterface;
+use Conia\Chuck\Config;
+use Conia\Chuck\Error\ValueError;
+use Conia\Chuck\Logger;
 use Conia\Chuck\Tests\Setup\{TestCase, C};
 use Conia\Chuck\Tests\Fixtures\TestRenderer;
-use Conia\Chuck\Config;
-use Conia\Chuck\Logger;
+use Psr\Log\LoggerInterface;
 
 uses(TestCase::class);
 

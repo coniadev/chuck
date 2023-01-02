@@ -6,10 +6,10 @@ namespace Conia\Chuck\Tests\Setup;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Psr\Log\LoggerInterface;
-use ValueError;
 use Conia\Chuck\App;
 use Conia\Chuck\Config;
 use Conia\Chuck\ConfigInterface;
+use Conia\Chuck\Error\ValueError;
 use Conia\Chuck\Logger;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Request;

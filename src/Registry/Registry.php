@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Conia\Chuck\Registry;
 
 use Closure;
-use OutOfBoundsException;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
-use RuntimeException;
 use Throwable;
+use Conia\Chuck\Error\OutOfBoundsException;
+use Conia\Chuck\Error\RuntimeException;
 use Conia\Chuck\Error\Unresolvable;
 use Conia\Chuck\Error\UntypedResolveParameter;
 use Conia\Chuck\Error\UnsupportedResolveParameter;

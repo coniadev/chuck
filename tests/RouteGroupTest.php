@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Conia\Chuck\MiddlewareWrapper;
 use Conia\Chuck\Error\HttpMethodNotAllowed;
+use Conia\Chuck\Error\ValueError;
 use Conia\Chuck\Tests\Setup\TestCase;
 use Conia\Chuck\Tests\Fixtures\{
     TestController,

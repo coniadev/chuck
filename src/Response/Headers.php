@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Response;
 
-use ValueError;
+use Conia\Chuck\Error\ValueError;
 
 class Headers
 {
