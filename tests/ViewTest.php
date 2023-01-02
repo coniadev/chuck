@@ -105,3 +105,21 @@ test('Untyped closure parameter', function () {
     $view = View::get($this->request(), $route, $this->registry());
     $view->execute();
 })->throws(UntypedViewParameter::class);
+
+test('Reflect function', function () {
+    $rf = View::getReflectionFunction(function () {
+    });
+    expect($rf)->toBeInstanceOf(ReflectionFunction::class);
+
+    $rf = View::getReflectionFunction(new class
+    {
+        public function __invoke(): string
+        {
+            return '';
+        }
+    });
+    expect($rf)->toBeInstanceOf(ReflectionMethod::class);
+
+    $rf = View::getReflectionFunction('is_string');
+    expect($rf)->toBeInstanceOf(ReflectionFunction::class);
+});

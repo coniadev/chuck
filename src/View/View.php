@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\View;
 
+use Closure;
+use ReflectionFunction;
+use ReflectionMethod;
+use ReflectionObject;
 use ReflectionFunctionAbstract;
 use Throwable;
 use Conia\Chuck\Error\RuntimeException;
@@ -115,5 +119,18 @@ abstract class View
         }
 
         return $this->attributes;
+    }
+
+    public static function getReflectionFunction(
+        callable $callable
+    ): ReflectionFunction|ReflectionMethod {
+        if ($callable instanceof Closure) {
+            return new ReflectionFunction($callable);
+        } elseif (is_object($callable)) {
+            return (new ReflectionObject($callable))->getMethod('__invoke');
+        } else {
+            /** @var Closure|non-falsy-string $callable */
+            return new ReflectionFunction($callable);
+        }
     }
 }

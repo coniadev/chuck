@@ -9,7 +9,6 @@ use ReflectionFunction;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Routing\RouteInterface;
-use Conia\Chuck\Util\Reflect;
 
 class CallableView extends View
 {
@@ -28,7 +27,7 @@ class CallableView extends View
     public function execute(): mixed
     {
         return ($this->callable)(...$this->getArgs(
-            Reflect::getReflectionFunction($this->callable),
+            self::getReflectionFunction($this->callable),
             $this->route->args(),
         ));
     }

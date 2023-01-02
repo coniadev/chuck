@@ -11,7 +11,6 @@ use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Error\HttpServerError;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Routing\RouteInterface;
-use Conia\Chuck\Util\Reflect;
 
 class ControllerView extends View
 {
@@ -69,7 +68,7 @@ class ControllerView extends View
          * @psalm-suppress MixedMethodCall
          */
         return $this->controller->$method(...$this->getArgs(
-            Reflect::getReflectionFunction(
+            self::getReflectionFunction(
                 Closure::fromCallable([$this->controller, $method])
             ),
             $this->route->args(),
