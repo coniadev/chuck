@@ -26,19 +26,3 @@ test('Reflect function', function () {
 
     $rf = Reflect::getReflectionFunction('is_string');
 });
-
-
-test('Implements RequestInterface', function () {
-    $rf = Reflect::getReflectionFunction(function (Request $_): mixed {
-        return null;
-    });
-    expect(Reflect::paramImplementsRequestInterface($rf->getParameters()[0]))->toBe(true);
-
-    $rf = Reflect::getReflectionFunction(function ($_): mixed {
-        return null;
-    });
-    expect(Reflect::paramImplementsRequestInterface($rf->getParameters()[0]))->toBe(false);
-
-    $rf = Reflect::getReflectionFunction('is_string');
-    expect(Reflect::paramImplementsRequestInterface($rf->getParameters()[0]))->toBe(false);
-});

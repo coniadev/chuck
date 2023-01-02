@@ -30,26 +30,4 @@ class Reflect
             return new ReflectionFunction($callable);
         }
     }
-
-    public static function paramImplementsRequestInterface(ReflectionParameter $param): bool
-    {
-        $type = $param->getType();
-        $requestType = (string)$type ?: false;
-
-        if (!$requestType) {
-            return false;
-        }
-
-        if (class_exists($requestType) || interface_exists($requestType)) {
-            $requestTypeCls = new ReflectionClass($requestType);
-            if (
-                $requestType === RequestInterface::class ||
-                $requestTypeCls->implementsInterface(RequestInterface::class)
-            ) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }
