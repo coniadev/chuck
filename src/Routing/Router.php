@@ -308,13 +308,6 @@ class Router implements RouterInterface
             $middlewareAttributes,
         );
 
-        /* MUSS NOCH RAUS */
-        if ($request->config()->debug()) {
-            foreach ($handlerStack as $middleware) {
-                Reflect::validateMiddleware($middleware);
-            }
-        }
-
         $viewClosure = function (RequestInterface $req) use ($view): ResponseInterface {
             return $this->respond($req, $this->route, $view);
         };

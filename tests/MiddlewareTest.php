@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Conia\Chuck\Error\TypeError;
 use Conia\Chuck\Tests\Setup\TestCase;
 use Conia\Chuck\App;
 use Conia\Chuck\Routing\Route;
@@ -102,13 +101,3 @@ test('Early response', function () {
 
     expect($output)->toBe('immediate response');
 });
-
-
-test('Middleware validation', function () {
-    // debug => true activates middleware validation
-    $app = App::create($this->config(debug: true));
-    $app->route('/', 'Conia\Chuck\Tests\Fixtures\TestController::middlewareView');
-    $app->middleware(function () {
-    });
-    $app->run();
-})->throws(TypeError::class, 'return type must implement');
