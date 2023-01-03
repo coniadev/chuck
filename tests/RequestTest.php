@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use Conia\Chuck\ConfigInterface;
-use Conia\Chuck\Error\ExitException;
+use Conia\Chuck\Exception\ExitException;
+use Conia\Chuck\Exception\OutOfBoundsException;
+use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\File;
 use Conia\Chuck\Renderer\{JsonRenderer, TemplateRenderer};
 use Conia\Chuck\Request;

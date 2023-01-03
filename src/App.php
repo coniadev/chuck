@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use Closure;
-use Conia\Chuck\Error\Handler;
+use Conia\Chuck\Exception;
 use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\Response\ResponseInterface;
 use Conia\Chuck\Registry\Entry;
@@ -43,7 +43,7 @@ class App
         $router = new Router();
         $request = new Request($config);
 
-        $errorHandler = new Handler($request);
+        $errorHandler = new ErrorHandler($request);
         $errorHandler->setup();
 
         $app = new static($request, $config, $router, $registry);

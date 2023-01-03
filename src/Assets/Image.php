@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Assets;
 
-use Conia\Chuck\Error\RuntimeException;
+use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Util\Path;
 
 class Image extends AbstractImage

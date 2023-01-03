@@ -6,8 +6,8 @@ namespace Conia\Chuck\Util;
 
 use GdImage;
 use Throwable;
-use Conia\Chuck\Error\InvalidArgumentException;
-use Conia\Chuck\Error\RuntimeException;
+use Conia\Chuck\Exception\InvalidArgumentException;
+use Conia\Chuck\Exception\RuntimeException;
 
 class Image
 {

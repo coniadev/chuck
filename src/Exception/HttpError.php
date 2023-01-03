@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck\Error;
+namespace Conia\Chuck\Exception;
 
-use Exception;
-
-abstract class HttpError extends Exception
+abstract class HttpError extends \Exception implements ChuckException
 {
     protected ?string $subTitle = null;
 

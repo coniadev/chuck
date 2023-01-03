@@ -6,8 +6,8 @@ namespace Conia\Chuck\Renderer;
 
 use Throwable;
 use Traversable;
-use Conia\Chuck\Error\InvalidArgumentException;
-use Conia\Chuck\Error\ValueError;
+use Conia\Chuck\Exception\InvalidArgumentException;
+use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Response\Response;
 use Conia\Boiler\Engine;
 

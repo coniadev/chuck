@@ -7,8 +7,8 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use Throwable;
-use Conia\Chuck\Error\OutOfBoundsException;
-use Conia\Chuck\Error\RuntimeException;
+use Conia\Chuck\Exception\OutOfBoundsException;
+use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Renderer\RendererInterface;
 use Conia\Chuck\Util\Uri;

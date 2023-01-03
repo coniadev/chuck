@@ -9,7 +9,7 @@ use Psr\Log\LoggerInterface;
 use Conia\Chuck\App;
 use Conia\Chuck\Config;
 use Conia\Chuck\ConfigInterface;
-use Conia\Chuck\Error\ValueError;
+use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Logger;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Request;

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 use Conia\Chuck\Request;
 use Conia\Chuck\Routing\Router;
-use Conia\Chuck\Error\Handler;
-use Conia\Chuck\Error\HttpBadRequest;
-use Conia\Chuck\Error\HttpForbidden;
-use Conia\Chuck\Error\HttpNotFound;
-use Conia\Chuck\Error\HttpMethodNotAllowed;
-use Conia\Chuck\Error\HttpServerError;
-use Conia\Chuck\Error\HttpUnauthorized;
+use Conia\Chuck\ErrorHandler;
+use Conia\Chuck\Exception\HttpBadRequest;
+use Conia\Chuck\Exception\HttpForbidden;
+use Conia\Chuck\Exception\HttpNotFound;
+use Conia\Chuck\Exception\HttpMethodNotAllowed;
+use Conia\Chuck\Exception\HttpServerError;
+use Conia\Chuck\Exception\HttpUnauthorized;
 use Conia\Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
@@ -35,7 +35,7 @@ afterEach(function () {
 
 
 test('Initialize handler', function () {
-    $err = new Handler($this->request());
+    $err = new ErrorHandler($this->request());
     $result = $err->setup();
 
     expect(is_callable($result))->toBe(true);
@@ -43,21 +43,21 @@ test('Initialize handler', function () {
 
 
 test('Error handler I', function () {
-    $err = new Handler($this->request());
+    $err = new ErrorHandler($this->request());
 
     expect($err->handleError(0, 'Chuck Test'))->toBe(false);
 });
 
 
 test('Error handler II', function () {
-    $err = new Handler($this->request());
+    $err = new ErrorHandler($this->request());
 
     expect($err->handleError(E_WARNING, 'Chuck Test'))->toBe(false);
 })->throws(ErrorException::class, 'Chuck Test');
 
 
 test('Handle HTTP Exceptions', function () {
-    $err = new Handler($this->request(config: $this->config(debug: true)));
+    $err = new ErrorHandler($this->request(config: $this->config(debug: true)));
     $err->setup();
 
     ob_start();
@@ -100,7 +100,7 @@ test('Handle HTTP Exceptions', function () {
 
 
 test('Handle PHP Exceptions', function () {
-    $err = new Handler($this->request());
+    $err = new ErrorHandler($this->request());
     $err->setup();
 
     ob_start();
@@ -116,7 +116,7 @@ test('Handle PHP Exceptions :: no server request', function () {
     unset($_SERVER['REQUEST_METHOD']);
 
     $request = new Request($this->config());
-    $err = new Handler($request);
+    $err = new ErrorHandler($request);
     $err->setup();
 
     ob_start();
@@ -130,7 +130,7 @@ test('Handle PHP Exceptions :: no server request', function () {
 
 
 test('Debug mode traceback', function () {
-    $err = new Handler($this->request(config: $this->config(debug: true)));
+    $err = new ErrorHandler($this->request(config: $this->config(debug: true)));
     $err->setup();
 
     ob_start();

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Conia\Chuck\Registry;
 
 use Closure;
-use Conia\Chuck\Error\RuntimeException;
+use Conia\Chuck\Exception\RuntimeException;
 
 class Entry
 {

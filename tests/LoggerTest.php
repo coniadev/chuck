@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Conia\Chuck\Logger;
+use Psr\Log\InvalidArgumentException;
 
 beforeEach(function () {
     // capture output of error_log calls in a temporary file

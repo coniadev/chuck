@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Conia\Chuck\Response;
 
 use finfo;
-use Conia\Chuck\Error\HttpNotFound;
-use Conia\Chuck\Error\LogicException;
-use Conia\Chuck\Error\RuntimeException;
+use Conia\Chuck\Exception\HttpNotFound;
+use Conia\Chuck\Exception\LogicException;
+use Conia\Chuck\Exception\RuntimeException;
 
 class FileResponse extends Response
 {

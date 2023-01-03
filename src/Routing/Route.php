@@ -6,8 +6,8 @@ namespace Conia\Chuck\Routing;
 
 use Closure;
 use Stringable;
-use Conia\Chuck\Error\InvalidArgumentException;
-use Conia\Chuck\Error\ValueError;
+use Conia\Chuck\Exception\InvalidArgumentException;
+use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Renderer\Config as RendererConfig;
 
 const LEFT_BRACE = '§§§€§§§';

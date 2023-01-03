@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Conia\Chuck\Renderer;
 
 use Throwable;
-use Conia\Chuck\Error\ValueError;
+use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Response\Response;
 
 class TextRenderer extends Renderer

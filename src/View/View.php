@@ -10,9 +10,8 @@ use ReflectionMethod;
 use ReflectionObject;
 use ReflectionFunctionAbstract;
 use Throwable;
-use Conia\Chuck\Error\RuntimeException;
-use Conia\Chuck\Error\UntypedResolveParameter;
-use Conia\Chuck\Error\UntypedViewParameter;
+use Conia\Chuck\Exception\RuntimeException;
+use Conia\Chuck\Exception\UnresolvableException;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Routing\RouteInterface;
@@ -83,8 +82,8 @@ abstract class View
                     'string' => $routeArgs[$name],
                     default => $this->registry->resolveParam($param),
                 };
-            } catch (UntypedResolveParameter) {
-                throw new UntypedViewParameter('View paramters must provide a type: ' . $param->getName());
+            } catch (UnresolvableException $e) {
+                throw $e;
             } catch (Throwable $e) {
                 // Check if the view parameter has a default value
                 if (!array_key_exists($name, $routeArgs) && $param->isDefaultValueAvailable()) {

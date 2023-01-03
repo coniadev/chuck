@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\File;
 use Conia\Chuck\Tests\Setup\{TestCase, C};
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Conia\Chuck\Error\UntypedViewParameter;
+use Conia\Chuck\Exception\UnresolvableException;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\View\{View, CallableView, ControllerView};
 use Conia\Chuck\Tests\Fixtures\{TestController, TestAttribute, TestAttributeExt, TestAttributeDiff};
@@ -104,7 +104,7 @@ test('Untyped closure parameter', function () {
     $route->match('/');
     $view = View::get($this->request(), $route, $this->registry());
     $view->execute();
-})->throws(UntypedViewParameter::class);
+})->throws(UnresolvableException::class, 'Autowired entities');
 
 test('Reflect function', function () {
     $rf = View::getReflectionFunction(function () {

@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use Conia\Chuck\Attribute\Render;
-use Conia\Chuck\Error\{HttpNotFound, HttpServerError, HttpMethodNotAllowed};
+use Conia\Chuck\Exception\{ HttpNotFound, HttpServerError, HttpMethodNotAllowed};
+use Conia\Chuck\Exception\RuntimeException;
+use Conia\Chuck\Exception\UnresolvableException;
 use Conia\Chuck\Renderer\TemplateRenderer;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response\Response;
@@ -331,7 +333,7 @@ test('Dispatch view with unsupported param', function () {
     $router->addRoute($index);
 
     $router->dispatch($this->request(method: 'GET', url: '/symbolic'), $this->registry());
-})->throws(RuntimeException::class, 'View parameters cannot be resolved');
+})->throws(UnresolvableException::class, 'unresolvable: GdImage');
 
 
 test('Access uninitialized route', function () {

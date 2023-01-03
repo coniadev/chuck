@@ -2,20 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck\Error;
+namespace Conia\Chuck;
 
 use ErrorException;
 use Throwable;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Response\ResponseInterface;
-use Conia\Chuck\Error\HttpError;
-use Conia\Chuck\Error\HttpBadRequest;
-use Conia\Chuck\Error\HttpForbidden;
-use Conia\Chuck\Error\HttpNotFound;
-use Conia\Chuck\Error\HttpServerError;
-use Conia\Chuck\Error\HttpUnauthorized;
+use Conia\Chuck\Exception\ExitException;
+use Conia\Chuck\Exception\HttpError;
+use Conia\Chuck\Exception\HttpBadRequest;
+use Conia\Chuck\Exception\HttpForbidden;
+use Conia\Chuck\Exception\HttpNotFound;
+use Conia\Chuck\Exception\HttpMethodNotAllowed;
+use Conia\Chuck\Exception\HttpServerError;
+use Conia\Chuck\Exception\HttpUnauthorized;
 
-class Handler
+class ErrorHandler
 {
     public function __construct(protected RequestInterface $request)
     {

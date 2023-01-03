@@ -9,7 +9,7 @@ use JsonException;
 use Stringable;
 use Throwable;
 use Conia\Chuck\Attribute\Render;
-use Conia\Chuck\Error\{HttpNotFound, HttpMethodNotAllowed, RuntimeException};
+use Conia\Chuck\Exception\{HttpNotFound, HttpMethodNotAllowed, RuntimeException};
 use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\Renderer\{
     Config as RendererConfig,

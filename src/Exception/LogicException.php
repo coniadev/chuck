@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck\Error;
+namespace Conia\Chuck\Exception;
 
 class LogicException extends \LogicException implements ChuckException
 {

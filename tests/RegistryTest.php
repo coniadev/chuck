@@ -7,9 +7,9 @@ use Conia\Chuck\ConfigInterface;
 use Conia\Chuck\Request;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Registry\Registry;
-use Conia\Chuck\Error\Unresolvable;
-use Conia\Chuck\Error\UntypedResolveParameter;
-use Conia\Chuck\Error\UnsupportedResolveParameter;
+use Conia\Chuck\Exception\OutOfBoundsException;
+use Conia\Chuck\Exception\RuntimeException;
+use Conia\Chuck\Exception\UnresolvableException;
 use Conia\Chuck\Tests\Fixtures\TestClass;
 use Conia\Chuck\Tests\Fixtures\TestClassRegistryArgs;
 use Conia\Chuck\Tests\Fixtures\TestClassRegistryNamedParam;
@@ -169,7 +169,7 @@ test('Parameter info class', function () {
     $p = $c->getParameters()[0];
     $registry = new Registry();
     $s = 'Conia\Chuck\Tests\Fixtures\TestClassUnionTypeConstructor::__construct(' .
-            '..., Conia\Chuck\Config|Conia\Chuck\Request $param, ...)';
+        '..., Conia\Chuck\Config|Conia\Chuck\Request $param, ...)';
 
     expect($registry->getParamInfo($p))->toBe($s);
 });
@@ -190,35 +190,35 @@ test('Reject class with untyped constructor', function () {
     $registry = new Registry();
 
     $registry->resolve(TestClassUntypedConstructor::class);
-})->throws(UntypedResolveParameter::class);
+})->throws(UnresolvableException::class, 'typed constructor parameters');
 
 
 test('Reject class with unsupported constructor union types', function () {
     $registry = new Registry();
 
     $registry->resolve(TestClassUnionTypeConstructor::class);
-})->throws(UnsupportedResolveParameter::class);
+})->throws(UnresolvableException::class, 'union or intersection');
 
 
 test('Reject class with unsupported constructor intersection types', function () {
     $registry = new Registry();
 
     $registry->resolve(TestClassIntersectionTypeConstructor::class);
-})->throws(UnsupportedResolveParameter::class);
+})->throws(UnresolvableException::class, 'union or intersection');
 
 
 test('Reject unresolvable class', function () {
     $registry = new Registry();
 
     $registry->resolve(GdImage::class);
-})->throws(Unresolvable::class, 'Details:');
+})->throws(UnresolvableException::class, 'unresolvable');
 
 
 test('Reject non existent class', function () {
     $registry = new Registry();
 
     $registry->resolve('NonExistent');
-})->throws(Unresolvable::class, 'NonExistent');
+})->throws(UnresolvableException::class, 'NonExistent');
 
 
 test('Reject $id == $value', function () {

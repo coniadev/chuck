@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-use Conia\Chuck\Error\OutOfBoundsException;
-use Conia\Chuck\Error\RuntimeException;
+use Conia\Chuck\Exception\OutOfBoundsException;
+use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Util\Uri;
 
 class Session implements SessionInterface

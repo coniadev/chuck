@@ -44,7 +44,7 @@ It features:
 
 ```php
     use Conia\Chuck\{App, Config, Router, Route, Request, ResponseFactory};
-    use Conia\Chuck\Error\Handler;
+    use Conia\Chuck\ErrorHandler;
 
     $config = new Config('chuck');
 
@@ -59,7 +59,7 @@ It features:
     // The ResponseFactory is optional
     $request = new Request($config, $router, new ResponseFactory())
 
-    $errorHandler = new Handler($request);
+    $errorHandler = new ErrorHandler($request);
     $errorHandler->setup();
 
     $app = new App($request);

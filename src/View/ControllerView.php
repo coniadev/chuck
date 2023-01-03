@@ -8,7 +8,7 @@ use Closure;
 use ReflectionMethod;
 use ReflectionClass;
 use Conia\Chuck\Registry\Registry;
-use Conia\Chuck\Error\HttpServerError;
+use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Routing\RouteInterface;
 

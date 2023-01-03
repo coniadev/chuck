@@ -12,11 +12,9 @@ use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
 use Throwable;
-use Conia\Chuck\Error\OutOfBoundsException;
-use Conia\Chuck\Error\RuntimeException;
-use Conia\Chuck\Error\Unresolvable;
-use Conia\Chuck\Error\UntypedResolveParameter;
-use Conia\Chuck\Error\UnsupportedResolveParameter;
+use Conia\Chuck\Exception\OutOfBoundsException;
+use Conia\Chuck\Exception\RuntimeException;
+use Conia\Chuck\Exception\UnresolvableException;
 
 class Registry
 {
@@ -90,7 +88,7 @@ class Registry
             return $this->autowire($id);
         }
 
-        throw new Unresolvable('Autowiring unresolvable: ' . $id);
+        throw new UnresolvableException('Autowiring unresolvable: ' . $id);
     }
 
     protected function resolveEntry(Entry $entry): object
@@ -145,13 +143,13 @@ class Registry
             return $this->resolve($type->getName(), '$' . $param->getName());
         } else {
             if ($type) {
-                throw new UnsupportedResolveParameter(
+                throw new UnresolvableException(
                     "Autowiring does not support union or intersection types. Source: \n" .
                         $this->getParamInfo($param)
                 );
             } else {
-                throw new UntypedResolveParameter(
-                    "Autowired classes need to have typed constructor parameters. Source: \n" .
+                throw new UnresolvableException(
+                    "Autowired entities need to have typed constructor parameters. Source: \n" .
                         $this->getParamInfo($param)
                 );
             }
@@ -184,7 +182,7 @@ class Registry
         try {
             return $rc->newInstance(...$args);
         } catch (Throwable $e) {
-            throw new Unresolvable(
+            throw new UnresolvableException(
                 'Autowiring unresolvable: ' . $class . ' Details: ' . $e->getMessage()
             );
         }

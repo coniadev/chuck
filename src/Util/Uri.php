@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Util;
 
-use Conia\Chuck\Error\ExitException;
-use Conia\Chuck\Error\ValueError;
+use Conia\Chuck\Exception\ExitException;
+use Conia\Chuck\Exception\ValueError;
 
 class Uri
 {

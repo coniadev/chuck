@@ -3,7 +3,8 @@
 declare(strict_types=1);
 
 use Conia\Chuck\Config;
-use Conia\Chuck\Error\ValueError;
+use Conia\Chuck\Exception\OutOfBoundsException;
+use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Logger;
 use Conia\Chuck\Tests\Setup\{TestCase, C};
 use Conia\Chuck\Tests\Fixtures\TestRenderer;

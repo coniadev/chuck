@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck\Error;
+namespace Conia\Chuck\Exception;
 
 use Throwable;
 
-class HttpMethodNotAllowed extends HttpError
+class HttpForbidden extends HttpError
 {
     public function __construct(
-        string $message = 'Method Not Allowed',
-        int $code = 405,
+        string $message = 'Forbidden',
+        int $code = 403,
         ?Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);

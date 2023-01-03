@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck\Error;
+namespace Conia\Chuck\Exception;
 
 use Throwable;
 
-class HttpBadRequest extends HttpError
+class HttpNotFound extends HttpError
 {
     public function __construct(
-        string $message = 'Bad Request',
-        int $code = 400,
+        string $message = 'Not Found',
+        int $code = 404,
         ?Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);

@@ -7,8 +7,8 @@ namespace Conia\Chuck;
 use Closure;
 use Throwable;
 use Psr\Log\LoggerInterface;
-use Conia\Chuck\Error\OutOfBoundsException;
-use Conia\Chuck\Error\ValueError;
+use Conia\Chuck\Exception\OutOfBoundsException;
+use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Renderer\{
     Renderer,
     JsonRenderer,

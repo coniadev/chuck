@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Session;
 use Conia\Chuck\Tests\Setup\TestCase;
 

@@ -12,8 +12,6 @@
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">src</directory>
             <exclude>
-                <directory suffix=".php">src/Scripts</directory>
-                <directory suffix=".php">bin</directory>
                 <file>src/Server/Server.php</file>
                 <file>src/Server/CliRouter.php</file>
             </exclude>

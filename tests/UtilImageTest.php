@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-use Conia\Chuck\Error\ValueError;
+use Conia\Chuck\Exception\InvalidArgumentException;
+use Conia\Chuck\Exception\RuntimeException;
+use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Tests\Setup\{TestCase, C};
 use Conia\Chuck\Util\Image;
 

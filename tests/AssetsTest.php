@@ -3,7 +3,8 @@
 declare(strict_types=1);
 
 use Conia\Chuck\Assets\{Assets, Image, CachedImage};
-use Conia\Chuck\Error\ValueError;
+use Conia\Chuck\Exception\RuntimeException;
+use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Routing\Router;
 use Conia\Chuck\Tests\Setup\{TestCase, C};
 

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use Conia\Chuck\Response\{Response, FileResponse};
 use Conia\Chuck\Tests\Setup\{TestCase, C};
-use Conia\Chuck\Error\HttpNotFound;
+use Conia\Chuck\Exception\HttpNotFound;
+use Conia\Chuck\Exception\LogicException;
+use Conia\Chuck\Exception\RuntimeException;
 
 uses(TestCase::class);
 
