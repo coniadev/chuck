@@ -11,7 +11,7 @@ class TestRenderer extends Renderer
 {
     public function render(mixed $data): string
     {
-        return (string)$data;
+        return print_r($data, return: true);
     }
 
     public function response(mixed $data): Response

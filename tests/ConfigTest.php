@@ -17,8 +17,23 @@ test('Defaults', function () {
     $config = new Config('chuck');
 
     expect($config->app())->toBe('chuck');
+    expect($config->debug())->toBe(false);
+    expect($config->env())->toBe('');
+    expect($config->app)->toBe('chuck');
+    expect($config->debug)->toBe(false);
+    expect($config->env)->toBe('');
 });
 
+test('Init values', function () {
+    $config = new Config('chuck', true, 'prod');
+
+    expect($config->app())->toBe('chuck');
+    expect($config->debug())->toBe(true);
+    expect($config->env())->toBe('prod');
+    expect($config->app)->toBe('chuck');
+    expect($config->debug)->toBe(true);
+    expect($config->env)->toBe('prod');
+});
 
 test('Wrong app name', function () {
     new Config('wrong name');

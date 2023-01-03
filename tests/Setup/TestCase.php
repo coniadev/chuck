@@ -117,13 +117,6 @@ class TestCase extends BaseTestCase
         return $config;
     }
 
-    public function templates(array $templates = []): array
-    {
-        return array_merge($templates, [
-            C::root() . C::DS . 'templates' . C::DS . 'default',
-        ]);
-    }
-
     public function app(Config $config = null): App
     {
         return App::create($config ?? $this->config());

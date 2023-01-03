@@ -20,9 +20,9 @@ class Config implements ConfigInterface
 {
     public const DEFAULT = 'default';
 
-    protected readonly bool $debug;
-    protected readonly string $env;
-    protected readonly string $app;
+    public readonly bool $debug;
+    public readonly string $env;
+    public readonly string $app;
 
     /** @var null|Closure():LoggerInterface */
     protected ?Closure $loggerCallback = null;

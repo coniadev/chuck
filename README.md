@@ -66,27 +66,8 @@ It features:
     $app->run();
 ```
 
-## Documentation
-
-* [Routing](docs/routing.md)
-* [Request](docs/request.md)
-* [Response](docs/response.md)
-* [Templates](docs/templates.md)
-* [Validation](docs/validation.md)
-* [File Uploads](docs/fileuploads.md)
-* [Sessions and Cookies](docs/sessionscookies.md)
-* [Middleware](docs/middleware.md)
-* [Renderers](docs/renderers.md)
-* [Database/SQL](docs/database.md)
-* [Migrations](docs/migrations.md)
-* [Images/Assets](docs/assets.md)
-* [Logging](docs/logging.md)
-* [Command Line Interface](docs/cli.md)
-* [Contributing](docs/contributing.md)
-
-
 ## License
 
 Chuck is released under the MIT [license](LICENSE.md).
 
-Copyright © 2022 ebene fünf GmbH. All rights reserved.
+Copyright © 2022-2023 ebene fünf GmbH. All rights reserved.

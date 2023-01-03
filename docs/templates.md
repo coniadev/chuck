@@ -1,18 +1,16 @@
 Templates
 =========
 
-Require the template engine
+Require a template engine with a renderer. E. g.:
 
     composer require conia/boiler
 
 Use it:
 
-
     use Conia\Chuck\{App, Config, Router, Route, Request, ResponseFactory};
-    use Conia\Chuck\Renderer\TemplateRenderer;
+    use Conia\Boiler\Renderer;
 
     $config = new Config('chuck');
 
     // Add template support
-    $config->addRenderer('template', TemplateRenderer::class, '/path/to/templates');
-    use Conia\Chuck\Renderer\TemplateRenderer;
+    $config->addRenderer('template', Renderer::class, '/path/to/templates');

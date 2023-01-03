@@ -6,11 +6,11 @@ use Conia\Chuck\Attribute\Render;
 use Conia\Chuck\Exception\{ HttpNotFound, HttpServerError, HttpMethodNotAllowed};
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Exception\UnresolvableException;
-use Conia\Chuck\Renderer\TemplateRenderer;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response\Response;
 use Conia\Chuck\Routing\{Router, Route, Group};
 use Conia\Chuck\Tests\Fixtures\TestController;
+use Conia\Chuck\Tests\Fixtures\TestRenderer;
 use Conia\Chuck\Tests\Fixtures\TestControllerWithRequest;
 use Conia\Chuck\Tests\Fixtures\TestMiddleware1;
 use Conia\Chuck\Tests\Setup\{TestCase, C};
@@ -210,20 +210,20 @@ test('Dispatch controller with request constructor', function () {
 
 test('Dispatch closure with Render attribute', function () {
     $config = $this->config();
-    $config->addRenderer('template', TemplateRenderer::class, $this->templates());
+    $config->addRenderer('test', TestRenderer::class);
 
     $router = new Router();
     $index = new Route(
         '/',
-        #[Render('template', 'plain', contentType: 'application/xhtml+xml')]
+        #[Render('test', contentType: 'application/xhtml+xml')]
         function () {
-            return [];
+            return 'render attribute';
         }
     );
     $router->addRoute($index);
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/', config: $config), $this->registry());
-    expect($this->fullTrim($response->getBody()))->toBe('<p>plain</p>');
+    expect($this->fullTrim($response->getBody()))->toBe('render attribute');
 });
 
 

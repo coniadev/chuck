@@ -15,8 +15,7 @@
         "phpunit/phpunit": "^9",
         "pestphp/pest": "^1",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
-        "vimeo/psalm": "^5",
-        "conia/boiler": "dev-main"
+        "vimeo/psalm": "^5"
     },
     "require": {
         "php": ">=8.1",

@@ -7,12 +7,11 @@ use Conia\Chuck\Exception\ExitException;
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\File;
-use Conia\Chuck\Renderer\{JsonRenderer, TemplateRenderer};
-use Conia\Chuck\Request;
+use Conia\Chuck\Renderer\JsonRenderer;
 use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Response\ResponseInterface;
-use Conia\Chuck\Response\Response;
-use Conia\Chuck\Tests\Setup\{TestCase, C};
+use Conia\Chuck\Tests\Setup\TestCase;
+use Conia\Chuck\Tests\Fixtures\TestRenderer;
 
 uses(TestCase::class);
 
@@ -167,11 +166,11 @@ test('Request::renderer', function () {
 
 test('Request::renderer with args', function () {
     $config = $this->config();
-    $config->addRenderer('template', TemplateRenderer::class, $this->templates());
+    $config->addRenderer('template', TestRenderer::class);
     $request = $this->request(config: $config);
     $renderer = $request->renderer('template', 'renderer');
 
-    expect($renderer)->toBeInstanceOf(TemplateRenderer::class);
+    expect($renderer)->toBeInstanceOf(TestRenderer::class);
 });
 
 
