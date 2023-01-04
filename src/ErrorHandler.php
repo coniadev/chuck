@@ -6,7 +6,7 @@ namespace Conia\Chuck;
 
 use ErrorException;
 use Throwable;
-use Conia\Chuck\ConfigInterface;
+use Conia\Chuck\Config;
 use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Exception\ExitException;
 use Conia\Chuck\Exception\HttpError;
@@ -19,7 +19,7 @@ use Conia\Chuck\Exception\HttpUnauthorized;
 
 class ErrorHandler
 {
-    public function __construct(protected ConfigInterface $config)
+    public function __construct(protected Config $config)
     {
     }
 

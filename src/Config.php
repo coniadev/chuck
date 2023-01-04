@@ -16,7 +16,7 @@ use Conia\Chuck\Renderer\{
     RendererInterface,
 };
 
-class Config implements ConfigInterface
+class Config
 {
     public const DEFAULT = 'default';
 

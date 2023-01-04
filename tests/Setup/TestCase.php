@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase as BaseTestCase;
 use Psr\Log\LoggerInterface;
 use Conia\Chuck\App;
 use Conia\Chuck\Config;
-use Conia\Chuck\ConfigInterface;
 use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Logger;
 use Conia\Chuck\Registry\Registry;
@@ -123,7 +122,7 @@ class TestCase extends BaseTestCase
 
     public function registry(
         ?Request $request = null,
-        ?ConfigInterface $config = null,
+        ?Config $config = null,
     ): Registry {
         $registry = new Registry();
         $request = $request ?: $this->request();
@@ -131,7 +130,7 @@ class TestCase extends BaseTestCase
 
         $registry->add(Request::class, $request);
         $registry->add($request::class, $request);
-        $registry->add(ConfigInterface::class, $config);
+        $registry->add(Config::class, $config);
         $registry->add($config::class, $config);
 
         return $registry;
@@ -141,7 +140,7 @@ class TestCase extends BaseTestCase
         ?string $method = null,
         ?string $url = null,
         ?bool $https = null,
-        ?ConfigInterface $config = null,
+        ?Config $config = null,
     ): Request {
         if ($method) {
             $this->setMethod($method);

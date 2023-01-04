@@ -9,7 +9,7 @@ use JsonException;
 use Stringable;
 use Throwable;
 use Conia\Chuck\Attribute\Render;
-use Conia\Chuck\ConfigInterface;
+use Conia\Chuck\Config;
 use Conia\Chuck\Exception\{HttpNotFound, HttpMethodNotAllowed, RuntimeException};
 use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\Renderer\{
@@ -196,7 +196,7 @@ class Router
 
     protected function getRenderer(
         Request $request,
-        ConfigInterface $config,
+        Config $config,
         RendererConfig $rendererConfig
     ): RendererInterface {
         return $config->renderer(
@@ -208,7 +208,7 @@ class Router
 
     protected function respond(
         Request $request,
-        ConfigInterface $config,
+        Config $config,
         Route $route,
         View $view,
     ): ResponseInterface {
@@ -290,7 +290,7 @@ class Router
      * Looks up the matching route and generates the response while
      * working off the middleware stack.
      */
-    public function dispatch(Request $request, ConfigInterface $config, Registry $registry): ResponseInterface
+    public function dispatch(Request $request, Config $config, Registry $registry): ResponseInterface
     {
         /**
          * @psalm-suppress InaccessibleProperty

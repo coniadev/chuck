@@ -18,13 +18,13 @@ class App
 
     public function __construct(
         private Request $request,
-        private ConfigInterface $config,
+        private Config $config,
         private Router $router,
         private Registry $registry,
     ) {
         $registry->add(Request::class, $request);
         $registry->add($request::class, $request);
-        $registry->add(ConfigInterface::class, $config);
+        $registry->add(Config::class, $config);
         $registry->add($config::class, $config);
         $registry->add(Router::class, $router);
         $registry->add($router::class, $router);
@@ -34,7 +34,7 @@ class App
         $registry->add($registry::class, $registry);
     }
 
-    public static function create(ConfigInterface $config): static
+    public static function create(Config $config): static
     {
         $registry = new Registry();
         $router = new Router();
@@ -58,7 +58,7 @@ class App
         return $this->router;
     }
 
-    public function config(): ConfigInterface
+    public function config(): Config
     {
         return $this->config;
     }
