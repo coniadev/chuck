@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Tests\Setup;
 
-use PHPUnit\Framework\TestCase as BaseTestCase;
-use Psr\Log\LoggerInterface;
 use Conia\Chuck\App;
 use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ValueError;
@@ -13,6 +11,9 @@ use Conia\Chuck\Logger;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Routing\Router;
+use PHPUnit\Framework\TestCase as BaseTestCase;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 
 class TestCase extends BaseTestCase
 {
@@ -136,11 +137,24 @@ class TestCase extends BaseTestCase
         return $registry;
     }
 
+    public function psr7Request(): ServerRequestInterface
+    {
+        $psr17Factory = new \Nyholm\Psr7\Factory\Psr17Factory();
+
+        $creator = new \Nyholm\Psr7Server\ServerRequestCreator(
+            $psr17Factory, // ServerRequestFactory
+            $psr17Factory, // UriFactory
+            $psr17Factory, // UploadedFileFactory
+            $psr17Factory  // StreamFactory
+        );
+
+        return $creator->fromGlobals();
+    }
+
     public function request(
         ?string $method = null,
         ?string $url = null,
         ?bool $https = null,
-        ?Config $config = null,
     ): Request {
         if ($method) {
             $this->setMethod($method);
@@ -158,11 +172,7 @@ class TestCase extends BaseTestCase
             }
         }
 
-        if ($config === null) {
-            $config = $this->config();
-        }
-
-        $request = new Request($config);
+        $request = new Request($this->psr7Request());
 
         return $request;
     }

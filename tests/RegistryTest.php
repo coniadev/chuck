@@ -15,6 +15,9 @@ use Conia\Chuck\Tests\Fixtures\TestClassIntersectionTypeConstructor;
 use Conia\Chuck\Tests\Fixtures\TestClassUnionTypeConstructor;
 use Conia\Chuck\Tests\Fixtures\TestClassUntypedConstructor;
 use Conia\Chuck\Tests\Fixtures\TestClassWithConstructor;
+use Conia\Chuck\Tests\Setup\TestCase;
+
+uses(TestCase::class);
 
 test('Add value with key', function () {
     $registry = new Registry();
@@ -38,7 +41,7 @@ test('Instantiate', function () {
     $registry->add('registry', Registry::class);
     $registry->add('request', Request::class);
     $reg = $registry->new('registry');
-    $req = $registry->new('request', new Config('chuck'));
+    $req = $registry->new('request', $this->psr7Request());
 
     expect($reg instanceof Registry)->toBe(true);
     expect($req instanceof Request)->toBe(true);

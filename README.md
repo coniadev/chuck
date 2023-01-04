@@ -22,7 +22,7 @@ It features:
 
 ### Installation:
 
-    composer require conia/chuck
+    composer require nyholm/psr7 nyholm/psr7-server conia/chuck
 
 ### Quick Start using the `App::create` helper:
 
@@ -37,32 +37,6 @@ It features:
 
         return (new ResponseFactory())->json(['success' => true]);
     });
-    $app->run();
-```
-
-### App initialization without helper:
-
-```php
-    use Conia\Chuck\{App, Config, Router, Route, Request, ResponseFactory};
-    use Conia\Chuck\ErrorHandler;
-
-    $config = new Config('chuck');
-
-    $router = new Router();
-    $router->add(Route::get('index', '/', function () {
-        return ['data' => [1, 2, 3]];
-    })->render('json'));
-    $router->add(Route::get('file', '/file', function (Request $request) {
-        return (new ResponseFactory())->file('/path/to/file.zip');
-    }));
-
-    // The ResponseFactory is optional
-    $request = new Request($config, $router, new ResponseFactory())
-
-    $errorHandler = new ErrorHandler($request);
-    $errorHandler->setup();
-
-    $app = new App($request);
     $app->run();
 ```
 

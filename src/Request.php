@@ -8,9 +8,14 @@ use Throwable;
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Util\Uri;
+use Psr\Http\Message\ServerRequestInterface;
 
 class Request
 {
+    public function __construct(protected ServerRequestInterface $serverRequest)
+    {
+    }
+
     public function params(): array
     {
         // GET parameters have priority
