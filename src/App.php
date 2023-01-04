@@ -5,25 +5,28 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use Closure;
+use Throwable;
+use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\Response\Response;
 use Conia\Chuck\Registry\Entry;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Routing\{Route, Group, Router, AddsRoutes};
+use Psr\Http\Message\ServerRequestInterface;
 
 /** @psalm-consistent-constructor */
 class App
 {
     use AddsRoutes;
 
+    /** @var null|Closure():ServerRequestInterface */
+    protected ?Closure $serverRequestFactory = null;
+
     public function __construct(
-        private Request $request,
         private Config $config,
         private Router $router,
         private Registry $registry,
     ) {
-        $registry->add(Request::class, $request);
-        $registry->add($request::class, $request);
         $registry->add(Config::class, $config);
         $registry->add($config::class, $config);
         $registry->add(Router::class, $router);
@@ -38,19 +41,11 @@ class App
     {
         $registry = new Registry();
         $router = new Router();
-        $request = new Request();
 
         $errorHandler = new ErrorHandler($config);
         $errorHandler->setup();
 
-        $app = new static($request, $config, $router, $registry);
-
-        return $app;
-    }
-
-    public function request(): Request
-    {
-        return $this->request;
+        return new static($config, $router, $registry);
     }
 
     public function router(): Router
@@ -67,6 +62,15 @@ class App
     {
         return $this->registry;
     }
+
+    /**
+     * @param callable():ServerRequestInterface $factory
+     */
+    public function setServerRequestFactory(callable $factory): void
+    {
+        $this->serverRequestFactory = Closure::fromCallable($factory);
+    }
+
 
     public function addRoute(Route $route): void
     {
@@ -121,7 +125,30 @@ class App
 
     public function run(): Response
     {
-        $response = $this->router->dispatch($this->request, $this->config, $this->registry);
+        if ($this->serverRequestFactory) {
+            $serverRequest = ($this->serverRequestFactory)();
+        } else {
+            try {
+                $psr17Factory = new \Nyholm\Psr7\Factory\Psr17Factory();
+                $creator = new \Nyholm\Psr7Server\ServerRequestCreator(
+                    $psr17Factory, // ServerRequestFactory
+                    $psr17Factory, // UriFactory
+                    $psr17Factory, // UploadedFileFactory
+                    $psr17Factory  // StreamFactory
+                );
+                $serverRequest = $creator->fromGlobals();
+                // @codeCoverageIgnoreStart
+            } catch (Throwable $e) {
+                throw new RuntimeException('Install nyholm/psr7 and nyholm/psr7-server');
+                // @codeCoverageIgnoreEnd
+            }
+        }
+        $request = new Request($serverRequest);
+
+        $this->registry->add(ServerRequestInterface::class, $serverRequest);
+        $this->registry->add(Request::class, $request);
+
+        $response = $this->router->dispatch($request, $this->config, $this->registry);
         $response->emit();
 
         return $response;

@@ -18,7 +18,6 @@ test('Create helper', function () {
 test('Helper methods', function () {
     $app = App::create($this->config());
 
-    expect($app->request())->toBeInstanceOf(Request::class);
     expect($app->router())->toBeInstanceOf(Router::class);
     expect($app->config())->toBeInstanceOf(Config::class);
 });
@@ -47,7 +46,7 @@ test('Static route helper', function () {
 
 test('App run', function () {
     $request = $this->request(method: 'GET', url: '/');
-    $app = new App($request, $this->config(), new Router(), $this->registry());
+    $app = new App($this->config(), new Router(), $this->registry());
     $app->route('/', 'Conia\Chuck\Tests\Fixtures\TestController::textView');
     ob_start();
     $response = $app->run();
@@ -61,8 +60,7 @@ test('App run', function () {
 
 
 test('App::register helper', function () {
-    $request = $this->request(method: 'GET', url: '/');
-    $app = new App($request, $this->config(), new Router(), $this->registry());
+    $app = new App($this->config(), new Router(), $this->registry());
     $app->register('Chuck', 'Schuldiner');
     $registry = $app->registry();
 
@@ -157,4 +155,30 @@ test('App::group helper', function () {
     }, 'albums:');
 
     expect($app->router()->routeUrl('albums:name', ['name' => 'symbolic']))->toBe('/albums/symbolic');
+});
+
+
+test('App::setServerRequestFactory', function () {
+    $app = App::create($this->config());
+    $app->setServerRequestFactory(function () {
+        $psr17Factory = new \Nyholm\Psr7\Factory\Psr17Factory();
+        $creator = new \Nyholm\Psr7Server\ServerRequestCreator(
+            $psr17Factory, // ServerRequestFactory
+            $psr17Factory, // UriFactory
+            $psr17Factory, // UploadedFileFactory
+            $psr17Factory  // StreamFactory
+        );
+
+        return $creator->fromGlobals();
+    });
+    $app->route('/', 'Conia\Chuck\Tests\Fixtures\TestController::textView');
+
+    ob_start();
+    $response = $app->run();
+    $output = ob_get_contents();
+    ob_end_clean();
+
+    expect($output)->toBe('text');
+    expect(in_array('Content-Type: text/html; charset=UTF-8', $response->headers()->emitted()))->toBe(true);
+    expect(in_array('HTTP/1.1 200 OK', $response->headers()->emitted()))->toBe(true);
 });

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Conia\Chuck\Attribute\Render;
-use Conia\Chuck\Exception\{ HttpNotFound, HttpServerError, HttpMethodNotAllowed};
+use Conia\Chuck\Exception\{HttpNotFound, HttpServerError, HttpMethodNotAllowed};
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Exception\UnresolvableException;
 use Conia\Chuck\Request;
@@ -223,7 +223,7 @@ test('Dispatch closure with Render attribute', function () {
     );
     $router->addRoute($index);
 
-    $response = $router->dispatch($this->request(method: 'GET', url: '/', config: $config), $config, $this->registry());
+    $response = $router->dispatch($this->request(method: 'GET', url: '/'), $config, $this->registry());
     expect($this->fullTrim($response->getBody()))->toBe('render attribute');
 });
 
