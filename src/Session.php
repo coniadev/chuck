@@ -8,7 +8,7 @@ use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Util\Uri;
 
-class Session implements SessionInterface
+class Session
 {
     /**
      * @param non-empty-string $flashMessagesKey

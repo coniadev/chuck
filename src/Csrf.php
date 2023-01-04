@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-class Csrf implements CsrfInterface
+class Csrf
 {
     public function __construct(
         protected string $sessionKey = 'csrftokens',
