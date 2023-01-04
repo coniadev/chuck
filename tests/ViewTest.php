@@ -14,7 +14,7 @@ uses(TestCase::class);
 test('Closure', function () {
     $route = new Route('/', #[TestAttribute] fn () => 'chuck');
     $route->match('/');
-    $view = View::get($this->request(), $route, $this->registry());
+    $view = View::get($route, $this->registry());
 
     expect($view::class)->toBe(CallableView::class);
     expect($view->execute())->toBe('chuck');
@@ -33,7 +33,7 @@ test('Function', function () {
 
     $route = new Route('/{name}', '____view_test____');
     $route->match('/symbolic');
-    $view = View::get($this->request(), $route, $this->registry());
+    $view = View::get($route, $this->registry());
 
     expect($view::class)->toBe(CallableView::class);
     expect($view->execute())->toBe('symbolic');
@@ -44,7 +44,7 @@ test('Function', function () {
 test('Controller String', function () {
     $route = new Route('/', '\Conia\Chuck\Tests\Fixtures\TestController::textView');
     $route->match('/');
-    $view = View::get($this->request(), $route, $this->registry());
+    $view = View::get($route, $this->registry());
 
     expect($view::class)->toBe(ControllerView::class);
     expect($view->execute())->toBe('text');
@@ -55,7 +55,7 @@ test('Controller String', function () {
 test('Controller [class, method]', function () {
     $route = new Route('/', [TestController::class, 'textView']);
     $route->match('/');
-    $view = View::get($this->request(), $route, $this->registry());
+    $view = View::get($route, $this->registry());
 
     expect($view::class)->toBe(ControllerView::class);
     expect($view->execute())->toBe('text');
@@ -67,7 +67,7 @@ test('Controller [object, method]', function () {
     $controller = new TestController();
     $route = new Route('/', [$controller, 'textView']);
     $route->match('/');
-    $view = View::get($this->request(), $route, $this->registry());
+    $view = View::get($route, $this->registry());
 
     expect($view::class)->toBe(CallableView::class);
     expect($view->execute())->toBe('text');
@@ -77,7 +77,7 @@ test('Controller [object, method]', function () {
 
 test('Attribute filtering :: CallableView', function () {
     $route = new Route('/', #[TestAttribute, TestAttributeExt, TestAttributeDiff] fn () => 'chuck');
-    $view = View::get($this->request(), $route, $this->registry());
+    $view = View::get($route, $this->registry());
 
     expect($view::class)->toBe(CallableView::class);
     expect(count($view->attributes()))->toBe(3);
@@ -89,7 +89,7 @@ test('Attribute filtering :: CallableView', function () {
 
 test('Attribute filtering :: ControllerView', function () {
     $route = new Route('/', [TestController::class, 'arrayView']);
-    $view = View::get($this->request(), $route, $this->registry());
+    $view = View::get($route, $this->registry());
 
     expect($view::class)->toBe(ControllerView::class);
     expect(count($view->attributes()))->toBe(3);
@@ -102,7 +102,7 @@ test('Attribute filtering :: ControllerView', function () {
 test('Untyped closure parameter', function () {
     $route = new Route('/', #[TestAttribute] fn ($param) => 'chuck');
     $route->match('/');
-    $view = View::get($this->request(), $route, $this->registry());
+    $view = View::get($route, $this->registry());
     $view->execute();
 })->throws(UnresolvableException::class, 'Autowired entities');
 

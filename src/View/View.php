@@ -13,7 +13,6 @@ use Throwable;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Exception\UnresolvableException;
 use Conia\Chuck\Registry\Registry;
-use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Routing\RouteInterface;
 
 abstract class View
@@ -23,14 +22,13 @@ abstract class View
     protected Registry $registry;
 
     public static function get(
-        RequestInterface $request,
         RouteInterface $route,
         Registry $registry,
     ): View {
         $view = $route->view();
 
         if (is_callable($view)) {
-            return new CallableView($request, $route, $registry, $view);
+            return new CallableView($route, $registry, $view);
         } else {
             /**
              * @psalm-suppress PossiblyInvalidArgument
@@ -38,7 +36,7 @@ abstract class View
              * According to Psalm, $view could be a Closure. But since we
              * checked for is_callable before, this can never happen.
              */
-            return new ControllerView($request, $route, $registry, $view);
+            return new ControllerView($route, $registry, $view);
         }
     }
 

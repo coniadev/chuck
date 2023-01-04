@@ -18,7 +18,7 @@ use Conia\Chuck\Renderer\{
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Response\ResponseInterface;
-use Conia\Chuck\Util\Reflect;
+use Conia\Chuck\Util\Uri;
 use Conia\Chuck\View\View;
 
 class Router implements RouterInterface
@@ -152,16 +152,10 @@ class Router implements RouterInterface
         }
     }
 
-    protected function removeQueryString(string $url): string
+    public function match(): RouteInterface
     {
-        return strtok($url, '?');
-    }
-
-
-    public function match(RequestInterface $request): RouteInterface
-    {
-        $url = $this->removeQueryString($_SERVER['REQUEST_URI'] ?? '');
-        $requestMethod = $request->method();
+        $url = Uri::path(stripQuery: true);
+        $requestMethod = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN');
 
         foreach ([$requestMethod, self::ALL] as $method) {
             foreach ($this->routes[$method] ?? [] as $route) {
@@ -297,8 +291,8 @@ class Router implements RouterInterface
          *
          * See docs/contributing.md
          */
-        $this->route = $this->match($request);
-        $view = View::get($request, $this->route, $registry);
+        $this->route = $this->match();
+        $view = View::get($this->route, $registry);
         /** @var list<MiddlewareInterface> */
         $middlewareAttributes = $view->attributes(MiddlewareInterface::class);
 

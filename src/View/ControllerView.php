@@ -20,7 +20,6 @@ class ControllerView extends View
     protected string $method;
 
     public function __construct(
-        protected RequestInterface $request,
         protected RouteInterface $route,
         Registry $registry,
         /** @var string|list{string, string} */

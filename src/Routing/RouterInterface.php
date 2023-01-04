@@ -29,7 +29,7 @@ interface RouterInterface
         bool $bust = false,
         string $host = null
     ): string;
-    public function match(RequestInterface $request): ?RouteInterface;
+    public function match(): ?RouteInterface;
     public function dispatch(RequestInterface $request, Registry $registry): ResponseInterface;
 
     /** @param \Conia\Chuck\MiddlewareInterface|MiddlewareCallable $middlewares */
