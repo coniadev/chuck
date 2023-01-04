@@ -14,7 +14,6 @@ use Conia\Chuck\Logger;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Routing\Router;
-use Conia\Chuck\Routing\RouterInterface;
 
 class TestCase extends BaseTestCase
 {
@@ -123,14 +122,14 @@ class TestCase extends BaseTestCase
     }
 
     public function registry(
-        ?RequestInterface $request = null,
+        ?Request $request = null,
         ?ConfigInterface $config = null,
     ): Registry {
         $registry = new Registry();
         $request = $request ?: $this->request();
         $config = $config ?: $this->config();
 
-        $registry->add(RequestInterface::class, $request);
+        $registry->add(Request::class, $request);
         $registry->add($request::class, $request);
         $registry->add(ConfigInterface::class, $config);
         $registry->add($config::class, $config);

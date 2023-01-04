@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use Closure;
-use Conia\Chuck\RequestInterface;
+use Conia\Chuck\Request;
 use Conia\Chuck\Response\ResponseInterface;
 
 /**
@@ -27,7 +27,7 @@ class MiddlewareWrapper implements MiddlewareInterface
     }
 
     public function __invoke(
-        RequestInterface $request,
+        Request $request,
         callable $next
     ): ResponseInterface {
         return ($this->callable)($request, $next);

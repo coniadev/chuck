@@ -6,6 +6,7 @@ namespace Conia\Chuck\Tests\Fixtures;
 
 use Conia\Chuck\Attribute\Render;
 use Conia\Chuck\Request;
+use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Response\Response;
 
 class TestController
@@ -30,7 +31,7 @@ class TestController
     public function middlewareView(Request $request): Response
     {
         error_log('controller');
-        return $request->response->html(' view');
+        return (new ResponseFactory())->html(' view');
     }
 
     #[Render('text'), TestMiddleware1]

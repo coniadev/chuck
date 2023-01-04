@@ -2,16 +2,11 @@
 
 declare(strict_types=1);
 
-use Conia\Chuck\ConfigInterface;
 use Conia\Chuck\Exception\ExitException;
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\File;
-use Conia\Chuck\Renderer\JsonRenderer;
-use Conia\Chuck\ResponseFactory;
-use Conia\Chuck\Response\ResponseInterface;
 use Conia\Chuck\Tests\Setup\TestCase;
-use Conia\Chuck\Tests\Fixtures\TestRenderer;
 
 uses(TestCase::class);
 
@@ -19,9 +14,6 @@ uses(TestCase::class);
 test('Helper methods', function () {
     $request = $this->request();
 
-    expect($request->config())->toBeInstanceOf(ConfigInterface::class);
-    expect($request->response)->toBeInstanceOf(ResponseFactory::class);
-    expect($request->response->html('Chuck'))->toBeInstanceOf(ResponseInterface::class);
     expect($request->method())->toBe('GET');
     expect($request->isMethod('GET'))->toBe(true);
     expect($request->isMethod('POST'))->toBe(false);
@@ -153,24 +145,6 @@ test('Request::json empty', function () {
     expect($request->json(stream: $streamName))->toBe(null);
     fclose($f);
     ob_end_clean();
-});
-
-
-test('Request::renderer', function () {
-    $request = $this->request();
-    $renderer = $request->renderer('json');
-
-    expect($renderer)->toBeInstanceOf(JsonRenderer::class);
-});
-
-
-test('Request::renderer with args', function () {
-    $config = $this->config();
-    $config->addRenderer('template', TestRenderer::class);
-    $request = $this->request(config: $config);
-    $renderer = $request->renderer('template', 'renderer');
-
-    expect($renderer)->toBeInstanceOf(TestRenderer::class);
 });
 
 

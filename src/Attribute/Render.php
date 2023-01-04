@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Conia\Chuck\Attribute;
 
 use Attribute;
-use Conia\Chuck\RequestInterface;
+use Conia\Chuck\ConfigInterface;
+use Conia\Chuck\Request;
 use Conia\Chuck\Response\ResponseInterface;
 
 #[Attribute]
@@ -18,9 +19,9 @@ class Render
         $this->args = $args;
     }
 
-    public function response(RequestInterface $request, mixed $data): ResponseInterface
+    public function response(Request $request, ConfigInterface $config, mixed $data): ResponseInterface
     {
-        $renderer = $request->config()->renderer(
+        $renderer = $config->renderer(
             $request,
             $this->renderer,
             ...$this->args,

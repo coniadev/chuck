@@ -6,5 +6,5 @@ namespace Conia\Chuck\Routing;
 
 interface GroupInterface
 {
-    public function create(RouterInterface $router): void;
+    public function create(Router $router): void;
 }

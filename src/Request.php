@@ -1,7 +1,5 @@
 <?php
 
-// phpcs:disable PSR1.Files.SideEffects -- readonly classes are not yet supported by phpcs
-
 declare(strict_types=1);
 
 namespace Conia\Chuck;
@@ -9,18 +7,10 @@ namespace Conia\Chuck;
 use Throwable;
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\RuntimeException;
-use Conia\Chuck\ResponseFactory;
-use Conia\Chuck\Renderer\RendererInterface;
 use Conia\Chuck\Util\Uri;
 
-class Request implements RequestInterface // phpcs:ignore
+class Request
 {
-    public function __construct(
-        readonly protected ConfigInterface $config,
-        readonly public ResponseFactory $response = new ResponseFactory(),
-    ) {
-    }
-
     public function params(): array
     {
         // GET parameters have priority
@@ -173,20 +163,4 @@ class Request implements RequestInterface // phpcs:ignore
 
         return [$this->file($field)];
     }
-
-    public function config(): ConfigInterface
-    {
-        return $this->config;
-    }
-
-    public function response(): ResponseFactory
-    {
-        return $this->response;
-    }
-
-    public function renderer(string $type, mixed ...$args): RendererInterface
-    {
-        return $this->config->renderer($this, $type, ...$args);
-    }
 }
-// phpcs:enable

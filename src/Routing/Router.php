@@ -9,19 +9,21 @@ use JsonException;
 use Stringable;
 use Throwable;
 use Conia\Chuck\Attribute\Render;
+use Conia\Chuck\ConfigInterface;
 use Conia\Chuck\Exception\{HttpNotFound, HttpMethodNotAllowed, RuntimeException};
 use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\Renderer\{
     Config as RendererConfig,
     RendererInterface,
 };
+use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Registry\Registry;
-use Conia\Chuck\RequestInterface;
+use Conia\Chuck\Request;
 use Conia\Chuck\Response\ResponseInterface;
 use Conia\Chuck\Util\Uri;
 use Conia\Chuck\View\View;
 
-class Router implements RouterInterface
+class Router
 {
     use AddsRoutes;
     use AddsMiddleware;
@@ -193,10 +195,11 @@ class Router implements RouterInterface
     }
 
     protected function getRenderer(
-        RequestInterface $request,
+        Request $request,
+        ConfigInterface $config,
         RendererConfig $rendererConfig
     ): RendererInterface {
-        return $request->config()->renderer(
+        return $config->renderer(
             $request,
             $rendererConfig->type,
             ...$rendererConfig->args
@@ -204,7 +207,8 @@ class Router implements RouterInterface
     }
 
     protected function respond(
-        RequestInterface $request,
+        Request $request,
+        ConfigInterface $config,
         RouteInterface $route,
         View $view,
     ): ResponseInterface {
@@ -221,7 +225,7 @@ class Router implements RouterInterface
             $rendererConfig = $route->getRenderer();
 
             if ($rendererConfig) {
-                $renderer = $this->getRenderer($request, $rendererConfig);
+                $renderer = $this->getRenderer($request, $config, $rendererConfig);
 
                 return $renderer->response($result);
             }
@@ -230,16 +234,18 @@ class Router implements RouterInterface
 
             if (count($renderAttributes) > 0) {
                 assert($renderAttributes[0] instanceof Render);
-                return $renderAttributes[0]->response($request, $result);
+                return $renderAttributes[0]->response($request, $config, $result);
             }
 
+            $responseFactory = new ResponseFactory();
+
             if (is_string($result)) {
-                return $request->response()->html($result);
+                return $responseFactory->html($result);
             } elseif ($result instanceof Stringable) {
-                return $request->response()->html($result->__toString());
+                return $responseFactory->html($result->__toString());
             } else {
                 try {
-                    return $request->response()->json($result);
+                    return $responseFactory->json($result);
                 } catch (JsonException) {
                     throw new RuntimeException('Cannot determine a response handler for the return type of the view');
                 }
@@ -252,10 +258,10 @@ class Router implements RouterInterface
      * and then the view callable.
      *
      * @psalm-param list<MiddlewareInterface> $handlerStack
-     * @psalm-param Closure(RequestInterface):ResponseInterface $viewClosure
+     * @psalm-param Closure(Request):ResponseInterface $viewClosure
      */
     protected function workOffStack(
-        RequestInterface $request,
+        Request $request,
         array $handlerStack,
         Closure $viewClosure,
     ): ResponseInterface {
@@ -265,7 +271,7 @@ class Router implements RouterInterface
             default => $handlerStack[0](
                 $request,
                 function (
-                    RequestInterface $req
+                    Request $req
                 ) use (
                     $handlerStack,
                     $viewClosure
@@ -284,7 +290,7 @@ class Router implements RouterInterface
      * Looks up the matching route and generates the response while
      * working off the middleware stack.
      */
-    public function dispatch(RequestInterface $request, Registry $registry): ResponseInterface
+    public function dispatch(Request $request, ConfigInterface $config, Registry $registry): ResponseInterface
     {
         /**
          * @psalm-suppress InaccessibleProperty
@@ -302,8 +308,8 @@ class Router implements RouterInterface
             $middlewareAttributes,
         );
 
-        $viewClosure = function (RequestInterface $req) use ($view): ResponseInterface {
-            return $this->respond($req, $this->route, $view);
+        $viewClosure = function (Request $req) use ($view, $config): ResponseInterface {
+            return $this->respond($req, $config, $this->route, $view);
         };
 
         return $this->workOffStack($request, $handlerStack, $viewClosure);

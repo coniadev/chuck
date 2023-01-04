@@ -113,7 +113,7 @@ class Config implements ConfigInterface
         }
     }
 
-    public function renderer(RequestInterface $request, string $type, mixed ...$args): RendererInterface
+    public function renderer(Request $request, string $type, mixed ...$args): RendererInterface
     {
         $class = $this->renderers[$type]['class'];
         /** @psalm-suppress MixedAssignment -- options are mixed values by nature */

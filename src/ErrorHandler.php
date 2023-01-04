@@ -6,8 +6,8 @@ namespace Conia\Chuck;
 
 use ErrorException;
 use Throwable;
-use Conia\Chuck\RequestInterface;
-use Conia\Chuck\Response\ResponseInterface;
+use Conia\Chuck\ConfigInterface;
+use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Exception\ExitException;
 use Conia\Chuck\Exception\HttpError;
 use Conia\Chuck\Exception\HttpBadRequest;
@@ -19,7 +19,7 @@ use Conia\Chuck\Exception\HttpUnauthorized;
 
 class ErrorHandler
 {
-    public function __construct(protected RequestInterface $request)
+    public function __construct(protected ConfigInterface $config)
     {
     }
 
@@ -44,8 +44,8 @@ class ErrorHandler
 
     public function handleException(Throwable $exception): void
     {
-        $response = $this->request->response()->html(null);
-        $debug = $this->request->config()->debug();
+        $response = (new ResponseFactory())->html(null);
+        $debug = $this->config->debug();
 
         if ($exception instanceof HttpError) {
             $code = $exception->getCode();
@@ -105,7 +105,7 @@ class ErrorHandler
 
     public function log(Throwable $exception): void
     {
-        $logger = $this->request->config()->logger();
+        $logger = $this->config->logger();
 
         if ($logger) {
             $method = $this->getLoggerMethod($exception);

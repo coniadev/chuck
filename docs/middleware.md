@@ -1,10 +1,10 @@
 ### Middleware:
 
 ```php
-    use Conia\Chuck\{App, Config, Route, RequestInterface};
+    use Conia\Chuck\{App, Config, Route, Request};
 
     class Middleware {
-        public function __invoke(RequestInterface $request, callable $next) {
+        public function __invoke(Request $request, callable $next) {
             // ... do something before the next
             $resujlt = $next($request);
             // ... do something after the next
@@ -17,7 +17,7 @@
 
     // Route specific middleware
     $app->route('/', function (Request $request) {})->middleware(
-        function (RequestInterface $request, callable $next): $request {
+        function (Request $request, callable $next): $request {
         return $next($request);
     });
     $app->run();

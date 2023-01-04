@@ -3,9 +3,7 @@
 declare(strict_types=1);
 
 use Conia\Chuck\Config;
-use Conia\Chuck\ConfigInterface;
 use Conia\Chuck\Request;
-use Conia\Chuck\RequestInterface;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\RuntimeException;
@@ -28,9 +26,9 @@ test('Add value with key', function () {
 
 test('Check if registered', function () {
     $registry = new Registry();
-    $registry->add(RequestInterface::class, Request::class);
+    $registry->add(Registry::class, $registry);
 
-    expect($registry->has(RequestInterface::class))->toBe(true);
+    expect($registry->has(Registry::class))->toBe(true);
     expect($registry->has('registry'))->toBe(false);
 });
 

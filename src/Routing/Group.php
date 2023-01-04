@@ -10,7 +10,7 @@ class Group implements GroupInterface
     use AddsMiddleware;
 
     /** @psalm-suppress PropertyNotSetInConstructor */
-    protected RouterInterface $router;
+    protected Router $router;
 
     protected string $namePrefix;
     protected ?string $renderer = null;
@@ -62,7 +62,7 @@ class Group implements GroupInterface
         $this->router->addRoute($route);
     }
 
-    public function create(RouterInterface $router): void
+    public function create(Router $router): void
     {
         $this->router = $router;
         ($this->createClosure)($this);

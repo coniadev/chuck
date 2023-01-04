@@ -35,7 +35,7 @@ afterEach(function () {
 
 
 test('Initialize handler', function () {
-    $err = new ErrorHandler($this->request());
+    $err = new ErrorHandler($this->config());
     $result = $err->setup();
 
     expect(is_callable($result))->toBe(true);
@@ -43,21 +43,21 @@ test('Initialize handler', function () {
 
 
 test('Error handler I', function () {
-    $err = new ErrorHandler($this->request());
+    $err = new ErrorHandler($this->config());
 
     expect($err->handleError(0, 'Chuck Test'))->toBe(false);
 });
 
 
 test('Error handler II', function () {
-    $err = new ErrorHandler($this->request());
+    $err = new ErrorHandler($this->config());
 
     expect($err->handleError(E_WARNING, 'Chuck Test'))->toBe(false);
 })->throws(ErrorException::class, 'Chuck Test');
 
 
 test('Handle HTTP Exceptions', function () {
-    $err = new ErrorHandler($this->request(config: $this->config(debug: true)));
+    $err = new ErrorHandler($this->config(debug: true));
     $err->setup();
 
     ob_start();
@@ -100,7 +100,7 @@ test('Handle HTTP Exceptions', function () {
 
 
 test('Handle PHP Exceptions', function () {
-    $err = new ErrorHandler($this->request());
+    $err = new ErrorHandler($this->config());
     $err->setup();
 
     ob_start();
@@ -115,8 +115,7 @@ test('Handle PHP Exceptions :: no server request', function () {
     $savedMethod = $_SERVER['REQUEST_METHOD'];
     unset($_SERVER['REQUEST_METHOD']);
 
-    $request = new Request($this->config());
-    $err = new ErrorHandler($request);
+    $err = new ErrorHandler($this->config());
     $err->setup();
 
     ob_start();
@@ -130,7 +129,7 @@ test('Handle PHP Exceptions :: no server request', function () {
 
 
 test('Debug mode traceback', function () {
-    $err = new ErrorHandler($this->request(config: $this->config(debug: true)));
+    $err = new ErrorHandler($this->config(debug: true));
     $err->setup();
 
     ob_start();

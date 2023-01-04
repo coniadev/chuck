@@ -47,7 +47,7 @@ abstract class View
     /**
      * Determines the arguments passed to the view and/or controller constructor
      *
-     * - If a view parameter implements RequestInterface, the request will be passed.
+     * - If a view parameter implements Request, the request will be passed.
      * - If names of the view parameters match names of the route arguments
      *   it will try to convert the argument to the parameter type and add it to
      *   the returned args list.

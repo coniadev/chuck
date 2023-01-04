@@ -4,24 +4,24 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-use Conia\Chuck\RequestInterface;
+use Conia\Chuck\Request;
 use Conia\Chuck\Response\ResponseInterface;
 
 /**
  * @psalm-type MiddlewareClosure = Closure(
- *     \Conia\Chuck\RequestInterface,
+ *     \Conia\Chuck\Request,
  *     callable
  * ):\Conia\Chuck\Response\ResponseInterface
  *
  * @psalm-type MiddlewareCallable = callable(
- *     \Conia\Chuck\RequestInterface,
+ *     \Conia\Chuck\Request,
  *     callable
  * ):\Conia\Chuck\Response\ResponseInterface
  */
 interface MiddlewareInterface
 {
     public function __invoke(
-        RequestInterface $request,
+        Request $request,
         callable $next
     ): ResponseInterface;
 }

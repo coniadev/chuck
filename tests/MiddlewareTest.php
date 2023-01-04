@@ -5,14 +5,15 @@ declare(strict_types=1);
 use Conia\Chuck\Tests\Setup\TestCase;
 use Conia\Chuck\App;
 use Conia\Chuck\Routing\Route;
-use Conia\Chuck\RequestInterface;
+use Conia\Chuck\Request;
+use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Response\Response;
 
 // phpcs:disable
 uses(TestCase::class);
 
 
-function ___functionMiddleware(RequestInterface $request, callable $next): Response
+function ___functionMiddleware(Request $request, callable $next): Response
 {
     error_log('function');
     $response = $next($request);
@@ -27,7 +28,7 @@ class ___ObjectMiddleware
     {
     }
 
-    public function __invoke(RequestInterface $request, callable $next): Response
+    public function __invoke(Request $request, callable $next): Response
     {
         error_log('object');
         // handle next
@@ -47,9 +48,9 @@ class ___EarlyResponseMiddleware
     {
     }
 
-    public function __invoke(RequestInterface $request, callable $_): Response
+    public function __invoke(Request $request, callable $_): Response
     {
-        $response = $request->response->html($this->text);
+        $response = (new ResponseFactory())->html($this->text);
 
         return $response;
     }

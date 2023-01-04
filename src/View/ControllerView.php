@@ -9,7 +9,7 @@ use ReflectionMethod;
 use ReflectionClass;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Exception\HttpServerError;
-use Conia\Chuck\RequestInterface;
+use Conia\Chuck\Request;
 use Conia\Chuck\Routing\RouteInterface;
 
 class ControllerView extends View

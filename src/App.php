@@ -12,7 +12,7 @@ use Conia\Chuck\Registry\Entry;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Routing\GroupInterface;
 use Conia\Chuck\Routing\RouteInterface;
-use Conia\Chuck\Routing\{Group, Router, RouterInterface, AddsRoutes};
+use Conia\Chuck\Routing\{Group, Router, AddsRoutes};
 
 /** @psalm-consistent-constructor */
 class App
@@ -20,16 +20,16 @@ class App
     use AddsRoutes;
 
     public function __construct(
-        private RequestInterface $request,
+        private Request $request,
         private ConfigInterface $config,
-        private RouterInterface $router,
+        private Router $router,
         private Registry $registry,
     ) {
-        $registry->add(RequestInterface::class, $request);
+        $registry->add(Request::class, $request);
         $registry->add($request::class, $request);
         $registry->add(ConfigInterface::class, $config);
         $registry->add($config::class, $config);
-        $registry->add(RouterInterface::class, $router);
+        $registry->add(Router::class, $router);
         $registry->add($router::class, $router);
         $registry->add(App::class, $this);
 
@@ -41,9 +41,9 @@ class App
     {
         $registry = new Registry();
         $router = new Router();
-        $request = new Request($config);
+        $request = new Request();
 
-        $errorHandler = new ErrorHandler($request);
+        $errorHandler = new ErrorHandler($config);
         $errorHandler->setup();
 
         $app = new static($request, $config, $router, $registry);
@@ -51,12 +51,12 @@ class App
         return $app;
     }
 
-    public function request(): RequestInterface
+    public function request(): Request
     {
         return $this->request;
     }
 
-    public function router(): RouterInterface
+    public function router(): Router
     {
         return $this->router;
     }
@@ -102,7 +102,7 @@ class App
 
     /**
      * @param MiddlewareInterface|callable(
-     *     RequestInterface,
+     *     Request,
      *     callable
      * ):\Conia\Chuck\Response\ResponseInterface $middlewares
      *
@@ -124,7 +124,7 @@ class App
 
     public function run(): ResponseInterface
     {
-        $response = $this->router->dispatch($this->request, $this->registry);
+        $response = $this->router->dispatch($this->request, $this->config, $this->registry);
         $response->emit();
 
         return $response;

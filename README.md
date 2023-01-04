@@ -35,7 +35,7 @@ It features:
     $app->post('/users', function (Request $request): Response {
         Users::create($request->json());
 
-        return $request->response()->json(['success' => true]);
+        return (new ResponseFactory())->json(['success' => true]);
     });
     $app->run();
 ```
@@ -53,7 +53,7 @@ It features:
         return ['data' => [1, 2, 3]];
     })->render('json'));
     $router->add(Route::get('file', '/file', function (Request $request) {
-        return $request->response->file('/path/to/file.zip');
+        return (new ResponseFactory())->file('/path/to/file.zip');
     }));
 
     // The ResponseFactory is optional
