@@ -10,7 +10,7 @@ use ReflectionClass;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Request;
-use Conia\Chuck\Routing\RouteInterface;
+use Conia\Chuck\Routing\Route;
 
 class ControllerView extends View
 {
@@ -20,7 +20,7 @@ class ControllerView extends View
     protected string $method;
 
     public function __construct(
-        protected RouteInterface $route,
+        protected Route $route,
         Registry $registry,
         /** @var string|list{string, string} */
         string|array $view,

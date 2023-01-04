@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use Closure;
-use Conia\Chuck\Exception;
 use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\Response\ResponseInterface;
 use Conia\Chuck\Registry\Entry;
 use Conia\Chuck\Registry\Registry;
-use Conia\Chuck\Routing\GroupInterface;
-use Conia\Chuck\Routing\RouteInterface;
-use Conia\Chuck\Routing\{Group, Router, AddsRoutes};
+use Conia\Chuck\Routing\{Route, Group, Router, AddsRoutes};
 
 /** @psalm-consistent-constructor */
 class App
@@ -71,12 +68,12 @@ class App
         return $this->registry;
     }
 
-    public function addRoute(RouteInterface $route): void
+    public function addRoute(Route $route): void
     {
         $this->router->addRoute($route);
     }
 
-    public function addGroup(GroupInterface $group): void
+    public function addGroup(Group $group): void
     {
         $this->router->addGroup($group);
     }

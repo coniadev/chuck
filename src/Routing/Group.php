@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Routing;
 
-class Group implements GroupInterface
+class Group
 {
     use AddsRoutes;
     use AddsMiddleware;
@@ -43,7 +43,7 @@ class Group implements GroupInterface
         return $this;
     }
 
-    public function addRoute(RouteInterface $route): void
+    public function addRoute(Route $route): void
     {
         $route->prefix($this->patternPrefix, $this->namePrefix);
 

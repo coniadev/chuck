@@ -7,14 +7,14 @@ namespace Conia\Chuck\View;
 use Closure;
 use ReflectionFunction;
 use Conia\Chuck\Registry\Registry;
-use Conia\Chuck\Routing\RouteInterface;
+use Conia\Chuck\Routing\Route;
 
 class CallableView extends View
 {
     protected Closure $callable;
 
     public function __construct(
-        protected RouteInterface $route,
+        protected Route $route,
         Registry $registry,
         callable $callable,
     ) {

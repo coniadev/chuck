@@ -14,7 +14,7 @@ const LEFT_BRACE = '§§§€§§§';
 const RIGHT_BRACE = '§§§£§§§';
 
 
-class Route implements RouteInterface
+class Route
 {
     use AddsMiddleware;
 

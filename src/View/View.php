@@ -13,7 +13,7 @@ use Throwable;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Exception\UnresolvableException;
 use Conia\Chuck\Registry\Registry;
-use Conia\Chuck\Routing\RouteInterface;
+use Conia\Chuck\Routing\Route;
 
 abstract class View
 {
@@ -22,7 +22,7 @@ abstract class View
     protected Registry $registry;
 
     public static function get(
-        RouteInterface $route,
+        Route $route,
         Registry $registry,
     ): View {
         $view = $route->view();

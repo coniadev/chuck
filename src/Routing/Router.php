@@ -29,17 +29,17 @@ class Router
     use AddsMiddleware;
 
     /** @psalm-suppress PropertyNotSetInConstructor */
-    protected readonly RouteInterface $route;
-    /** @var array<string, list<RouteInterface>> */
+    protected readonly Route $route;
+    /** @var array<string, list<Route>> */
     protected array $routes = [];
     /** @var array<string, StaticRoute> */
     protected array $staticRoutes = [];
-    /** @var array<string, RouteInterface> */
+    /** @var array<string, Route> */
     protected array $names = [];
 
     protected const ALL = 'ALL';
 
-    public function getRoute(): RouteInterface
+    public function getRoute(): Route
     {
         try {
             return $this->route;
@@ -48,7 +48,7 @@ class Router
         }
     }
 
-    public function addRoute(RouteInterface $route): void
+    public function addRoute(Route $route): void
     {
         $name = $route->name();
         $noMethodGiven = true;
@@ -72,7 +72,7 @@ class Router
         $this->names[$name] = $route;
     }
 
-    public function addGroup(GroupInterface $group): void
+    public function addGroup(Group $group): void
     {
         $group->create($this);
     }
@@ -154,7 +154,7 @@ class Router
         }
     }
 
-    public function match(): RouteInterface
+    public function match(): Route
     {
         $url = Uri::path(stripQuery: true);
         $requestMethod = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN');
@@ -209,7 +209,7 @@ class Router
     protected function respond(
         Request $request,
         ConfigInterface $config,
-        RouteInterface $route,
+        Route $route,
         View $view,
     ): ResponseInterface {
         /**
