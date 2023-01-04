@@ -6,7 +6,7 @@ namespace Conia\Chuck\Response;
 
 use Conia\Chuck\Exception\OutOfBoundsException;
 
-class Response implements ResponseInterface
+class Response
 {
     public readonly Headers $headers;
     protected string $charset = 'UTF-8';

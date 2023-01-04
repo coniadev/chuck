@@ -7,12 +7,12 @@ namespace Conia\Chuck\Tests\Fixtures;
 use Attribute;
 use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\Request;
-use Conia\Chuck\Response\ResponseInterface;
+use Conia\Chuck\Response\Response;
 
 #[Attribute]
 class TestMiddleware1 implements MiddlewareInterface
 {
-    public function __invoke(Request $request, callable $next): ResponseInterface
+    public function __invoke(Request $request, callable $next): Response
     {
         return $next($request);
     }

@@ -19,7 +19,7 @@ use Conia\Chuck\Renderer\{
 use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Request;
-use Conia\Chuck\Response\ResponseInterface;
+use Conia\Chuck\Response\Response;
 use Conia\Chuck\Util\Uri;
 use Conia\Chuck\View\View;
 
@@ -211,7 +211,7 @@ class Router
         Config $config,
         Route $route,
         View $view,
-    ): ResponseInterface {
+    ): Response {
         /**
          * @psalm-suppress MixedAssignment
          *
@@ -219,7 +219,7 @@ class Router
          * */
         $result = $view->execute();
 
-        if ($result instanceof ResponseInterface) {
+        if ($result instanceof Response) {
             return $result;
         } else {
             $rendererConfig = $route->getRenderer();
@@ -258,13 +258,13 @@ class Router
      * and then the view callable.
      *
      * @psalm-param list<MiddlewareInterface> $handlerStack
-     * @psalm-param Closure(Request):ResponseInterface $viewClosure
+     * @psalm-param Closure(Request):Response $viewClosure
      */
     protected function workOffStack(
         Request $request,
         array $handlerStack,
         Closure $viewClosure,
-    ): ResponseInterface {
+    ): Response {
         return match (count($handlerStack)) {
             0 => $viewClosure($request),
             1 => $handlerStack[0]($request, $viewClosure),
@@ -275,7 +275,7 @@ class Router
                 ) use (
                     $handlerStack,
                     $viewClosure
-                ): ResponseInterface {
+                ): Response {
                     return $this->workOffStack(
                         $req,
                         array_slice($handlerStack, 1),
@@ -290,7 +290,7 @@ class Router
      * Looks up the matching route and generates the response while
      * working off the middleware stack.
      */
-    public function dispatch(Request $request, Config $config, Registry $registry): ResponseInterface
+    public function dispatch(Request $request, Config $config, Registry $registry): Response
     {
         /**
          * @psalm-suppress InaccessibleProperty
@@ -308,7 +308,7 @@ class Router
             $middlewareAttributes,
         );
 
-        $viewClosure = function (Request $req) use ($view, $config): ResponseInterface {
+        $viewClosure = function (Request $req) use ($view, $config): Response {
             return $this->respond($req, $config, $this->route, $view);
         };
 

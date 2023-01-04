@@ -6,7 +6,7 @@ namespace Conia\Chuck;
 
 use Closure;
 use Conia\Chuck\MiddlewareInterface;
-use Conia\Chuck\Response\ResponseInterface;
+use Conia\Chuck\Response\Response;
 use Conia\Chuck\Registry\Entry;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Routing\{Route, Group, Router, AddsRoutes};
@@ -101,7 +101,7 @@ class App
      * @param MiddlewareInterface|callable(
      *     Request,
      *     callable
-     * ):\Conia\Chuck\Response\ResponseInterface $middlewares
+     * ):\Conia\Chuck\Response\Response $middlewares
      *
      * TODO: Why can't we import the custom psalm type MiddlewareCallable from MiddlewareInterface
      */
@@ -119,7 +119,7 @@ class App
         return $this->registry->add($key, $value);
     }
 
-    public function run(): ResponseInterface
+    public function run(): Response
     {
         $response = $this->router->dispatch($this->request, $this->config, $this->registry);
         $response->emit();

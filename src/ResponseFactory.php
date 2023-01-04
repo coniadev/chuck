@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use Conia\Chuck\Response\{
-    ResponseInterface,
+    Response,
     JsonResponse,
     FileResponse,
-    Response,
 };
 
 class ResponseFactory
@@ -18,7 +17,7 @@ class ResponseFactory
         int $statusCode = 200,
         /** @param list<array{name: string, value: string, replace: bool}> */
         array $headers = [],
-    ): ResponseInterface {
+    ): Response {
         $response = new Response($body, $statusCode, $headers);
         $response->header('Content-Type', 'text/html');
 
@@ -30,7 +29,7 @@ class ResponseFactory
         int $statusCode = 200,
         /** @param list<array{name: string, value: string, replace: bool}> */
         array $headers = [],
-    ): ResponseInterface {
+    ): Response {
         $response = new Response($body, $statusCode, $headers);
         $response->header('Content-Type', 'text/plain');
 

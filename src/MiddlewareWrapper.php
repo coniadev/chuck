@@ -6,7 +6,7 @@ namespace Conia\Chuck;
 
 use Closure;
 use Conia\Chuck\Request;
-use Conia\Chuck\Response\ResponseInterface;
+use Conia\Chuck\Response\Response;
 
 /**
  * @psalm-import-type MiddlewareCallable from \Conia\Chuck\MiddlewareInterface
@@ -29,7 +29,7 @@ class MiddlewareWrapper implements MiddlewareInterface
     public function __invoke(
         Request $request,
         callable $next
-    ): ResponseInterface {
+    ): Response {
         return ($this->callable)($request, $next);
     }
 }
