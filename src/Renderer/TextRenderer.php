@@ -16,6 +16,6 @@ class TextRenderer extends Renderer
 
     public function response(mixed $data): Response
     {
-        return (new ResponseFactory($this->registry))->text((string)$data);
+        return (new ResponseFactory($this->registry))->text($this->render($data));
     }
 }

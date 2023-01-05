@@ -42,11 +42,21 @@ class Response
         return $this->response->getStatusCode();
     }
 
-    public function protocol(string $protocol): static
+    public function getReasonPhrase(): string
+    {
+        return $this->response->getReasonPhrase();
+    }
+
+    public function protocolVersion(string $protocol): static
     {
         $this->response = $this->response->withProtocolVersion($protocol);
 
         return $this;
+    }
+
+    public function getProtocolVersion(): string
+    {
+        return $this->response->getProtocolVersion();
     }
 
     public function header(string $name, string $value): static
