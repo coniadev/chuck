@@ -34,6 +34,7 @@ class Emitter implements EmitterInterface
                 ) {
                     return false;
                 }
+
                 return $this->emitter->emit($response);
             }
         };

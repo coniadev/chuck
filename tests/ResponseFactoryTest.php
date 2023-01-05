@@ -5,10 +5,19 @@ declare(strict_types=1);
 use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\ResponseFactory;
-use Conia\Chuck\Response;
 use Conia\Chuck\Tests\Setup\{C, TestCase};
 
 uses(TestCase::class);
+
+
+test('Empty response', function () {
+    $factory = new ResponseFactory($this->registry());
+    $response = $factory->create(404, 'Nothing to see');
+
+    expect((string)$response->getBody())->toBe('');
+    expect($response->getStatusCode())->toBe(404);
+    expect($response->getReasonPhrase())->toBe('Nothing to see');
+});
 
 
 test('Html response', function () {
@@ -16,7 +25,6 @@ test('Html response', function () {
     $response = $factory->html('html');
 
     expect((string)$response->getBody())->toBe('html');
-    expect($response)->toBeInstanceOf(Response::class);
     expect($response->getHeader('Content-Type')[0])->toBe('text/html');
 });
 
@@ -26,7 +34,6 @@ test('Text response', function () {
     $response = $factory->text('text');
 
     expect((string)$response->getBody())->toBe('text');
-    expect($response)->toBeInstanceOf(Response::class);
     expect($response->getHeader('Content-Type')[0])->toBe('text/plain');
 });
 
@@ -36,7 +43,6 @@ test('Json response', function () {
     $response = $factory->json([1, 2, 3]);
 
     expect((string)$response->getBody())->toBe('[1,2,3]');
-    expect($response)->toBeInstanceOf(Response::class);
     expect($response->getHeader('Content-Type')[0])->toBe('application/json');
 });
 
@@ -46,7 +52,6 @@ test('File response', function () {
     $factory = new ResponseFactory($this->registry());
     $response = $factory->file($file);
 
-    expect($response)->toBeInstanceOf(Response::class);
     expect($response->getHeader('Content-Type')[0])->toBe('image/jpeg');
     expect($response->getHeader('Content-Length')[0])->toBe((string)filesize($file));
 });
@@ -57,7 +62,6 @@ test('File download response', function () {
     $factory = new ResponseFactory($this->registry());
     $response = $factory->download($file);
 
-    expect($response)->toBeInstanceOf(Response::class);
     expect($response->getHeader('Content-Type')[0])->toBe('image/jpeg');
     expect($response->getHeader('Content-Length')[0])->toBe((string)filesize($file));
     expect($response->getHeader('Content-Disposition')[0])->toBe(
@@ -71,7 +75,6 @@ test('File download response with changed name', function () {
     $factory = new ResponseFactory($this->registry());
     $response = $factory->download($file, 'newname.jpg');
 
-    expect($response)->toBeInstanceOf(Response::class);
     expect($response->getHeader('Content-Type')[0])->toBe('image/jpeg');
     expect($response->getHeader('Content-Length')[0])->toBe((string)filesize($file));
     expect($response->getHeader('Content-Disposition')[0])->toBe(
