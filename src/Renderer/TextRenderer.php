@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Renderer;
 
-use Throwable;
-use Conia\Chuck\Exception\ValueError;
-use Conia\Chuck\Response\Response;
+use Conia\Chuck\Response;
+use Conia\Chuck\ResponseFactory;
 
 class TextRenderer extends Renderer
 {
@@ -17,18 +16,6 @@ class TextRenderer extends Renderer
 
     public function response(mixed $data): Response
     {
-        try {
-            return (new Response($this->render($data)))->header(
-                'Content-Type',
-                (string)(($this->args['contentType'] ?? null) ?: 'text/plain'),
-                true,
-            );
-        } catch (Throwable $e) {
-            throw new ValueError(
-                'Text renderer error: Probably wrong type [' .
-                    get_debug_type($data) .
-                    "]\n" . $e->getMessage()
-            );
-        }
+        return (new ResponseFactory($this->registry))->text((string)$data);
     }
 }

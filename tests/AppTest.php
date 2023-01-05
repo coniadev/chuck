@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Conia\Chuck\Tests\Setup\{TestCase, C};
 use Conia\Chuck\Routing\{Router, Route, Group};
-use Conia\Chuck\Response\Response;
+use Conia\Chuck\Response;
 use Conia\Chuck\{App, Request, Config};
 
 uses(TestCase::class);
@@ -49,13 +49,11 @@ test('App run', function () {
     $app = new App($this->config(), new Router(), $this->registry());
     $app->route('/', 'Conia\Chuck\Tests\Fixtures\TestController::textView');
     ob_start();
-    $response = $app->run();
+    $app->run();
     $output = ob_get_contents();
     ob_end_clean();
 
     expect($output)->toBe('text');
-    expect(in_array('Content-Type: text/html; charset=UTF-8', $response->headers()->emitted()))->toBe(true);
-    expect(in_array('HTTP/1.1 200 OK', $response->headers()->emitted()))->toBe(true);
 });
 
 
@@ -155,30 +153,4 @@ test('App::group helper', function () {
     }, 'albums:');
 
     expect($app->router()->routeUrl('albums:name', ['name' => 'symbolic']))->toBe('/albums/symbolic');
-});
-
-
-test('App::setServerRequestFactory', function () {
-    $app = App::create($this->config());
-    $app->setServerRequestFactory(function () {
-        $psr17Factory = new \Nyholm\Psr7\Factory\Psr17Factory();
-        $creator = new \Nyholm\Psr7Server\ServerRequestCreator(
-            $psr17Factory, // ServerRequestFactory
-            $psr17Factory, // UriFactory
-            $psr17Factory, // UploadedFileFactory
-            $psr17Factory  // StreamFactory
-        );
-
-        return $creator->fromGlobals();
-    });
-    $app->route('/', 'Conia\Chuck\Tests\Fixtures\TestController::textView');
-
-    ob_start();
-    $response = $app->run();
-    $output = ob_get_contents();
-    ob_end_clean();
-
-    expect($output)->toBe('text');
-    expect(in_array('Content-Type: text/html; charset=UTF-8', $response->headers()->emitted()))->toBe(true);
-    expect(in_array('HTTP/1.1 200 OK', $response->headers()->emitted()))->toBe(true);
 });

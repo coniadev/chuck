@@ -7,7 +7,7 @@ namespace Conia\Chuck\Tests\Fixtures;
 use Attribute;
 use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\Request;
-use Conia\Chuck\Response\Response;
+use Conia\Chuck\Response;
 
 #[Attribute]
 class TestMiddleware1 implements MiddlewareInterface

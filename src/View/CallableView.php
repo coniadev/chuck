@@ -6,7 +6,7 @@ namespace Conia\Chuck\View;
 
 use Closure;
 use ReflectionFunction;
-use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\Registry;
 use Conia\Chuck\Routing\Route;
 
 class CallableView extends View

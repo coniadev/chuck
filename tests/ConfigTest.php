@@ -86,7 +86,7 @@ test('Logger call without setup', function () {
 test('Add renderer', function () {
     $config = new Config('chuck');
     $config->addRenderer('test', TestRenderer::class);
-    $renderer = $config->renderer($this->request(), 'test');
+    $renderer = $config->renderer($this->request(), $this->registry(), 'test');
 
     expect($renderer)->toBeInstanceOf(TestRenderer::class);
 });

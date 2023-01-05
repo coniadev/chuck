@@ -6,7 +6,7 @@ namespace Conia\Chuck;
 
 use Closure;
 use Conia\Chuck\Request;
-use Conia\Chuck\Response\Response;
+use Conia\Chuck\Response;
 
 /**
  * @psalm-import-type MiddlewareCallable from \Conia\Chuck\MiddlewareInterface

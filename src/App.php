@@ -8,12 +8,13 @@ use Closure;
 use Throwable;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\MiddlewareInterface;
-use Conia\Chuck\Response\Response;
-use Conia\Chuck\Registry\Entry;
-use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\ResponseFactory;
+use Conia\Chuck\Entry;
+use Conia\Chuck\Registry;
 use Conia\Chuck\Routing\{Route, Group, Router, AddsRoutes};
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 
 /** @psalm-consistent-constructor */
 class App
@@ -40,7 +41,7 @@ class App
         $registry = new Registry();
         $router = new Router();
 
-        $errorHandler = new ErrorHandler($config);
+        $errorHandler = new ErrorHandler($config, $registry);
         $errorHandler->setup();
 
         return new static($config, $router, $registry);
@@ -60,15 +61,6 @@ class App
     {
         return $this->registry;
     }
-
-    /**
-     * @param callable():ServerRequestInterface $factory
-     */
-    public function setServerRequestFactory(callable $factory): void
-    {
-        $this->serverRequestFactory = Closure::fromCallable($factory);
-    }
-
 
     public function addRoute(Route $route): void
     {
@@ -103,7 +95,7 @@ class App
      * @param MiddlewareInterface|callable(
      *     Request,
      *     callable
-     * ):\Conia\Chuck\Response\Response $middlewares
+     * ):\Conia\Chuck\Response $middlewares
      *
      * TODO: Why can't we import the custom psalm type MiddlewareCallable from MiddlewareInterface
      */
@@ -141,36 +133,29 @@ class App
         });
     }
 
-    protected function registerResponse(): void
-    {
-        $this->registry->add(ResponseInterface::class, function (int $status = 200, array $headers = [], $body = null): ResponseInterface {
-            try {
-                return new \Nyholm\Psr7\Response(status: $status, headers: $headers, body: $body);
-                // @codeCoverageIgnoreStart
-            } catch (Throwable $e) {
-                throw new RuntimeException('Install nyholm/psr7');
-                // @codeCoverageIgnoreEnd
-            }
-        });
-    }
-
     public function run(): Response
     {
         if (!$this->registry->has(ServerRequestInterface::class)) {
             $this->registerServerRequest();
         }
 
-        if (!$this->registry->has(ResponseInterface::class)) {
-            $this->registerResponse();
+        if (!$this->registry->has(ResponseFactoryInterface::class)) {
+            $this->registry->add(ResponseFactoryInterface::class, \Nyholm\Psr7\Factory\Psr17Factory::class);
+        }
+
+        if (!$this->registry->has(StreamFactoryInterface::class)) {
+            $this->registry->add(StreamFactoryInterface::class, \Nyholm\Psr7\Factory\Psr17Factory::class);
         }
 
         $serverRequest = $this->registry->resolve(ServerRequestInterface::class);
         $request = new Request($serverRequest);
 
         $this->registry->add(Request::class, $request);
+        $this->registry->add(ResponseFactory::class, new ResponseFactory($this->registry));
 
         $response = $this->router->dispatch($request, $this->config, $this->registry);
-        $response->emit();
+
+        (new Emitter())->emit($response->psr7());
 
         return $response;
     }

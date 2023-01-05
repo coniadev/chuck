@@ -13,7 +13,6 @@ use Conia\Chuck\Renderer\{
     Renderer,
     JsonRenderer,
     TextRenderer,
-    RendererInterface,
 };
 
 class Config
@@ -113,13 +112,13 @@ class Config
         }
     }
 
-    public function renderer(Request $request, string $type, mixed ...$args): RendererInterface
+    public function renderer(Request $request, Registry $registry, string $type, mixed ...$args): Renderer
     {
         $class = $this->renderers[$type]['class'];
         /** @psalm-suppress MixedAssignment -- options are mixed values by nature */
         $options = $this->renderers[$type]['options'];
 
-        return new $class($request, $args, $options);
+        return new $class($request, $registry, $args, $options);
     }
 
     /** @param callable():LoggerInterface $callable */

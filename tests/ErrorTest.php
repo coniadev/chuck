@@ -35,7 +35,7 @@ afterEach(function () {
 
 
 test('Initialize handler', function () {
-    $err = new ErrorHandler($this->config());
+    $err = new ErrorHandler($this->config(), $this->registry());
     $result = $err->setup();
 
     expect(is_callable($result))->toBe(true);
@@ -43,21 +43,21 @@ test('Initialize handler', function () {
 
 
 test('Error handler I', function () {
-    $err = new ErrorHandler($this->config());
+    $err = new ErrorHandler($this->config(), $this->registry());
 
     expect($err->handleError(0, 'Chuck Test'))->toBe(false);
 });
 
 
 test('Error handler II', function () {
-    $err = new ErrorHandler($this->config());
+    $err = new ErrorHandler($this->config(), $this->registry());
 
     expect($err->handleError(E_WARNING, 'Chuck Test'))->toBe(false);
 })->throws(ErrorException::class, 'Chuck Test');
 
 
 test('Handle HTTP Exceptions', function () {
-    $err = new ErrorHandler($this->config(debug: true));
+    $err = new ErrorHandler($this->config(debug: true), $this->registry());
     $err->setup();
 
     ob_start();
@@ -100,7 +100,7 @@ test('Handle HTTP Exceptions', function () {
 
 
 test('Handle PHP Exceptions', function () {
-    $err = new ErrorHandler($this->config());
+    $err = new ErrorHandler($this->config(), $this->registry());
     $err->setup();
 
     ob_start();
@@ -111,25 +111,8 @@ test('Handle PHP Exceptions', function () {
 });
 
 
-test('Handle PHP Exceptions :: no server request', function () {
-    $savedMethod = $_SERVER['REQUEST_METHOD'];
-    unset($_SERVER['REQUEST_METHOD']);
-
-    $err = new ErrorHandler($this->config());
-    $err->setup();
-
-    ob_start();
-    $err->handleException(new DivisionByZeroError('Division by zero'));
-    $output = ob_get_contents();
-    ob_end_clean();
-    expect(trim($output))->toBe('Division by zero');
-
-    $_SERVER['REQUEST_METHOD'] = $savedMethod;
-});
-
-
 test('Debug mode traceback', function () {
-    $err = new ErrorHandler($this->config(debug: true));
+    $err = new ErrorHandler($this->config(debug: true), $this->registry());
     $err->setup();
 
     ob_start();

@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Renderer;
 
+use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
-use Conia\Chuck\Response\Response;
+use Conia\Chuck\Response;
 
-abstract class Renderer implements RendererInterface
+abstract class Renderer
 {
     final public function __construct(
         protected Request $request,
+        protected Registry $registry,
         protected array $args,
         protected mixed $options = null,
     ) {

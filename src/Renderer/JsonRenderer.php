@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Renderer;
 
-use Conia\Chuck\Response\JsonResponse;
 use Conia\Chuck\Util\Json;
+use Conia\Chuck\Response;
+use Conia\Chuck\ResponseFactory;
 
 class JsonRenderer extends Renderer
 {
@@ -14,8 +15,8 @@ class JsonRenderer extends Renderer
         return Json::encode($data);
     }
 
-    public function response(mixed $data): JsonResponse
+    public function response(mixed $data): Response
     {
-        return new JsonResponse($data);
+        return (new ResponseFactory($this->registry))->json($data);
     }
 }

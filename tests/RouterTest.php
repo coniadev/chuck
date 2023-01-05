@@ -7,8 +7,9 @@ use Conia\Chuck\Exception\{HttpNotFound, HttpServerError, HttpMethodNotAllowed};
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Exception\UnresolvableException;
 use Conia\Chuck\Request;
+use Conia\Chuck\Registry;
 use Conia\Chuck\ResponseFactory;
-use Conia\Chuck\Response\Response;
+use Conia\Chuck\Response;
 use Conia\Chuck\Routing\{Router, Route, Group};
 use Conia\Chuck\Tests\Fixtures\TestController;
 use Conia\Chuck\Tests\Fixtures\TestRenderer;
@@ -124,8 +125,14 @@ test('Static route duplicate unnamed', function () {
 
 
 test('Dispatch closure', function () {
+    $self = $this;
     $router = new Router();
-    $index = new Route('/', fn (Request $request) => (new ResponseFactory())->html('Chuck', 200));
+    $index = new Route(
+        '/',
+        function () use ($self) {
+            return (new ResponseFactory($self->registry()))->html('Chuck', 200);
+        }
+    );
     $router->addRoute($index);
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/'), $this->config(), $this->registry());
@@ -184,9 +191,9 @@ test('Dispatch invokable class', function () {
     // phpcs:disable
     class ___InvocableClass
     {
-        public function __invoke(Request $request)
+        public function __invoke(Registry $registry)
         {
-            return (new ResponseFactory())->html('Schuldiner');
+            return (new ResponseFactory($registry))->html('Schuldiner');
         }
     };
     // phpcs:enable
@@ -224,7 +231,7 @@ test('Dispatch closure with Render attribute', function () {
     $router->addRoute($index);
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/'), $config, $this->registry());
-    expect($this->fullTrim($response->getBody()))->toBe('render attribute');
+    expect($this->fullTrim((string)$response->getBody()))->toBe('render attribute');
 });
 
 

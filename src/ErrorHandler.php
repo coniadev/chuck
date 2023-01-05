@@ -19,7 +19,7 @@ use Conia\Chuck\Exception\HttpUnauthorized;
 
 class ErrorHandler
 {
-    public function __construct(protected Config $config)
+    public function __construct(protected Config $config, protected Registry $registry)
     {
     }
 
@@ -44,7 +44,7 @@ class ErrorHandler
 
     public function handleException(Throwable $exception): void
     {
-        $response = (new ResponseFactory())->html(null);
+        $response = (new ResponseFactory($this->registry))->html(null);
         $debug = $this->config->debug();
 
         if ($exception instanceof HttpError) {
@@ -82,12 +82,7 @@ class ErrorHandler
 
         $this->log($exception);
 
-        try {
-            $response->body($body)->emit();
-        } catch (Throwable) {
-            // No server request, most likley a CLI call
-            echo $exception->getMessage() . "\n";
-        }
+        (new Emitter())->emit($response->body($body)->psr7());
     }
 
     protected function getLoggerMethod(Throwable $exception): string

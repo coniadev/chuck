@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Conia\Chuck\Config;
 use Conia\Chuck\Request;
-use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\Registry;
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Exception\UnresolvableException;
