@@ -93,6 +93,28 @@ test('Resolve class named parameter', function () {
 });
 
 
+test('Get named parameter entry', function () {
+    $registry = new Registry();
+    $registry->add(Config::class, new Config('named'), '$namedConfig');
+    $registry->add(Config::class, new Config('chuck'));
+
+    $config1 = $registry->resolve(Config::class);
+    $config2 = $registry->resolveWithParamName(Config::class, 'namedConfig');
+
+    expect($config1->app())->toBe('chuck');
+    expect($config2->app())->toBe('named');
+
+    $config3 = $registry->resolveWithParamName(Config::class, '$namedConfig');
+    $config4 = $registry->resolveWithParamName(Config::class, '$wrongName');
+
+    expect($config3->app())->toBe('named');
+    expect($config4->app())->toBe('chuck');
+
+    expect($config1)->toBe($config4);
+    expect($config2)->toBe($config3);
+});
+
+
 test('Resolve closure class', function () {
     $registry = new Registry();
     $registry->add(Config::class, new Config('chuck'));
