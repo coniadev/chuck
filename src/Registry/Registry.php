@@ -63,19 +63,9 @@ class Registry
         return new ($this->get($id))(...$args);
     }
 
-    public function resolve(string $id, string $paramName = ''): object
+    public function resolve(string $id, ?array $args = null): object
     {
-        $paramName = $paramName ?
-            (str_starts_with($paramName, '$') ? $paramName : '$' . $paramName) :
-            '';
-
-        // 1. See if there's a entry with a bound parameter name:
-        //    e. g. '\Namespace\MyClass$myParameter'
-        //    If $paramName is emtpy an existing unbound entry should
-        //    be found on first try.
-        $entry = $this->entries[$id . $paramName] ??
-            $this->entries[$id] ??
-            null;
+        $entry = $this->entries[$id] ?? null;
 
         if ($entry) {
             return $this->resolveEntry($entry);
@@ -91,14 +81,30 @@ class Registry
         throw new UnresolvableException('Autowiring unresolvable: ' . $id);
     }
 
-    protected function resolveEntry(Entry $entry): object
+    public function resolveWithParamName(string $id, string $paramName, array $args = null): object
+    {
+        $paramName = str_starts_with($paramName, '$') ? $paramName : '$' . $paramName;
+
+        // 1. See if there's a entry with a bound parameter name:
+        //    e. g. '\Namespace\MyClass$myParameter'
+        //    If $paramName is emtpy an existing unbound entry should
+        //    be found on first try.
+        return isset($this->entries[$id . $paramName]) ?
+            $this->resolve($id . $paramName, $args) :
+            $this->resolve($id, $args);
+    }
+
+    protected function resolveEntry(Entry $entry, array $args = null): object
     {
         $value = $entry->value();
 
         if ($value instanceof Closure) {
             // Get the instance from the registered closure
             $rf = new ReflectionFunction($value);
-            $args = $this->resolveArgs($rf);
+
+            if (func_num_args() === 1) {
+                $args = $this->resolveArgs($rf);
+            }
 
             /** @psalm-suppress MixedArgument */
             return $this->reifyAndReturn($entry, $value(...$args));
@@ -111,7 +117,9 @@ class Registry
 
         // As $value is a string $id is likly to be a
         // interface or abstract/base class
-        $args = $entry->getArgs();
+        if (func_num_args() === 1) {
+            $args = $entry->getArgs();
+        }
 
         if (isset($args)) {
             // Don't autowire if $args are given
@@ -140,7 +148,7 @@ class Registry
         $type = $param->getType();
 
         if ($type instanceof ReflectionNamedType) {
-            return $this->resolve($type->getName(), '$' . $param->getName());
+            return $this->resolveWithParamName($type->getName(), '$' . $param->getName());
         } else {
             if ($type) {
                 throw new UnresolvableException(
