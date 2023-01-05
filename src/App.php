@@ -13,14 +13,12 @@ use Conia\Chuck\Registry\Entry;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Routing\{Route, Group, Router, AddsRoutes};
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 /** @psalm-consistent-constructor */
 class App
 {
     use AddsRoutes;
-
-    /** @var null|Closure():ServerRequestInterface */
-    protected ?Closure $serverRequestFactory = null;
 
     public function __construct(
         private Config $config,
@@ -123,11 +121,9 @@ class App
         return $this->registry->add($key, $value);
     }
 
-    public function run(): Response
+    protected function registerServerRequest(): void
     {
-        if ($this->serverRequestFactory) {
-            $serverRequest = ($this->serverRequestFactory)();
-        } else {
+        $this->registry->add(ServerRequestInterface::class, function (): ServerRequestInterface {
             try {
                 $psr17Factory = new \Nyholm\Psr7\Factory\Psr17Factory();
                 $creator = new \Nyholm\Psr7Server\ServerRequestCreator(
@@ -136,16 +132,41 @@ class App
                     $psr17Factory, // UploadedFileFactory
                     $psr17Factory  // StreamFactory
                 );
-                $serverRequest = $creator->fromGlobals();
+                return $creator->fromGlobals();
                 // @codeCoverageIgnoreStart
             } catch (Throwable $e) {
-                throw new RuntimeException('Install nyholm/psr7 and nyholm/psr7-server');
+                throw new RuntimeException('Install nyholm/psr7-server');
                 // @codeCoverageIgnoreEnd
             }
+        });
+    }
+
+    protected function registerResponse(): void
+    {
+        $this->registry->add(ResponseInterface::class, function (int $status = 200, array $headers = [], $body = null): ResponseInterface {
+            try {
+                return new \Nyholm\Psr7\Response(status: $status, headers: $headers, body: $body);
+                // @codeCoverageIgnoreStart
+            } catch (Throwable $e) {
+                throw new RuntimeException('Install nyholm/psr7');
+                // @codeCoverageIgnoreEnd
+            }
+        });
+    }
+
+    public function run(): Response
+    {
+        if (!$this->registry->has(ServerRequestInterface::class)) {
+            $this->registerServerRequest();
         }
+
+        if (!$this->registry->has(ResponseInterface::class)) {
+            $this->registerResponse();
+        }
+
+        $serverRequest = $this->registry->resolve(ServerRequestInterface::class);
         $request = new Request($serverRequest);
 
-        $this->registry->add(ServerRequestInterface::class, $serverRequest);
         $this->registry->add(Request::class, $request);
 
         $response = $this->router->dispatch($request, $this->config, $this->registry);
