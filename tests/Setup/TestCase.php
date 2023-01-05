@@ -8,11 +8,14 @@ use Conia\Chuck\App;
 use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Logger;
-use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
-use Conia\Chuck\Routing\Router;
+use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\LoggerInterface;
 
 class TestCase extends BaseTestCase
@@ -129,7 +132,10 @@ class TestCase extends BaseTestCase
         $request = $request ?: $this->request();
         $config = $config ?: $this->config();
 
+        $registry->add(Registry::class, $registry);
         $registry->add(Request::class, $request);
+        $registry->add(ResponseFactoryInterface::class, Psr17Factory::class);
+        $registry->add(StreamFactoryInterface::class, Psr17Factory::class);
         $registry->add($request::class, $request);
         $registry->add(Config::class, $config);
         $registry->add($config::class, $config);
@@ -137,9 +143,14 @@ class TestCase extends BaseTestCase
         return $registry;
     }
 
+    public function psr7Factory(): Psr17Factory
+    {
+        return new Psr17Factory();
+    }
+
     public function psr7Request(): ServerRequestInterface
     {
-        $psr17Factory = new \Nyholm\Psr7\Factory\Psr17Factory();
+        $psr17Factory = new Psr17Factory();
 
         $creator = new \Nyholm\Psr7Server\ServerRequestCreator(
             $psr17Factory, // ServerRequestFactory
@@ -149,6 +160,13 @@ class TestCase extends BaseTestCase
         );
 
         return $creator->fromGlobals();
+    }
+
+    public function psr7Response(): ResponseInterface
+    {
+        $psr17Factory = new Psr17Factory();
+
+        return $psr17Factory->createResponse();
     }
 
     public function request(

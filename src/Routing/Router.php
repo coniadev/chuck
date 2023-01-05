@@ -14,12 +14,12 @@ use Conia\Chuck\Exception\{HttpNotFound, HttpMethodNotAllowed, RuntimeException}
 use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\Renderer\{
     Config as RendererConfig,
-    RendererInterface,
+    Renderer,
 };
 use Conia\Chuck\ResponseFactory;
-use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
-use Conia\Chuck\Response\Response;
+use Conia\Chuck\Response;
 use Conia\Chuck\Util\Uri;
 use Conia\Chuck\View\View;
 
@@ -30,6 +30,8 @@ class Router
 
     /** @psalm-suppress PropertyNotSetInConstructor */
     protected readonly Route $route;
+    protected readonly Registry $registry;
+    protected readonly Config $config;
     /** @var array<string, list<Route>> */
     protected array $routes = [];
     /** @var array<string, StaticRoute> */
@@ -198,9 +200,10 @@ class Router
         Request $request,
         Config $config,
         RendererConfig $rendererConfig
-    ): RendererInterface {
+    ): Renderer {
         return $config->renderer(
             $request,
+            $this->registry,
             $rendererConfig->type,
             ...$rendererConfig->args
         );
@@ -208,8 +211,6 @@ class Router
 
     protected function respond(
         Request $request,
-        Config $config,
-        Route $route,
         View $view,
     ): Response {
         /**
@@ -222,22 +223,22 @@ class Router
         if ($result instanceof Response) {
             return $result;
         } else {
-            $rendererConfig = $route->getRenderer();
+            $rendererConfig = $this->route->getRenderer();
 
             if ($rendererConfig) {
-                $renderer = $this->getRenderer($request, $config, $rendererConfig);
+                $renderer = $this->getRenderer($request, $this->config, $rendererConfig);
 
-                return $renderer->response($result);
+                return $renderer->response($result, $this->registry);
             }
 
             $renderAttributes = $view->attributes(Render::class);
 
             if (count($renderAttributes) > 0) {
                 assert($renderAttributes[0] instanceof Render);
-                return $renderAttributes[0]->response($request, $config, $result);
+                return $renderAttributes[0]->response($request, $this->config, $this->registry, $result);
             }
 
-            $responseFactory = new ResponseFactory();
+            $responseFactory = new ResponseFactory($this->registry);
 
             if (is_string($result)) {
                 return $responseFactory->html($result);
@@ -298,6 +299,11 @@ class Router
          * See docs/contributing.md
          */
         $this->route = $this->match();
+        /** @psalm-suppress InaccessibleProperty */
+        $this->config = $config;
+        /** @psalm-suppress InaccessibleProperty */
+        $this->registry = $registry;
+
         $view = View::get($this->route, $registry);
         /** @var list<MiddlewareInterface> */
         $middlewareAttributes = $view->attributes(MiddlewareInterface::class);
@@ -308,8 +314,8 @@ class Router
             $middlewareAttributes,
         );
 
-        $viewClosure = function (Request $req) use ($view, $config): Response {
-            return $this->respond($req, $config, $this->route, $view);
+        $viewClosure = function (Request $req) use ($view): Response {
+            return $this->respond($req, $view);
         };
 
         return $this->workOffStack($request, $handlerStack, $viewClosure);

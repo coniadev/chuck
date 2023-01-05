@@ -5,9 +5,10 @@ declare(strict_types=1);
 use Conia\Chuck\Tests\Setup\TestCase;
 use Conia\Chuck\App;
 use Conia\Chuck\Routing\Route;
+use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\ResponseFactory;
-use Conia\Chuck\Response\Response;
+use Conia\Chuck\Response;
 
 // phpcs:disable
 uses(TestCase::class);
@@ -18,7 +19,7 @@ function ___functionMiddleware(Request $request, callable $next): Response
     error_log('function');
     $response = $next($request);
 
-    return $response->body('first' . $response->getBody());
+    return $response->body('first' . (string)$response->getBody());
 }
 
 
@@ -35,7 +36,7 @@ class ___ObjectMiddleware
         $response = $next($request);
 
         // add another text to the body
-        $response->body($response->getBody() . $this->text);
+        $response->body((string)$response->getBody() . $this->text);
 
         return $response;
     }
@@ -44,13 +45,13 @@ class ___ObjectMiddleware
 
 class ___EarlyResponseMiddleware
 {
-    public function __construct(protected string $text)
+    public function __construct(protected string $text, protected Registry $registry)
     {
     }
 
     public function __invoke(Request $request, callable $_): Response
     {
-        $response = (new ResponseFactory())->html($this->text);
+        $response = (new ResponseFactory($this->registry))->html($this->text);
 
         return $response;
     }
@@ -92,7 +93,7 @@ test('Middleware flow with attribute', function () {
 test('Early response', function () {
     $app = App::create($this->config());
     $app->route('/', 'Conia\Chuck\Tests\Fixtures\TestController::middlewareView');
-    $app->middleware(new ___EarlyResponseMiddleware('immediate response'));
+    $app->middleware(new ___EarlyResponseMiddleware('immediate response', $this->registry()));
     $app->middleware(new ___ObjectMiddleware(' second'));
 
     ob_start();
