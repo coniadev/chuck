@@ -2,7 +2,9 @@
 <ruleset name="e5-ruleset">
     <description>coding standard</description>
 
-    <rule ref="PSR12"/>
+    <rule ref="PSR12">
+        <exclude name="PSR12.Classes.AnonClassDeclaration.SpaceAfterKeyword"/>
+    </rule>
 
     <rule ref="Generic.Files.LineLength">
         <properties>

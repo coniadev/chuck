@@ -291,8 +291,19 @@ test('Get nested files instances', function () {
 });
 
 
+test('Get nested files instances using an array', function () {
+    $this->setupFiles(); // files array
+    $request = $this->request();
+    $files = $request->files(['nested', 'myfile']);
+
+    expect(count($files))->toBe(2);
+    expect($files[0])->toBeInstanceOf(UploadedFileInterface::class);
+    expect($files[1])->toBeInstanceOf(UploadedFileInterface::class);
+});
+
+
 test('Get files instances with only one present', function () {
-    $this->setupFile(); // single file
+    $this->setupFile();
     $request = $this->request();
     $files = $request->files('myfile');
 
@@ -302,7 +313,7 @@ test('Get files instances with only one present', function () {
 
 
 test('Access single file when mulitple are available', function () {
-    $this->setupFiles(); // files array
+    $this->setupFiles();
     $request = $this->request();
     $request->file('myfile');
 })->throws(RuntimeException::class, 'Multiple files');
@@ -312,6 +323,20 @@ test('File instance not available', function () {
     $request = $this->request();
     $request->file('does-not-exist');
 })->throws(OutOfBoundsException::class, "Invalid file key ['does-not-exist']");
+
+
+test('File instance not available (too much keys)', function () {
+    $this->setupFile();
+    $request = $this->request();
+    $request->file('nested', 'myfile', 'toomuch');
+})->throws(OutOfBoundsException::class, "Invalid file key (too deep) ['nested']['myfile']['toomuch']");
+
+
+test('Access file using mulitple arrays', function () {
+    $this->setupFiles();
+    $request = $this->request();
+    $request->files([], []);
+})->throws(RuntimeException::class, 'Either provide');
 
 
 test('Nested file instance not available', function () {

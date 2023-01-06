@@ -39,11 +39,13 @@ class Request
         mixed $default,
         string $error,
         int $numArgs
-    ) {
+    ): mixed {
         try {
             if ((is_null($array) || !isset($array[$key])) && $numArgs > 1) {
                 return $default;
             }
+
+            assert(!is_null($array));
 
             return $array[$key];
         } catch (Throwable) {
@@ -64,14 +66,18 @@ class Request
         return $this->returnOrFail($params, $key, $default, $error, func_num_args());
     }
 
-    public function form(): array
+    public function form(): ?array
     {
-        return $this->psr7->getParsedBody();
+        $body = $this->psr7->getParsedBody();
+        assert(is_null($body) || is_array($body));
+
+        return $body;
     }
 
     public function field(string $key, mixed $default = null): mixed
     {
         $body = $this->psr7->getParsedBody();
+        assert(is_null($body) || is_array($body));
         $error = 'Form field not found';
 
         return $this->returnOrFail($body, $key, $default, $error, func_num_args());
@@ -124,8 +130,6 @@ class Request
     public function origin(): string
     {
         $uri = $this->psr7->getUri();
-        $origin = '';
-
         $scheme = $uri->getScheme();
         $origin = $scheme ? $scheme . ':' : '';
         $authority = $uri->getAuthority();
@@ -172,21 +176,38 @@ class Request
     }
 
     /**
+     * @param list<list<string>|string> $keys
+     * @return list<string>
+     */
+    private function validateKeys(array $keys): array
+    {
+        if (isset($keys[0]) && is_array($keys[0])) {
+            if (count($keys) > 1) {
+                throw new RuntimeException('Either provide a single array or plain string arguments');
+            } else {
+                $keys = $keys[0];
+            }
+        }
+
+        /** @var list<string> */
+        return $keys;
+    }
+
+    /**
      * Returns always a list of uploaded files, even if there is
      * only one file.
      *
      * Psalm does not support multi file uploads yet and complains
      * about type issues. We need to suppres some of the errors.
      *
-     * @psalm-suppress TypeDoesNotContainType, InvalidArrayAccess
-     *
-     * @param ...non-empty-string $keys
-     * @throws OutOfBoundsException
-     * @return list<UploadedFileInterface>
+     * @no-named-arguments
+     * @param list<string>|string ...$keys
+     * @throws OutOfBoundsException RuntimeException
      */
-    public function files(string ...$keys): array
+    public function files(array|string ...$keys): array
     {
         $files = $this->psr7->getUploadedFiles();
+        $keys = $this->validateKeys($keys);
 
         if (count($keys) === 0) {
             return $files;
@@ -194,6 +215,12 @@ class Request
 
         try {
             foreach ($keys as $key) {
+                /**
+                 * @psalm-suppress MixedAssignment, MixedArrayAccess
+                 *
+                 * Psalm does not support recursive types like:
+                 *     T = array<string, string|T>
+                 */
                 $files = $files[$key];
             }
         } catch (Throwable) {
@@ -203,6 +230,8 @@ class Request
         if ($files instanceof UploadedFileInterface) {
             return [$files];
         }
+
+        assert(is_array($files));
 
         return $files;
     }
@@ -214,30 +243,39 @@ class Request
      * Psalm does not support multi file uploads yet and complains
      * about type issues. We need to suppres some of the errors.
      *
-     * @psalm-suppress TypeDoesNotContainType, InvalidArrayAccess
-     *
-     * @param ...non-empty-string $keys
-     * @throws OutOfBoundsException
+     * @no-named-arguments
+     * @param list<non-empty-string>|string ...$keys
+     * @throws OutOfBoundsException RuntimeException
      * @return UploadedFileInterface
      */
-    public function file(string ...$keys): UploadedFileInterface|array
+    public function file(array|string ...$keys): UploadedFileInterface|array
     {
+        $keys = $this->validateKeys($keys);
+
         if (count($keys) === 0) {
             throw new RuntimeException('No file key given');
         }
 
         $files = $this->psr7->getUploadedFiles();
+        $i = 0;
 
-        try {
-            foreach ($keys as $key) {
+        foreach ($keys as $key) {
+            if (isset($files[$key])) {
+                /** @var array|UploadedFileInterface */
                 $files = $files[$key];
-            }
-        } catch (Throwable) {
-            throw new OutOfBoundsException('Invalid file key ' . $this->formatKeys($keys));
-        }
+                $i += 1;
 
-        if ($files instanceof UploadedFileInterface) {
-            return $files;
+                if ($files instanceof UploadedFileInterface) {
+                    if ($i < count($keys)) {
+                        throw new OutOfBoundsException(
+                            'Invalid file key (too deep) ' . $this->formatKeys($keys)
+                        );
+                    }
+                    return $files;
+                }
+            } else {
+                throw new OutOfBoundsException('Invalid file key ' . $this->formatKeys($keys));
+            }
         }
 
         throw new RuntimeException('Multiple files available at key ' . $this->formatKeys($keys));
