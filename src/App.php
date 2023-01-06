@@ -148,6 +148,7 @@ class App
         }
 
         $serverRequest = $this->registry->resolve(ServerRequestInterface::class);
+        assert($serverRequest instanceof ServerRequestInterface);
         $request = new Request($serverRequest);
 
         $this->registry->add(Request::class, $request);
