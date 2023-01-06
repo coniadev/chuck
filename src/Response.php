@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
+use Stringable;
+use Conia\Chuck\Exception\RuntimeException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -87,12 +89,17 @@ class Response
         return $this->psr7->hasHeader($name);
     }
 
-    /**
-     * @param string|resource|StreamInterface|null $body
-     */
     public function body(mixed $body): static
     {
-        $this->psr7 = $this->psr7->withBody($this->streamFactory->createStream($body));
+        if (is_string($body) || $body instanceof Stringable) {
+            $stream = $this->streamFactory->createStream((string)$body);
+        } elseif (is_resource($body)) {
+            $stream = $this->streamFactory->createStreamFromResource($body);
+        } else {
+            throw new RuntimeException('Only strings, Stringable or resources are allowed');
+        }
+
+        $this->psr7 = $this->psr7->withBody($stream);
 
         return $this;
     }

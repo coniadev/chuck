@@ -76,11 +76,40 @@ test('Protocol version', function () {
 });
 
 
-test('Create with body', function () {
+test('Create with string body', function () {
     $text = 'text';
     $response = (new Response($this->psr7Response(), $this->psr7Factory()))->body($text);
     expect((string)$response->getBody())->toBe($text);
 });
+
+
+test('Create with resource body', function () {
+    $fh = fopen('php://temp', 'r+');
+    fwrite($fh, 'Chuck resource');
+    $response = (new Response($this->psr7Response(), $this->psr7Factory()))->body($fh);
+
+    expect((string)$response->getBody())->toBe('Chuck resource');
+});
+
+
+test('Html response from Stringable', function () {
+    $response = (new Response($this->psr7Response(), $this->psr7Factory()))->body(
+        new class()
+        {
+            public function __toString(): string
+            {
+                return 'Chuck Stringable';
+            }
+        }
+    );
+
+    expect((string)$response->getBody())->toBe('Chuck Stringable');
+});
+
+
+test('Html response invalid data', function () {
+    (new Response($this->psr7Response(), $this->psr7Factory()))->body(new stdClass());
+})->throws(RuntimeException::class, 'strings, Stringable or resources');
 
 
 test('Init with header', function () {

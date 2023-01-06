@@ -22,11 +22,43 @@ test('Empty response', function () {
 
 test('Html response', function () {
     $factory = new ResponseFactory($this->registry());
-    $response = $factory->html('html');
+    $response = $factory->html('<h1>Chuck string</h1>');
 
-    expect((string)$response->getBody())->toBe('html');
+    expect((string)$response->getBody())->toBe('<h1>Chuck string</h1>');
     expect($response->getHeader('Content-Type')[0])->toBe('text/html');
 });
+
+
+test('Html response from resource', function () {
+    $fh = fopen('php://temp', 'r+');
+    fwrite($fh, '<h1>Chuck resource</h1>');
+    $factory = new ResponseFactory($this->registry());
+    $response = $factory->html($fh);
+
+    expect((string)$response->getBody())->toBe('<h1>Chuck resource</h1>');
+    expect($response->getHeader('Content-Type')[0])->toBe('text/html');
+});
+
+
+test('Html response from Stringable', function () {
+    $factory = new ResponseFactory($this->registry());
+    $response = $factory->html(new class()
+    {
+        public function __toString(): string
+        {
+            return '<h1>Chuck Stringable</h1>';
+        }
+    });
+
+    expect((string)$response->getBody())->toBe('<h1>Chuck Stringable</h1>');
+    expect($response->getHeader('Content-Type')[0])->toBe('text/html');
+});
+
+
+test('Html response invalid data', function () {
+    $factory = new ResponseFactory($this->registry());
+    $factory->html(new stdClass());
+})->throws(RuntimeException::class, 'strings, Stringable or resources');
 
 
 test('Text response', function () {

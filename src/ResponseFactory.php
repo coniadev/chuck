@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use finfo;
+use Stringable;
 use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Registry;
@@ -25,21 +26,37 @@ class ResponseFactory
         int $code = 200,
         string $reasonPhrase = ''
     ): ResponseInterface {
-        $psr7Factory = $this->registry->resolve(ResponseFactoryInterface::class);
+        $factory = $this->registry->resolve(ResponseFactoryInterface::class);
+        assert($factory instanceof ResponseFactoryInterface);
+        $response = $factory->createResponse($code, $reasonPhrase);
+        assert($response instanceof ResponseInterface);
 
-        return $psr7Factory->createResponse($code, $reasonPhrase);
+        return $response;
     }
 
     protected function createPsr7StreamFactory(): StreamFactoryInterface
     {
-        return $this->registry->resolve(StreamFactoryInterface::class);
+        $factory = $this->registry->resolve(StreamFactoryInterface::class);
+        assert($factory instanceof StreamFactoryInterface);
+
+        return $factory;
     }
 
     protected function createPsr7Stream(mixed $body): StreamInterface
     {
         $psr7Factory = $this->createPsr7StreamFactory();
 
-        return $psr7Factory->createStream($body);
+        if (is_string($body) || $body instanceof Stringable) {
+            $stream = $psr7Factory->createStream((string)$body);
+        } elseif (is_resource($body)) {
+            $stream = $psr7Factory->createStreamFromResource($body);
+        } else {
+            throw new RuntimeException('Only strings, Stringable or resources are allowed');
+        }
+
+        assert($stream instanceof StreamInterface);
+
+        return $stream;
     }
 
     /**

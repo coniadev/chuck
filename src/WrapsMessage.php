@@ -30,7 +30,7 @@ trait WrapsMessage
         return $this->psr7->hasHeader($header);
     }
 
-    public function getHeader($header): array
+    public function getHeader(string $header): array
     {
         return $this->psr7->getHeader($header);
     }
