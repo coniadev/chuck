@@ -37,7 +37,7 @@ trait WrapsRequest
         return $this->psr7->getRequestTarget();
     }
 
-    public function withQueryParams(array $query)
+    public function withQueryParams(array $query): static
     {
         $this->psr7 = $this->psr7->withQueryParams($query);
 
@@ -56,7 +56,7 @@ trait WrapsRequest
         return $this;
     }
 
-    public function getParsedBody()
+    public function getParsedBody(): null|array|object
     {
         return $this->psr7->getParsedBody();
     }
@@ -116,7 +116,7 @@ trait WrapsRequest
         return $this->psr7->getAttributes();
     }
 
-    public function getAttribute(string $attribute, mixed $default = null)
+    public function getAttribute(string $attribute, mixed $default = null): mixed
     {
         return $this->psr7->getAttribute($attribute, $default);
     }

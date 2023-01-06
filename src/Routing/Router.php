@@ -29,7 +29,9 @@ class Router
 
     /** @psalm-suppress PropertyNotSetInConstructor */
     protected readonly Route $route;
+    /** @psalm-suppress PropertyNotSetInConstructor */
     protected readonly Registry $registry;
+    /** @psalm-suppress PropertyNotSetInConstructor */
     protected readonly Config $config;
     /** @var array<string, list<Route>> */
     protected array $routes = [];
@@ -227,7 +229,7 @@ class Router
             if ($rendererConfig) {
                 $renderer = $this->getRenderer($request, $this->config, $rendererConfig);
 
-                return $renderer->response($result, $this->registry);
+                return $renderer->response($result);
             }
 
             $renderAttributes = $view->attributes(Render::class);
