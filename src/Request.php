@@ -7,72 +7,136 @@ namespace Conia\Chuck;
 use Throwable;
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\RuntimeException;
-use Conia\Chuck\Util\Uri;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UploadedFileInterface;
+use Psr\Http\Message\UriInterface;
 
 class Request
 {
-    public function __construct(protected ServerRequestInterface $serverRequest)
+    use WrapsMessage;
+    use WrapsRequest;
+
+    public function __construct(protected ServerRequestInterface $psr7)
     {
+    }
+
+    public function psr7(): ServerRequestInterface
+    {
+        return $this->psr7;
+    }
+
+    public function setPsr7(ServerRequestInterface $psr7): static
+    {
+        $this->psr7 = $psr7;
+
+        return $this;
+    }
+
+    private function returnOrFail(
+        array|null $array,
+        string $key,
+        mixed $default,
+        string $error,
+        int $numArgs
+    ) {
+        try {
+            if ((is_null($array) || !isset($array[$key])) && $numArgs > 1) {
+                return $default;
+            }
+
+            return $array[$key];
+        } catch (Throwable) {
+            throw new OutOfBoundsException("$error: '$key'");
+        }
     }
 
     public function params(): array
     {
-        // GET parameters have priority
-        return array_merge($_POST, $_GET);
+        return $this->psr7->getQueryParams();
     }
 
-    public function param(string $key, ?string $default = null): null|string|array
+    public function param(string $key, mixed $default = null): mixed
     {
-        // prefer GET parameters
-        if (array_key_exists($key, $_GET)) {
-            return $_GET[$key];
-        }
+        $params = $this->psr7->getQueryParams();
+        $error = 'Query string variable not found';
 
-        if (array_key_exists($key, $_POST)) {
-            return $_POST[$key];
-        }
-
-        if (func_num_args() > 1) {
-            return $default;
-        }
-
-        throw new OutOfBoundsException("Key '$key' not found");
+        return $this->returnOrFail($params, $key, $default, $error, func_num_args());
     }
 
-    public function scheme(): string
+    public function form(): array
     {
-        return Uri::scheme();
+        return $this->psr7->getParsedBody();
+    }
+
+    public function field(string $key, mixed $default = null): mixed
+    {
+        $body = $this->psr7->getParsedBody();
+        $error = 'Form field not found';
+
+        return $this->returnOrFail($body, $key, $default, $error, func_num_args());
+    }
+
+    public function cookies(): array
+    {
+        return $this->psr7->getCookieParams();
+    }
+
+    public function cookie(string $key, mixed $default = null): mixed
+    {
+        $params = $this->psr7->getCookieParams();
+        $error = 'Cookie not found';
+
+        return $this->returnOrFail($params, $key, $default, $error, func_num_args());
+    }
+
+    public function serverParams(): array
+    {
+        return $this->psr7->getServerParams();
+    }
+
+    public function server(string $key, mixed $default = null): mixed
+    {
+        $params = $this->psr7->getServerParams();
+        $error = 'Server parameter not found';
+
+        return $this->returnOrFail($params, $key, $default, $error, func_num_args());
+    }
+
+    public function attributes(): array
+    {
+        return $this->psr7->getAttributes();
+    }
+
+    public function attribute(string $key, mixed $default = null): mixed
+    {
+        $params = $this->psr7->getAttributes();
+        $error = 'Request attribute not found';
+
+        return $this->returnOrFail($params, $key, $default, $error, func_num_args());
+    }
+
+    public function uri(): UriInterface
+    {
+        return $this->psr7->getUri();
     }
 
     public function origin(): string
     {
-        return Uri::origin();
-    }
+        $uri = $this->psr7->getUri();
+        $origin = '';
 
-    public function url(bool $stripQuery = false): string
-    {
-        return Uri::url($stripQuery);
-    }
+        $scheme = $uri->getScheme();
+        $origin = $scheme ? $scheme . ':' : '';
+        $authority = $uri->getAuthority();
+        $origin .= $authority ? '//' . $authority : '';
 
-    public function host(bool $stripPort = false): string
-    {
-        return Uri::host($stripPort);
-    }
-
-    public function path(bool $stripQuery = false): string
-    {
-        return Uri::path($stripQuery);
-    }
-
-    public function redirect(string $url, int $code = 302): never
-    {
-        Uri::redirect($url, $code);
+        return $origin;
     }
 
     public function method(): string
     {
-        return strtoupper($_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN');
+        return strtoupper($this->psr7->getMethod());
     }
 
     public function isMethod(string $method): bool
@@ -80,20 +144,15 @@ class Request
         return strtoupper($method) === $this->method();
     }
 
-    public function body(string $stream = 'php://input'): string
+    public function body(): StreamInterface
     {
-        return file_get_contents($stream);
+        return $this->psr7->getBody();
     }
 
     public function json(
-        string $stream = 'php://input',
         int $flags = JSON_OBJECT_AS_ARRAY,
     ): mixed {
-        $body = $this->body($stream);
-
-        if (empty($body)) {
-            return null;
-        }
+        $body = (string)$this->psr7->getBody();
 
         return json_decode(
             $body,
@@ -103,69 +162,84 @@ class Request
         );
     }
 
-    public function hasFile(string $key): bool
+    /** @param non-empty-list<string> $keys */
+    private function formatKeys(array $keys): string
     {
-        return isset($_FILES[$key]);
-    }
-
-    public function hasMultipleFiles(string $key): bool
-    {
-        /**
-         * @psalm-suppress TypeDoesNotContainType
-         *
-         * Psalm does not support multi file uploads yet and complains
-         * about type issues. We need to suppres some of the errors.
-         */
-        return isset($_FILES[$key]) && is_array($_FILES[$key]['error']);
-    }
-
-    /** @param non-empty-string $field */
-    public function file(string $field): File
-    {
-        try {
-            return File::fromArray($_FILES[$field]);
-        } catch (Throwable) {
-            throw new RuntimeException("Cannot read file '$field'");
-        }
+        return implode('', array_map(
+            fn ($key) => "['" . $key . "']",
+            $keys
+        ));
     }
 
     /**
-     * Transforms the cumbersome PHP multi upload array layout
-     * into a sane format.
+     * Returns always a list of uploaded files, even if there is
+     * only one file.
      *
      * Psalm does not support multi file uploads yet and complains
      * about type issues. We need to suppres some of the errors.
      *
-     * @param non-empty-string $field
-     * @return list<File>
      * @psalm-suppress TypeDoesNotContainType, InvalidArrayAccess
+     *
+     * @param ...non-empty-string $keys
+     * @throws OutOfBoundsException
+     * @return list<UploadedFileInterface>
      */
-    public function files(string $field): array
+    public function files(string ...$keys): array
     {
-        if (isset($_FILES[$field]['error']) && is_array($_FILES[$field]['error'])) {
-            $files = [];
+        $files = $this->psr7->getUploadedFiles();
 
-            /**
-             * @var int $idx
-             * @var int $error
-             * */
-            foreach ($_FILES[$field]['error'] as $idx => $error) {
-                $f = $_FILES[$field] ?? null;
-
-                if ($f) {
-                    $files[] = new File(
-                        $f['name'][$idx],
-                        $f['tmp_name'][$idx],
-                        $f['type'][$idx],
-                        (int)$f['size'][$idx],
-                        $error,
-                    );
-                }
-            }
-
+        if (count($keys) === 0) {
             return $files;
         }
 
-        return [$this->file($field)];
+        try {
+            foreach ($keys as $key) {
+                $files = $files[$key];
+            }
+        } catch (Throwable) {
+            throw new OutOfBoundsException('Invalid files key ' . $this->formatKeys($keys));
+        }
+
+        if ($files instanceof UploadedFileInterface) {
+            return [$files];
+        }
+
+        return $files;
+    }
+
+    /**
+     * Returns always a list of uploaded files, even if there is
+     * only one file.
+     *
+     * Psalm does not support multi file uploads yet and complains
+     * about type issues. We need to suppres some of the errors.
+     *
+     * @psalm-suppress TypeDoesNotContainType, InvalidArrayAccess
+     *
+     * @param ...non-empty-string $keys
+     * @throws OutOfBoundsException
+     * @return UploadedFileInterface
+     */
+    public function file(string ...$keys): UploadedFileInterface|array
+    {
+        if (count($keys) === 0) {
+            throw new RuntimeException('No file key given');
+        }
+
+        $files = $this->psr7->getUploadedFiles();
+
+        try {
+            foreach ($keys as $key) {
+                $files = $files[$key];
+            }
+        } catch (Throwable) {
+            throw new OutOfBoundsException('Invalid file key ' . $this->formatKeys($keys));
+        }
+
+        if ($files instanceof UploadedFileInterface) {
+            return $files;
+        }
+
+        throw new RuntimeException('Multiple files available at key ' . $this->formatKeys($keys));
     }
 }

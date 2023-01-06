@@ -82,15 +82,15 @@ test('Flash messages queue', function () {
 
 
 test('Remember URI', function () {
-    $this->request(url: '/albums');
+    $request = $this->request(url: '/albums');
     $session = new Session($this->config()->app());
-    $session->rememberRequestUri();
+    $session->rememberRequestUri($request);
 
     expect($session->getRememberedUri())->toBe('http://www.example.com/albums');
     expect($session->getRememberedUri())->toBe('/');
 
     // Test to return '/' when expired
-    $session->rememberRequestUri(-3600);
+    $session->rememberRequestUri($request, -3600);
     expect($session->getRememberedUri())->toBe('/');
 });
 

@@ -9,7 +9,7 @@ use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Response;
-use Conia\Chuck\Util\Json;
+use Conia\Chuck\Json;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;

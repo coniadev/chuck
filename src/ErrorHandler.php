@@ -49,7 +49,7 @@ class ErrorHandler
 
         if ($exception instanceof HttpError) {
             $code = $exception->getCode();
-            $response->statusCode($code);
+            $response->status($code);
             $body = '<h1>' . htmlspecialchars($exception->getTitle()) . '</h1>';
             $subTitle = $exception->getSubtitle();
 
@@ -65,7 +65,7 @@ class ErrorHandler
             // @codeCoverageIgnoreEnd
         } else {
             $code = 500;
-            $response->statusCode($code);
+            $response->status($code);
             $body = '<h1>500 Internal Server Error</h1>';
             $body .= '<h2>' . htmlspecialchars($exception->getMessage()) . '</h2>';
         }

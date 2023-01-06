@@ -41,6 +41,8 @@ class TestCase extends BaseTestCase
         unset($_SERVER['REQUEST_METHOD']);
         unset($_SERVER['REQUEST_URI']);
         unset($_SERVER['SERVER_PROTOCOL']);
+        unset($_SERVER['CONTENT_TYPE']);
+        unset($_SERVER['QUERY_STRING']);
         unset($_SERVER['argv']);
 
         // HTTPS values
@@ -54,12 +56,15 @@ class TestCase extends BaseTestCase
         $_POST = [];
         global $_FILES;
         $_FILES = [];
+        global $_COOKIE;
+        $_COOKIE = [];
     }
 
     public function set(string $method, array $values): void
     {
         global $_GET;
         global $_POST;
+        global $_COOKIE;
 
         foreach ($values as $key => $value) {
             if (strtoupper($method) === 'GET') {
@@ -68,6 +73,10 @@ class TestCase extends BaseTestCase
             }
             if (strtoupper($method) === 'POST') {
                 $_POST[$key] = $value;
+                continue;
+            }
+            if (strtoupper($method) === 'COOKIE') {
+                $_COOKIE[$key] = $value;
             } else {
                 throw new ValueError("Invalid method '$method'");
             }
@@ -77,6 +86,11 @@ class TestCase extends BaseTestCase
     public function setMethod(string $method): void
     {
         $_SERVER['REQUEST_METHOD'] = strtoupper($method);
+    }
+
+    public function setContentType(string $contentType): void
+    {
+        $_SERVER['HTTP_CONTENT_TYPE'] = $contentType;
     }
 
     public function setRequestUri(string $url): void
@@ -91,6 +105,11 @@ class TestCase extends BaseTestCase
     public function setHost(string $host): void
     {
         $_SERVER['HTTP_HOST'] = $host;
+    }
+
+    public function setQueryString(string $qs): void
+    {
+        $_SERVER['QUERY_STRING'] = $qs;
     }
 
     public function enableHttps(?string $serverKey = null): void
@@ -213,7 +232,16 @@ class TestCase extends BaseTestCase
                 'size'     => 123,
                 'tmp_name' => '',
                 'type'     => 'text/plain'
-            ]
+            ],
+            'nested' => [
+                'myfile' => [
+                    'error'    => UPLOAD_ERR_OK,
+                    'name'     => '../malic/chuck-test-file.php',
+                    'size'     => 123,
+                    'tmp_name' => __FILE__,
+                    'type'     => 'text/plain'
+                ]
+            ],
         ];
     }
 
@@ -228,7 +256,16 @@ class TestCase extends BaseTestCase
                 'size'     => [123, 234],
                 'tmp_name' => [__FILE__, __FILE__],
                 'type'     => ['text/plain', 'text/plain']
-            ]
+            ],
+            'nested' => [
+                'myfile' => [
+                    'error'    => [UPLOAD_ERR_OK, UPLOAD_ERR_PARTIAL],
+                    'name'     => ['test.php', 'test2.php'],
+                    'size'     => [123, 234],
+                    'tmp_name' => [__FILE__, __FILE__],
+                    'type'     => ['text/plain', 'text/plain']
+                ],
+            ],
         ];
     }
 

@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
+use Conia\Chuck\Request;
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\RuntimeException;
-use Conia\Chuck\Util\Uri;
+use Psr\Http\Message\ServerRequestInterface;
 
 class Session
 {
@@ -193,10 +194,11 @@ class Session
     }
 
     public function rememberRequestUri(
+        Request|ServerRequestInterface $request,
         int $expires = 3600,
     ): void {
         $rememberedUri = [
-            'uri' => Uri::url(),
+            'uri' => (string)$request->getUri(),
             'expires' => time() + $expires,
         ];
         $_SESSION[$this->rememberedUriKey] = $rememberedUri;

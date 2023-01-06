@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck\Util;
+namespace Conia\Chuck;
 
 class Json
 {

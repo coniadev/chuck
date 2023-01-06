@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Renderer;
 
-use Conia\Chuck\Util\Json;
+use Conia\Chuck\Json;
 use Conia\Chuck\Response;
 use Conia\Chuck\ResponseFactory;
 
