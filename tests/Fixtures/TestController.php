@@ -31,7 +31,6 @@ class TestController
 
     public function middlewareView(Registry $registry): Response
     {
-        error_log('controller');
         return (new ResponseFactory($registry))->html(' view');
     }
 

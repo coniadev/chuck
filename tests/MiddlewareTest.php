@@ -16,7 +16,6 @@ uses(TestCase::class);
 
 function ___functionMiddleware(Request $request, callable $next): Response
 {
-    error_log('function');
     $response = $next($request);
 
     return $response->body('first' . (string)$response->getBody());
@@ -31,7 +30,6 @@ class ___ObjectMiddleware
 
     public function __invoke(Request $request, callable $next): Response
     {
-        error_log('object');
         // handle next
         $response = $next($request);
 

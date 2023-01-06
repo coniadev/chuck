@@ -6,6 +6,7 @@
 .phpunit.result.cache
 __pycache__
 composer.lock
+/data
 /run
 /site
 /tests/Fixtures/public/cache/*

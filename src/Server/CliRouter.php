@@ -46,6 +46,12 @@ if (PHP_SAPI !== 'cli') {
             return false;
         }
 
+        if ($url === '/server-php-info') {
+            echo phpinfo();
+
+            return true;
+        }
+
         $_SERVER['SCRIPT_NAME'] = 'index.php';
 
         /** @psalm-suppress UnresolvableInclude */

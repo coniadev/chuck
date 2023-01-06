@@ -20,7 +20,6 @@ use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
-use Conia\Chuck\Util\Uri;
 use Conia\Chuck\View\View;
 
 class Router
@@ -156,10 +155,10 @@ class Router
         }
     }
 
-    public function match(): Route
+    public function match(Request $request): Route
     {
-        $url = Uri::path(stripQuery: true);
-        $requestMethod = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN');
+        $url = $request->uri()->getPath();
+        $requestMethod = $request->method();
 
         foreach ([$requestMethod, self::ALL] as $method) {
             foreach ($this->routes[$method] ?? [] as $route) {
@@ -298,7 +297,7 @@ class Router
          *
          * See docs/contributing.md
          */
-        $this->route = $this->match();
+        $this->route = $this->match($request);
         /** @psalm-suppress InaccessibleProperty */
         $this->config = $config;
         /** @psalm-suppress InaccessibleProperty */

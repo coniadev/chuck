@@ -10,18 +10,20 @@ use Psr\Http\Message\StreamFactoryInterface;
 
 class Response
 {
+    use WrapsMessage;
+
     public function __construct(
-        protected ResponseInterface $response,
+        protected ResponseInterface $psr7,
         protected StreamFactoryInterface $streamFactory,
     ) {
     }
 
-    public function statusCode(int $statusCode, ?string $reasonPhrase = null): static
+    public function status(int $statusCode, ?string $reasonPhrase = null): static
     {
-        if ($reasonPhrase === null) {
-            $this->response = $this->response->withStatus($statusCode);
+        if (empty($reasonPhrase)) {
+            $this->psr7 = $this->psr7->withStatus($statusCode);
         } else {
-            $this->response = $this->response->withStatus($statusCode, $reasonPhrase);
+            $this->psr7 = $this->psr7->withStatus($statusCode, $reasonPhrase);
         }
 
         return $this;
@@ -29,63 +31,60 @@ class Response
 
     public function psr7(): ResponseInterface
     {
-        return $this->response;
+        return $this->psr7;
     }
 
-    public function setPsr7(ResponseInterface $response): void
+    public function setPsr7(ResponseInterface $psr7): static
     {
-        $this->response = $response;
-    }
-
-    public function getStatusCode(): int
-    {
-        return $this->response->getStatusCode();
-    }
-
-    public function getReasonPhrase(): string
-    {
-        return $this->response->getReasonPhrase();
-    }
-
-    public function protocolVersion(string $protocol): static
-    {
-        $this->response = $this->response->withProtocolVersion($protocol);
+        $this->psr7 = $psr7;
 
         return $this;
     }
 
-    public function getProtocolVersion(): string
+    public function getStatusCode(): int
     {
-        return $this->response->getProtocolVersion();
+        return $this->psr7->getStatusCode();
+    }
+
+    public function getReasonPhrase(): string
+    {
+        return $this->psr7->getReasonPhrase();
+    }
+
+    public function protocolVersion(string $protocol): static
+    {
+        $this->psr7 = $this->psr7->withProtocolVersion($protocol);
+
+        return $this;
     }
 
     public function header(string $name, string $value): static
     {
-        $this->response = $this->response->withAddedHeader($name, $value);
+        $this->psr7 = $this->psr7->withAddedHeader($name, $value);
 
         return $this;
     }
 
     public function removeHeader(string $name): static
     {
-        $this->response = $this->response->withoutHeader($name);
+        $this->psr7 = $this->psr7->withoutHeader($name);
 
         return $this;
     }
 
     public function headers(): array
     {
-        return $this->response->getHeaders();
+        return $this->psr7->getHeaders();
     }
 
     public function getHeader(string $name): array
     {
-        return $this->response->getHeader($name);
+        return $this->psr7->getHeader($name);
     }
 
     public function hasHeader(string $name): bool
     {
-        return $this->response->hasHeader($name);
+        return $this->psr7->hasHeader($name);
     }
 
     /**
@@ -93,13 +92,26 @@ class Response
      */
     public function body(mixed $body): static
     {
-        $this->response = $this->response->withBody($this->streamFactory->createStream($body));
+        $this->psr7 = $this->psr7->withBody($this->streamFactory->createStream($body));
 
         return $this;
     }
 
     public function getBody(): StreamInterface
     {
-        return $this->response->getBody();
+        return $this->psr7->getBody();
+    }
+
+    public function redirect(string $url, int $code = 302): static
+    {
+        $this->header('Location', $url);
+        $this->status($code);
+
+        return $this;
+    }
+
+    public function withStatus(int $code, string $reasonPhrase = ''): static
+    {
+        return $this->status($code, $reasonPhrase);
     }
 }
