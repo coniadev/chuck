@@ -12,15 +12,13 @@ use Conia\Chuck\Attribute\Render;
 use Conia\Chuck\Config;
 use Conia\Chuck\Exception\{HttpNotFound, HttpMethodNotAllowed, RuntimeException};
 use Conia\Chuck\MiddlewareInterface;
-use Conia\Chuck\Renderer\{
-    Config as RendererConfig,
-    Renderer,
-};
 use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 use Conia\Chuck\View\View;
+use Conia\Chuck\View\CallableView;
+use Conia\Chuck\View\ControllerView;
 
 class Router
 {
@@ -291,7 +289,20 @@ class Router
         $this->config = $config;
         $this->registry = $registry;
 
-        $view = View::get($this->route, $registry);
+        $routeView = $this->route->view();
+
+        if (is_callable($routeView)) {
+            $view = new CallableView($this->route, $registry, $routeView);
+        } else {
+            /**
+             * @psalm-suppress PossiblyInvalidArgument
+             *
+             * According to Psalm, $view could be a Closure. But since we
+             * checked for is_callable before, this can never happen.
+             */
+            $view = new ControllerView($this->route, $registry, $routeView);
+        }
+
         /** @var list<MiddlewareInterface> */
         $middlewareAttributes = $view->attributes(MiddlewareInterface::class);
 

@@ -21,25 +21,6 @@ abstract class View
     protected array $attributes;
     protected Registry $registry;
 
-    public static function get(
-        Route $route,
-        Registry $registry,
-    ): View {
-        $view = $route->view();
-
-        if (is_callable($view)) {
-            return new CallableView($route, $registry, $view);
-        } else {
-            /**
-             * @psalm-suppress PossiblyInvalidArgument
-             *
-             * According to Psalm, $view could be a Closure. But since we
-             * checked for is_callable before, this can never happen.
-             */
-            return new ControllerView($route, $registry, $view);
-        }
-    }
-
     abstract public function execute(): mixed;
     /** @param $filter ?class-string */
     abstract public function attributes(string $filter = null): array;
