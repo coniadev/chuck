@@ -15,7 +15,7 @@ It features:
 * Automatic image resizing
 * Csrf protection
 * Session and cookie helpers
-* Custom middlewares
+* Custom and PSR-15 middleware 
 * Logging (PHP builtin logging or PSR-3 support)
 
 ## Usage:

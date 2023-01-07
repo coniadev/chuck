@@ -163,13 +163,13 @@ test('Middleware', function () {
     $group->create($router);
 
     $route = $router->match($this->request(method: 'GET', url: '/albums/human'));
-    $middlewares = $route->middlewares();
-    expect(count($middlewares))->toBe(1);
-    expect($middlewares[0])->toBeInstanceOf(MiddlewareWrapper::class);
+    $middleware = $route->getMiddleware();
+    expect(count($middleware))->toBe(1);
+    expect($middleware[0])->toBeInstanceOf(MiddlewareWrapper::class);
 
     $route = $router->match($this->request(method: 'GET', url: '/albums/home'));
-    $middlewares = $route->middlewares();
-    expect(count($middlewares))->toBe(2);
-    expect($middlewares[0])->toBeInstanceOf(MiddlewareWrapper::class);
-    expect($middlewares[1])->toBeInstanceOf(MiddlewareWrapper::class);
+    $middleware = $route->getMiddleware();
+    expect(count($middleware))->toBe(2);
+    expect($middleware[0])->toBeInstanceOf(MiddlewareWrapper::class);
+    expect($middleware[1])->toBeInstanceOf(MiddlewareWrapper::class);
 });

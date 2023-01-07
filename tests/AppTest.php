@@ -30,7 +30,7 @@ test('Middleware helper', function () {
         return $next($request);
     });
 
-    expect(count($app->router()->middlewares()))->toBe(1);
+    expect(count($app->router()->getMiddleware()))->toBe(1);
 });
 
 

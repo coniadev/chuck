@@ -15,6 +15,9 @@ use Conia\Chuck\Response;
 use Conia\Chuck\View;
 use Conia\Chuck\ViewHandler;
 
+/**
+ * @psalm-import-type HandlerList from \Conia\Chuck\Dispatcher
+ */
 class Router
 {
     use AddsRoutes;
@@ -185,21 +188,22 @@ class Router
         throw new HttpNotFound();
     }
 
+
+    /** @return HandlerList */
     protected function collectMiddleware(View $view): array
     {
         /** @var list<MiddlewareInterface> */
         $middlewareAttributes = $view->attributes(MiddlewareInterface::class);
 
         return array_merge(
-            $this->middlewares,
-            isset($this->route) ? $this->route->middlewares() : [],
+            $this->middleware,
+            isset($this->route) ? $this->route->getMiddleware() : [],
             $middlewareAttributes,
         );
     }
 
     /**
-     * Looks up the matching route and generates the response while
-     * working off the middleware stack.
+     * Looks up the matching route and generates the response
      */
     public function dispatch(Request $request, Config $config, Registry $registry): Response
     {
@@ -209,6 +213,6 @@ class Router
         $queue = $this->collectMiddleware($view);
         $queue[] = new ViewHandler($view, $registry, $config, $this->route);
 
-        return (new Dispatcher($queue))->dispatch($request);
+        return (new Dispatcher($queue, $registry))->dispatch($request);
     }
 }

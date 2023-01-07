@@ -95,13 +95,13 @@ class App
      * @param MiddlewareInterface|callable(
      *     Request,
      *     callable
-     * ):\Conia\Chuck\Response $middlewares
+     * ):\Conia\Chuck\Response $middleware
      *
      * TODO: Why can't we import the custom psalm type MiddlewareCallable from MiddlewareInterface
      */
-    public function middleware(MiddlewareInterface|callable ...$middlewares): void
+    public function middleware(MiddlewareInterface|callable ...$middleware): void
     {
-        $this->router->middleware(...$middlewares);
+        $this->router->middleware(...$middleware);
     }
 
     /**

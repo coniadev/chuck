@@ -37,7 +37,8 @@ class TestController
     #[Render('text'), TestMiddleware1]
     public function attributedMiddlewareView(Registry $registry): Response
     {
-        return (new ResponseFactory($registry))->html(' attribute-string');
+        $s = ' attribute-string';
+        return (new ResponseFactory($registry))->html($s);
     }
 
     public function routeParams(string $string, float $float, Request $request, int $int): array

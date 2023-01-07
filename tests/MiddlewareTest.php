@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Conia\Chuck\App;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\Tests\Fixtures\TestMiddlewareObject;
+use Conia\Chuck\Tests\Fixtures\TestPsrMiddlewareObject;
 use Conia\Chuck\Tests\Fixtures\TestMiddlewareEarlyResponse;
 use Conia\Chuck\Tests\Setup\TestCase;
 
@@ -57,4 +58,21 @@ test('Early response', function () {
     ob_end_clean();
 
     expect($output)->toBe('immediate response');
+});
+
+
+test('Middleware flow with attribute and PSR-15 middleware', function () {
+    $app = App::create($this->config());
+    $route = new Route('/', 'Conia\Chuck\Tests\Fixtures\TestController::attributedMiddlewareView');
+    $route->middleware(new TestMiddlewareObject(' last'));
+    $route->middleware(new TestPsrMiddlewareObject(' PSR'));
+    $app->addRoute($route);
+    $app->middleware('_testFunctionMiddleware');
+
+    ob_start();
+    $app->run();
+    $output = ob_get_contents();
+    ob_end_clean();
+
+    expect($output)->toBe('first attribute-string PSR last');
 });

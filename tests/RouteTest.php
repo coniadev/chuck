@@ -176,9 +176,9 @@ test('Get view :: string', function () {
 
 
 test('Get view :: array', function () {
-    $route = new Route('/', [Chuck\Tests\Fixtures\TestController::class, 'textView']);
+    $route = new Route('/', [Conia\Chuck\Tests\Fixtures\TestController::class, 'textView']);
 
-    expect($route->view())->toBe(['Chuck\Tests\Fixtures\TestController', 'textView']);
+    expect($route->view())->toBe(['Conia\Chuck\Tests\Fixtures\TestController', 'textView']);
 });
 
 
@@ -199,8 +199,8 @@ test('Route middleware', function () {
     $route = Route::get('/', fn () => 'chuck');
     $route->middleware(new TestMiddleware1());
     $route->middleware(new TestMiddleware2());
-    $middlewares = $route->middlewares();
+    $middleware = $route->getMiddleware();
 
-    expect($middlewares[0])->toBeInstanceOf(TestMiddleware1::class);
-    expect($middlewares[1])->toBeInstanceOf(MiddlewareWrapper::class);
+    expect($middleware[0])->toBeInstanceOf(TestMiddleware1::class);
+    expect($middleware[1])->toBeInstanceOf(MiddlewareWrapper::class);
 });

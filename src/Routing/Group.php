@@ -55,8 +55,8 @@ class Group
             $route->controller($this->controller);
         }
 
-        if (!empty($this->middlewares)) {
-            $route->replaceMiddleware(array_merge($this->middlewares, $route->middlewares()));
+        if (!empty($this->middleware)) {
+            $route->replaceMiddleware(array_merge($this->middleware, $route->getMiddleware()));
         }
 
         $this->router->addRoute($route);

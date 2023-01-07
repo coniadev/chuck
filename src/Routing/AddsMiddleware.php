@@ -6,44 +6,50 @@ namespace Conia\Chuck\Routing;
 
 use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\MiddlewareWrapper;
+use Psr\Http\Server\MiddlewareInterface as PsrMiddlewareInterface;
 
 /**
  * @psalm-import-type MiddlewareCallable from \Conia\Chuck\MiddlewareInterface
+ * @psalm-type ValidMiddleware = MiddlewareInterface|PsrMiddlewareInterface|MiddlewareCallable
+ * @psalm-type MiddlewareList = array<never, never>|list<MiddlewareInterface|PsrMiddlewareInterface>
  */
-
 trait AddsMiddleware
 {
-    /** @var array<never, never>|list<MiddlewareInterface> */
-    protected array $middlewares = [];
+    /** @var MiddlewareList */
+    protected array $middleware = [];
 
-    /** @param MiddlewareInterface|MiddlewareCallable $middlewares */
-    public function middleware(MiddlewareInterface|callable ...$middlewares): static
-    {
+    /** @param ValidMiddleware ...$middleware */
+    public function middleware(
+        MiddlewareInterface|PsrMiddlewareInterface|callable ...$middleware
+    ): static {
         $new = [];
 
-        foreach ($middlewares as $middleware) {
-            if ($middleware instanceof MiddlewareInterface) {
-                $new[] = $middleware;
+        foreach ($middleware as $mw) {
+            if (
+                ($mw instanceof MiddlewareInterface) ||
+                ($mw instanceof PsrMiddlewareInterface)
+            ) {
+                $new[] = $mw;
             } else {
-                $new[] = new MiddlewareWrapper($middleware);
+                $new[] = new MiddlewareWrapper($mw);
             }
         }
 
-        $this->middlewares = array_merge($this->middlewares, $new);
+        $this->middleware = array_merge($this->middleware, $new);
 
         return $this;
     }
 
-    /** @return array<never, never>|list<MiddlewareInterface> */
-    public function middlewares(): array
+    /** @return MiddlewareList */
+    public function getMiddleware(): array
     {
-        return $this->middlewares;
+        return $this->middleware;
     }
 
-    /** @psalm-param list<MiddlewareInterface> $middlewares */
-    public function replaceMiddleware(array $middlewares): static
+    /** @psalm-param MiddlewareList $middleware */
+    public function replaceMiddleware(array $middleware): static
     {
-        $this->middlewares = $middlewares;
+        $this->middleware = $middleware;
 
         return $this;
     }

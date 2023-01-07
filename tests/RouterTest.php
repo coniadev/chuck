@@ -391,7 +391,7 @@ test('Middleware add', function () {
     });
     $router->middleware(new TestMiddleware1());
 
-    expect(count($router->middlewares()))->toBe(2);
+    expect(count($router->getMiddleware()))->toBe(2);
 });
 
 
