@@ -8,6 +8,8 @@ use Conia\Chuck\View\{View, CallableView, ControllerView};
 use Conia\Chuck\Tests\Fixtures\{TestController, TestAttribute, TestAttributeExt, TestAttributeDiff};
 use Conia\Chuck\Tests\Setup\TestCase;
 
+require __DIR__ . '/Setup/globalSymbols.php';
+
 uses(TestCase::class);
 
 
@@ -23,15 +25,7 @@ test('Closure', function () {
 
 
 test('Function', function () {
-    // phpcs:disable
-    #[TestAttribute]
-    function ____view_test____(string $name): string
-    {
-        return $name;
-    }
-    // phpcs:enable
-
-    $route = new Route('/{name}', '____view_test____');
+    $route = new Route('/{name}', '_testViewWithAttribute');
     $route->match('/symbolic');
     $view = View::get($route, $this->registry());
 
@@ -111,8 +105,7 @@ test('Reflect function', function () {
     });
     expect($rf)->toBeInstanceOf(ReflectionFunction::class);
 
-    $rf = View::getReflectionFunction(new class
-    {
+    $rf = View::getReflectionFunction(new class () {
         public function __invoke(): string
         {
             return '';

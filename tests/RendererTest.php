@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-use Conia\Chuck\Exception\ValueError;
-use Conia\Chuck\Tests\Setup\{C, TestCase};
+use Conia\Chuck\Tests\Setup\TestCase;
 use Conia\Chuck\Renderer\JsonRenderer;
 use Conia\Chuck\Renderer\TextRenderer;
+
+require __DIR__ . '/Setup/globalSymbols.php';
 
 uses(TestCase::class);
 
@@ -27,18 +28,9 @@ test('JSON Renderer :: response()', function () {
         'released' => 1990,
     ])->getBody())->toBe('{"album":"Spiritual Healing","released":1990}');
 
-    // phpcs:disable
-    function __json__renderer_iterator()
-    {
-        $arr = [13, 31, 73];
-        foreach ($arr as $a) {
-            yield $a;
-        }
-    }
-    // phpcs:enable
     $renderer = new JsonRenderer($this->request(), $this->registry(), []);
 
-    $response = $renderer->response(__json__renderer_iterator());
+    $response = $renderer->response(_testJsonRendererIterator());
     expect((string)$response->getBody())->toBe('[13,31,73]');
 
     $hasContentType = false;

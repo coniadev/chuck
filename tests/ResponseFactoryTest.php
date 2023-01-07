@@ -42,8 +42,7 @@ test('Html response from resource', function () {
 
 test('Html response from Stringable', function () {
     $factory = new ResponseFactory($this->registry());
-    $response = $factory->html(new class()
-    {
+    $response = $factory->html(new class () {
         public function __toString(): string
         {
             return '<h1>Chuck Stringable</h1>';

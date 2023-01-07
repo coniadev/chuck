@@ -94,8 +94,7 @@ test('Create with resource body', function () {
 
 test('Html response from Stringable', function () {
     $response = (new Response($this->psr7Response(), $this->psr7Factory()))->body(
-        new class()
-        {
+        new class () {
             public function __toString(): string
             {
                 return 'Chuck Stringable';

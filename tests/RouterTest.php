@@ -7,7 +7,6 @@ use Conia\Chuck\Exception\{HttpNotFound, HttpServerError, HttpMethodNotAllowed};
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Exception\UnresolvableException;
 use Conia\Chuck\Request;
-use Conia\Chuck\Registry;
 use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Response;
 use Conia\Chuck\Routing\{Router, Route, Group};
@@ -188,16 +187,7 @@ test('Dispatch class method returing an array with renderer', function () {
 
 test('Dispatch invokable class', function () {
     $router = new Router();
-    // phpcs:disable
-    class ___InvocableClass
-    {
-        public function __invoke(Registry $registry)
-        {
-            return (new ResponseFactory($registry))->html('Schuldiner');
-        }
-    };
-    // phpcs:enable
-    $object = new Route('/object', '___InvocableClass');
+    $object = new Route('/object', 'Conia\Chuck\Tests\Fixtures\TestInvocableClass');
     $router->addRoute($object);
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/object'), $this->config(), $this->registry());
