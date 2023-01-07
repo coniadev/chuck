@@ -4,21 +4,16 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Routing;
 
-use Closure;
-use JsonException;
-use Stringable;
 use Throwable;
-use Conia\Chuck\Attribute\Render;
 use Conia\Chuck\Config;
+use Conia\Chuck\Dispatcher;
 use Conia\Chuck\Exception\{HttpNotFound, HttpMethodNotAllowed, RuntimeException};
 use Conia\Chuck\MiddlewareInterface;
-use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
-use Conia\Chuck\View\View;
-use Conia\Chuck\View\CallableView;
-use Conia\Chuck\View\ControllerView;
+use Conia\Chuck\View;
+use Conia\Chuck\ViewHandler;
 
 class Router
 {
@@ -192,91 +187,16 @@ class Router
         throw new HttpNotFound();
     }
 
-    protected function respond(
-        Request $request,
-        View $view,
-    ): Response {
-        /**
-         * @psalm-suppress MixedAssignment
-         *
-         * Later in the function we check the type of $result.
-         * */
-        $result = $view->execute();
+    protected function collectMiddleware(View $view): array
+    {
+        /** @var list<MiddlewareInterface> */
+        $middlewareAttributes = $view->attributes(MiddlewareInterface::class);
 
-        assert(!is_null($this->config));
-        assert(!is_null($this->registry));
-        assert(!is_null($this->route));
-
-        if ($result instanceof Response) {
-            return $result;
-        } else {
-            $rendererConfig = $this->route->getRenderer();
-
-            if ($rendererConfig) {
-                $renderer = $this->config->renderer(
-                    $request,
-                    $this->registry,
-                    $rendererConfig->type,
-                    ...$rendererConfig->args
-                );
-
-                return $renderer->response($result);
-            }
-
-            $renderAttributes = $view->attributes(Render::class);
-
-            if (count($renderAttributes) > 0) {
-                assert($renderAttributes[0] instanceof Render);
-                return $renderAttributes[0]->response($request, $this->config, $this->registry, $result);
-            }
-
-            $responseFactory = new ResponseFactory($this->registry);
-
-            if (is_string($result)) {
-                return $responseFactory->html($result);
-            } elseif ($result instanceof Stringable) {
-                return $responseFactory->html($result->__toString());
-            } else {
-                try {
-                    return $responseFactory->json($result);
-                } catch (JsonException) {
-                    throw new RuntimeException('Cannot determine a response handler for the return type of the view');
-                }
-            }
-        }
-    }
-
-    /**
-     * Recursively calls the callables in the middleware/view handler stack
-     * and then the view callable.
-     *
-     * @psalm-param list<MiddlewareInterface> $handlerStack
-     * @psalm-param Closure(Request):Response $viewClosure
-     */
-    protected function workOffStack(
-        Request $request,
-        array $handlerStack,
-        Closure $viewClosure,
-    ): Response {
-        return match (count($handlerStack)) {
-            0 => $viewClosure($request),
-            1 => $handlerStack[0]($request, $viewClosure),
-            default => $handlerStack[0](
-                $request,
-                function (
-                    Request $req
-                ) use (
-                    $handlerStack,
-                    $viewClosure
-                ): Response {
-                    return $this->workOffStack(
-                        $req,
-                        array_slice($handlerStack, 1),
-                        $viewClosure
-                    );
-                }
-            )
-        };
+        return array_merge(
+            $this->middlewares,
+            $this->route->middlewares(),
+            $middlewareAttributes,
+        );
     }
 
     /**
@@ -289,33 +209,17 @@ class Router
         $this->config = $config;
         $this->registry = $registry;
 
-        $routeView = $this->route->view();
+        /**
+         * @psalm-suppress PossiblyInvalidArgument
+         *
+         * According to Psalm, $view could be a Closure. But since we
+         * checked for is_callable before, this can never happen.
+         */
+        $view = new View($this->route->view(), $this->route->args(), $registry);
 
-        if (is_callable($routeView)) {
-            $view = new CallableView($this->route, $registry, $routeView);
-        } else {
-            /**
-             * @psalm-suppress PossiblyInvalidArgument
-             *
-             * According to Psalm, $view could be a Closure. But since we
-             * checked for is_callable before, this can never happen.
-             */
-            $view = new ControllerView($this->route, $registry, $routeView);
-        }
+        $queue = $this->collectMiddleware($view);
+        $queue[] = new ViewHandler($view, $registry, $config, $this->route);
 
-        /** @var list<MiddlewareInterface> */
-        $middlewareAttributes = $view->attributes(MiddlewareInterface::class);
-
-        $handlerStack = array_merge(
-            $this->middlewares,
-            $this->route->middlewares(),
-            $middlewareAttributes,
-        );
-
-        $viewClosure = function (Request $req) use ($view): Response {
-            return $this->respond($req, $view);
-        };
-
-        return $this->workOffStack($request, $handlerStack, $viewClosure);
+        return (new Dispatcher($queue, $view, $registry))->dispatch($request);
     }
 }
