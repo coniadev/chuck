@@ -16,6 +16,12 @@ class Dispatcher
         $this->queue = $queue;
     }
 
+    /**
+     * Recursively calls the callables in the middleware/view handler queue
+     * and then the view callable.
+     *
+     * @psalm-param list<MiddlewareInterface> $queue
+     */
     protected function handle(array $queue, Request $request): Response
     {
         $handler = $queue[0];
@@ -34,19 +40,14 @@ class Dispatcher
             );
         }
 
+        /** @psalm-suppress TooFewArguments */
         return $handler($request);
     }
 
-    /**
-     * Recursively calls the callables in the middleware/view handler queue
-     * and then the view callable.
-     *
-     * @psalm-param list<MiddlewareInterface> $handlerStack
-     * @psalm-param Closure(Request):Response $viewClosure
-     */
     public function dispatch(
         Request $request,
     ): Response {
+        /** @psalm-suppress ArgumentTypeCoercion */
         return $this->handle($this->queue, $request);
     }
 }

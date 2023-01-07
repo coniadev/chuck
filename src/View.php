@@ -36,6 +36,7 @@ class View
         protected readonly Registry $registry
     ) {
         if (is_callable($view)) {
+            /** @var callable $view -- Psalm complains even though we use is_callable() */
             $this->closure = Closure::fromCallable($view);
         } else {
             $this->closure = $this->getClosure($view);
@@ -44,16 +45,8 @@ class View
 
     public function execute(): mixed
     {
-        /**
-         * We check in the constructor if this is a valid object and
-         * if the method exists. We can safely suppress this.
-         *
-         * @psalm-suppress MixedMethodCall
-         */
         return ($this->closure)(...$this->getArgs(
-            self::getReflectionFunction($this->closure),
-            $this->routeArgs,
-            $this->registry,
+            self::getReflectionFunction($this->closure)
         ));
     }
 
@@ -68,7 +61,7 @@ class View
          *
          * Later in the function we check the type of $result.
          * */
-        $result = $this->execute($route->args(), $registry);
+        $result = $this->execute();
 
         if ($result instanceof Response) {
             return $result;
@@ -126,11 +119,7 @@ class View
         if (class_exists($controllerName)) {
             $rc = new ReflectionClass($controllerName);
             $constructor = $rc->getConstructor();
-            $args = $constructor ? $this->getArgs(
-                $constructor,
-                $this->routeArgs,
-                $this->registry
-            ) : [];
+            $args = $constructor ? $this->getArgs($constructor) : [];
             $controller = $rc->newInstance(...$args);
 
             if (method_exists($controller, $method)) {

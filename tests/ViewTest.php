@@ -104,8 +104,7 @@ test('Reflect function', function () {
     });
     expect($rf)->toBeInstanceOf(ReflectionFunction::class);
 
-    $rf = View::getReflectionFunction(new class()
-    {
+    $rf = View::getReflectionFunction(new class () {
         public function __invoke(): string
         {
             return '';

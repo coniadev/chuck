@@ -21,8 +21,6 @@ class Router
     use AddsMiddleware;
 
     protected ?Route $route = null;
-    protected ?Registry $registry = null;
-    protected ?Config $config = null;
     /** @var array<string, list<Route>> */
     protected array $routes = [];
     /** @var array<string, StaticRoute> */
@@ -194,7 +192,7 @@ class Router
 
         return array_merge(
             $this->middlewares,
-            $this->route->middlewares(),
+            isset($this->route) ? $this->route->middlewares() : [],
             $middlewareAttributes,
         );
     }
@@ -206,20 +204,11 @@ class Router
     public function dispatch(Request $request, Config $config, Registry $registry): Response
     {
         $this->route = $this->match($request);
-        $this->config = $config;
-        $this->registry = $registry;
 
-        /**
-         * @psalm-suppress PossiblyInvalidArgument
-         *
-         * According to Psalm, $view could be a Closure. But since we
-         * checked for is_callable before, this can never happen.
-         */
         $view = new View($this->route->view(), $this->route->args(), $registry);
-
         $queue = $this->collectMiddleware($view);
         $queue[] = new ViewHandler($view, $registry, $config, $this->route);
 
-        return (new Dispatcher($queue, $view, $registry))->dispatch($request);
+        return (new Dispatcher($queue))->dispatch($request);
     }
 }
