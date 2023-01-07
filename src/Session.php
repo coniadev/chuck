@@ -145,16 +145,18 @@ class Session
         $fmKey = $this->flashMessagesKey;
 
         if ($queue === null) {
-            /** @var array */
             $flashes = $_SESSION[$fmKey];
+            assert(is_array($flashes));
             $_SESSION[$fmKey] = [];
         } else {
             $key = 0;
             $keys = [];
             $flashes = [];
 
-            /** @var array{message: string, queue: string} $flash */
             foreach ($_SESSION[$fmKey] as $flash) {
+                assert(isset($flash['queue']));
+                assert(isset($flash['message']));
+
                 if ($flash['queue'] === $queue) {
                     $flashes[] = $flash;
                     $keys[] = $key;

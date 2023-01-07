@@ -27,12 +27,9 @@ class Router
     use AddsRoutes;
     use AddsMiddleware;
 
-    /** @psalm-suppress PropertyNotSetInConstructor */
-    protected readonly Route $route;
-    /** @psalm-suppress PropertyNotSetInConstructor */
-    protected readonly Registry $registry;
-    /** @psalm-suppress PropertyNotSetInConstructor */
-    protected readonly Config $config;
+    protected ?Route $route = null;
+    protected ?Registry $registry = null;
+    protected ?Config $config = null;
     /** @var array<string, list<Route>> */
     protected array $routes = [];
     /** @var array<string, StaticRoute> */
@@ -44,11 +41,11 @@ class Router
 
     public function getRoute(): Route
     {
-        try {
-            return $this->route;
-        } catch (Throwable) {
+        if (is_null($this->route)) {
             throw new RuntimeException('Route is not initialized');
         }
+
+        return $this->route;
     }
 
     public function addRoute(Route $route): void
@@ -197,19 +194,6 @@ class Router
         throw new HttpNotFound();
     }
 
-    protected function getRenderer(
-        Request $request,
-        Config $config,
-        RendererConfig $rendererConfig
-    ): Renderer {
-        return $config->renderer(
-            $request,
-            $this->registry,
-            $rendererConfig->type,
-            ...$rendererConfig->args
-        );
-    }
-
     protected function respond(
         Request $request,
         View $view,
@@ -221,13 +205,22 @@ class Router
          * */
         $result = $view->execute();
 
+        assert(!is_null($this->config));
+        assert(!is_null($this->registry));
+        assert(!is_null($this->route));
+
         if ($result instanceof Response) {
             return $result;
         } else {
             $rendererConfig = $this->route->getRenderer();
 
             if ($rendererConfig) {
-                $renderer = $this->getRenderer($request, $this->config, $rendererConfig);
+                $renderer = $this->config->renderer(
+                    $request,
+                    $this->registry,
+                    $rendererConfig->type,
+                    ...$rendererConfig->args
+                );
 
                 return $renderer->response($result);
             }
@@ -294,15 +287,8 @@ class Router
      */
     public function dispatch(Request $request, Config $config, Registry $registry): Response
     {
-        /**
-         * @psalm-suppress InaccessibleProperty
-         *
-         * See docs/contributing.md
-         */
         $this->route = $this->match($request);
-        /** @psalm-suppress InaccessibleProperty */
         $this->config = $config;
-        /** @psalm-suppress InaccessibleProperty */
         $this->registry = $registry;
 
         $view = View::get($this->route, $registry);
