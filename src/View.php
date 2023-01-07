@@ -23,6 +23,8 @@ use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Routing\Route;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 
 class View
 {
@@ -65,6 +67,10 @@ class View
 
         if ($result instanceof Response) {
             return $result;
+        } elseif ($result instanceof ResponseInterface) {
+            $sf = $registry->resolve(StreamFactoryInterface::class);
+            assert($sf instanceof StreamFactoryInterface);
+            return new Response($result, $sf);
         } else {
             $rendererConfig = $route->getRenderer();
 

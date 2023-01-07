@@ -78,6 +78,8 @@ class Registry
             return $this->autowire($id);
         }
 
+        error_log($id);
+        error_log(print_r(array_keys($this->entries), true));
         throw new UnresolvableException('Autowiring unresolvable: ' . $id);
     }
 

@@ -3,10 +3,15 @@
 declare(strict_types=1);
 
 use Conia\Chuck\Exception\UnresolvableException;
+use Conia\Chuck\Registry;
+use Conia\Chuck\Response;
+use Conia\Chuck\Request;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\View;
 use Conia\Chuck\Tests\Fixtures\{TestController, TestAttribute, TestAttributeExt, TestAttributeDiff};
 use Conia\Chuck\Tests\Setup\TestCase;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 
 require __DIR__ . '/Setup/globalSymbols.php';
 
@@ -99,6 +104,7 @@ test('Untyped closure parameter', function () {
     $view->execute();
 })->throws(UnresolvableException::class, 'Autowired entities');
 
+
 test('Reflect function', function () {
     $rf = View::getReflectionFunction(function () {
     });
@@ -114,4 +120,80 @@ test('Reflect function', function () {
 
     $rf = View::getReflectionFunction('is_string');
     expect($rf)->toBeInstanceOf(ReflectionFunction::class);
+});
+
+
+test('View response Response', function () {
+    $route = new Route('/', function (Registry $registry) {
+        $sf = $registry->resolve(Psr\Http\Message\StreamFactoryInterface::class);
+        $rf = $registry->resolve(Psr\Http\Message\ResponseFactoryInterface::class);
+        $response = new Response($rf->createResponse(), $sf);
+        $response->body('Chuck Response');
+        $response->header('Content-Type', 'text/plain');
+
+        return $response;
+    });
+    $route->match('/');
+    $view = new View($route->view(), $route->args(), $this->registry());
+    $response = $view->respond($this->request(), $route, $this->registry(), $this->config());
+
+    expect((string)$response->getBody())->toBe('Chuck Response');
+    expect($response->headers()['Content-Type'][0])->toBe('text/plain');
+});
+
+
+test('View response PSR Response', function () {
+    $route = new Route('/', function (Registry $registry) {
+        $sf = $registry->resolve(Psr\Http\Message\StreamFactoryInterface::class);
+        $rf = $registry->resolve(Psr\Http\Message\ResponseFactoryInterface::class);
+        $response = $rf->createResponse()
+            ->withBody($sf->createStream('Chuck PSR Response'))
+            ->withHeader('Content-Type', 'text/plain');
+
+        return $response;
+    });
+    $route->match('/');
+    $view = new View($route->view(), $route->args(), $this->registry());
+    $response = $view->respond($this->request(), $route, $this->registry(), $this->config());
+
+    expect((string)$response->getBody())->toBe('Chuck PSR Response');
+    expect($response->headers()['Content-Type'][0])->toBe('text/plain');
+});
+
+
+test('View response array', function () {
+    $route = new Route('/', fn () => ['chuck' => 'schuldiner']);
+    $route->match('/');
+    $view = new View($route->view(), $route->args(), $this->registry());
+    $response = $view->respond($this->request(), $route, $this->registry(), $this->config());
+
+    expect((string)$response->getBody())->toBe('{"chuck":"schuldiner"}');
+    expect($response->headers()['Content-Type'][0])->toBe('application/json');
+});
+
+
+test('View response string', function () {
+    $route = new Route('/', fn () => '<h1>Chuck</h1>');
+    $route->match('/');
+    $view = new View($route->view(), $route->args(), $this->registry());
+    $response = $view->respond($this->request(), $route, $this->registry(), $this->config());
+
+    expect((string)$response->getBody())->toBe('<h1>Chuck</h1>');
+    expect($response->headers()['Content-Type'][0])->toBe('text/html');
+});
+
+
+test('View response Stringable', function () {
+    $route = new Route('/', fn () => new class () {
+        public function __toString(): string
+        {
+            return '<h1>Chuck</h1>';
+        }
+    });
+    $route->match('/');
+    $view = new View($route->view(), $route->args(), $this->registry());
+    $response = $view->respond($this->request(), $route, $this->registry(), $this->config());
+
+    expect((string)$response->getBody())->toBe('<h1>Chuck</h1>');
+    expect($response->headers()['Content-Type'][0])->toBe('text/html');
 });
