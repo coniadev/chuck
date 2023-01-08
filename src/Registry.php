@@ -214,7 +214,7 @@ class Registry implements ContainerInterface
         if ($type instanceof ReflectionNamedType) {
             try {
                 return $this->getWithParamName($type->getName(), '$' . ltrim($param->getName(), '?'));
-            } catch(NotFoundException $e) {
+            } catch (NotFoundException $e) {
                 if ($param->isDefaultValueAvailable()) {
                     return $param->getDefaultValue();
                 }

@@ -22,15 +22,11 @@ class App
     use AddsRoutes;
 
     public function __construct(
-        private Config $config,
-        private Router $router,
-        private Registry $registry,
+        protected Config $config,
+        protected Router $router,
+        protected Registry $registry,
     ) {
-        $registry->add(Config::class, $config);
-        $registry->add($config::class, $config);
-        $registry->add(Router::class, $router);
-        $registry->add($router::class, $router);
-        $registry->add(App::class, $this);
+        $this->initializeRegistry();
     }
 
     public static function create(Config $config): static
@@ -110,9 +106,20 @@ class App
         return $this->registry->add($key, $value);
     }
 
-    protected function registerServerRequest(): void
+    protected function initializeRegistry(): void
     {
-        $this->registry->add(ServerRequestInterface::class, function (): ServerRequestInterface {
+        $registry = $this->registry;
+
+        $registry->addAnyway(Config::class, $this->config);
+        $registry->addAnyway($this->config::class, $this->config);
+        $registry->addAnyway(Router::class, $this->router);
+        $registry->addAnyway($this->router::class, $this->router);
+        $registry->addAnyway(App::class, $this);
+
+        $registry->addAnyway(ResponseFactoryInterface::class, \Nyholm\Psr7\Factory\Psr17Factory::class);
+        $registry->addAnyway(StreamFactoryInterface::class, \Nyholm\Psr7\Factory\Psr17Factory::class);
+        $registry->addAnyway(ResponseFactory::class, new ResponseFactory($this->registry));
+        $registry->addAnyway(ServerRequestInterface::class, function (): ServerRequestInterface {
             try {
                 $psr17Factory = new \Nyholm\Psr7\Factory\Psr17Factory();
                 $creator = new \Nyholm\Psr7Server\ServerRequestCreator(
@@ -123,7 +130,7 @@ class App
                 );
                 return $creator->fromGlobals();
                 // @codeCoverageIgnoreStart
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 throw new RuntimeException('Install nyholm/psr7-server');
                 // @codeCoverageIgnoreEnd
             }
@@ -132,24 +139,10 @@ class App
 
     public function run(): Response
     {
-        if (!$this->registry->has(ServerRequestInterface::class)) {
-            $this->registerServerRequest();
-        }
-
-        if (!$this->registry->has(ResponseFactoryInterface::class)) {
-            $this->registry->add(ResponseFactoryInterface::class, \Nyholm\Psr7\Factory\Psr17Factory::class);
-        }
-
-        if (!$this->registry->has(StreamFactoryInterface::class)) {
-            $this->registry->add(StreamFactoryInterface::class, \Nyholm\Psr7\Factory\Psr17Factory::class);
-        }
-
         $serverRequest = $this->registry->get(ServerRequestInterface::class);
         assert($serverRequest instanceof ServerRequestInterface);
         $request = new Request($serverRequest);
-
-        $this->registry->add(Request::class, $request);
-        $this->registry->add(ResponseFactory::class, new ResponseFactory($this->registry));
+        $this->registry->addAnyway(Request::class, $request);
 
         $response = $this->router->dispatch($request, $this->config, $this->registry);
 
