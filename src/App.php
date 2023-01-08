@@ -15,6 +15,7 @@ use Conia\Chuck\Routing\{Route, Group, Router, AddsRoutes};
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Container\ContainerInterface;
 
 /** @psalm-consistent-constructor */
 class App
@@ -29,9 +30,9 @@ class App
         $this->initializeRegistry();
     }
 
-    public static function create(Config $config): static
+    public static function create(Config $config, ?ContainerInterface $container = null): static
     {
-        $registry = new Registry();
+        $registry = new Registry($container);
         $router = new Router();
 
         $errorHandler = new ErrorHandler($config, $registry);

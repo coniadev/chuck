@@ -6,6 +6,7 @@ use Conia\Chuck\Tests\Setup\{TestCase, C};
 use Conia\Chuck\Routing\{Router, Route, Group};
 use Conia\Chuck\Response;
 use Conia\Chuck\{App, Request, Config};
+use Conia\Chuck\Exception\ContainerException;
 
 uses(TestCase::class);
 
@@ -21,6 +22,23 @@ test('Helper methods', function () {
     expect($app->router())->toBeInstanceOf(Router::class);
     expect($app->config())->toBeInstanceOf(Config::class);
 });
+
+
+test('Create with third party container', function () {
+    $container = new League\Container\Container();
+    $container->add('external', new stdClass());
+    $app = App::create($this->config(), $container);
+
+    expect($app->registry()->get('external') instanceof stdClass)->toBe(true);
+});
+
+
+test('Fail on register helper when using third party container', function () {
+    $container = new League\Container\Container();
+    $app = App::create($this->config(), $container);
+
+    $app->register('external', new stdClass());
+})->throws(ContainerException::class, 'Third party container');
 
 
 test('Middleware helper', function () {

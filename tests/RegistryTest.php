@@ -299,11 +299,11 @@ test('Autowired instantiation fails', function () {
 })->throws(NotFoundException::class, 'Cannot instantiate NoValidClass');
 
 
-test('Reject adding when external container is used', function () {
+test('Reject adding when third party container is used', function () {
     $container = new League\Container\Container();
     $registry = new Registry($container);
     $registry->add('internal', new Registry());
-})->throws(ContainerException::class, 'External container');
+})->throws(ContainerException::class, 'Third party container');
 
 
 test('Reject class with untyped constructor', function () {

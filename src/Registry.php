@@ -79,7 +79,7 @@ class Registry implements ContainerInterface
         string $paramName = '',
     ): Entry {
         if ($this->container) {
-            throw new ContainerException('External container implementation used');
+            throw new ContainerException('Third party container implementation in use');
         }
 
         return $this->addAnyway($id, $value, $paramName);
