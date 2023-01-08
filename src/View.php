@@ -17,7 +17,7 @@ use Conia\Chuck\Attribute\Render;
 use Conia\Chuck\Config;
 use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Exception\RuntimeException;
-use Conia\Chuck\Exception\UnresolvableException;
+use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
@@ -68,7 +68,7 @@ class View
         if ($result instanceof Response) {
             return $result;
         } elseif ($result instanceof ResponseInterface) {
-            $sf = $registry->resolve(StreamFactoryInterface::class);
+            $sf = $registry->get(StreamFactoryInterface::class);
             assert($sf instanceof StreamFactoryInterface);
             return new Response($result, $sf);
         } else {
@@ -173,7 +173,7 @@ class View
                     'string' => $this->routeArgs[$name],
                     default => $this->registry->resolveParam($param),
                 };
-            } catch (UnresolvableException $e) {
+            } catch (ContainerException $e) {
                 throw $e;
             } catch (Throwable $e) {
                 // Check if the view parameter has a default value

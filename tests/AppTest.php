@@ -59,7 +59,7 @@ test('App run', function () {
 
 test('App::register helper', function () {
     $app = new App($this->config(), new Router(), $this->registry());
-    $app->register('Chuck', 'Schuldiner');
+    $app->register('Chuck', 'Schuldiner')->asIs();
     $registry = $app->registry();
 
     expect($registry->get('Chuck'))->toBe('Schuldiner');

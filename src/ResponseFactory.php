@@ -26,7 +26,7 @@ class ResponseFactory
         int $code = 200,
         string $reasonPhrase = ''
     ): ResponseInterface {
-        $factory = $this->registry->resolve(ResponseFactoryInterface::class);
+        $factory = $this->registry->get(ResponseFactoryInterface::class);
         assert($factory instanceof ResponseFactoryInterface);
         $response = $factory->createResponse($code, $reasonPhrase);
         assert($response instanceof ResponseInterface);
@@ -36,7 +36,7 @@ class ResponseFactory
 
     protected function createPsr7StreamFactory(): StreamFactoryInterface
     {
-        $factory = $this->registry->resolve(StreamFactoryInterface::class);
+        $factory = $this->registry->get(StreamFactoryInterface::class);
         assert($factory instanceof StreamFactoryInterface);
 
         return $factory;

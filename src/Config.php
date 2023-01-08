@@ -52,7 +52,7 @@ class Config
 
     protected function validateApp(string $app): string
     {
-        if (preg_match('/^[a-z0-9]{1,32}$/', $app)) {
+        if (preg_match('/^[a-z0-9_$-]{1,64}$/', $app)) {
             return $app;
         } else {
             throw new ValueError(

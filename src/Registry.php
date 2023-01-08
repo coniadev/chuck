@@ -12,58 +12,45 @@ use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
 use Throwable;
-use Conia\Chuck\Exception\OutOfBoundsException;
-use Conia\Chuck\Exception\RuntimeException;
-use Conia\Chuck\Exception\UnresolvableException;
+use Conia\Chuck\Exception\ContainerException;
+use Conia\Chuck\Exception\NotFoundException;
+use Psr\Container\ContainerInterface;
 
-class Registry
+class Registry implements ContainerInterface
 {
     /** @var array<never, never>|array<string, Entry> */
     protected array $entries = [];
+    protected readonly ?ContainerInterface $container;
 
-    /**
-     * @param non-empty-string $id
-     * @param object|class-string $value
-     * */
-    public function add(
-        string $id,
-        object|string $value,
-        string $paramName = '',
-    ): Entry {
-        $paramName = trim($paramName);
+    public function __construct(
+        ?ContainerInterface $container = null,
+        protected readonly bool $autowire = true
+    ) {
+        $this->container = $container;
 
-        if ($id === $value) {
-            throw new RuntimeException('Registry::add argument $id must be different from $value');
+        if ($container) {
+            $this->addAnyway(ContainerInterface::class, $container);
+            $this->addAnyway($container::class, $container);
+        } else {
+            $this->addAnyway(ContainerInterface::class, $this);
         }
 
-        $entry = new Entry($id, $value, $paramName);
-        $this->entries[$id . $paramName] = $entry;
-
-        return $entry;
+        $this->addAnyway(Registry::class, $this);
     }
-
 
     public function has(string $id): bool
     {
-        return isset($this->entries[$id]);
+        return isset($this->entries[$id]) || $this->container?->has($id);
+    }
+
+    public function entry(string $id, string $paramName = ''): mixed
+    {
+        $paramName = $this->normalizeParameterName($paramName);
+
+        return $this->entries[$id . $paramName];
     }
 
     public function get(string $id): mixed
-    {
-        try {
-            return $this->entries[$id]->value();
-        } catch (Throwable $e) {
-            throw new OutOfBoundsException("Undefined registry key \"$id\" " . $e->getMessage());
-        }
-    }
-
-    public function new(string $id, mixed ...$args): object
-    {
-        /** @psalm-suppress MixedMethodCall */
-        return new ($this->get($id))(...$args);
-    }
-
-    public function resolve(string $id, ?array $args = null): object
     {
         $entry = $this->entries[$id] ?? null;
 
@@ -71,72 +58,147 @@ class Registry
             return $this->resolveEntry($entry);
         }
 
-        // 2. See if there is an unbound entry:
-        //    e. g. '\Namespace\MyClass'
-        //    Autowiring: $id does not exists as an entry in the registry
-        if (class_exists($id)) {
+        if ($this->container?->has($id)) {
+            return $this->container->get($id);
+        }
+
+        // Autowiring: $id does not exists as an entry in the registry
+        if ($this->autowire && class_exists($id)) {
             return $this->autowire($id);
         }
 
-        error_log($id);
-        error_log(print_r(array_keys($this->entries), true));
-        throw new UnresolvableException('Autowiring unresolvable: ' . $id);
+        throw new NotFoundException('Unresolvable id: ' . $id);
     }
 
-    public function resolveWithParamName(string $id, string $paramName, array $args = null): object
-    {
-        $paramName = str_starts_with($paramName, '$') ? $paramName : '$' . $paramName;
+    /**
+     * @param non-empty-string $id
+     */
+    public function add(
+        string $id,
+        mixed $value,
+        string $paramName = '',
+    ): Entry {
+        if ($this->container) {
+            throw new ContainerException('External container implementation used');
+        }
 
-        // 1. See if there's a entry with a bound parameter name:
-        //    e. g. '\Namespace\MyClass$myParameter'
-        //    If $paramName is emtpy an existing unbound entry should
-        //    be found on first try.
+        return $this->addAnyway($id, $value, $paramName);
+    }
+
+    /**
+     * @param non-empty-string $id
+     */
+    public function addAnyway(
+        string $id,
+        mixed $value,
+        string $paramName = '',
+    ): Entry {
+        $paramName = $this->normalizeParameterName($paramName);
+
+        if ($id === $value) {
+            throw new ContainerException('Registry::add argument $id must be different from $value');
+        }
+
+        $entry = new Entry($id, $value);
+        $this->entries[$id . $paramName] = $entry;
+
+        return $entry;
+    }
+
+    public function new(string $id, mixed ...$args): object
+    {
+        $entry = $this->entries[$id] ?? null;
+
+        if ($entry) {
+            /** @var mixed */
+            $value = $entry->value();
+
+            if (is_string($value)) {
+                if (interface_exists($value)) {
+                    return $this->new($value, ...$args);
+                }
+
+                if (class_exists($value)) {
+                    /** @psalm-suppress MixedMethodCall */
+                    return new $value(...$args);
+                }
+            }
+        }
+
+        if ($this->autowire && class_exists($id)) {
+            /** @psalm-suppress MixedMethodCall */
+            return new $id(...$args);
+        }
+
+        throw new NotFoundException('Cannot instantiate ' . $id);
+    }
+
+    public function getWithParamName(string $id, string $paramName): mixed
+    {
+        $paramName = $this->normalizeParameterName($paramName);
+
+        // See if there's a entry with a bound parameter name:
+        // e. g. '\Namespace\MyClass$myParameter'
+        // If $paramName is emtpy an existing unbound entry should
+        // be found on first try.
         return isset($this->entries[$id . $paramName]) ?
-            $this->resolve($id . $paramName, $args) :
-            $this->resolve($id, $args);
+            $this->resolveEntry($this->entries[$id . $paramName]) :
+            $this->get($id);
     }
 
-    protected function resolveEntry(Entry $entry, array $args = null): object
+    protected function resolveEntry(Entry $entry): mixed
     {
+        /** @var mixed */
         $value = $entry->value();
+
+        if ($entry->shouldReturnAsIs()) {
+            return $value;
+        }
+
+        if (is_string($value)) {
+            if (isset($this->entries[$value])) {
+                return $this->get($value);
+            }
+
+            if (class_exists($value)) {
+                $args = $entry->getArgs();
+
+                if (isset($args)) {
+                    // Don't autowire if $args are given
+                    if ($args instanceof Closure) {
+                        return $this->reifyAndReturn($entry, $this->fromArgsClosure($value, $args));
+                    }
+
+                    return $this->reifyAndReturn($entry, $this->fromArgsArray($value, $args));
+                }
+
+                return $this->reifyAndReturn($entry, $this->autowire($value));
+            }
+        }
 
         if ($value instanceof Closure) {
             // Get the instance from the registered closure
             $rf = new ReflectionFunction($value);
+            $args = [];
 
             if (func_num_args() === 1) {
                 $args = $this->resolveArgs($rf);
             }
 
-            /** @psalm-suppress MixedArgument */
-            return $this->reifyAndReturn($entry, $value(...$args));
+            /** @var mixed */
+            $result = $value(...$args);
+
+            return $this->reifyAndReturn($entry, $result);
         }
 
         if (is_object($value)) {
-            // Already an instance, no need to reify
             return $value;
         }
 
-        // As $value is a string $id is likly to be a
-        // interface or abstract/base class
-        if (func_num_args() === 1) {
-            $args = $entry->getArgs();
-        }
-
-        if (isset($args)) {
-            // Don't autowire if $args are given
-            if ($args instanceof Closure) {
-                return $this->reifyAndReturn($entry, $this->fromArgsClosure($value, $args));
-            }
-
-            return $this->reifyAndReturn($entry, $this->fromArgsArray($value, $args));
-        }
-
-        // $value is a string, no args given for the entry
-        return $this->reifyAndReturn($entry, $this->resolve($value));
+        throw new NotFoundException('Unresolvable id: ' . print_r($value, true));
     }
 
-    protected function reifyAndReturn(Entry $entry, object $value): object
+    protected function reifyAndReturn(Entry $entry, mixed $value): mixed
     {
         if ($entry->shouldReify()) {
             $entry->update($value);
@@ -145,20 +207,28 @@ class Registry
         return $value;
     }
 
-    public function resolveParam(ReflectionParameter $param): object
+    public function resolveParam(ReflectionParameter $param): mixed
     {
         $type = $param->getType();
 
         if ($type instanceof ReflectionNamedType) {
-            return $this->resolveWithParamName($type->getName(), '$' . $param->getName());
+            try {
+                return $this->getWithParamName($type->getName(), '$' . ltrim($param->getName(), '?'));
+            } catch(NotFoundException $e) {
+                if ($param->isDefaultValueAvailable()) {
+                    return $param->getDefaultValue();
+                }
+
+                throw $e;
+            }
         } else {
             if ($type) {
-                throw new UnresolvableException(
+                throw new ContainerException(
                     "Autowiring does not support union or intersection types. Source: \n" .
                         $this->getParamInfo($param)
                 );
             } else {
-                throw new UnresolvableException(
+                throw new ContainerException(
                     "Autowired entities need to have typed constructor parameters. Source: \n" .
                         $this->getParamInfo($param)
                 );
@@ -192,7 +262,7 @@ class Registry
         try {
             return $rc->newInstance(...$args);
         } catch (Throwable $e) {
-            throw new UnresolvableException(
+            throw new ContainerException(
                 'Autowiring unresolvable: ' . $class . ' Details: ' . $e->getMessage()
             );
         }
@@ -204,6 +274,7 @@ class Registry
 
         if ($rf) {
             foreach ($rf->getParameters() as $param) {
+                /** @var list<mixed> */
                 $args[] = $this->resolveParam($param);
             }
         }
@@ -226,5 +297,16 @@ class Registry
 
         /** @psalm-suppress MixedMethodCall */
         return new $class(...$callback(...$args));
+    }
+
+    protected function normalizeParameterName(string $paramName): string
+    {
+        if (empty($paramName)) {
+            return $paramName;
+        }
+
+        $paramName = trim($paramName);
+
+        return str_starts_with($paramName, '$') ? $paramName : '$' . $paramName;
     }
 }

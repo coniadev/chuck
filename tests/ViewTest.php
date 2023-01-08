@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Conia\Chuck\Exception\UnresolvableException;
+use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Response;
 use Conia\Chuck\Request;
@@ -102,7 +102,7 @@ test('Untyped closure parameter', function () {
     $route->match('/');
     $view = new View($route->view(), $route->args(), $this->registry());
     $view->execute();
-})->throws(UnresolvableException::class, 'Autowired entities');
+})->throws(ContainerException::class, 'Autowired entities');
 
 
 test('Reflect function', function () {
@@ -125,8 +125,8 @@ test('Reflect function', function () {
 
 test('View response Response', function () {
     $route = new Route('/', function (Registry $registry) {
-        $sf = $registry->resolve(Psr\Http\Message\StreamFactoryInterface::class);
-        $rf = $registry->resolve(Psr\Http\Message\ResponseFactoryInterface::class);
+        $sf = $registry->get(Psr\Http\Message\StreamFactoryInterface::class);
+        $rf = $registry->get(Psr\Http\Message\ResponseFactoryInterface::class);
         $response = new Response($rf->createResponse(), $sf);
         $response->body('Chuck Response');
         $response->header('Content-Type', 'text/plain');
@@ -144,8 +144,8 @@ test('View response Response', function () {
 
 test('View response PSR Response', function () {
     $route = new Route('/', function (Registry $registry) {
-        $sf = $registry->resolve(Psr\Http\Message\StreamFactoryInterface::class);
-        $rf = $registry->resolve(Psr\Http\Message\ResponseFactoryInterface::class);
+        $sf = $registry->get(Psr\Http\Message\StreamFactoryInterface::class);
+        $rf = $registry->get(Psr\Http\Message\ResponseFactoryInterface::class);
         $response = $rf->createResponse()
             ->withBody($sf->createStream('Chuck PSR Response'))
             ->withHeader('Content-Type', 'text/plain');

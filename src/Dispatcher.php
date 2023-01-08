@@ -20,13 +20,13 @@ class Dispatcher
     protected readonly StreamFactoryInterface $streamFactory;
 
     /**
-     * @param HandlerList $queue
+     * @psalm-param HandlerList $queue
      */
     public function __construct(
         protected readonly array $queue,
         protected readonly Registry $registry
     ) {
-        $sf = $registry->resolve(StreamFactoryInterface::class);
+        $sf = $registry->get(StreamFactoryInterface::class);
         assert($sf instanceof StreamFactoryInterface);
         $this->streamFactory = $sf;
     }
@@ -58,7 +58,7 @@ class Dispatcher
                 $request->psr7(),
                 // Create an anonymous PSR-15 RequestHandler
                 new class ($this, array_slice($queue, 1)) implements RequestHandlerInterface {
-                    /** @param HandlerList $queue */
+                    /** @psalm-param HandlerList $queue */
                     public function __construct(
                         protected readonly Dispatcher $dispatcher,
                         protected readonly array $queue

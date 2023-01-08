@@ -5,9 +5,8 @@ declare(strict_types=1);
 use Conia\Chuck\Config;
 use Conia\Chuck\Request;
 use Conia\Chuck\Registry;
-use Conia\Chuck\Exception\OutOfBoundsException;
-use Conia\Chuck\Exception\RuntimeException;
-use Conia\Chuck\Exception\UnresolvableException;
+use Conia\Chuck\Exception\NotFoundException;
+use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Tests\Fixtures\TestClass;
 use Conia\Chuck\Tests\Fixtures\TestClassRegistryArgs;
 use Conia\Chuck\Tests\Fixtures\TestClassRegistryNamedParam;
@@ -21,9 +20,12 @@ uses(TestCase::class);
 
 test('Add value with key', function () {
     $registry = new Registry();
-    $registry->add('registry', Registry::class);
+    $registry->add(Config::class, new Config('unbound'));
+    $registry->add(Config::class, new Config('bound'), 'bound');
 
-    expect($registry->get('registry'))->toBe(Registry::class);
+    expect($registry->entry(Config::class, '$bound')->value()->app())->toBe('bound');
+    expect($registry->entry(Config::class, 'bound')->value()->app())->toBe('bound');
+    expect($registry->entry(Config::class)->value()->app())->toBe('unbound');
 });
 
 
@@ -48,10 +50,33 @@ test('Instantiate', function () {
 });
 
 
-test('Fail if key does not exist', function () {
+test('Chained instantiation', function () {
     $registry = new Registry();
-    $registry->get('registry');
-})->throws(OutOfBoundsException::class);
+    $registry->add(
+        Psr\Container\ContainerExceptionInterface::class,
+        Psr\Container\NotFoundExceptionInterface::class
+    );
+    $registry->add(
+        Psr\Container\NotFoundExceptionInterface::class,
+        NotFoundException::class
+    );
+    $exception = $registry->new(
+        Psr\Container\ContainerExceptionInterface::class,
+        'The message',
+        13
+    );
+
+    expect($exception instanceof NotFoundException)->toBe(true);
+    expect($exception->getMessage())->toBe('The message');
+    expect($exception->getCode())->toBe(13);
+});
+
+
+test('Autowired instantiation', function () {
+    $registry = new Registry();
+
+    expect($registry->new(NotFoundException::class) instanceof NotFoundException)->toBe(true);
+});
 
 
 test('Resolve instance', function () {
@@ -59,7 +84,7 @@ test('Resolve instance', function () {
     $object = new stdClass();
     $registry->add('object', $object);
 
-    expect($registry->resolve('object'))->toBe($object);
+    expect($registry->get('object'))->toBe($object);
 });
 
 
@@ -67,14 +92,31 @@ test('Resolve simple class', function () {
     $registry = new Registry();
     $registry->add('class', stdClass::class);
 
-    expect($registry->resolve('class') instanceof stdClass)->toBe(true);
+    expect($registry->get('class') instanceof stdClass)->toBe(true);
+});
+
+
+test('Resolve chained entry', function () {
+    $registry = new Registry();
+    $registry->add(
+        Psr\Container\ContainerExceptionInterface::class,
+        Psr\Container\NotFoundExceptionInterface::class
+    );
+    $registry->add(
+        Psr\Container\NotFoundExceptionInterface::class,
+        NotFoundException::class
+    );
+
+    expect($registry->get(
+        Psr\Container\ContainerExceptionInterface::class
+    ) instanceof NotFoundException)->toBe(true);
 });
 
 
 test('Resolve class with constructor', function () {
     $registry = new Registry();
 
-    $object = $registry->resolve(TestClassWithConstructor::class);
+    $object = $registry->get(TestClassWithConstructor::class);
 
     expect($object::class)->toBe(TestClassWithConstructor::class);
     expect($object->tc::class)->toBe(TestClass::class);
@@ -82,11 +124,22 @@ test('Resolve class with constructor', function () {
 
 
 test('Resolve class named parameter', function () {
+    // with $
     $registry = new Registry();
     $registry->add(Config::class, new Config('chuck'));
-    $registry->add(Config::class, new Config('named'), '$namedConfig');
+    $registry->add(Config::class, new Config('$named'), '$namedConfig');
 
-    $object = $registry->resolve(TestClassRegistryNamedParam::class);
+    $object = $registry->get(TestClassRegistryNamedParam::class);
+
+    expect($object->config->app())->toBe('chuck');
+    expect($object->namedConfig->app())->toBe('$named');
+
+    // without $
+    $registry = new Registry();
+    $registry->add(Config::class, new Config('chuck'));
+    $registry->add(Config::class, new Config('named'), 'namedConfig');
+
+    $object = $registry->get(TestClassRegistryNamedParam::class);
 
     expect($object->config->app())->toBe('chuck');
     expect($object->namedConfig->app())->toBe('named');
@@ -98,14 +151,14 @@ test('Get named parameter entry', function () {
     $registry->add(Config::class, new Config('named'), '$namedConfig');
     $registry->add(Config::class, new Config('chuck'));
 
-    $config1 = $registry->resolve(Config::class);
-    $config2 = $registry->resolveWithParamName(Config::class, 'namedConfig');
+    $config1 = $registry->get(Config::class);
+    $config2 = $registry->getWithParamName(Config::class, 'namedConfig');
 
     expect($config1->app())->toBe('chuck');
     expect($config2->app())->toBe('named');
 
-    $config3 = $registry->resolveWithParamName(Config::class, '$namedConfig');
-    $config4 = $registry->resolveWithParamName(Config::class, '$wrongName');
+    $config3 = $registry->getWithParamName(Config::class, '$namedConfig');
+    $config4 = $registry->getWithParamName(Config::class, '$wrongName');
 
     expect($config3->app())->toBe('named');
     expect($config4->app())->toBe('chuck');
@@ -125,7 +178,7 @@ test('Resolve closure class', function () {
             $config,
         );
     });
-    $instance = $registry->resolve('class');
+    $instance = $registry->get('class');
 
     expect($instance->tc instanceof TestClass)->toBe(true);
     expect($instance->config instanceof Config)->toBe(true);
@@ -139,7 +192,7 @@ test('Resolve with args array', function () {
         'test' => 'chuck',
         'tc' => new TestClass(),
     ]);
-    $instance = $registry->resolve('class');
+    $instance = $registry->get('class');
 
     expect($instance instanceof TestClassRegistryArgs)->toBe(true);
     expect($instance->tc instanceof TestClass)->toBe(true);
@@ -157,7 +210,7 @@ test('Resolve with args closure', function () {
             'config' => $config,
         ];
     });
-    $instance = $registry->resolve('class');
+    $instance = $registry->get('class');
 
     expect($instance instanceof TestClassRegistryArgs)->toBe(true);
     expect($instance->tc instanceof TestClass)->toBe(true);
@@ -169,18 +222,30 @@ test('Resolve with args closure', function () {
 test('Is reified', function () {
     $registry = new Registry();
     $registry->add('class', stdClass::class);
-    $obj1 = $registry->resolve('class');
-    $obj2 = $registry->resolve('class');
+    $obj1 = $registry->get('class');
+    $obj2 = $registry->get('class');
 
     expect($obj1 === $obj2)->toBe(true);
+});
+
+
+test('As is', function () {
+    $registry = new Registry();
+    $registry->add('closure1', fn () =>'called');
+    $registry->add('closure2', fn () =>'notcalled')->asIs();
+    $value1 = $registry->get('closure1');
+    $value2 = $registry->get('closure2');
+
+    expect($value1)->toBe('called');
+    expect($value2 instanceof Closure)->toBe(true);
 });
 
 
 test('Is not reified', function () {
     $registry = new Registry();
     $registry->add('class', stdClass::class)->reify(false);
-    $obj1 = $registry->resolve('class');
-    $obj2 = $registry->resolve('class');
+    $obj1 = $registry->get('class');
+    $obj2 = $registry->get('class');
 
     expect($obj1 === $obj2)->toBe(false);
 });
@@ -209,46 +274,94 @@ test('Parameter info function', function () {
 });
 
 
+test('Third party container', function () {
+    $container = new League\Container\Container();
+    $container->add('external', new stdClass());
+    $registry = new Registry($container);
+    $registry->addAnyway('internal', new Registry());
+
+    expect($registry->get('external') instanceof stdClass)->toBe(true);
+    expect($registry->get('internal') instanceof Registry)->toBe(true);
+    expect($registry->get(
+        Psr\Container\ContainerInterface::class
+    ) instanceof League\Container\Container)->toBe(true);
+    expect($registry->get(
+        Psr\Container\ContainerInterface::class
+    ))->toBe($container);
+    expect($registry->get(League\Container\Container::class))->toBe($container);
+});
+
+
+test('Autowired instantiation fails', function () {
+    $registry = new Registry();
+
+    expect($registry->new(NoValidClass::class) instanceof NotFoundException)->toBe(true);
+})->throws(NotFoundException::class, 'Cannot instantiate NoValidClass');
+
+
+test('Reject adding when external container is used', function () {
+    $container = new League\Container\Container();
+    $registry = new Registry($container);
+    $registry->add('internal', new Registry());
+})->throws(ContainerException::class, 'External container');
+
+
 test('Reject class with untyped constructor', function () {
     $registry = new Registry();
 
-    $registry->resolve(TestClassUntypedConstructor::class);
-})->throws(UnresolvableException::class, 'typed constructor parameters');
+    $registry->get(TestClassUntypedConstructor::class);
+})->throws(ContainerException::class, 'typed constructor parameters');
 
 
 test('Reject class with unsupported constructor union types', function () {
     $registry = new Registry();
 
-    $registry->resolve(TestClassUnionTypeConstructor::class);
-})->throws(UnresolvableException::class, 'union or intersection');
+    $registry->get(TestClassUnionTypeConstructor::class);
+})->throws(ContainerException::class, 'union or intersection');
 
 
 test('Reject class with unsupported constructor intersection types', function () {
     $registry = new Registry();
 
-    $registry->resolve(TestClassIntersectionTypeConstructor::class);
-})->throws(UnresolvableException::class, 'union or intersection');
+    $registry->get(TestClassIntersectionTypeConstructor::class);
+})->throws(ContainerException::class, 'union or intersection');
 
 
 test('Reject unresolvable class', function () {
     $registry = new Registry();
 
-    $registry->resolve(GdImage::class);
-})->throws(UnresolvableException::class, 'unresolvable');
+    $registry->get(GdImage::class);
+})->throws(ContainerException::class, 'unresolvable');
 
 
-test('Reject non existent class', function () {
+test('Getting non existent class fails', function () {
     $registry = new Registry();
 
-    $registry->resolve('NonExistent');
-})->throws(UnresolvableException::class, 'NonExistent');
+    $registry->get('NonExistent');
+})->throws(NotFoundException::class, 'NonExistent');
+
+
+test('Getting non resolvable entry fails', function () {
+    $registry = new Registry();
+    $registry->add('unresolvable', InvalidClass::class);
+
+    $registry->get('unresolvable');
+})->throws(NotFoundException::class, 'Unresolvable id: InvalidClass');
+
+
+test('Rejecting class with non resolvable params', function () {
+    $registry = new Registry();
+    $registry->add('unresolvable', TestClassRegistryArgs::class);
+
+    $registry->get('unresolvable');
+})->throws(NotFoundException::class, 'Unresolvable id: string');
 
 
 test('Reject $id == $value', function () {
     $registry = new Registry();
 
     $registry->add('chuck', 'chuck');
-})->throws(RuntimeException::class, 'must be different');
+})->throws(ContainerException::class, 'must be different');
 
 
 test('Reject closure with args', function () {
@@ -256,10 +369,4 @@ test('Reject closure with args', function () {
     $registry->add('class', function () {
         return new stdClass();
     })->args(['value' => 'chuck']);
-})->throws(RuntimeException::class, 'Closure values');
-
-
-test('Reject named entry not starting with $', function () {
-    $registry = new Registry();
-    $registry->add(Config::class, new stdClass(), 'named');
-})->throws(RuntimeException::class, 'must start with');
+})->throws(ContainerException::class, 'Closure values');

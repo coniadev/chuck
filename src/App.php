@@ -31,9 +31,6 @@ class App
         $registry->add(Router::class, $router);
         $registry->add($router::class, $router);
         $registry->add(App::class, $this);
-
-        // Self register Registry for autowiring
-        $registry->add($registry::class, $registry);
     }
 
     public static function create(Config $config): static
@@ -147,7 +144,7 @@ class App
             $this->registry->add(StreamFactoryInterface::class, \Nyholm\Psr7\Factory\Psr17Factory::class);
         }
 
-        $serverRequest = $this->registry->resolve(ServerRequestInterface::class);
+        $serverRequest = $this->registry->get(ServerRequestInterface::class);
         assert($serverRequest instanceof ServerRequestInterface);
         $request = new Request($serverRequest);
 
