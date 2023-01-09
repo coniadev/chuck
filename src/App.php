@@ -9,7 +9,7 @@ use Throwable;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\ResponseFactory;
-use Conia\Chuck\Entry;
+use Conia\Chuck\RegistryEntry;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Routing\{Route, Group, Router, AddsRoutes};
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -102,7 +102,7 @@ class App
      * @param non-empty-string $key
      * @param object|class-string $value
      * */
-    public function register(string $key, object|string $value): Entry
+    public function register(string $key, object|string $value): RegistryEntry
     {
         return $this->registry->add($key, $value);
     }

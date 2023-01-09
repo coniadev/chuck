@@ -7,7 +7,7 @@ namespace Conia\Chuck;
 use Closure;
 use Conia\Chuck\Exception\ContainerException;
 
-class Entry
+class RegistryEntry
 {
     protected array|Closure|null $args = null;
     protected bool $asIs = false;

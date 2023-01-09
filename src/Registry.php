@@ -18,7 +18,7 @@ use Psr\Container\ContainerInterface;
 
 class Registry implements ContainerInterface
 {
-    /** @var array<never, never>|array<string, Entry> */
+    /** @var array<never, never>|array<string, RegistryEntry> */
     protected array $entries = [];
     protected readonly ?ContainerInterface $container;
 
@@ -77,7 +77,7 @@ class Registry implements ContainerInterface
         string $id,
         mixed $value,
         string $paramName = '',
-    ): Entry {
+    ): RegistryEntry {
         if ($this->container) {
             throw new ContainerException('Third party container implementation in use');
         }
@@ -92,14 +92,14 @@ class Registry implements ContainerInterface
         string $id,
         mixed $value,
         string $paramName = '',
-    ): Entry {
+    ): RegistryEntry {
         $paramName = $this->normalizeParameterName($paramName);
 
         if ($id === $value) {
             throw new ContainerException('Registry::add argument $id must be different from $value');
         }
 
-        $entry = new Entry($id, $value);
+        $entry = new RegistryEntry($id, $value);
         $this->entries[$id . $paramName] = $entry;
 
         return $entry;
@@ -146,7 +146,7 @@ class Registry implements ContainerInterface
             $this->get($id);
     }
 
-    protected function resolveEntry(Entry $entry): mixed
+    protected function resolveEntry(RegistryEntry $entry): mixed
     {
         /** @var mixed */
         $value = $entry->value();
@@ -198,7 +198,7 @@ class Registry implements ContainerInterface
         throw new NotFoundException('Unresolvable id: ' . print_r($value, true));
     }
 
-    protected function reifyAndReturn(Entry $entry, mixed $value): mixed
+    protected function reifyAndReturn(RegistryEntry $entry, mixed $value): mixed
     {
         if ($entry->shouldReify()) {
             $entry->update($value);
