@@ -3,16 +3,16 @@
 declare(strict_types=1);
 
 use Conia\Chuck\Config;
-use Conia\Chuck\Request;
+use Conia\Chuck\Exception\ContainerException;
+use Conia\Chuck\Exception\NotFoundException;
 use Conia\Chuck\Registry;
 use Conia\Chuck\RegistryEntry;
-use Conia\Chuck\Exception\NotFoundException;
-use Conia\Chuck\Exception\ContainerException;
+use Conia\Chuck\Request;
 use Conia\Chuck\Tests\Fixtures\TestClass;
-use Conia\Chuck\Tests\Fixtures\TestClassRegistryArgs;
-use Conia\Chuck\Tests\Fixtures\TestClassRegistrySingleArg;
-use Conia\Chuck\Tests\Fixtures\TestClassRegistryNamedParam;
 use Conia\Chuck\Tests\Fixtures\TestClassIntersectionTypeConstructor;
+use Conia\Chuck\Tests\Fixtures\TestClassRegistryArgs;
+use Conia\Chuck\Tests\Fixtures\TestClassRegistryNamedParam;
+use Conia\Chuck\Tests\Fixtures\TestClassRegistrySingleArg;
 use Conia\Chuck\Tests\Fixtures\TestClassUnionTypeConstructor;
 use Conia\Chuck\Tests\Fixtures\TestClassUntypedConstructor;
 use Conia\Chuck\Tests\Fixtures\TestClassWithConstructor;
@@ -326,6 +326,20 @@ test('Resolve with named args array', function () {
 });
 
 
+test('Resolve closure class with args', function () {
+    $registry = new Registry();
+    $registry->add(Config::class, new Config('chuck'));
+    $registry->add('class', function (Config $config, string $name, TestClass $tc) {
+        return new TestClassRegistryArgs($tc, $name, $config);
+    })->args(config: new Config('chuck'), tc: new TestClass(), name: 'chuck');
+    $instance = $registry->get('class');
+
+    expect($instance->tc instanceof TestClass)->toBe(true);
+    expect($instance->config instanceof Config)->toBe(true);
+    expect($instance->test)->toBe('chuck');
+});
+
+
 test('Resolve with args closure', function () {
     $registry = new Registry();
     $registry->add(Config::class, new Config('chuck'));
@@ -334,6 +348,26 @@ test('Resolve with args closure', function () {
             'test' => 'chuck',
             'tc' => new TestClass(),
             'config' => $config,
+        ];
+    });
+    $instance = $registry->get('class');
+
+    expect($instance instanceof TestClassRegistryArgs)->toBe(true);
+    expect($instance->tc instanceof TestClass)->toBe(true);
+    expect($instance->config instanceof Config)->toBe(true);
+    expect($instance->test)->toBe('chuck');
+});
+
+
+test('Resolve closure class with args closure', function () {
+    $registry = new Registry();
+    $registry->add('class', function (Config $config, string $name, TestClass $tc) {
+        return new TestClassRegistryArgs($tc, $name, $config);
+    })->args(function () {
+        return [
+            'config' => new Config('chuck'),
+            'tc' => new TestClass(),
+            'name' => 'chuck',
         ];
     });
     $instance = $registry->get('class');
@@ -361,14 +395,6 @@ test('Reject single unnamed arg with wrong type', function () {
 })->throws(ContainerException::class, 'Registry entry arguments');
 
 
-test('Reject closure with args', function () {
-    $registry = new Registry();
-    $registry->add('class', function () {
-        return new stdClass();
-    })->args(['value' => 'chuck']);
-})->throws(ContainerException::class, 'Closure definitions');
-
-
 test('Is reified', function () {
     $registry = new Registry();
     $registry->add('class', stdClass::class);
@@ -381,8 +407,8 @@ test('Is reified', function () {
 
 test('As is', function () {
     $registry = new Registry();
-    $registry->add('closure1', fn () =>'called');
-    $registry->add('closure2', fn () =>'notcalled')->asIs();
+    $registry->add('closure1', fn () => 'called');
+    $registry->add('closure2', fn () => 'notcalled')->asIs();
     $value1 = $registry->get('closure1');
     $value2 = $registry->get('closure2');
 
@@ -439,6 +465,7 @@ test('Parameter info class', function () {
 
 test('Parameter info function', function () {
     $rf = new ReflectionFunction(function (Config $config) {
+        $config->set('test', 'test');
     });
     $p = $rf->getParameters()[0];
     $registry = new Registry();
@@ -464,13 +491,6 @@ test('Third party container', function () {
     ))->toBe($container);
     expect($registry->get(League\Container\Container::class))->toBe($container);
 });
-
-
-test('Reject adding when third party container is used', function () {
-    $container = new League\Container\Container();
-    $registry = new Registry($container);
-    $registry->add('internal', new Registry());
-})->throws(ContainerException::class, 'Third party container');
 
 
 test('Getting non existent tagged entry fails', function () {

@@ -107,10 +107,6 @@ class RegistryEntry
             $this->args = $args;
         }
 
-        if ($this->definition instanceof Closure) {
-            throw new ContainerException('Closure definitions in the registry cannot have arguments');
-        }
-
         return $this;
     }
 

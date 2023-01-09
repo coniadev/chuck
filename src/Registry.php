@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use Closure;
+use Conia\Chuck\Exception\ContainerException;
+use Conia\Chuck\Exception\NotFoundException;
+use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
@@ -12,9 +15,6 @@ use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
 use Throwable;
-use Conia\Chuck\Exception\ContainerException;
-use Conia\Chuck\Exception\NotFoundException;
-use Psr\Container\ContainerInterface;
 
 /**
  * @psalm-type EntryArray = array<never, never>|array<string, RegistryEntry>
@@ -23,6 +23,7 @@ class Registry implements ContainerInterface
 {
     /** @var EntryArray */
     protected array $entries = [];
+
     /** @var array<never, never>|array<string, EntryArray> */
     protected array $taggedEntries = [];
     protected readonly ?ContainerInterface $container;
@@ -142,7 +143,6 @@ class Registry implements ContainerInterface
         return $entry;
     }
 
-
     public function new(string $id, mixed ...$args): object
     {
         $entry = $this->entries[$id] ?? null;
@@ -184,13 +184,58 @@ class Registry implements ContainerInterface
             $this->get($id);
     }
 
+    public function resolveParam(ReflectionParameter $param): mixed
+    {
+        $type = $param->getType();
+
+        if ($type instanceof ReflectionNamedType) {
+            try {
+                return $this->getWithParamName($type->getName(), '$' . ltrim($param->getName(), '?'));
+            } catch (NotFoundException $e) {
+                if ($param->isDefaultValueAvailable()) {
+                    return $param->getDefaultValue();
+                }
+
+                throw $e;
+            }
+        } else {
+            if ($type) {
+                throw new ContainerException(
+                    "Autowiring does not support union or intersection types. Source: \n" .
+                        $this->getParamInfo($param)
+                );
+            }
+
+            throw new ContainerException(
+                "Autowired entities need to have typed constructor parameters. Source: \n" .
+                    $this->getParamInfo($param)
+            );
+        }
+    }
+
+    public function getParamInfo(ReflectionParameter $param): string
+    {
+        $type = $param->getType();
+        $rf = $param->getDeclaringFunction();
+        $rc = null;
+
+        if ($rf instanceof ReflectionMethod) {
+            $rc = $rf->getDeclaringClass();
+        }
+
+        return ($rc ? $rc->getName() . '::' : '') .
+            ($rf->getName() . '(..., ') .
+            ($type ? (string)$type . ' ' : '') .
+            '$' . $param->getName() . ', ...)';
+    }
+
     protected function resolveEntry(RegistryEntry $entry): mixed
     {
         if ($entry->shouldReturnAsIs()) {
             return $entry->definition();
         }
 
-        /** @var mixed  - the current value, instantiated or definition */
+        /** @var mixed - the current value, instantiated or definition */
         $value = $entry->get();
 
         if (is_string($value)) {
@@ -217,10 +262,13 @@ class Registry implements ContainerInterface
         if ($value instanceof Closure) {
             // Get the instance from the registered closure
             $rf = new ReflectionFunction($value);
-            $args = [];
+            $args = $entry->getArgs();
 
-            if (func_num_args() === 1) {
+            if (is_null($args)) {
                 $args = $this->resolveArgs($rf);
+            } elseif ($args instanceof Closure) {
+                /** @var array<string, mixed> */
+                $args = $args();
             }
 
             /** @var mixed */
@@ -243,51 +291,6 @@ class Registry implements ContainerInterface
         }
 
         return $value;
-    }
-
-    public function resolveParam(ReflectionParameter $param): mixed
-    {
-        $type = $param->getType();
-
-        if ($type instanceof ReflectionNamedType) {
-            try {
-                return $this->getWithParamName($type->getName(), '$' . ltrim($param->getName(), '?'));
-            } catch (NotFoundException $e) {
-                if ($param->isDefaultValueAvailable()) {
-                    return $param->getDefaultValue();
-                }
-
-                throw $e;
-            }
-        } else {
-            if ($type) {
-                throw new ContainerException(
-                    "Autowiring does not support union or intersection types. Source: \n" .
-                        $this->getParamInfo($param)
-                );
-            } else {
-                throw new ContainerException(
-                    "Autowired entities need to have typed constructor parameters. Source: \n" .
-                        $this->getParamInfo($param)
-                );
-            }
-        }
-    }
-
-    public function getParamInfo(ReflectionParameter $param): string
-    {
-        $type = $param->getType();
-        $rf = $param->getDeclaringFunction();
-        $rc = null;
-
-        if ($rf instanceof ReflectionMethod) {
-            $rc = $rf->getDeclaringClass();
-        }
-
-        return ($rc ? $rc->getName() . '::' : '') .
-            ($rf->getName() . '(..., ') .
-            ($type ? (string)$type . ' ' : '') .
-            '$' . $param->getName() . ', ...)';
     }
 
     /** @param class-string $class */
