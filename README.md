@@ -1,22 +1,33 @@
 Chuck Framework
 ===============
 
-Chuck is a lightweight and easily extendable PHP 8.1 web framework with focus 
-on a simple architecture. 
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE.md)
+[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/coniadev/chuck.svg)](https://scrutinizer-ci.com/g/coniadev/chuck/code-structure)
+[![Psalm coverage](https://shepherd.dev/github/coniadev/chuck/coverage.svg?)](https://shepherd.dev/github/coniadev/chuck)
+[![Psalm level](https://shepherd.dev/github/coniadev/chuck/level.svg?)](https://conia.dev/chuck)
+[![Quality Score](https://img.shields.io/scrutinizer/g/coniadev/chuck.svg)](https://scrutinizer-ci.com/g/coniadev/chuck)
+
+Chuck is a lightweight and easily extendable PHP 8.1 web framework. 
 
 > :warning: **Note**: This framework is under active development, some of the listed features are still experimental and subject to change. Large parts of the documentation are missing. 
 
 It features:
 
 * Routing
-* A pure PHP template engine with auto escaping
-* Database helpers (no ORM) with plain SQL migrations
-* Form and JSON validaton
-* Automatic image resizing
 * Csrf protection
+* An autowiring container
 * Session and cookie helpers
 * Custom and PSR-15 middleware 
 * Logging (PHP builtin logging or PSR-3 support)
+
+Supported PSRs:
+
+* PSR-3 Logger Interface
+* PSR-4 Autoloading
+* PSR-7 Http Messages (Request, Response, Stream)
+* PSR-11 Container Interface
+* PSR-12 Extended Coding Style
+* PSR-15 Http Middleware
 
 ## Usage:
 
