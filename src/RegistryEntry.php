@@ -12,27 +12,28 @@ class RegistryEntry
     protected array|Closure|null $args = null;
     protected bool $asIs = false;
     protected bool $reify;
+    protected mixed $instance = null;
 
     /**
      * @param non-empty-string $id
      * */
     public function __construct(
         readonly protected string $id,
-        protected mixed $value
+        protected mixed $definition
     ) {
-        $this->reify = $this->negotiateReify($value);
+        $this->reify = $this->negotiateReify($definition);
     }
 
-    protected function negotiateReify(mixed $value): bool
+    protected function negotiateReify(mixed $definition): bool
     {
-        if (is_string($value)) {
-            if (!class_exists($value)) {
+        if (is_string($definition)) {
+            if (!class_exists($definition)) {
                 return false;
             }
-        } elseif ($value instanceof Closure) {
+        } elseif ($definition instanceof Closure) {
             return true;
         } else {
-            if (is_scalar($value) || is_array($value) || is_object($value)) {
+            if (is_scalar($definition) || is_array($definition) || is_object($definition)) {
                 return false;
             }
         }
@@ -76,8 +77,8 @@ class RegistryEntry
 
     public function args(array|Closure $args): self
     {
-        if ($this->value instanceof Closure) {
-            throw new ContainerException('Closure values in the registry cannot have arguments');
+        if ($this->definition instanceof Closure) {
+            throw new ContainerException('Closure definitions in the registry cannot have arguments');
         }
 
         $this->args = $args;
@@ -85,13 +86,23 @@ class RegistryEntry
         return $this;
     }
 
-    public function value(): mixed
+    public function definition(): mixed
     {
-        return $this->value;
+        return $this->definition;
     }
 
-    public function update(mixed $value): void
+    public function instance(): mixed
     {
-        $this->value = $value;
+        return $this->instance;
+    }
+
+    public function get(): mixed
+    {
+        return $this->instance ?? $this->definition;
+    }
+
+    public function set(mixed $instance): void
+    {
+        $this->instance = $instance;
     }
 }

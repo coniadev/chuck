@@ -149,7 +149,7 @@ class Registry implements ContainerInterface
 
         if ($entry) {
             /** @var mixed */
-            $value = $entry->value();
+            $value = $entry->definition();
 
             if (is_string($value)) {
                 if (interface_exists($value)) {
@@ -186,18 +186,14 @@ class Registry implements ContainerInterface
 
     protected function resolveEntry(RegistryEntry $entry): mixed
     {
-        /** @var mixed */
-        $value = $entry->value();
-
         if ($entry->shouldReturnAsIs()) {
-            return $value;
+            return $entry->definition();
         }
 
-        if (is_string($value)) {
-            if (isset($this->entries[$value])) {
-                return $this->get($value);
-            }
+        /** @var mixed  - the current value, instantiated or definition */
+        $value = $entry->get();
 
+        if (is_string($value)) {
             if (class_exists($value)) {
                 $args = $entry->getArgs();
 
@@ -211,6 +207,10 @@ class Registry implements ContainerInterface
                 }
 
                 return $this->reifyAndReturn($entry, $this->autowire($value));
+            }
+
+            if (isset($this->entries[$value])) {
+                return $this->get($value);
             }
         }
 
@@ -239,7 +239,7 @@ class Registry implements ContainerInterface
     protected function reifyAndReturn(RegistryEntry $entry, mixed $value): mixed
     {
         if ($entry->shouldReify()) {
-            $entry->update($value);
+            $entry->set($value);
         }
 
         return $value;

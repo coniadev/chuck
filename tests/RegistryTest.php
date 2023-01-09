@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Conia\Chuck\Config;
 use Conia\Chuck\Request;
 use Conia\Chuck\Registry;
+use Conia\Chuck\RegistryEntry;
 use Conia\Chuck\Exception\NotFoundException;
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Tests\Fixtures\TestClass;
@@ -18,13 +19,29 @@ use Conia\Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
 
+test('Entry methods', function () {
+    $entry = new RegistryEntry('key', stdClass::class);
+
+    expect($entry->definition())->toBe(stdClass::class);
+    expect($entry->get())->toBe(stdClass::class);
+    expect($entry->instance())->toBe(null);
+
+    $obj = new stdClass();
+    $entry->set($obj);
+
+    expect($entry->definition())->toBe(stdClass::class);
+    expect($entry->get())->toBe($obj);
+    expect($entry->instance())->toBe($obj);
+});
+
+
 test('Add value with key', function () {
     $registry = new Registry();
     $registry->add(Config::class, new Config('unbound'));
     $registry->add(Config::class, new Config('bound'), 'bound');
 
-    expect($registry->entry(Config::class, 'bound')->value()->app())->toBe('bound');
-    expect($registry->entry(Config::class)->value()->app())->toBe('unbound');
+    expect($registry->entry(Config::class, 'bound')->definition()->app())->toBe('bound');
+    expect($registry->entry(Config::class)->definition()->app())->toBe('unbound');
 });
 
 
@@ -32,7 +49,24 @@ test('Add key without value', function () {
     $registry = new Registry();
     $registry->add(Config::class);
 
-    expect($registry->entry(Config::class)->value())->toBe(Config::class);
+    expect($registry->entry(Config::class)->definition())->toBe(Config::class);
+});
+
+
+test('Entry instance and value', function () {
+    $registry = new Registry();
+    $registry->add(stdClass::class);
+
+    expect($registry->entry(stdClass::class)->definition())->toBe(stdClass::class);
+    expect($registry->entry(stdClass::class)->instance())->toBe(null);
+    expect($registry->entry(stdClass::class)->get())->toBe(stdClass::class);
+
+    $obj = $registry->get(stdClass::class);
+
+    expect($obj instanceof stdClass)->toBe(true);
+    expect($registry->entry(stdClass::class)->definition())->toBe(stdClass::class);
+    expect($registry->entry(stdClass::class)->instance())->toBe($obj);
+    expect($registry->entry(stdClass::class)->get())->toBe($obj);
 });
 
 
@@ -262,10 +296,12 @@ test('Add and receive tagged entries', function () {
     $registry = new Registry();
     $registry->tag('tag')->add('class', stdClass::class);
     $obj = $registry->tag('tag')->get('class');
-    $entry = $registry->tag('tag')->entry('class')->value();
+    $entry = $registry->tag('tag')->entry('class');
 
     expect($obj instanceof stdClass)->toBe(true);
-    expect($obj === $entry)->toBe(true);
+    expect($entry->definition())->toBe(stdClass::class);
+    expect($obj === $entry->instance())->toBe(true);
+    expect($obj === $entry->get())->toBe(true);
     expect($registry->tag('tag')->has('class'))->toBe(true);
     expect($registry->tag('tag')->has('wrong'))->toBe(false);
     expect($registry->has('class'))->toBe(false);
@@ -276,7 +312,7 @@ test('Add tagged key without value', function () {
     $registry = new Registry();
     $registry->tag('tag')->add(Config::class);
 
-    expect($registry->tag('tag')->entry(Config::class)->value())->toBe(Config::class);
+    expect($registry->tag('tag')->entry(Config::class)->definition())->toBe(Config::class);
 });
 
 
@@ -398,4 +434,4 @@ test('Reject closure with args', function () {
     $registry->add('class', function () {
         return new stdClass();
     })->args(['value' => 'chuck']);
-})->throws(ContainerException::class, 'Closure values');
+})->throws(ContainerException::class, 'Closure definitions');
