@@ -7,8 +7,12 @@ namespace Conia\Chuck;
 use Closure;
 use Conia\Chuck\Exception\ContainerException;
 
+/**
+ * @psalm-type Args array<string|mixed>|Closure(): array<string|mixed>
+ */
 class RegistryEntry
 {
+    /** @var Args|null */
     protected array|Closure|null $args = null;
     protected bool $asIs = false;
     protected bool $reify;
@@ -75,13 +79,37 @@ class RegistryEntry
         return $this;
     }
 
-    public function args(array|Closure $args): self
+    public function args(mixed ...$args): self
     {
+        $numArgs = count($args);
+
+        if ($numArgs === 1) {
+            if (is_string(array_key_first($args))) {
+                /** @var Args  */
+                $this->args = $args;
+            } elseif (is_array($args[0]) || $args[0] instanceof Closure) {
+                /** @var Args  */
+                $this->args = $args[0];
+            } else {
+                throw new ContainerException(
+                    'Registry entry arguments can be passed as a single associative array, ' .
+                    'as named arguments, or as a Closure'
+                );
+            }
+        } elseif ($numArgs > 1) {
+            if (!is_string(array_key_first($args))) {
+                throw new ContainerException(
+                    'Registry entry arguments can be passed as a single associative array, ' .
+                    'as named arguments, or as a Closure'
+                );
+            }
+
+            $this->args = $args;
+        }
+
         if ($this->definition instanceof Closure) {
             throw new ContainerException('Closure definitions in the registry cannot have arguments');
         }
-
-        $this->args = $args;
 
         return $this;
     }

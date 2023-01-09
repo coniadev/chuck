@@ -10,6 +10,7 @@ use Conia\Chuck\Exception\NotFoundException;
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Tests\Fixtures\TestClass;
 use Conia\Chuck\Tests\Fixtures\TestClassRegistryArgs;
+use Conia\Chuck\Tests\Fixtures\TestClassRegistrySingleArg;
 use Conia\Chuck\Tests\Fixtures\TestClassRegistryNamedParam;
 use Conia\Chuck\Tests\Fixtures\TestClassIntersectionTypeConstructor;
 use Conia\Chuck\Tests\Fixtures\TestClassUnionTypeConstructor;
@@ -120,6 +121,13 @@ test('Autowired instantiation', function () {
 });
 
 
+test('Autowired instantiation fails', function () {
+    $registry = new Registry();
+
+    expect($registry->new(NoValidClass::class) instanceof NotFoundException)->toBe(true);
+})->throws(NotFoundException::class, 'Cannot instantiate NoValidClass');
+
+
 test('Resolve instance', function () {
     $registry = new Registry();
     $object = new stdClass();
@@ -227,12 +235,89 @@ test('Resolve closure class', function () {
 });
 
 
+test('Reject class with untyped constructor', function () {
+    $registry = new Registry();
+
+    $registry->get(TestClassUntypedConstructor::class);
+})->throws(ContainerException::class, 'typed constructor parameters');
+
+
+test('Reject class with unsupported constructor union types', function () {
+    $registry = new Registry();
+
+    $registry->get(TestClassUnionTypeConstructor::class);
+})->throws(ContainerException::class, 'union or intersection');
+
+
+test('Reject class with unsupported constructor intersection types', function () {
+    $registry = new Registry();
+
+    $registry->get(TestClassIntersectionTypeConstructor::class);
+})->throws(ContainerException::class, 'union or intersection');
+
+
+test('Reject unresolvable class', function () {
+    $registry = new Registry();
+
+    $registry->get(GdImage::class);
+})->throws(ContainerException::class, 'unresolvable');
+
+
+test('Getting non existent class fails', function () {
+    $registry = new Registry();
+
+    $registry->get('NonExistent');
+})->throws(NotFoundException::class, 'NonExistent');
+
+
+test('Getting non resolvable entry fails', function () {
+    $registry = new Registry();
+    $registry->add('unresolvable', InvalidClass::class);
+
+    $registry->get('unresolvable');
+})->throws(NotFoundException::class, 'Unresolvable id: InvalidClass');
+
+
+test('Rejecting class with non resolvable params', function () {
+    $registry = new Registry();
+    $registry->add('unresolvable', TestClassRegistryArgs::class);
+
+    $registry->get('unresolvable');
+})->throws(NotFoundException::class, 'Unresolvable id: string');
+
+
 test('Resolve with args array', function () {
     $registry = new Registry();
     $registry->add('class', TestClassRegistryArgs::class)->args([
         'test' => 'chuck',
         'tc' => new TestClass(),
     ]);
+    $instance = $registry->get('class');
+
+    expect($instance instanceof TestClassRegistryArgs)->toBe(true);
+    expect($instance->tc instanceof TestClass)->toBe(true);
+    expect($instance->test)->toBe('chuck');
+});
+
+
+test('Resolve with single named arg array', function () {
+    $registry = new Registry();
+    $registry->add('class', TestClassRegistrySingleArg::class)->args(
+        test: 'chuck',
+    );
+    $instance = $registry->get('class');
+
+    expect($instance instanceof TestClassRegistrySingleArg)->toBe(true);
+    expect($instance->test)->toBe('chuck');
+});
+
+
+test('Resolve with named args array', function () {
+    $registry = new Registry();
+    $registry->add('class', TestClassRegistryArgs::class)->args(
+        test: 'chuck',
+        tc: new TestClass(),
+    );
     $instance = $registry->get('class');
 
     expect($instance instanceof TestClassRegistryArgs)->toBe(true);
@@ -258,6 +343,30 @@ test('Resolve with args closure', function () {
     expect($instance->config instanceof Config)->toBe(true);
     expect($instance->test)->toBe('chuck');
 });
+
+
+test('Reject multiple unnamed args', function () {
+    $registry = new Registry();
+    $registry->add('class', function () {
+        return new stdClass();
+    })->args('chuck', 13);
+})->throws(ContainerException::class, 'Registry entry arguments');
+
+
+test('Reject single unnamed arg with wrong type', function () {
+    $registry = new Registry();
+    $registry->add('class', function () {
+        return new stdClass();
+    })->args('chuck');
+})->throws(ContainerException::class, 'Registry entry arguments');
+
+
+test('Reject closure with args', function () {
+    $registry = new Registry();
+    $registry->add('class', function () {
+        return new stdClass();
+    })->args(['value' => 'chuck']);
+})->throws(ContainerException::class, 'Closure definitions');
 
 
 test('Is reified', function () {
@@ -357,13 +466,6 @@ test('Third party container', function () {
 });
 
 
-test('Autowired instantiation fails', function () {
-    $registry = new Registry();
-
-    expect($registry->new(NoValidClass::class) instanceof NotFoundException)->toBe(true);
-})->throws(NotFoundException::class, 'Cannot instantiate NoValidClass');
-
-
 test('Reject adding when third party container is used', function () {
     $container = new League\Container\Container();
     $registry = new Registry($container);
@@ -371,67 +473,8 @@ test('Reject adding when third party container is used', function () {
 })->throws(ContainerException::class, 'Third party container');
 
 
-test('Reject class with untyped constructor', function () {
-    $registry = new Registry();
-
-    $registry->get(TestClassUntypedConstructor::class);
-})->throws(ContainerException::class, 'typed constructor parameters');
-
-
-test('Reject class with unsupported constructor union types', function () {
-    $registry = new Registry();
-
-    $registry->get(TestClassUnionTypeConstructor::class);
-})->throws(ContainerException::class, 'union or intersection');
-
-
-test('Reject class with unsupported constructor intersection types', function () {
-    $registry = new Registry();
-
-    $registry->get(TestClassIntersectionTypeConstructor::class);
-})->throws(ContainerException::class, 'union or intersection');
-
-
-test('Reject unresolvable class', function () {
-    $registry = new Registry();
-
-    $registry->get(GdImage::class);
-})->throws(ContainerException::class, 'unresolvable');
-
-
-test('Getting non existent class fails', function () {
-    $registry = new Registry();
-
-    $registry->get('NonExistent');
-})->throws(NotFoundException::class, 'NonExistent');
-
-
-test('Getting non resolvable entry fails', function () {
-    $registry = new Registry();
-    $registry->add('unresolvable', InvalidClass::class);
-
-    $registry->get('unresolvable');
-})->throws(NotFoundException::class, 'Unresolvable id: InvalidClass');
-
-
 test('Getting non existent tagged entry fails', function () {
     $registry = new Registry();
 
     $registry->tag('tag')->get('NonExistent');
 })->throws(NotFoundException::class, 'Unresolvable tagged id: tag::NonExistent');
-
-
-test('Rejecting class with non resolvable params', function () {
-    $registry = new Registry();
-    $registry->add('unresolvable', TestClassRegistryArgs::class);
-
-    $registry->get('unresolvable');
-})->throws(NotFoundException::class, 'Unresolvable id: string');
-
-
-test('Reject closure with args', function () {
-    $registry = new Registry();
-    $registry->add('class', function () {
-        return new stdClass();
-    })->args(['value' => 'chuck']);
-})->throws(ContainerException::class, 'Closure definitions');
