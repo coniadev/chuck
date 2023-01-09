@@ -16,10 +16,15 @@ use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Exception\NotFoundException;
 use Psr\Container\ContainerInterface;
 
+/**
+ * @psalm-type EntryArray = array<never, never>|array<string, RegistryEntry>
+ */
 class Registry implements ContainerInterface
 {
-    /** @var array<never, never>|array<string, RegistryEntry> */
+    /** @var EntryArray */
     protected array $entries = [];
+    /** @var array<never, never>|array<string, EntryArray> */
+    protected array $taggedEntries = [];
     protected readonly ?ContainerInterface $container;
 
     public function __construct(
@@ -75,7 +80,7 @@ class Registry implements ContainerInterface
      */
     public function add(
         string $id,
-        mixed $value,
+        mixed $value = null,
         string $paramName = '',
     ): RegistryEntry {
         if ($this->container) {
@@ -90,20 +95,53 @@ class Registry implements ContainerInterface
      */
     public function addAnyway(
         string $id,
-        mixed $value,
+        mixed $value = null,
         string $paramName = '',
     ): RegistryEntry {
         $paramName = $this->normalizeParameterName($paramName);
-
-        if ($id === $value) {
-            throw new ContainerException('Registry::add argument $id must be different from $value');
-        }
-
-        $entry = new RegistryEntry($id, $value);
+        $entry = new RegistryEntry($id, $value ?? $id);
         $this->entries[$id . $paramName] = $entry;
 
         return $entry;
     }
+
+    public function tag(string $tag): RegistryTag
+    {
+        return new RegistryTag($tag, $this);
+    }
+
+    public function hasTagged(string $tag, string $id): bool
+    {
+        return isset($this->taggedEntries[$tag][$id]);
+    }
+
+    public function taggedEntry(string $tag, string $id): RegistryEntry
+    {
+        return $this->taggedEntries[$tag][$id];
+    }
+
+    public function getTagged(string $tag, string $id): mixed
+    {
+        $entry = $this->taggedEntries[$tag][$id] ?? null;
+
+        if ($entry) {
+            return $this->resolveEntry($entry);
+        }
+
+        throw new NotFoundException('Unresolvable tagged id: ' . $tag . '::' . $id);
+    }
+
+    /**
+     * @param non-empty-string $id
+     */
+    public function addTagged(string $tag, string $id, mixed $value = null): RegistryEntry
+    {
+        $entry = new RegistryEntry($id, $value ?? $id);
+        $this->taggedEntries[$tag][$id] = $entry;
+
+        return $entry;
+    }
+
 
     public function new(string $id, mixed ...$args): object
     {

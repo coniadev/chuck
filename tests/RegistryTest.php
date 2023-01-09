@@ -23,9 +23,16 @@ test('Add value with key', function () {
     $registry->add(Config::class, new Config('unbound'));
     $registry->add(Config::class, new Config('bound'), 'bound');
 
-    expect($registry->entry(Config::class, '$bound')->value()->app())->toBe('bound');
     expect($registry->entry(Config::class, 'bound')->value()->app())->toBe('bound');
     expect($registry->entry(Config::class)->value()->app())->toBe('unbound');
+});
+
+
+test('Add key without value', function () {
+    $registry = new Registry();
+    $registry->add(Config::class);
+
+    expect($registry->entry(Config::class)->value())->toBe(Config::class);
 });
 
 
@@ -251,6 +258,28 @@ test('Is not reified', function () {
 });
 
 
+test('Add and receive tagged entries', function () {
+    $registry = new Registry();
+    $registry->tag('tag')->add('class', stdClass::class);
+    $obj = $registry->tag('tag')->get('class');
+    $entry = $registry->tag('tag')->entry('class')->value();
+
+    expect($obj instanceof stdClass)->toBe(true);
+    expect($obj === $entry)->toBe(true);
+    expect($registry->tag('tag')->has('class'))->toBe(true);
+    expect($registry->tag('tag')->has('wrong'))->toBe(false);
+    expect($registry->has('class'))->toBe(false);
+});
+
+
+test('Add tagged key without value', function () {
+    $registry = new Registry();
+    $registry->tag('tag')->add(Config::class);
+
+    expect($registry->tag('tag')->entry(Config::class)->value())->toBe(Config::class);
+});
+
+
 test('Parameter info class', function () {
     $rc = new ReflectionClass(TestClassUnionTypeConstructor::class);
     $c = $rc->getConstructor();
@@ -349,19 +378,19 @@ test('Getting non resolvable entry fails', function () {
 })->throws(NotFoundException::class, 'Unresolvable id: InvalidClass');
 
 
+test('Getting non existent tagged entry fails', function () {
+    $registry = new Registry();
+
+    $registry->tag('tag')->get('NonExistent');
+})->throws(NotFoundException::class, 'Unresolvable tagged id: tag::NonExistent');
+
+
 test('Rejecting class with non resolvable params', function () {
     $registry = new Registry();
     $registry->add('unresolvable', TestClassRegistryArgs::class);
 
     $registry->get('unresolvable');
 })->throws(NotFoundException::class, 'Unresolvable id: string');
-
-
-test('Reject $id == $value', function () {
-    $registry = new Registry();
-
-    $registry->add('chuck', 'chuck');
-})->throws(ContainerException::class, 'must be different');
 
 
 test('Reject closure with args', function () {
