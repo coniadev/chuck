@@ -9,7 +9,7 @@ Chuck Framework
 
 Chuck is a lightweight and easily extendable PHP 8.1 web framework. 
 
-> :warning: **Note**: This framework is under active development, some of the listed features are still experimental and subject to change. Large parts of the documentation are missing. 
+> :warning: **Note**: This framework is under active development, some of the listed features are still experimental and subject to change. Parts of the documentation are missing or wrong. 
 
 It features:
 
