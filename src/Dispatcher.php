@@ -64,6 +64,7 @@ class Dispatcher
                         protected readonly array $queue
                     ) {
                     }
+
                     public function handle(ServerRequestInterface $request): ResponseInterface
                     {
                         return $this->dispatcher->handle($this->queue, new Request($request))->psr7();

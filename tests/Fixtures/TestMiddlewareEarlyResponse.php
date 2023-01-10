@@ -17,8 +17,6 @@ class TestMiddlewareEarlyResponse
 
     public function __invoke(Request $request, callable $_): Response
     {
-        $response = (new ResponseFactory($this->registry))->html($this->text);
-
-        return $response;
+        return (new ResponseFactory($this->registry))->html($this->text);
     }
 }

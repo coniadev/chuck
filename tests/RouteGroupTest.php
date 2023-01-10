@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-use Conia\Chuck\MiddlewareWrapper;
 use Conia\Chuck\Exception\HttpMethodNotAllowed;
 use Conia\Chuck\Exception\ValueError;
+use Conia\Chuck\MiddlewareWrapper;
+use Conia\Chuck\Routing\Group;
+use Conia\Chuck\Routing\Route;
+use Conia\Chuck\Routing\Router;
+use Conia\Chuck\Tests\Fixtures\TestController;
+use Conia\Chuck\Tests\Fixtures\TestMiddleware1;
+use Conia\Chuck\Tests\Fixtures\TestMiddleware2;
+use Conia\Chuck\Tests\Fixtures\TestMiddleware3;
 use Conia\Chuck\Tests\Setup\TestCase;
-use Conia\Chuck\Tests\Fixtures\{
-    TestController,
-    TestMiddleware1,
-    TestMiddleware2,
-    TestMiddleware3
-};
-use Conia\Chuck\Routing\{Router, Route, Group};
 
 uses(TestCase::class);
 
@@ -25,9 +25,9 @@ test('Matching :: named', function () {
     $group = new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
 
-        $group->addRoute(Route::get('/home', "$ctrl::albumHome", 'home'));
-        $group->addRoute(Route::get('/{name}', "$ctrl::albumName", 'name'));
-        $group->addRoute(Route::get('', "$ctrl::albumList", 'list'));
+        $group->addRoute(Route::get('/home', "{$ctrl}::albumHome", 'home'));
+        $group->addRoute(Route::get('/{name}', "{$ctrl}::albumName", 'name'));
+        $group->addRoute(Route::get('', "{$ctrl}::albumList", 'list'));
     }, 'albums:');
     $group->create($router);
 
@@ -47,9 +47,9 @@ test('Matching :: unnamed', function () {
     $group = new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
 
-        $group->addRoute(Route::get('/home', "$ctrl::albumHome"));
-        $group->addRoute(Route::get('/{name}', "$ctrl::albumName"));
-        $group->addRoute(Route::get('', "$ctrl::albumList"));
+        $group->addRoute(Route::get('/home', "{$ctrl}::albumHome"));
+        $group->addRoute(Route::get('/{name}', "{$ctrl}::albumName"));
+        $group->addRoute(Route::get('', "{$ctrl}::albumList"));
     });
     $group->create($router);
 
@@ -69,14 +69,14 @@ test('Matching :: with helper methods', function () {
     $group = new Group('/helper', function (Group $group) {
         $ctrl = TestController::class;
 
-        $group->get('/get', "$ctrl::albumHome", 'getroute');
-        $group->post('/post', "$ctrl::albumHome", 'postroute');
-        $group->put('/put', "$ctrl::albumHome", 'putroute');
-        $group->patch('/patch', "$ctrl::albumHome", 'patchroute');
-        $group->delete('/delete', "$ctrl::albumHome", 'deleteroute');
-        $group->options('/options', "$ctrl::albumHome", 'optionsroute');
-        $group->head('/head', "$ctrl::albumHome", 'headroute');
-        $group->route('/route', "$ctrl::albumHome", 'allroute');
+        $group->get('/get', "{$ctrl}::albumHome", 'getroute');
+        $group->post('/post', "{$ctrl}::albumHome", 'postroute');
+        $group->put('/put', "{$ctrl}::albumHome", 'putroute');
+        $group->patch('/patch', "{$ctrl}::albumHome", 'patchroute');
+        $group->delete('/delete', "{$ctrl}::albumHome", 'deleteroute');
+        $group->options('/options', "{$ctrl}::albumHome", 'optionsroute');
+        $group->head('/head', "{$ctrl}::albumHome", 'headroute');
+        $group->route('/route', "{$ctrl}::albumHome", 'allroute');
     }, 'helper:');
     $group->create($router);
 
@@ -104,12 +104,12 @@ test('Renderer', function () {
     $group = (new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
 
-        $group->addRoute(Route::get('', "$ctrl::albumList"));
+        $group->addRoute(Route::get('', "{$ctrl}::albumList"));
 
         // overwrite group renderer
-        $group->addRoute(Route::get('/home', "$ctrl::albumHome")->render('template:home.php'));
+        $group->addRoute(Route::get('/home', "{$ctrl}::albumHome")->render('template:home.php'));
 
-        $group->addRoute(Route::get('/{name}', "$ctrl::albumName"));
+        $group->addRoute(Route::get('/{name}', "{$ctrl}::albumName"));
     }))->render('json');
     $group->create($router);
 
@@ -156,9 +156,9 @@ test('Middleware', function () {
     $group = (new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
 
-        $group->addRoute(Route::get('', "$ctrl::albumList"));
-        $group->addRoute(Route::get('/home', "$ctrl::albumHome")->middleware(new TestMiddleware3()));
-        $group->addRoute(Route::get('/{name}', "$ctrl::albumName"));
+        $group->addRoute(Route::get('', "{$ctrl}::albumList"));
+        $group->addRoute(Route::get('/home', "{$ctrl}::albumHome")->middleware(new TestMiddleware3()));
+        $group->addRoute(Route::get('/{name}', "{$ctrl}::albumName"));
     }))->middleware(new TestMiddleware2());
     $group->create($router);
 

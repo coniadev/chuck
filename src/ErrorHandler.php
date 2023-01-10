@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-use ErrorException;
-use Throwable;
 use Conia\Chuck\Config;
-use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Exception\ExitException;
-use Conia\Chuck\Exception\HttpError;
 use Conia\Chuck\Exception\HttpBadRequest;
+use Conia\Chuck\Exception\HttpError;
 use Conia\Chuck\Exception\HttpForbidden;
-use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\HttpMethodNotAllowed;
+use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Exception\HttpUnauthorized;
+use Conia\Chuck\ResponseFactory;
+use ErrorException;
+use Throwable;
 
 class ErrorHandler
 {
@@ -26,6 +26,7 @@ class ErrorHandler
     public function setup(): callable|null
     {
         set_error_handler($this->handleError(...), E_ALL);
+
         return set_exception_handler($this->handleException(...));
     }
 
@@ -61,8 +62,8 @@ class ErrorHandler
         } elseif ($exception instanceof ExitException) {
             // Would stop the test suit
             // @codeCoverageIgnoreStart
-            exit();
-            // @codeCoverageIgnoreEnd
+            exit;
+        // @codeCoverageIgnoreEnd
         } else {
             $code = 500;
             $response->status($code);
@@ -85,6 +86,16 @@ class ErrorHandler
         (new Emitter())->emit($response->body($body)->psr7());
     }
 
+    public function log(Throwable $exception): void
+    {
+        $logger = $this->config->logger();
+
+        if ($logger) {
+            $method = $this->getLoggerMethod($exception);
+            ([$logger, $method])('Uncaught Exception:', ['exception' => $exception]);
+        }
+    }
+
     protected function getLoggerMethod(Throwable $exception): string
     {
         return match ($exception::class) {
@@ -96,15 +107,5 @@ class ErrorHandler
             HttpServerError::class => 'error',
             default => 'error',
         };
-    }
-
-    public function log(Throwable $exception): void
-    {
-        $logger = $this->config->logger();
-
-        if ($logger) {
-            $method = $this->getLoggerMethod($exception);
-            ([$logger, $method])("Uncaught Exception:", ['exception' => $exception]);
-        }
     }
 }

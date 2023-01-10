@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Conia\Chuck\Tests\Setup\TestCase;
 use Conia\Chuck\Renderer\JsonRenderer;
 use Conia\Chuck\Renderer\TextRenderer;
+use Conia\Chuck\Tests\Setup\TestCase;
 
 require __DIR__ . '/Setup/globalSymbols.php';
 
@@ -56,5 +56,5 @@ test('Text Renderer', function () {
     }
 
     expect($hasContentType)->toBe(true);
-    expect((string)$response->getBody())->toBe("<h1>Symbolic</h1>");
+    expect((string)$response->getBody())->toBe('<h1>Symbolic</h1>');
 });

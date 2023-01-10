@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 use Conia\Chuck\Exception\InvalidArgumentException;
 use Conia\Chuck\Exception\ValueError;
-use Conia\Chuck\Routing\Route;
 use Conia\Chuck\MiddlewareWrapper;
-use Conia\Chuck\Tests\Fixtures\{TestMiddleware1, TestMiddleware2};
+use Conia\Chuck\Routing\Route;
+use Conia\Chuck\Tests\Fixtures\TestMiddleware1;
+use Conia\Chuck\Tests\Fixtures\TestMiddleware2;
 use Conia\Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
@@ -108,6 +109,7 @@ test('Url construction :: regular parameters', function () {
         public function __construct(protected int $val)
         {
         }
+
         public function __toString(): string
         {
             return (string)$this->val;

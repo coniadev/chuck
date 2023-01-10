@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Tests\Fixtures;
 
+use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Response;
 use Conia\Chuck\ResponseFactory;
-use Conia\Chuck\Renderer\Renderer;
 
 class TestRenderer extends Renderer
 {

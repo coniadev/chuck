@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Exception;
 
-abstract class HttpError extends \Exception implements ChuckException
+use Exception;
+
+abstract class HttpError extends Exception implements ChuckException
 {
     protected ?string $subTitle = null;
 
@@ -17,7 +19,7 @@ abstract class HttpError extends \Exception implements ChuckException
     {
         /** @psalm-suppress UnsafeInstantiation */
         $exception = new static();
-        $exception->subTitle  = $subTitle;
+        $exception->subTitle = $subTitle;
 
         return $exception;
     }

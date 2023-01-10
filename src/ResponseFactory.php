@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-use finfo;
-use Stringable;
 use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\RuntimeException;
+use Conia\Chuck\Json;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Response;
-use Conia\Chuck\Json;
+use finfo;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
+use Stringable;
 
 class ResponseFactory
 {
@@ -22,45 +22,8 @@ class ResponseFactory
     {
     }
 
-    protected function createPsr7Response(
-        int $code = 200,
-        string $reasonPhrase = ''
-    ): ResponseInterface {
-        $factory = $this->registry->get(ResponseFactoryInterface::class);
-        assert($factory instanceof ResponseFactoryInterface);
-        $response = $factory->createResponse($code, $reasonPhrase);
-        assert($response instanceof ResponseInterface);
-
-        return $response;
-    }
-
-    protected function createPsr7StreamFactory(): StreamFactoryInterface
-    {
-        $factory = $this->registry->get(StreamFactoryInterface::class);
-        assert($factory instanceof StreamFactoryInterface);
-
-        return $factory;
-    }
-
-    protected function createPsr7Stream(mixed $body): StreamInterface
-    {
-        $psr7Factory = $this->createPsr7StreamFactory();
-
-        if (is_string($body) || $body instanceof Stringable) {
-            $stream = $psr7Factory->createStream((string)$body);
-        } elseif (is_resource($body)) {
-            $stream = $psr7Factory->createStreamFromResource($body);
-        } else {
-            throw new RuntimeException('Only strings, Stringable or resources are allowed');
-        }
-
-        assert($stream instanceof StreamInterface);
-
-        return $stream;
-    }
-
     /**
-     * @param string|resource|StreamInterface|null $body
+     * @param null|resource|StreamInterface|string $body
      */
     public function create(
         int $code = 200,
@@ -70,7 +33,7 @@ class ResponseFactory
     }
 
     /**
-     * @param string|resource|StreamInterface|null $body
+     * @param null|resource|StreamInterface|string $body
      */
     public function html(
         mixed $body = null,
@@ -90,7 +53,7 @@ class ResponseFactory
     }
 
     /**
-     * @param string|resource|StreamInterface|null $body
+     * @param null|resource|StreamInterface|string $body
      */
     public function text(
         mixed $body = null,
@@ -122,17 +85,6 @@ class ResponseFactory
         $psr7Response = $psr7Response->withBody($this->createPsr7Stream(Json::encode($data)));
 
         return new Response($psr7Response, $this->createPsr7StreamFactory());
-    }
-
-    protected function validateFile(string $file, bool $throwNotFound): void
-    {
-        if (!is_file($file)) {
-            if ($throwNotFound) {
-                throw new HttpNotFound();
-            }
-
-            throw new RuntimeException('File not found');
-        }
     }
 
     public function file(
@@ -195,5 +147,53 @@ class ResponseFactory
         }
 
         return new Response($psr7Response, $this->createPsr7StreamFactory());
+    }
+
+    protected function createPsr7Response(
+        int $code = 200,
+        string $reasonPhrase = ''
+    ): ResponseInterface {
+        $factory = $this->registry->get(ResponseFactoryInterface::class);
+        assert($factory instanceof ResponseFactoryInterface);
+        $response = $factory->createResponse($code, $reasonPhrase);
+        assert($response instanceof ResponseInterface);
+
+        return $response;
+    }
+
+    protected function createPsr7StreamFactory(): StreamFactoryInterface
+    {
+        $factory = $this->registry->get(StreamFactoryInterface::class);
+        assert($factory instanceof StreamFactoryInterface);
+
+        return $factory;
+    }
+
+    protected function createPsr7Stream(mixed $body): StreamInterface
+    {
+        $psr7Factory = $this->createPsr7StreamFactory();
+
+        if (is_string($body) || $body instanceof Stringable) {
+            $stream = $psr7Factory->createStream((string)$body);
+        } elseif (is_resource($body)) {
+            $stream = $psr7Factory->createStreamFromResource($body);
+        } else {
+            throw new RuntimeException('Only strings, Stringable or resources are allowed');
+        }
+
+        assert($stream instanceof StreamInterface);
+
+        return $stream;
+    }
+
+    protected function validateFile(string $file, bool $throwNotFound): void
+    {
+        if (!is_file($file)) {
+            if ($throwNotFound) {
+                throw new HttpNotFound();
+            }
+
+            throw new RuntimeException('File not found');
+        }
     }
 }

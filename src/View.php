@@ -5,7 +5,19 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use Closure;
+use Conia\Chuck\Attribute\Render;
+use Conia\Chuck\Config;
+use Conia\Chuck\Exception\ContainerException;
+use Conia\Chuck\Exception\HttpServerError;
+use Conia\Chuck\Exception\RuntimeException;
+use Conia\Chuck\Registry;
+use Conia\Chuck\Request;
+use Conia\Chuck\Response;
+use Conia\Chuck\ResponseFactory;
+use Conia\Chuck\Routing\Route;
 use JsonException;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
@@ -13,18 +25,6 @@ use ReflectionMethod;
 use ReflectionObject;
 use Stringable;
 use Throwable;
-use Conia\Chuck\Attribute\Render;
-use Conia\Chuck\Config;
-use Conia\Chuck\Exception\HttpServerError;
-use Conia\Chuck\Exception\RuntimeException;
-use Conia\Chuck\Exception\ContainerException;
-use Conia\Chuck\Registry;
-use Conia\Chuck\Request;
-use Conia\Chuck\Response;
-use Conia\Chuck\ResponseFactory;
-use Conia\Chuck\Routing\Route;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 
 class View
 {
@@ -67,45 +67,82 @@ class View
 
         if ($result instanceof Response) {
             return $result;
-        } elseif ($result instanceof ResponseInterface) {
+        }
+        if ($result instanceof ResponseInterface) {
             $sf = $registry->get(StreamFactoryInterface::class);
             assert($sf instanceof StreamFactoryInterface);
+
             return new Response($result, $sf);
-        } else {
-            $rendererConfig = $route->getRenderer();
-
-            if ($rendererConfig) {
-                $renderer = $config->renderer(
-                    $request,
-                    $registry,
-                    $rendererConfig->type,
-                    ...$rendererConfig->args
-                );
-
-                return $renderer->response($result);
-            }
-
-            $renderAttributes = $this->attributes(Render::class);
-
-            if (count($renderAttributes) > 0) {
-                assert($renderAttributes[0] instanceof Render);
-                return $renderAttributes[0]->response($request, $config, $registry, $result);
-            }
-
-            $responseFactory = new ResponseFactory($registry);
-
-            if (is_string($result)) {
-                return $responseFactory->html($result);
-            } elseif ($result instanceof Stringable) {
-                return $responseFactory->html($result->__toString());
-            } else {
-                try {
-                    return $responseFactory->json($result);
-                } catch (JsonException) {
-                    throw new RuntimeException('Cannot determine a response handler for the return type of the view');
-                }
-            }
         }
+        $rendererConfig = $route->getRenderer();
+
+        if ($rendererConfig) {
+            $renderer = $config->renderer(
+                $request,
+                $registry,
+                $rendererConfig->type,
+                ...$rendererConfig->args
+            );
+
+            return $renderer->response($result);
+        }
+
+        $renderAttributes = $this->attributes(Render::class);
+
+        if (count($renderAttributes) > 0) {
+            assert($renderAttributes[0] instanceof Render);
+
+            return $renderAttributes[0]->response($request, $config, $registry, $result);
+        }
+
+        $responseFactory = new ResponseFactory($registry);
+
+        if (is_string($result)) {
+            return $responseFactory->html($result);
+        }
+        if ($result instanceof Stringable) {
+            return $responseFactory->html($result->__toString());
+        }
+
+        try {
+            return $responseFactory->json($result);
+        } catch (JsonException) {
+            throw new RuntimeException('Cannot determine a response handler for the return type of the view');
+        }
+    }
+
+    public static function getReflectionFunction(
+        callable $callable
+    ): ReflectionFunction|ReflectionMethod {
+        if ($callable instanceof Closure) {
+            return new ReflectionFunction($callable);
+        }
+        if (is_object($callable)) {
+            return (new ReflectionObject($callable))->getMethod('__invoke');
+        }
+        /** @var Closure|non-falsy-string $callable */
+        return new ReflectionFunction($callable);
+    }
+
+    /** @param $filter ?class-string */
+    public function attributes(string $filter = null): array
+    {
+        $reflector = new ReflectionFunction($this->closure);
+
+        /** @psalm-suppress RedundantPropertyInitializationCheck */
+        if (!isset($this->attributes)) {
+            $this->attributes = array_map(function ($attribute) {
+                return $attribute->newInstance();
+            }, $reflector->getAttributes());
+        }
+
+        if ($filter) {
+            return array_filter($this->attributes, function ($attribute) use ($filter) {
+                return $attribute instanceof $filter;
+            });
+        }
+
+        return $this->attributes;
     }
 
     protected function getClosure(array|string $view): Closure
@@ -130,17 +167,17 @@ class View
 
             if (method_exists($controller, $method)) {
                 return Closure::fromCallable([$controller, $method]);
-            } else {
-                $view = $controllerName . '::' . $method;
-                throw HttpServerError::withSubTitle("Controller method not found $view");
             }
-        } else {
-            throw HttpServerError::withSubTitle("Controller not found $controllerName");
+            $view = $controllerName . '::' . $method;
+
+            throw HttpServerError::withSubTitle("Controller method not found {$view}");
         }
+
+        throw HttpServerError::withSubTitle("Controller not found {$controllerName}");
     }
 
     /**
-     * Determines the arguments passed to the view and/or controller constructor
+     * Determines the arguments passed to the view and/or controller constructor.
      *
      * - If a view parameter implements Request, the request will be passed.
      * - If names of the view parameters match names of the route arguments
@@ -166,10 +203,10 @@ class View
                 $args[$name] = match ((string)$param->getType()) {
                     'int' => is_numeric($this->routeArgs[$name]) ?
                         (int)$this->routeArgs[$name] :
-                        throw new RuntimeException($errMsg . "Cannot cast '$name' to int"),
+                        throw new RuntimeException($errMsg . "Cannot cast '{$name}' to int"),
                     'float' => is_numeric($this->routeArgs[$name]) ?
                         (float)$this->routeArgs[$name] :
-                        throw new RuntimeException($errMsg . "Cannot cast '$name' to float"),
+                        throw new RuntimeException($errMsg . "Cannot cast '{$name}' to float"),
                     'string' => $this->routeArgs[$name],
                     default => $this->registry->resolveParam($param),
                 };
@@ -190,39 +227,5 @@ class View
         assert(count($params) === count($args));
 
         return $args;
-    }
-
-    public static function getReflectionFunction(
-        callable $callable
-    ): ReflectionFunction|ReflectionMethod {
-        if ($callable instanceof Closure) {
-            return new ReflectionFunction($callable);
-        } elseif (is_object($callable)) {
-            return (new ReflectionObject($callable))->getMethod('__invoke');
-        } else {
-            /** @var Closure|non-falsy-string $callable */
-            return new ReflectionFunction($callable);
-        }
-    }
-
-    /** @param $filter ?class-string */
-    public function attributes(string $filter = null): array
-    {
-        $reflector = new ReflectionFunction($this->closure);
-
-        /** @psalm-suppress RedundantPropertyInitializationCheck */
-        if (!isset($this->attributes)) {
-            $this->attributes = array_map(function ($attribute) {
-                return $attribute->newInstance();
-            }, $reflector->getAttributes());
-        }
-
-        if ($filter) {
-            return array_filter($this->attributes, function ($attribute) use ($filter) {
-                return $attribute instanceof $filter;
-            });
-        }
-
-        return $this->attributes;
     }
 }

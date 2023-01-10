@@ -5,17 +5,20 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use Closure;
-use Throwable;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\MiddlewareInterface;
-use Conia\Chuck\ResponseFactory;
-use Conia\Chuck\RegistryEntry;
 use Conia\Chuck\Registry;
-use Conia\Chuck\Routing\{Route, Group, Router, AddsRoutes};
+use Conia\Chuck\RegistryEntry;
+use Conia\Chuck\ResponseFactory;
+use Conia\Chuck\Routing\AddsRoutes;
+use Conia\Chuck\Routing\Group;
+use Conia\Chuck\Routing\Route;
+use Conia\Chuck\Routing\Router;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
-use Psr\Container\ContainerInterface;
+use Throwable;
 
 /** @psalm-consistent-constructor */
 class App
@@ -99,12 +102,26 @@ class App
     }
 
     /**
-     * @param non-empty-string $key
-     * @param object|class-string $value
+     * @param non-empty-string    $key
+     * @param class-string|object $value
      * */
     public function register(string $key, object|string $value): RegistryEntry
     {
         return $this->registry->add($key, $value);
+    }
+
+    public function run(): Response
+    {
+        $serverRequest = $this->registry->get(ServerRequestInterface::class);
+        assert($serverRequest instanceof ServerRequestInterface);
+        $request = new Request($serverRequest);
+        $this->registry->addAnyway(Request::class, $request);
+
+        $response = $this->router->dispatch($request, $this->config, $this->registry);
+
+        (new Emitter())->emit($response->psr7());
+
+        return $response;
     }
 
     protected function initializeRegistry(): void
@@ -129,6 +146,7 @@ class App
                     $psr17Factory, // UploadedFileFactory
                     $psr17Factory  // StreamFactory
                 );
+
                 return $creator->fromGlobals();
                 // @codeCoverageIgnoreStart
             } catch (Throwable) {
@@ -136,19 +154,5 @@ class App
                 // @codeCoverageIgnoreEnd
             }
         });
-    }
-
-    public function run(): Response
-    {
-        $serverRequest = $this->registry->get(ServerRequestInterface::class);
-        assert($serverRequest instanceof ServerRequestInterface);
-        $request = new Request($serverRequest);
-        $this->registry->addAnyway(Request::class, $request);
-
-        $response = $this->router->dispatch($request, $this->config, $this->registry);
-
-        (new Emitter())->emit($response->psr7());
-
-        return $response;
     }
 }

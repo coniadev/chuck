@@ -5,15 +5,13 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use Closure;
-use Throwable;
-use Psr\Log\LoggerInterface;
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\ValueError;
-use Conia\Chuck\Renderer\{
-    Renderer,
-    JsonRenderer,
-    TextRenderer,
-};
+use Conia\Chuck\Renderer\JsonRenderer;
+use Conia\Chuck\Renderer\Renderer;
+use Conia\Chuck\Renderer\TextRenderer;
+use Psr\Log\LoggerInterface;
+use Throwable;
 
 class Config
 {
@@ -26,10 +24,9 @@ class Config
     /** @var null|Closure():LoggerInterface */
     protected ?Closure $loggerCallback = null;
     protected ?LoggerInterface $logger = null;
+
     /** @var array<string, array{class: class-string<Renderer>, options: mixed}> */
     protected array $renderers = [];
-
-
 
     /**
      * @param array<never, never>|array<string, mixed> -- Stores additional user defined settings
@@ -48,18 +45,6 @@ class Config
             'text' => ['class' => TextRenderer::class, 'options' => null],
             'json' => ['class' => JsonRenderer::class, 'options' => null],
         ];
-    }
-
-    protected function validateApp(string $app): string
-    {
-        if (preg_match('/^[a-z0-9_$-]{1,64}$/', $app)) {
-            return $app;
-        } else {
-            throw new ValueError(
-                'The app name must be a nonempty string which consist only of lower case ' .
-                    'letters and numbers. Its length must not be longer than 32 characters.'
-            );
-        }
     }
 
     public function set(string $key, mixed $value): void
@@ -82,7 +67,7 @@ class Config
             }
 
             throw new OutOfBoundsException(
-                "The configuration key '$key' does not exist"
+                "The configuration key '{$key}' does not exist"
             );
         }
     }
@@ -115,6 +100,7 @@ class Config
     public function renderer(Request $request, Registry $registry, string $type, mixed ...$args): Renderer
     {
         $class = $this->renderers[$type]['class'];
+
         /** @psalm-suppress MixedAssignment -- options are mixed values by nature */
         $options = $this->renderers[$type]['options'];
 
@@ -141,5 +127,17 @@ class Config
         }
 
         return null;
+    }
+
+    protected function validateApp(string $app): string
+    {
+        if (preg_match('/^[a-z0-9_$-]{1,64}$/', $app)) {
+            return $app;
+        }
+
+        throw new ValueError(
+            'The app name must be a nonempty string which consist only of lower case ' .
+                'letters and numbers. Its length must not be longer than 32 characters.'
+        );
     }
 }

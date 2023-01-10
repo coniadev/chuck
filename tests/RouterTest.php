@@ -3,18 +3,23 @@
 declare(strict_types=1);
 
 use Conia\Chuck\Attribute\Render;
-use Conia\Chuck\Exception\{HttpNotFound, HttpServerError, HttpMethodNotAllowed};
-use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Exception\ContainerException;
+use Conia\Chuck\Exception\HttpMethodNotAllowed;
+use Conia\Chuck\Exception\HttpNotFound;
+use Conia\Chuck\Exception\HttpServerError;
+use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Request;
-use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Response;
-use Conia\Chuck\Routing\{Router, Route, Group};
+use Conia\Chuck\ResponseFactory;
+use Conia\Chuck\Routing\Group;
+use Conia\Chuck\Routing\Route;
+use Conia\Chuck\Routing\Router;
 use Conia\Chuck\Tests\Fixtures\TestController;
-use Conia\Chuck\Tests\Fixtures\TestRenderer;
 use Conia\Chuck\Tests\Fixtures\TestControllerWithRequest;
 use Conia\Chuck\Tests\Fixtures\TestMiddleware1;
-use Conia\Chuck\Tests\Setup\{TestCase, C};
+use Conia\Chuck\Tests\Fixtures\TestRenderer;
+use Conia\Chuck\Tests\Setup\C;
+use Conia\Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
 
@@ -27,7 +32,7 @@ test('Matching', function () {
     $router->addRoute($albums);
     $router->addGroup(new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
-        $group->addRoute(Route::get('/{name}', "$ctrl::albumName"));
+        $group->addRoute(Route::get('/{name}', "{$ctrl}::albumName"));
     }));
 
     expect($router->match($this->request(method: 'GET', url: ''))->name())->toBe('index');

@@ -12,7 +12,6 @@ use Conia\Chuck\Response;
  * @psalm-import-type MiddlewareCallable from \Conia\Chuck\MiddlewareInterface
  * @psalm-import-type MiddlewareClosure from \Conia\Chuck\MiddlewareInterface
  */
-
 class MiddlewareWrapper implements MiddlewareInterface
 {
     /** @var MiddlewareClosure */

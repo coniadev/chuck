@@ -10,6 +10,7 @@ class ErrorScript implements CommandInterface
     public function run(App $app): string|int
     {
         trigger_error('script error');
+
         return 1;
     }
 }

@@ -16,16 +16,6 @@ class Csrf
         }
     }
 
-    protected function set(string $page = 'default'): string
-    {
-        assert(isset($_SESSION[$this->sessionKey]) && is_array($_SESSION[$this->sessionKey]));
-
-        $token = base64_encode(random_bytes(32));
-        $_SESSION[$this->sessionKey][$page] = $token;
-
-        return $token;
-    }
-
     public function get(string $page = 'default'): string
     {
         $token = (string)($_SESSION[$this->sessionKey][$page] ?? $this->set($page));
@@ -62,5 +52,15 @@ class Csrf
         }
 
         return false;
+    }
+
+    protected function set(string $page = 'default'): string
+    {
+        assert(isset($_SESSION[$this->sessionKey]) && is_array($_SESSION[$this->sessionKey]));
+
+        $token = base64_encode(random_bytes(32));
+        $_SESSION[$this->sessionKey][$page] = $token;
+
+        return $token;
     }
 }

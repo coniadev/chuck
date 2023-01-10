@@ -19,5 +19,6 @@ abstract class Renderer
     }
 
     abstract public function render(mixed $data): string;
+
     abstract public function response(mixed $data): Response;
 }

@@ -5,7 +5,8 @@ declare(strict_types=1);
 use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\ResponseFactory;
-use Conia\Chuck\Tests\Setup\{C, TestCase};
+use Conia\Chuck\Tests\Setup\C;
+use Conia\Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
 

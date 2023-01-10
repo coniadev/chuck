@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Routing;
 
+use Closure;
+
 class Group
 {
     use AddsRoutes;
@@ -16,10 +18,9 @@ class Group
     protected ?string $renderer = null;
     protected ?string $controller = null;
 
-
     public function __construct(
         protected string $patternPrefix,
-        protected \Closure $createClosure,
+        protected Closure $createClosure,
         ?string $namePrefix = null,
     ) {
         if ($namePrefix) {

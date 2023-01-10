@@ -7,8 +7,8 @@ namespace Conia\Chuck\Tests\Fixtures;
 use Conia\Chuck\Attribute\Render;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
-use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Response;
+use Conia\Chuck\ResponseFactory;
 
 class TestController
 {
@@ -38,6 +38,7 @@ class TestController
     public function attributedMiddlewareView(Registry $registry): Response
     {
         $s = ' attribute-string';
+
         return (new ResponseFactory($registry))->html($s);
     }
 

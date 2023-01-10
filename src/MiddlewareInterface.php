@@ -12,7 +12,6 @@ use Conia\Chuck\Response;
  *     \Conia\Chuck\Request,
  *     callable
  * ):\Conia\Chuck\Response
- *
  * @psalm-type MiddlewareCallable = callable(
  *     \Conia\Chuck\Request,
  *     callable

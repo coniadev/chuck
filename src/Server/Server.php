@@ -28,8 +28,8 @@ class Server extends Command
         $port = $opts->get('-p', $opts->get('--port', $port));
 
         exec(
-            "DOCUMENT_ROOT=$docroot php -S localhost:$port " .
-                "    -t $docroot" . DIRECTORY_SEPARATOR . ' ' .
+            "DOCUMENT_ROOT={$docroot} php -S localhost:{$port} " .
+                "    -t {$docroot}" . DIRECTORY_SEPARATOR . ' ' .
                 __DIR__ . DIRECTORY_SEPARATOR . 'CliRouter.php'
         );
 

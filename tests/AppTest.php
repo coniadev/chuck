@@ -2,11 +2,16 @@
 
 declare(strict_types=1);
 
-use Conia\Chuck\Tests\Setup\{TestCase, C};
-use Conia\Chuck\Routing\{Router, Route, Group};
-use Conia\Chuck\Response;
-use Conia\Chuck\{App, Request, Config};
+use Conia\Chuck\App;
+use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ContainerException;
+use Conia\Chuck\Request;
+use Conia\Chuck\Response;
+use Conia\Chuck\Routing\Group;
+use Conia\Chuck\Routing\Route;
+use Conia\Chuck\Routing\Router;
+use Conia\Chuck\Tests\Setup\C;
+use Conia\Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
 
@@ -89,7 +94,7 @@ test('App::addRoute/::addGroup helper', function () {
     $route = new Route('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
     $group = new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
-        $group->addRoute(Route::get('/{name}', "$ctrl::albumName", 'name'));
+        $group->addRoute(Route::get('/{name}', "{$ctrl}::albumName", 'name'));
     }, 'albums:');
     $app->addRoute($route);
     $app->addGroup($group);
@@ -167,7 +172,7 @@ test('App::group helper', function () {
     $app = App::create($this->config());
     $app->group('/albums', function (Group $group) {
         $ctrl = TestController::class;
-        $group->addRoute(Route::get('/{name}', "$ctrl::albumName", 'name'));
+        $group->addRoute(Route::get('/{name}', "{$ctrl}::albumName", 'name'));
     }, 'albums:');
 
     expect($app->router()->routeUrl('albums:name', ['name' => 'symbolic']))->toBe('/albums/symbolic');

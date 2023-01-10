@@ -12,12 +12,17 @@ use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase as BaseTestCase;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class TestCase extends BaseTestCase
 {
     public function __construct(?string $name = null, array $data = [], $dataName = '')
@@ -37,18 +42,18 @@ class TestCase extends BaseTestCase
 
     protected function tearDown(): void
     {
-        unset($_SERVER['HTTP_HOST']);
-        unset($_SERVER['REQUEST_METHOD']);
-        unset($_SERVER['REQUEST_URI']);
-        unset($_SERVER['SERVER_PROTOCOL']);
-        unset($_SERVER['CONTENT_TYPE']);
-        unset($_SERVER['QUERY_STRING']);
-        unset($_SERVER['argv']);
-
-        // HTTPS values
-        unset($_SERVER['HTTPS']);
-        unset($_SERVER['HTTP_X_FORWARDED_PROTO']);
-        unset($_SERVER['REQUEST_SCHEME']);
+        unset(
+            $_SERVER['HTTP_HOST'],
+            $_SERVER['REQUEST_METHOD'],
+            $_SERVER['REQUEST_URI'],
+            $_SERVER['SERVER_PROTOCOL'],
+            $_SERVER['CONTENT_TYPE'],
+            $_SERVER['QUERY_STRING'],
+            $_SERVER['argv'],
+            $_SERVER['HTTPS'],
+            $_SERVER['HTTP_X_FORWARDED_PROTO'],
+            $_SERVER['REQUEST_SCHEME']
+        );
 
         global $_GET;
         $_GET = [];
@@ -69,16 +74,18 @@ class TestCase extends BaseTestCase
         foreach ($values as $key => $value) {
             if (strtoupper($method) === 'GET') {
                 $_GET[$key] = $value;
+
                 continue;
             }
             if (strtoupper($method) === 'POST') {
                 $_POST[$key] = $value;
+
                 continue;
             }
             if (strtoupper($method) === 'COOKIE') {
                 $_COOKIE[$key] = $value;
             } else {
-                throw new ValueError("Invalid method '$method'");
+                throw new ValueError("Invalid method '{$method}'");
             }
         }
     }
@@ -98,7 +105,7 @@ class TestCase extends BaseTestCase
         if (substr($url, 0, 1) === '/') {
             $_SERVER['REQUEST_URI'] = $url;
         } else {
-            $_SERVER['REQUEST_URI'] = "/$url";
+            $_SERVER['REQUEST_URI'] = "/{$url}";
         }
     }
 
@@ -123,9 +130,7 @@ class TestCase extends BaseTestCase
 
     public function disableHttps(): void
     {
-        unset($_SERVER['HTTPS']);
-        unset($_SERVER['REQUEST_SCHEME']);
-        unset($_SERVER['HTTP_X_FORWARDED_PROTO']);
+        unset($_SERVER['HTTPS'], $_SERVER['REQUEST_SCHEME'], $_SERVER['HTTP_X_FORWARDED_PROTO']);
     }
 
     public function config(bool $debug = false): Config
@@ -209,9 +214,7 @@ class TestCase extends BaseTestCase
             }
         }
 
-        $request = new Request($this->psr7Request());
-
-        return $request;
+        return new Request($this->psr7Request());
     }
 
     public function setupFile()
@@ -220,27 +223,27 @@ class TestCase extends BaseTestCase
 
         $_FILES = [
             'myfile' => [
-                'error'    => UPLOAD_ERR_OK,
-                'name'     => '../malic/chuck-test-file.php',
-                'size'     => 123,
+                'error' => UPLOAD_ERR_OK,
+                'name' => '../malic/chuck-test-file.php',
+                'size' => 123,
                 'tmp_name' => __FILE__,
-                'type'     => 'text/plain'
+                'type' => 'text/plain',
             ],
             'failingfile' => [
-                'error'    => UPLOAD_ERR_PARTIAL,
-                'name'     => 'chuck-failing-test-file.php',
-                'size'     => 123,
+                'error' => UPLOAD_ERR_PARTIAL,
+                'name' => 'chuck-failing-test-file.php',
+                'size' => 123,
                 'tmp_name' => '',
-                'type'     => 'text/plain'
+                'type' => 'text/plain',
             ],
             'nested' => [
                 'myfile' => [
-                    'error'    => UPLOAD_ERR_OK,
-                    'name'     => '../malic/chuck-test-file.php',
-                    'size'     => 123,
+                    'error' => UPLOAD_ERR_OK,
+                    'name' => '../malic/chuck-test-file.php',
+                    'size' => 123,
                     'tmp_name' => __FILE__,
-                    'type'     => 'text/plain'
-                ]
+                    'type' => 'text/plain',
+                ],
             ],
         ];
     }
@@ -251,19 +254,19 @@ class TestCase extends BaseTestCase
 
         $_FILES = [
             'myfile' => [
-                'error'    => [UPLOAD_ERR_OK, UPLOAD_ERR_PARTIAL],
-                'name'     => ['test.php', 'test2.php'],
-                'size'     => [123, 234],
+                'error' => [UPLOAD_ERR_OK, UPLOAD_ERR_PARTIAL],
+                'name' => ['test.php', 'test2.php'],
+                'size' => [123, 234],
                 'tmp_name' => [__FILE__, __FILE__],
-                'type'     => ['text/plain', 'text/plain']
+                'type' => ['text/plain', 'text/plain'],
             ],
             'nested' => [
                 'myfile' => [
-                    'error'    => [UPLOAD_ERR_OK, UPLOAD_ERR_PARTIAL],
-                    'name'     => ['test.php', 'test2.php'],
-                    'size'     => [123, 234],
+                    'error' => [UPLOAD_ERR_OK, UPLOAD_ERR_PARTIAL],
+                    'name' => ['test.php', 'test2.php'],
+                    'size' => [123, 234],
                     'tmp_name' => [__FILE__, __FILE__],
-                    'type'     => ['text/plain', 'text/plain']
+                    'type' => ['text/plain', 'text/plain'],
                 ],
             ],
         ];

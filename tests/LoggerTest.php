@@ -23,14 +23,14 @@ afterEach(function () {
 test('Logger to file', function () {
     $logger = new Logger(logfile: $this->logfile);
 
-    $logger->debug("Scott");
-    $logger->info("Steve");
-    $logger->notice("James");
-    $logger->warning("Chuck");
-    $logger->error("Bobby");
-    $logger->critical("Chris");
-    $logger->alert("Kelly");
-    $logger->emergency("Terry");
+    $logger->debug('Scott');
+    $logger->info('Steve');
+    $logger->notice('James');
+    $logger->warning('Chuck');
+    $logger->error('Bobby');
+    $logger->critical('Chris');
+    $logger->alert('Kelly');
+    $logger->emergency('Terry');
 
     $output = file_get_contents($this->logfile);
 
@@ -48,11 +48,11 @@ test('Logger to file', function () {
 test('Logger to php sapi', function () {
     $logger = new Logger(logfile: $this->logfile);
 
-    $logger->debug("Scott");
-    $logger->info("Steve");
-    $logger->warning("Chuck");
-    $logger->error("Bobby");
-    $logger->alert("Kelly");
+    $logger->debug('Scott');
+    $logger->info('Steve');
+    $logger->warning('Chuck');
+    $logger->error('Bobby');
+    $logger->alert('Kelly');
 
     $output = file_get_contents($this->logfile);
 
@@ -67,14 +67,14 @@ test('Logger to php sapi', function () {
 test('Logger with higher debug level', function () {
     $logger = new Logger(Logger::ERROR, $this->logfile);
 
-    $logger->debug("Scott");
-    $logger->info("Steve");
-    $logger->notice("James");
-    $logger->warning("Chuck");
-    $logger->error("Bobby");
-    $logger->critical("Chris");
-    $logger->alert("Kelly");
-    $logger->emergency("Terry");
+    $logger->debug('Scott');
+    $logger->info('Steve');
+    $logger->notice('James');
+    $logger->warning('Chuck');
+    $logger->error('Bobby');
+    $logger->critical('Chris');
+    $logger->alert('Kelly');
+    $logger->emergency('Terry');
 
     $output = file_get_contents($this->logfile);
 

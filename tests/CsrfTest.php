@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Conia\Chuck\Session;
 use Conia\Chuck\Csrf;
+use Conia\Chuck\Session;
 use Conia\Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
@@ -33,8 +33,7 @@ test('Csrf verify post', function () {
 
     expect($csrf->verify())->toBe(false);
 
-    unset($_POST['csrftoken']);
-    unset($_SESSION['csrftokens']);
+    unset($_POST['csrftoken'], $_SESSION['csrftokens']);
 });
 
 
@@ -54,8 +53,7 @@ test('Csrf verify header', function () {
 
     expect($csrf->verify())->toBe(false);
 
-    unset($_SERVER['HTTP_X_CSRF_TOKEN']);
-    unset($_SESSION['csrftokens']);
+    unset($_SERVER['HTTP_X_CSRF_TOKEN'], $_SESSION['csrftokens']);
 });
 
 
@@ -68,8 +66,7 @@ test('Csrf verify empty session', function () {
 
     expect($csrf->verify())->toBe(false);
 
-    unset($_SERVER['HTTP_X_CSRF_TOKEN']);
-    unset($_SESSION['csrftokens']);
+    unset($_SERVER['HTTP_X_CSRF_TOKEN'], $_SESSION['csrftokens']);
 });
 
 
@@ -95,6 +92,5 @@ test('Csrf get/verify different page', function () {
     expect($csrf->verify())->toBe(false);
     expect($csrf->verify('albums'))->toBe(true);
 
-    unset($_POST['csrftoken']);
-    unset($_SESSION['csrftokens']);
+    unset($_POST['csrftoken'], $_SESSION['csrftokens']);
 });

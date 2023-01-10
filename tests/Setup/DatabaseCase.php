@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Tests\Setup;
 
-use PDO;
-use Throwable;
 use Conia\Chuck\Config;
 use Conia\Chuck\Config\Connection;
 use Conia\Chuck\Database\Database;
-use Conia\Chuck\Tests\Setup\{TestCase, C};
+use Conia\Chuck\Tests\Setup\C;
+use Conia\Chuck\Tests\Setup\TestCase;
+use PDO;
+use Throwable;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class DatabaseCase extends TestCase
 {
     public function config(
@@ -21,7 +27,7 @@ class DatabaseCase extends TestCase
     ): Config {
         $config = parent::config(debug: $debug);
 
-        $migrations = $migrations ??  C::root() . C::DS . 'migrations';
+        $migrations = $migrations ?? C::root() . C::DS . 'migrations';
 
         $dsn = $dsn ?: $this->getDsn();
         $sql = $this->getSqlDirs($additionalDirs);
@@ -40,9 +46,9 @@ class DatabaseCase extends TestCase
             [
                 $prefix . 'default',
                 [
-                    'sqlite' =>  $prefix . 'additional',
+                    'sqlite' => $prefix . 'additional',
                     'all' => $prefix . 'default',
-                ]
+                ],
             ] : $prefix . 'default';
     }
 
@@ -63,14 +69,14 @@ class DatabaseCase extends TestCase
         $db = new PDO(self::getDsn());
 
         $commands = [
-            "
+            '
                 CREATE TABLE members (
                     member INTEGER PRIMARY KEY,
                     name TEXT NOT NULL,
                     joined INTEGER NOT NULL,
                     left INTEGER
                 )
-            ", "
+            ', "
                 INSERT INTO members
                     (name, joined, left)
                 VALUES
@@ -91,13 +97,13 @@ class DatabaseCase extends TestCase
                     ('Shannon Hamm', 1997, 2001),
                     ('Scott Clendenin', 1997, 2001),
                     ('Richard Christy', 1997, 2001)
-            ", "
+            ", '
                 CREATE TABLE albums (
                     album INTEGER PRIMARY KEY,
                     year  INTEGER NOT NULL,
                     title  VARCHAR (255) NOT NULL
                 )
-            ", "
+            ', "
                 INSERT INTO albums
                     (year, title)
                 VALUES
@@ -108,13 +114,13 @@ class DatabaseCase extends TestCase
                     (1993,  'Individual Thought Patterns'),
                     (1995,  'Symbolic'),
                     (1998,  'The Sound of Perseverance')
-            ", "
+            ", '
                 CREATE TABLE contributions (
                     album INTEGER NOT NULL,
                     member  INTEGER NOT NULL,
                     PRIMARY KEY(album, member)
                 )
-            ", "
+            ', '
                 INSERT INTO contributions
                     (album, member)
                 VALUES
@@ -135,33 +141,12 @@ class DatabaseCase extends TestCase
                     (15, 7),
                     (16, 7),
                     (17, 7)
-            ", "CREATE TABLE typetest (id INTEGER PRIMARY KEY, val)"
+            ', 'CREATE TABLE typetest (id INTEGER PRIMARY KEY, val)',
         ];
         // execute the sql commands to create new tables
         foreach ($commands as $command) {
             $db->exec($command);
         }
-    }
-
-    protected static function getServerDsns(): array
-    {
-        $dbPgsqlHost = getenv("DB_PGSQL_HOST") ?: "localhost";
-        // MySQL tries to use a local socket when host=localhost
-        // is specified which does not work with WSL2/Windows.
-        $dbMysqlHost = getenv("DB_MYSQL_HOST") ?: "127.0.0.1";
-        $dbName = getenv("DB_NAME") ?: "chuck_test_db";
-        $dbUser = getenv("DB_USER") ?: "chuck_test_user";
-        $dbPassword = getenv("DB_PASSWORD") ?: "chuck_test_password";
-
-        return [
-            [
-                'transactions' => true,
-                'dsn' => "pgsql:host=$dbPgsqlHost;dbname=$dbName;user=$dbUser;password=$dbPassword",
-            ], [
-                'transactions' => false,
-                'dsn' => "mysql:host=$dbMysqlHost;dbname=$dbName;user=$dbUser;password=$dbPassword",
-            ],
-        ];
     }
 
     public static function getAvailableDsns(bool $transactionsOnly = false): array
@@ -202,6 +187,27 @@ class DatabaseCase extends TestCase
                 continue;
             }
         }
+    }
+
+    protected static function getServerDsns(): array
+    {
+        $dbPgsqlHost = getenv('DB_PGSQL_HOST') ?: 'localhost';
+        // MySQL tries to use a local socket when host=localhost
+        // is specified which does not work with WSL2/Windows.
+        $dbMysqlHost = getenv('DB_MYSQL_HOST') ?: '127.0.0.1';
+        $dbName = getenv('DB_NAME') ?: 'chuck_test_db';
+        $dbUser = getenv('DB_USER') ?: 'chuck_test_user';
+        $dbPassword = getenv('DB_PASSWORD') ?: 'chuck_test_password';
+
+        return [
+            [
+                'transactions' => true,
+                'dsn' => "pgsql:host={$dbPgsqlHost};dbname={$dbName};user={$dbUser};password={$dbPassword}",
+            ], [
+                'transactions' => false,
+                'dsn' => "mysql:host={$dbMysqlHost};dbname={$dbName};user={$dbUser};password={$dbPassword}",
+            ],
+        ];
     }
 
     protected static function getDbFile(): string

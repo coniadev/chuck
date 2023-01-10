@@ -6,8 +6,9 @@ use Conia\Chuck\Config;
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Logger;
-use Conia\Chuck\Tests\Setup\{TestCase, C};
 use Conia\Chuck\Tests\Fixtures\TestRenderer;
+use Conia\Chuck\Tests\Setup\C;
+use Conia\Chuck\Tests\Setup\TestCase;
 use Psr\Log\LoggerInterface;
 
 uses(TestCase::class);
@@ -67,6 +68,7 @@ test('Logger setup', function () {
     $config = new Config('chuck');
     $config->setupLogger(function (): LoggerInterface {
         $logfile = C::root() . C::DS . 'log' . C::DS . bin2hex(random_bytes(4)) . '.log';
+
         return new Logger(Logger::DEBUG, $logfile);
     });
 

@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Routing;
 
-use Throwable;
 use Conia\Chuck\Config;
 use Conia\Chuck\Dispatcher;
-use Conia\Chuck\Exception\{HttpNotFound, HttpMethodNotAllowed, RuntimeException};
+use Conia\Chuck\Exception\HttpMethodNotAllowed;
+use Conia\Chuck\Exception\HttpNotFound;
+use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 use Conia\Chuck\View;
 use Conia\Chuck\ViewHandler;
+use Throwable;
 
 /**
  * @psalm-import-type HandlerList from \Conia\Chuck\Dispatcher
@@ -23,15 +25,18 @@ class Router
     use AddsRoutes;
     use AddsMiddleware;
 
+    protected const ALL = 'ALL';
+
     protected ?Route $route = null;
+
     /** @var array<string, list<Route>> */
     protected array $routes = [];
+
     /** @var array<string, StaticRoute> */
     protected array $staticRoutes = [];
+
     /** @var array<string, Route> */
     protected array $names = [];
-
-    protected const ALL = 'ALL';
 
     public function getRoute(): Route
     {
@@ -93,7 +98,7 @@ class Router
                 dir: $dir,
             );
         } else {
-            throw new RuntimeException("The static directory does not exist: $dir");
+            throw new RuntimeException("The static directory does not exist: {$dir}");
         }
     }
 
@@ -115,7 +120,7 @@ class Router
                 $sep = '?';
             }
 
-            $buster =  $this->getCacheBuster($route->dir, $file);
+            $buster = $this->getCacheBuster($route->dir, $file);
 
             if (!empty($buster)) {
                 $path .= $sep . 'v=' . $buster;
@@ -134,18 +139,6 @@ class Router
         }
 
         throw new RuntimeException('Route not found: ' . $__routeName__);
-    }
-
-    protected function getCacheBuster(string $dir, string $path): string
-    {
-        $ds = DIRECTORY_SEPARATOR;
-        $file = $dir . $ds . ltrim(str_replace('/', $ds, $path), $ds);
-
-        try {
-            return hash('xxh32', (string)filemtime($file));
-        } catch (Throwable) {
-            return '';
-        }
     }
 
     public function match(Request $request): Route
@@ -176,6 +169,7 @@ class Router
             foreach ($this->routes[$method] as $route) {
                 if ($route->match($url)) {
                     $wrongMethod = true;
+
                     break;
                 }
             }
@@ -188,6 +182,31 @@ class Router
         throw new HttpNotFound();
     }
 
+    /**
+     * Looks up the matching route and generates the response.
+     */
+    public function dispatch(Request $request, Config $config, Registry $registry): Response
+    {
+        $this->route = $this->match($request);
+
+        $view = new View($this->route->view(), $this->route->args(), $registry);
+        $queue = $this->collectMiddleware($view);
+        $queue[] = new ViewHandler($view, $registry, $config, $this->route);
+
+        return (new Dispatcher($queue, $registry))->dispatch($request);
+    }
+
+    protected function getCacheBuster(string $dir, string $path): string
+    {
+        $ds = DIRECTORY_SEPARATOR;
+        $file = $dir . $ds . ltrim(str_replace('/', $ds, $path), $ds);
+
+        try {
+            return hash('xxh32', (string)filemtime($file));
+        } catch (Throwable) {
+            return '';
+        }
+    }
 
     /** @return HandlerList */
     protected function collectMiddleware(View $view): array
@@ -200,19 +219,5 @@ class Router
             isset($this->route) ? $this->route->getMiddleware() : [],
             $middlewareAttributes,
         );
-    }
-
-    /**
-     * Looks up the matching route and generates the response
-     */
-    public function dispatch(Request $request, Config $config, Registry $registry): Response
-    {
-        $this->route = $this->match($request);
-
-        $view = new View($this->route->view(), $this->route->args(), $registry);
-        $queue = $this->collectMiddleware($view);
-        $queue[] = new ViewHandler($view, $registry, $config, $this->route);
-
-        return (new Dispatcher($queue, $registry))->dispatch($request);
     }
 }

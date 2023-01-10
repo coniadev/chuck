@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-use Stringable;
 use Conia\Chuck\Exception\RuntimeException;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Message\StreamInterface;
+use Stringable;
 
 class Response
 {

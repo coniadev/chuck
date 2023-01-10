@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Conia\Chuck\Routing;
 
 use Closure;
-use Stringable;
 use Conia\Chuck\Exception\InvalidArgumentException;
 use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Renderer\Config as RendererConfig;
+use Stringable;
 
 const LEFT_BRACE = '§§§€§§§';
 const RIGHT_BRACE = '§§§£§§§';
@@ -20,14 +20,16 @@ class Route
 
     protected string $name;
     protected array $args = [];
+
     /** @var null|list<string> */
     protected ?array $methods = null;
     protected ?RendererConfig $renderer = null;
+
     /** @var Closure|list{string, string}|string */
     protected Closure|array|string $view;
 
     /**
-     * @param $pattern The URL pattern of the route.
+     * @param $pattern The URL pattern of the route
      * @param $view The callable view. Can be a closure, an invokable object or any other callable
      * @param $name The name of the route. If not given the pattern will be hashed and used as name.
      * @param $params Optional arry which is stored alongside the route that can be consumed in the app
@@ -159,7 +161,7 @@ class Route
     }
 
     /**
-     * Simply prefixes the current $this->view string with $controller
+     * Simply prefixes the current $this->view string with $controller.
      */
     public function controller(string $controller): void
     {
@@ -178,80 +180,6 @@ class Route
     public function params(): array
     {
         return $this->params;
-    }
-
-    protected function hideInnerBraces(string $str): string
-    {
-        if (strpos($str, '\{') || strpos($str, '\}')) {
-            throw new ValueError('Escaped braces are not allowed: ' . $this->pattern);
-        }
-
-        $new = '';
-        $level = 0;
-
-        foreach (str_split($str) as $c) {
-            if ($c === '{') {
-                $level += 1;
-
-                if ($level > 1) {
-                    $new .= LEFT_BRACE;
-                } else {
-                    $new .= '{';
-                }
-                continue;
-            }
-
-            if ($c === '}') {
-                if ($level > 1) {
-                    $new .= RIGHT_BRACE;
-                } else {
-                    $new .= '}';
-                }
-
-                $level -= 1;
-                continue;
-            }
-
-            $new .= $c;
-        }
-
-        if ($level !== 0) {
-            throw  new ValueError('Unbalanced braces in route pattern: ' . $this->pattern);
-        }
-
-        return $new;
-    }
-
-    protected function restoreInnerBraces(string $str): string
-    {
-        return str_replace(LEFT_BRACE, '{', str_replace(RIGHT_BRACE, '}', $str));
-    }
-
-    protected function pattern(): string
-    {
-        // Ensure leading slash
-        $pattern = '/' . ltrim($this->pattern, '/');
-
-        // Escape forward slashes
-        //     /evil/chuck  to \/evil\/chuck
-        $pattern = preg_replace('/\//', '\\/', $pattern);
-
-        $pattern = $this->hideInnerBraces($pattern);
-
-        // Convert variables to named group patterns
-        //     /evil/{chuck}  to  /evil/(?P<chuck>[\w-]+)
-        $pattern = preg_replace('/\{(\w+?)\}/', '(?P<\1>[.\w-]+)', $pattern);
-
-        // Convert variables with custom patterns e.g. {evil:\d+}
-        //     /evil/{chuck:\d+}  to  /evil/(?P<chuck>\d+)
-        $pattern = preg_replace('/\{(\w+?):(.+?)\}/', '(?P<\1>\2)', $pattern);
-
-        // Convert remainder pattern ...slug to (?P<slug>.*)
-        $pattern = preg_replace('/\.\.\.(\w+?)$/', '(?P<\1>.*)', $pattern);
-
-        $pattern = '/^' . $pattern . '$/';
-
-        return $this->restoreInnerBraces($pattern);
     }
 
     /**
@@ -334,5 +262,81 @@ class Route
         }
 
         return null;
+    }
+
+    protected function hideInnerBraces(string $str): string
+    {
+        if (strpos($str, '\{') || strpos($str, '\}')) {
+            throw new ValueError('Escaped braces are not allowed: ' . $this->pattern);
+        }
+
+        $new = '';
+        $level = 0;
+
+        foreach (str_split($str) as $c) {
+            if ($c === '{') {
+                $level++;
+
+                if ($level > 1) {
+                    $new .= LEFT_BRACE;
+                } else {
+                    $new .= '{';
+                }
+
+                continue;
+            }
+
+            if ($c === '}') {
+                if ($level > 1) {
+                    $new .= RIGHT_BRACE;
+                } else {
+                    $new .= '}';
+                }
+
+                $level--;
+
+                continue;
+            }
+
+            $new .= $c;
+        }
+
+        if ($level !== 0) {
+            throw new ValueError('Unbalanced braces in route pattern: ' . $this->pattern);
+        }
+
+        return $new;
+    }
+
+    protected function restoreInnerBraces(string $str): string
+    {
+        return str_replace(LEFT_BRACE, '{', str_replace(RIGHT_BRACE, '}', $str));
+    }
+
+    protected function pattern(): string
+    {
+        // Ensure leading slash
+        $pattern = '/' . ltrim($this->pattern, '/');
+
+        // Escape forward slashes
+        //     /evil/chuck  to \/evil\/chuck
+        $pattern = preg_replace('/\//', '\\/', $pattern);
+
+        $pattern = $this->hideInnerBraces($pattern);
+
+        // Convert variables to named group patterns
+        //     /evil/{chuck}  to  /evil/(?P<chuck>[\w-]+)
+        $pattern = preg_replace('/\{(\w+?)\}/', '(?P<\1>[.\w-]+)', $pattern);
+
+        // Convert variables with custom patterns e.g. {evil:\d+}
+        //     /evil/{chuck:\d+}  to  /evil/(?P<chuck>\d+)
+        $pattern = preg_replace('/\{(\w+?):(.+?)\}/', '(?P<\1>\2)', $pattern);
+
+        // Convert remainder pattern ...slug to (?P<slug>.*)
+        $pattern = preg_replace('/\.\.\.(\w+?)$/', '(?P<\1>.*)', $pattern);
+
+        $pattern = '/^' . $pattern . '$/';
+
+        return $this->restoreInnerBraces($pattern);
     }
 }

@@ -12,7 +12,7 @@ use Conia\Chuck\Exception\ContainerException;
  */
 class RegistryEntry
 {
-    /** @var Args|null */
+    /** @var null|Args */
     protected array|Closure|null $args = null;
     protected bool $asIs = false;
     protected bool $reify;
@@ -26,23 +26,6 @@ class RegistryEntry
         protected mixed $definition
     ) {
         $this->reify = $this->negotiateReify($definition);
-    }
-
-    protected function negotiateReify(mixed $definition): bool
-    {
-        if (is_string($definition)) {
-            if (!class_exists($definition)) {
-                return false;
-            }
-        } elseif ($definition instanceof Closure) {
-            return true;
-        } else {
-            if (is_scalar($definition) || is_array($definition) || is_object($definition)) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     public function shouldReify(): bool
@@ -85,10 +68,10 @@ class RegistryEntry
 
         if ($numArgs === 1) {
             if (is_string(array_key_first($args))) {
-                /** @var Args  */
+                /** @var Args */
                 $this->args = $args;
             } elseif (is_array($args[0]) || $args[0] instanceof Closure) {
-                /** @var Args  */
+                /** @var Args */
                 $this->args = $args[0];
             } else {
                 throw new ContainerException(
@@ -128,5 +111,22 @@ class RegistryEntry
     public function set(mixed $instance): void
     {
         $this->instance = $instance;
+    }
+
+    protected function negotiateReify(mixed $definition): bool
+    {
+        if (is_string($definition)) {
+            if (!class_exists($definition)) {
+                return false;
+            }
+        } elseif ($definition instanceof Closure) {
+            return true;
+        } else {
+            if (is_scalar($definition) || is_array($definition) || is_object($definition)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

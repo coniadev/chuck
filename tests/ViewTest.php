@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Registry;
-use Conia\Chuck\Response;
 use Conia\Chuck\Request;
+use Conia\Chuck\Response;
 use Conia\Chuck\Routing\Route;
-use Conia\Chuck\View;
-use Conia\Chuck\Tests\Fixtures\{TestController, TestAttribute, TestAttributeExt, TestAttributeDiff};
+use Conia\Chuck\Tests\Fixtures\TestAttribute;
+use Conia\Chuck\Tests\Fixtures\TestAttributeDiff;
+use Conia\Chuck\Tests\Fixtures\TestAttributeExt;
+use Conia\Chuck\Tests\Fixtures\TestController;
 use Conia\Chuck\Tests\Setup\TestCase;
+use Conia\Chuck\View;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 
@@ -146,11 +149,10 @@ test('View response PSR Response', function () {
     $route = new Route('/', function (Registry $registry) {
         $sf = $registry->get(Psr\Http\Message\StreamFactoryInterface::class);
         $rf = $registry->get(Psr\Http\Message\ResponseFactoryInterface::class);
-        $response = $rf->createResponse()
+
+        return $rf->createResponse()
             ->withBody($sf->createStream('Chuck PSR Response'))
             ->withHeader('Content-Type', 'text/plain');
-
-        return $response;
     });
     $route->match('/');
     $view = new View($route->view(), $route->args(), $this->registry());

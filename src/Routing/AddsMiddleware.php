@@ -10,6 +10,7 @@ use Psr\Http\Server\MiddlewareInterface as PsrMiddlewareInterface;
 
 /**
  * @psalm-import-type MiddlewareCallable from \Conia\Chuck\MiddlewareInterface
+ *
  * @psalm-type ValidMiddleware = MiddlewareInterface|PsrMiddlewareInterface|MiddlewareCallable
  * @psalm-type MiddlewareList = array<never, never>|list<MiddlewareInterface|PsrMiddlewareInterface>
  */
@@ -26,8 +27,8 @@ trait AddsMiddleware
 
         foreach ($middleware as $mw) {
             if (
-                ($mw instanceof MiddlewareInterface) ||
-                ($mw instanceof PsrMiddlewareInterface)
+                ($mw instanceof MiddlewareInterface)
+                || ($mw instanceof PsrMiddlewareInterface)
             ) {
                 $new[] = $mw;
             } else {

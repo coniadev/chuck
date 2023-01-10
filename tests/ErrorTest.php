@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-use Conia\Chuck\Request;
-use Conia\Chuck\Routing\Router;
 use Conia\Chuck\ErrorHandler;
 use Conia\Chuck\Exception\HttpBadRequest;
 use Conia\Chuck\Exception\HttpForbidden;
-use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\HttpMethodNotAllowed;
+use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Exception\HttpUnauthorized;
+use Conia\Chuck\Request;
+use Conia\Chuck\Routing\Router;
 use Conia\Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
@@ -82,13 +82,13 @@ test('Handle HTTP Exceptions', function () {
     $err->handleException(HttpNotFound::withSubtitle("I've searched everywhere"));
     $output = ob_get_contents();
     ob_end_clean();
-    expect($output)->toBe("<h1>404 Not Found</h1><h2>I&#039;ve searched everywhere</h2>");
+    expect($output)->toBe('<h1>404 Not Found</h1><h2>I&#039;ve searched everywhere</h2>');
 
     ob_start();
     $err->handleException(new HttpMethodNotAllowed());
     $output = ob_get_contents();
     ob_end_clean();
-    expect($output)->toBe("<h1>405 Method Not Allowed</h1><h2>HTTP Error</h2>");
+    expect($output)->toBe('<h1>405 Method Not Allowed</h1><h2>HTTP Error</h2>');
 
     ob_start();
     $err->handleException(new HttpServerError());

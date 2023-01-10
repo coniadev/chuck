@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-use Conia\Chuck\Request;
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\RuntimeException;
+use Conia\Chuck\Request;
 use Psr\Http\Message\ServerRequestInterface;
 
 class Session
@@ -53,16 +53,16 @@ class Session
 
         // If it's desired to kill the session, also delete the session cookie.
         // Note: This will destroy the session, and not just the session data!
-        if (ini_get("session.use_cookies")) {
+        if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();
             setcookie(
                 session_name(),
                 '',
                 time() - 42000,
-                (string)$params["path"],
-                (string)$params["domain"],
-                (bool)$params["secure"],
-                (bool)$params["httponly"]
+                (string)$params['path'],
+                (string)$params['domain'],
+                (bool)$params['secure'],
+                (bool)$params['httponly']
             );
         }
 
@@ -75,15 +75,14 @@ class Session
     {
         if ($this->has($key)) {
             return $_SESSION[$key];
-        } else {
-            if (func_num_args() > 1) {
-                return $default;
-            }
-
-            throw new OutOfBoundsException(
-                "The session key '$key' does not exist"
-            );
         }
+        if (func_num_args() > 1) {
+            return $default;
+        }
+
+        throw new OutOfBoundsException(
+            "The session key '{$key}' does not exist"
+        );
     }
 
     /**
@@ -167,8 +166,8 @@ class Session
 
             foreach (array_reverse($keys) as $key) {
                 if (
-                    ($_SESSION[$fmKey] ?? null) &&
-                    is_array($_SESSION[$fmKey])
+                    ($_SESSION[$fmKey] ?? null)
+                    && is_array($_SESSION[$fmKey])
                 ) {
                     if (isset($_SESSION[$fmKey][$key])) {
                         unset($_SESSION[$fmKey][$key]);
@@ -208,7 +207,7 @@ class Session
 
     public function getRememberedUri(): string
     {
-        /** @var array{uri: string, expires: int}|null */
+        /** @var null|array{uri: string, expires: int} */
         $rememberedUri = $_SESSION[$this->rememberedUriKey] ?? null;
 
         if ($rememberedUri) {

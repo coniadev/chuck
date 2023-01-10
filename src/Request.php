@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-use Throwable;
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\UriInterface;
+use Throwable;
 
 class Request
 {
@@ -31,26 +31,6 @@ class Request
         $this->psr7 = $psr7;
 
         return $this;
-    }
-
-    private function returnOrFail(
-        array|null $array,
-        string $key,
-        mixed $default,
-        string $error,
-        int $numArgs
-    ): mixed {
-        try {
-            if ((is_null($array) || !isset($array[$key])) && $numArgs > 1) {
-                return $default;
-            }
-
-            assert(!is_null($array));
-
-            return $array[$key];
-        } catch (Throwable) {
-            throw new OutOfBoundsException("$error: '$key'");
-        }
     }
 
     public function params(): array
@@ -166,33 +146,6 @@ class Request
         );
     }
 
-    /** @param non-empty-list<string> $keys */
-    private function formatKeys(array $keys): string
-    {
-        return implode('', array_map(
-            fn ($key) => "['" . $key . "']",
-            $keys
-        ));
-    }
-
-    /**
-     * @param list<list<string>|string> $keys
-     * @return list<string>
-     */
-    private function validateKeys(array $keys): array
-    {
-        if (isset($keys[0]) && is_array($keys[0])) {
-            if (count($keys) > 1) {
-                throw new RuntimeException('Either provide a single array or plain string arguments');
-            } else {
-                $keys = $keys[0];
-            }
-        }
-
-        /** @var list<string> */
-        return $keys;
-    }
-
     /**
      * Returns always a list of uploaded files, even if there is
      * only one file.
@@ -201,7 +154,9 @@ class Request
      * about type issues. We need to suppres some of the errors.
      *
      * @no-named-arguments
+     *
      * @param list<string>|string ...$keys
+     *
      * @throws OutOfBoundsException RuntimeException
      */
     public function files(array|string ...$keys): array
@@ -244,9 +199,12 @@ class Request
      * about type issues. We need to suppres some of the errors.
      *
      * @no-named-arguments
+     *
      * @param list<non-empty-string>|string ...$keys
-     * @throws OutOfBoundsException RuntimeException
+     *
      * @return UploadedFileInterface
+     *
+     * @throws OutOfBoundsException RuntimeException
      */
     public function file(array|string ...$keys): UploadedFileInterface|array
     {
@@ -263,7 +221,7 @@ class Request
             if (isset($files[$key])) {
                 /** @var array|UploadedFileInterface */
                 $files = $files[$key];
-                $i += 1;
+                $i++;
 
                 if ($files instanceof UploadedFileInterface) {
                     if ($i < count($keys)) {
@@ -271,6 +229,7 @@ class Request
                             'Invalid file key (too deep) ' . $this->formatKeys($keys)
                         );
                     }
+
                     return $files;
                 }
             } else {
@@ -279,5 +238,52 @@ class Request
         }
 
         throw new RuntimeException('Multiple files available at key ' . $this->formatKeys($keys));
+    }
+
+    private function returnOrFail(
+        array|null $array,
+        string $key,
+        mixed $default,
+        string $error,
+        int $numArgs
+    ): mixed {
+        try {
+            if ((is_null($array) || !isset($array[$key])) && $numArgs > 1) {
+                return $default;
+            }
+
+            assert(!is_null($array));
+
+            return $array[$key];
+        } catch (Throwable) {
+            throw new OutOfBoundsException("{$error}: '{$key}'");
+        }
+    }
+
+    /** @param non-empty-list<string> $keys */
+    private function formatKeys(array $keys): string
+    {
+        return implode('', array_map(
+            fn ($key) => "['" . $key . "']",
+            $keys
+        ));
+    }
+
+    /**
+     * @param list<list<string>|string> $keys
+     *
+     * @return list<string>
+     */
+    private function validateKeys(array $keys): array
+    {
+        if (isset($keys[0]) && is_array($keys[0])) {
+            if (count($keys) > 1) {
+                throw new RuntimeException('Either provide a single array or plain string arguments');
+            }
+            $keys = $keys[0];
+        }
+
+        /** @var list<string> */
+        return $keys;
     }
 }

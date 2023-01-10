@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use Conia\Chuck\App;
 use Conia\Chuck\Routing\Route;
+use Conia\Chuck\Tests\Fixtures\TestMiddlewareEarlyResponse;
 use Conia\Chuck\Tests\Fixtures\TestMiddlewareObject;
 use Conia\Chuck\Tests\Fixtures\TestPsrMiddlewareObject;
-use Conia\Chuck\Tests\Fixtures\TestMiddlewareEarlyResponse;
 use Conia\Chuck\Tests\Setup\TestCase;
 
 require __DIR__ . '/Setup/globalSymbols.php';

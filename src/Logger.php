@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
+use DateTimeInterface;
+use Psr\Log\InvalidArgumentException;
+use Psr\Log\LoggerInterface;
+use Stringable;
 use Throwable;
-use Psr\Log\{LoggerInterface, InvalidArgumentException};
 
 class Logger implements LoggerInterface
 {
@@ -21,9 +24,7 @@ class Logger implements LoggerInterface
     /** @var array<int, non-empty-string> */
     protected array $levelLabels;
 
-    /**
-     *
-     */
+
     public function __construct(
         protected int $minimumLevel = self::DEBUG,
         protected ?string $logfile = null,
@@ -42,7 +43,7 @@ class Logger implements LoggerInterface
 
     public function log(
         mixed $level,
-        string|\Stringable $message,
+        string|Stringable $message,
         array $context = [],
     ): void {
         $message = (string)$message;
@@ -62,61 +63,61 @@ class Logger implements LoggerInterface
         $message = $this->interpolate(str_replace("\0", '', $message), $context);
 
         if (is_string($this->logfile)) {
-            $time = date("Y-m-d H:i:s D T");
-            error_log("[$time] $levelLabel: $message", 3, $this->logfile);
+            $time = date('Y-m-d H:i:s D T');
+            error_log("[{$time}] {$levelLabel}: {$message}", 3, $this->logfile);
 
             if (PHP_SAPI == 'cli') {
                 // print it additionally to stderr
-                error_log("$levelLabel: $message");
+                error_log("{$levelLabel}: {$message}");
             }
         } else {
-            error_log("$levelLabel: $message");
+            error_log("{$levelLabel}: {$message}");
         }
     }
 
-    public function debug(string|\Stringable $message, array $context = []): void
+    public function debug(string|Stringable $message, array $context = []): void
     {
         $this->log(self::DEBUG, $message, $context);
     }
 
-    public function info(string|\Stringable $message, array $context = []): void
+    public function info(string|Stringable $message, array $context = []): void
     {
         $this->log(self::INFO, $message, $context);
     }
 
-    public function notice(string|\Stringable $message, array $context = []): void
+    public function notice(string|Stringable $message, array $context = []): void
     {
         $this->log(self::NOTICE, $message, $context);
     }
 
-    public function warning(string|\Stringable $message, array $context = []): void
+    public function warning(string|Stringable $message, array $context = []): void
     {
         $this->log(self::WARNING, $message, $context);
     }
 
-    public function error(string|\Stringable $message, array $context = []): void
+    public function error(string|Stringable $message, array $context = []): void
     {
         $this->log(self::ERROR, $message, $context);
     }
 
-    public function critical(string|\Stringable $message, array $context = []): void
+    public function critical(string|Stringable $message, array $context = []): void
     {
         $this->log(self::CRITICAL, $message, $context);
     }
 
-    public function alert(string|\Stringable $message, array $context = []): void
+    public function alert(string|Stringable $message, array $context = []): void
     {
         $this->log(self::ALERT, $message, $context);
     }
 
-    public function emergency(string|\Stringable $message, array $context = []): void
+    public function emergency(string|Stringable $message, array $context = []): void
     {
         $this->log(self::EMERGENCY, $message, $context);
     }
 
     protected function interpolate(string $template, array $context): string
     {
-        $substitudes = array();
+        $substitudes = [];
 
         /**
          * @psalm-suppress MixedAssignment
@@ -131,11 +132,11 @@ class Logger implements LoggerInterface
             }
 
             if (
-                is_scalar($value) ||
-                (is_object($value) && method_exists($value, "__toString"))
+                is_scalar($value)
+                || (is_object($value) && method_exists($value, '__toString'))
             ) {
                 $substitudes[$placeholder] = $value;
-            } elseif ($value instanceof \DateTimeInterface) {
+            } elseif ($value instanceof DateTimeInterface) {
                 $substitudes[$placeholder] = $value->format('Y-m-d H:i:s T');
             } elseif (is_object($value)) {
                 $substitudes[$placeholder] = '[Instance of ' . $value::class . ']';
@@ -153,10 +154,10 @@ class Logger implements LoggerInterface
 
         if (
             array_key_exists('exception', $context)
-            && $context['exception'] instanceof \Throwable
+            && $context['exception'] instanceof Throwable
         ) {
             $message .= "\n    Exception Message: " . $context['exception']->getMessage() . "\n\n";
-            $message .= implode("    #", explode('#', $context['exception']->getTraceAsString()));
+            $message .= implode('    #', explode('#', $context['exception']->getTraceAsString()));
         }
 
         return $message;

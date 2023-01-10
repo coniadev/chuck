@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Tests\Setup\TestCase;
-use Psr\Http\Message\UploadedFileInterface;
 use Nyholm\Psr7\Stream;
 use Nyholm\Psr7\Uri;
+use Psr\Http\Message\UploadedFileInterface;
 
 uses(TestCase::class);
 
@@ -220,8 +220,8 @@ test('Request::json', function () {
     $request = $this->request()->withBody($stream);
 
     expect($request->json())->toBe([
-        ["title" => "Leprosy", "released" => 1988],
-        ["title" => "Human", "released" => 1991]
+        ['title' => 'Leprosy', 'released' => 1988],
+        ['title' => 'Human', 'released' => 1991],
     ]);
 });
 
@@ -358,7 +358,6 @@ test('Nested file instances are not available', function () {
 
 
 test('Getting and setting PSR-7 instance', function () {
-
     $psr7 = $this->psr7Request();
     $request = $this->request();
     $request->setPsr7($psr7);
@@ -405,11 +404,11 @@ test('PSR-7 server request wrapper methods', function () {
     $request->withAttribute('attribute', 'attribute');
     $request->withUploadedFiles([
         'myfile' => [
-            'error'    => UPLOAD_ERR_OK,
-            'name'     => '../malic/chuck-test-file.php',
-            'size'     => 123,
+            'error' => UPLOAD_ERR_OK,
+            'name' => '../malic/chuck-test-file.php',
+            'size' => 123,
             'tmp_name' => __FILE__,
-            'type'     => 'text/plain'
+            'type' => 'text/plain',
         ],
     ]);
 
