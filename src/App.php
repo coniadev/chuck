@@ -110,7 +110,7 @@ class App
      */
     public function renderer(string $name, string $class): RegistryEntry
     {
-        return $this->registry->addTagged(Renderer::class, $name, $class)->asIs();
+        return $this->registry->tag(Renderer::class)->add($name, $class)->asIs();
     }
 
     /**
@@ -167,7 +167,7 @@ class App
             }
         });
 
-        $registry->addTagged(Renderer::class, 'text', TextRenderer::class)->asIs();
-        $registry->addTagged(Renderer::class, 'json', JsonRenderer::class)->asIs();
+        $registry->tag(Renderer::class)->add('text', TextRenderer::class)->asIs();
+        $registry->tag(Renderer::class)->add('json', JsonRenderer::class)->asIs();
     }
 }

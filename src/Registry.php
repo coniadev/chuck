@@ -24,12 +24,13 @@ class Registry implements ContainerInterface
     /** @var EntryArray */
     protected array $entries = [];
 
-    /** @var array<never, never>|array<string, EntryArray> */
-    protected array $taggedEntries = [];
+    /** @var array<never, never>|array<non-empty-string, self> */
+    protected array $tags = [];
 
     public function __construct(
         protected readonly ?ContainerInterface $container = null,
-        protected readonly bool $autowire = true
+        protected readonly bool $autowire = true,
+        protected readonly string $tag = '',
     ) {
         if ($container) {
             $this->add(ContainerInterface::class, $container);
@@ -46,7 +47,7 @@ class Registry implements ContainerInterface
         return isset($this->entries[$id]) || $this->container?->has($id);
     }
 
-    public function entry(string $id, string $paramName = ''): mixed
+    public function entry(string $id, string $paramName = ''): RegistryEntry
     {
         $paramName = $this->normalizeParameterName($paramName);
 
@@ -70,7 +71,11 @@ class Registry implements ContainerInterface
             return $this->autowire($id);
         }
 
-        throw new NotFoundException('Unresolvable id: ' . $id);
+        $message = empty($this->tag) ?
+            'Unresolvable id: ' . $id :
+            'Unresolvable tagged id: ' . $this->tag . '::' . $id;
+
+        throw new NotFoundException($message);
     }
 
     /**
@@ -88,41 +93,14 @@ class Registry implements ContainerInterface
         return $entry;
     }
 
-    public function tag(string $tag): RegistryTag
+    /** @psalm-param non-empty-string $tag */
+    public function tag(string $tag): Registry
     {
-        return new RegistryTag($tag, $this);
-    }
-
-    public function hasTagged(string $tag, string $id): bool
-    {
-        return isset($this->taggedEntries[$tag][$id]);
-    }
-
-    public function getTaggedEntry(string $tag, string $id): RegistryEntry
-    {
-        return $this->taggedEntries[$tag][$id];
-    }
-
-    public function getTagged(string $tag, string $id): mixed
-    {
-        $entry = $this->taggedEntries[$tag][$id] ?? null;
-
-        if ($entry) {
-            return $this->resolveEntry($entry);
+        if (!isset($this->tags[$tag])) {
+            $this->tags[$tag] = new self(tag: $tag);
         }
 
-        throw new NotFoundException('Unresolvable tagged id: ' . $tag . '::' . $id);
-    }
-
-    /**
-     * @psalm-param non-empty-string $id
-     */
-    public function addTagged(string $tag, string $id, mixed $value = null): RegistryEntry
-    {
-        $entry = new RegistryEntry($id, $value ?? $id);
-        $this->taggedEntries[$tag][$id] = $entry;
-
-        return $entry;
+        return $this->tags[$tag];
     }
 
     public function new(string $id, mixed ...$args): object

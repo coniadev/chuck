@@ -166,8 +166,9 @@ class TestCase extends BaseTestCase
         $registry->add($request::class, $request);
         $registry->add(Config::class, $config);
         $registry->add($config::class, $config);
-        $registry->addTagged(Renderer::class, 'text', TextRenderer::class)->asIs();
-        $registry->addTagged(Renderer::class, 'json', JsonRenderer::class)->asIs();
+
+        $registry->tag(Renderer::class)->add('text', TextRenderer::class)->asIs();
+        $registry->tag(Renderer::class)->add('json', JsonRenderer::class)->asIs();
 
         return $registry;
     }
