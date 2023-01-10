@@ -182,7 +182,7 @@ class Registry implements ContainerInterface
             $args = $entry->getArgs();
 
             if (is_null($args)) {
-                $args = $this->resolver->resolveClosureArgs($value);
+                $args = $this->resolver->resolveCallableArgs($value);
             } elseif ($args instanceof Closure) {
                 /** @var array<string, mixed> */
                 $args = $args();
@@ -211,7 +211,7 @@ class Registry implements ContainerInterface
     /** @psalm-param class-string $class */
     protected function fromArgsClosure(string $class, Closure $callback): object
     {
-        $args = $this->resolver->resolveClosureArgs($callback);
+        $args = $this->resolver->resolveCallableArgs($callback);
 
         /** @psalm-suppress MixedMethodCall */
         return new $class(...$callback(...$args));

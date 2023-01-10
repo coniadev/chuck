@@ -11,6 +11,11 @@ class TestClass implements TestInterface
         return 'Stringable';
     }
 
+    public function __invoke(string $name = 'default', int $number = 13): string
+    {
+        return '';
+    }
+
     public function test(): string
     {
         return '';

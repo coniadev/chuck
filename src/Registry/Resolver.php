@@ -22,11 +22,11 @@ class Resolver
     }
 
     /** @psalm-param class-string $class */
-    public function autowire(string $class): object
+    public function autowire(string $class, array $predefinedArgs = []): object
     {
         $rc = new ReflectionClass($class);
         $constructor = $rc->getConstructor();
-        $args = $this->resolveArgs($constructor);
+        $args = $this->resolveArgs($constructor, $predefinedArgs);
 
         try {
             return $rc->newInstance(...$args);
@@ -43,7 +43,7 @@ class Resolver
 
         if ($type instanceof ReflectionNamedType) {
             try {
-                return $this->registry->getWithParamName($type->getName(), '$' . ltrim($param->getName(), '?'));
+                return $this->registry->getWithParamName(ltrim($type->getName(), '?'), '$' . $param->getName());
             } catch (NotFoundException $e) {
                 if ($param->isDefaultValueAvailable()) {
                     return $param->getDefaultValue();
@@ -82,21 +82,40 @@ class Resolver
             '$' . $param->getName() . ', ...)';
     }
 
-    public function resolveClosureArgs(Closure $closure): array
+    public function resolveCallableArgs(callable $callable, array $predefinedArgs = []): array
     {
-        $rf = new ReflectionFunction($closure);
+        $callable = Closure::fromCallable($callable);
+        $rf = new ReflectionFunction($callable);
 
-        return $this->resolveArgs($rf);
+        return $this->resolveArgs($rf, $predefinedArgs);
     }
 
-    protected function resolveArgs(?ReflectionFunctionAbstract $rf): array
+    /** @psalm-param class-string $class */
+    public function resolveConstructorArgs(string $class, array $predefinedArgs = []): array
     {
+        $rc = new ReflectionClass($class);
+        $constructor = $rc->getConstructor();
+
+        return $this->resolveArgs($constructor, $predefinedArgs);
+    }
+
+    protected function resolveArgs(
+        ?ReflectionFunctionAbstract $rf,
+        array $predefinedArgs = [],
+    ): array {
         $args = [];
 
         if ($rf) {
             foreach ($rf->getParameters() as $param) {
-                /** @psalm-var list<mixed> */
-                $args[] = $this->resolveParam($param);
+                $name = $param->getName();
+
+                if (isset($predefinedArgs[$name])) {
+                    /** @psalm-var list<mixed> */
+                    $args[] = $predefinedArgs[$name];
+                } else {
+                    /** @psalm-var list<mixed> */
+                    $args[] = $this->resolveParam($param);
+                }
             }
         }
 
