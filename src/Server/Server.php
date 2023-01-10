@@ -7,7 +7,6 @@ namespace Conia\Chuck\Server;
 use Conia\Cli\Command;
 use Conia\Cli\Opts;
 
-/** @psalm-suppress PropertyNotSetInConstructor */
 class Server extends Command
 {
     protected string $name = 'server';

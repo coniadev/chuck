@@ -11,8 +11,7 @@ class Group
     use AddsRoutes;
     use AddsMiddleware;
 
-    /** @psalm-suppress PropertyNotSetInConstructor */
-    protected Router $router;
+    protected ?Router $router = null;
 
     protected string $namePrefix;
     protected ?string $renderer = null;
@@ -60,6 +59,7 @@ class Group
             $route->replaceMiddleware(array_merge($this->middleware, $route->getMiddleware()));
         }
 
+        assert(isset($this->router));
         $this->router->addRoute($route);
     }
 

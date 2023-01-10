@@ -26,14 +26,11 @@ class Registry implements ContainerInterface
 
     /** @var array<never, never>|array<string, EntryArray> */
     protected array $taggedEntries = [];
-    protected readonly ?ContainerInterface $container;
 
     public function __construct(
-        ?ContainerInterface $container = null,
+        protected readonly ?ContainerInterface $container = null,
         protected readonly bool $autowire = true
     ) {
-        $this->container = $container;
-
         if ($container) {
             $this->addAnyway(ContainerInterface::class, $container);
             $this->addAnyway($container::class, $container);

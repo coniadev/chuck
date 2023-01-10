@@ -17,7 +17,7 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 class Dispatcher
 {
-    protected readonly StreamFactoryInterface $streamFactory;
+    protected StreamFactoryInterface $streamFactory;
 
     /**
      * @psalm-param HandlerList $queue

@@ -28,9 +28,8 @@ use Throwable;
 
 class View
 {
-    /** @psalm-suppress PropertyNotSetInConstructor */
-    protected array $attributes;
-    protected readonly Closure $closure;
+    protected ?array $attributes = null;
+    protected Closure $closure;
 
     public function __construct(
         callable|string|array $view,
@@ -129,7 +128,6 @@ class View
     {
         $reflector = new ReflectionFunction($this->closure);
 
-        /** @psalm-suppress RedundantPropertyInitializationCheck */
         if (!isset($this->attributes)) {
             $this->attributes = array_map(function ($attribute) {
                 return $attribute->newInstance();

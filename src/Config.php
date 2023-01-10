@@ -17,10 +17,6 @@ class Config
 {
     public const DEFAULT = 'default';
 
-    public readonly bool $debug;
-    public readonly string $env;
-    public readonly string $app;
-
     /** @var null|Closure():LoggerInterface */
     protected ?Closure $loggerCallback = null;
     protected ?LoggerInterface $logger = null;
@@ -32,14 +28,12 @@ class Config
      * @param array<never, never>|array<string, mixed> -- Stores additional user defined settings
      */
     public function __construct(
-        string $app,
-        bool $debug = false,
-        string $env = '',
+        public readonly string $app,
+        public readonly bool $debug = false,
+        public readonly string $env = '',
         protected array $settings = [],
     ) {
-        $this->app = $this->validateApp($app);
-        $this->debug = $debug;
-        $this->env = $env;
+        $this->validateApp($app);
 
         $this->renderers = [
             'text' => ['class' => TextRenderer::class, 'options' => null],
@@ -110,7 +104,7 @@ class Config
     /** @param callable():LoggerInterface $callable */
     public function setupLogger(callable $callback): void
     {
-        /** @var Closure():LoggerInterface */
+        /** @psalm-var Closure():LoggerInterface */
         $this->loggerCallback = Closure::fromCallable($callback);
     }
 
@@ -129,15 +123,13 @@ class Config
         return null;
     }
 
-    protected function validateApp(string $app): string
+    protected function validateApp(string $app): void
     {
-        if (preg_match('/^[a-z0-9_$-]{1,64}$/', $app)) {
-            return $app;
+        if (!preg_match('/^[a-z0-9_$-]{1,64}$/', $app)) {
+            throw new ValueError(
+                'The app name must be a nonempty string which consist only of lower case ' .
+                    'letters and numbers. Its length must not be longer than 32 characters.'
+            );
         }
-
-        throw new ValueError(
-            'The app name must be a nonempty string which consist only of lower case ' .
-                'letters and numbers. Its length must not be longer than 32 characters.'
-        );
     }
 }
