@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck;
+namespace Conia\Chuck\Registry;
 
 use Closure;
 use Conia\Chuck\Exception\ContainerException;
@@ -10,7 +10,7 @@ use Conia\Chuck\Exception\ContainerException;
 /**
  * @psalm-type Args array<string|mixed>|Closure(): array<string|mixed>
  */
-class RegistryEntry
+class Entry
 {
     /** @var null|Args */
     protected array|Closure|null $args = null;

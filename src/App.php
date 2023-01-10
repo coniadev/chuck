@@ -7,8 +7,8 @@ namespace Conia\Chuck;
 use Closure;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\MiddlewareInterface;
-use Conia\Chuck\Registry;
-use Conia\Chuck\RegistryEntry;
+use Conia\Chuck\Registry\Entry;
+use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Renderer\JsonRenderer;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Renderer\TextRenderer;
@@ -112,7 +112,7 @@ class App
      * @psalm-param non-empty-string $name
      * @psalm-param non-empty-string $class
      */
-    public function renderer(string $name, string $class): RegistryEntry
+    public function renderer(string $name, string $class): Entry
     {
         return $this->registry->tag(Renderer::class)->add($name, $class)->asIs();
     }
@@ -121,7 +121,7 @@ class App
      * @psalm-param non-empty-string $key
      * @psalm-param class-string|object $value
      */
-    public function register(string $key, object|string $value): RegistryEntry
+    public function register(string $key, object|string $value): Entry
     {
         return $this->registry->add($key, $value);
     }

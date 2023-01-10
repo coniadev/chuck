@@ -8,7 +8,7 @@ use Conia\Chuck\App;
 use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Logger;
-use Conia\Chuck\Registry;
+use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Renderer\JsonRenderer;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Renderer\TextRenderer;

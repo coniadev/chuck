@@ -9,7 +9,8 @@ use Conia\Chuck\Attribute\Render;
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Exception\RuntimeException;
-use Conia\Chuck\Registry;
+use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\Registry\Resolver;
 use Conia\Chuck\Renderer\Config as RendererConfig;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Request;
@@ -223,7 +224,7 @@ class View
                         (float)$this->routeArgs[$name] :
                         throw new RuntimeException($errMsg . "Cannot cast '{$name}' to float"),
                     'string' => $this->routeArgs[$name],
-                    default => $this->registry->resolveParam($param),
+                    default => (new Resolver($this->registry))->resolveParam($param),
                 };
             } catch (ContainerException $e) {
                 throw $e;

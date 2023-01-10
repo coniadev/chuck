@@ -9,7 +9,7 @@ use Conia\Chuck\Exception\HttpMethodNotAllowed;
 use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\MiddlewareInterface;
-use Conia\Chuck\Registry;
+use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 use Conia\Chuck\View;

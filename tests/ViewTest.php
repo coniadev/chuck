@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Conia\Chuck\Exception\ContainerException;
-use Conia\Chuck\Registry;
+use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Response;
 use Conia\Chuck\Routing\Route;

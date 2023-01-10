@@ -5,8 +5,9 @@ declare(strict_types=1);
 use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Exception\NotFoundException;
-use Conia\Chuck\Registry;
-use Conia\Chuck\RegistryEntry;
+use Conia\Chuck\Registry\Entry;
+use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\Registry\Resolver;
 use Conia\Chuck\Request;
 use Conia\Chuck\Tests\Fixtures\TestClass;
 use Conia\Chuck\Tests\Fixtures\TestClassIntersectionTypeConstructor;
@@ -21,7 +22,7 @@ use Conia\Chuck\Tests\Setup\TestCase;
 uses(TestCase::class);
 
 test('Entry methods', function () {
-    $entry = new RegistryEntry('key', stdClass::class);
+    $entry = new Entry('key', stdClass::class);
 
     expect($entry->definition())->toBe(stdClass::class);
     expect($entry->get())->toBe(stdClass::class);
@@ -455,11 +456,11 @@ test('Parameter info class', function () {
     $rc = new ReflectionClass(TestClassUnionTypeConstructor::class);
     $c = $rc->getConstructor();
     $p = $c->getParameters()[0];
-    $registry = new Registry();
+    $resolver = new Resolver(new Registry());
     $s = 'Conia\Chuck\Tests\Fixtures\TestClassUnionTypeConstructor::__construct(' .
         '..., Conia\Chuck\Config|Conia\Chuck\Request $param, ...)';
 
-    expect($registry->getParamInfo($p))->toBe($s);
+    expect($resolver->getParamInfo($p))->toBe($s);
 });
 
 
@@ -468,10 +469,10 @@ test('Parameter info function', function () {
         $config->set('test', 'test');
     });
     $p = $rf->getParameters()[0];
-    $registry = new Registry();
+    $resolver = new Resolver(new Registry());
     $s = 'P\Tests\RegistryTest::{closure}(..., Conia\Chuck\Config $config, ...)';
 
-    expect($registry->getParamInfo($p))->toBe($s);
+    expect($resolver->getParamInfo($p))->toBe($s);
 });
 
 

@@ -2,29 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck;
+namespace Conia\Chuck\Registry;
 
 use Closure;
-use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Exception\NotFoundException;
 use Psr\Container\ContainerInterface;
-use ReflectionClass;
-use ReflectionFunction;
-use ReflectionFunctionAbstract;
-use ReflectionMethod;
-use ReflectionNamedType;
-use ReflectionParameter;
-use Throwable;
 
 /**
- * @psalm-type EntryArray = array<never, never>|array<string, RegistryEntry>
+ * @psalm-type EntryArray = array<never, never>|array<string, Entry>
  */
 class Registry implements ContainerInterface
 {
-    /** @var EntryArray */
+    protected Resolver $resolver;
+
+    /** @psalm-var EntryArray */
     protected array $entries = [];
 
-    /** @var array<never, never>|array<non-empty-string, self> */
+    /** @psalm-var array<never, never>|array<non-empty-string, self> */
     protected array $tags = [];
 
     public function __construct(
@@ -40,6 +34,7 @@ class Registry implements ContainerInterface
         }
 
         $this->add(Registry::class, $this);
+        $this->resolver = new Resolver($this);
     }
 
     public function has(string $id): bool
@@ -47,7 +42,7 @@ class Registry implements ContainerInterface
         return isset($this->entries[$id]) || $this->container?->has($id);
     }
 
-    public function entry(string $id, string $paramName = ''): RegistryEntry
+    public function entry(string $id, string $paramName = ''): Entry
     {
         $paramName = $this->normalizeParameterName($paramName);
 
@@ -68,7 +63,7 @@ class Registry implements ContainerInterface
 
         // Autowiring: $id does not exists as an entry in the registry
         if ($this->autowire && class_exists($id)) {
-            return $this->autowire($id);
+            return $this->resolver->autowire($id);
         }
 
         $message = empty($this->tag) ?
@@ -85,9 +80,9 @@ class Registry implements ContainerInterface
         string $id,
         mixed $value = null,
         string $paramName = '',
-    ): RegistryEntry {
+    ): Entry {
         $paramName = $this->normalizeParameterName($paramName);
-        $entry = new RegistryEntry($id, $value ?? $id);
+        $entry = new Entry($id, $value ?? $id);
         $this->entries[$id . $paramName] = $entry;
 
         return $entry;
@@ -144,52 +139,16 @@ class Registry implements ContainerInterface
             $this->get($id);
     }
 
-    public function resolveParam(ReflectionParameter $param): mixed
+    protected function reifyAndReturn(Entry $entry, mixed $value): mixed
     {
-        $type = $param->getType();
-
-        if ($type instanceof ReflectionNamedType) {
-            try {
-                return $this->getWithParamName($type->getName(), '$' . ltrim($param->getName(), '?'));
-            } catch (NotFoundException $e) {
-                if ($param->isDefaultValueAvailable()) {
-                    return $param->getDefaultValue();
-                }
-
-                throw $e;
-            }
-        } else {
-            if ($type) {
-                throw new ContainerException(
-                    "Autowiring does not support union or intersection types. Source: \n" .
-                        $this->getParamInfo($param)
-                );
-            }
-
-            throw new ContainerException(
-                "Autowired entities need to have typed constructor parameters. Source: \n" .
-                    $this->getParamInfo($param)
-            );
-        }
-    }
-
-    public function getParamInfo(ReflectionParameter $param): string
-    {
-        $type = $param->getType();
-        $rf = $param->getDeclaringFunction();
-        $rc = null;
-
-        if ($rf instanceof ReflectionMethod) {
-            $rc = $rf->getDeclaringClass();
+        if ($entry->shouldReify()) {
+            $entry->set($value);
         }
 
-        return ($rc ? $rc->getName() . '::' : '') .
-            ($rf->getName() . '(..., ') .
-            ($type ? (string)$type . ' ' : '') .
-            '$' . $param->getName() . ', ...)';
+        return $value;
     }
 
-    protected function resolveEntry(RegistryEntry $entry): mixed
+    protected function resolveEntry(Entry $entry): mixed
     {
         if ($entry->shouldReturnAsIs()) {
             return $entry->definition();
@@ -211,7 +170,7 @@ class Registry implements ContainerInterface
                     return $this->reifyAndReturn($entry, $this->fromArgsArray($value, $args));
                 }
 
-                return $this->reifyAndReturn($entry, $this->autowire($value));
+                return $this->reifyAndReturn($entry, $this->resolver->autowire($value));
             }
 
             if (isset($this->entries[$value])) {
@@ -220,12 +179,10 @@ class Registry implements ContainerInterface
         }
 
         if ($value instanceof Closure) {
-            // Get the instance from the registered closure
-            $rf = new ReflectionFunction($value);
             $args = $entry->getArgs();
 
             if (is_null($args)) {
-                $args = $this->resolveArgs($rf);
+                $args = $this->resolver->resolveClosureArgs($value);
             } elseif ($args instanceof Closure) {
                 /** @var array<string, mixed> */
                 $args = $args();
@@ -244,45 +201,6 @@ class Registry implements ContainerInterface
         throw new NotFoundException('Unresolvable id: ' . print_r($value, true));
     }
 
-    protected function reifyAndReturn(RegistryEntry $entry, mixed $value): mixed
-    {
-        if ($entry->shouldReify()) {
-            $entry->set($value);
-        }
-
-        return $value;
-    }
-
-    /** @psalm-param class-string $class */
-    protected function autowire(string $class): object
-    {
-        $rc = new ReflectionClass($class);
-        $constructor = $rc->getConstructor();
-        $args = $this->resolveArgs($constructor);
-
-        try {
-            return $rc->newInstance(...$args);
-        } catch (Throwable $e) {
-            throw new ContainerException(
-                'Autowiring unresolvable: ' . $class . ' Details: ' . $e->getMessage()
-            );
-        }
-    }
-
-    protected function resolveArgs(?ReflectionFunctionAbstract $rf): array
-    {
-        $args = [];
-
-        if ($rf) {
-            foreach ($rf->getParameters() as $param) {
-                /** @var list<mixed> */
-                $args[] = $this->resolveParam($param);
-            }
-        }
-
-        return $args;
-    }
-
     /** @psalm-param class-string $class */
     protected function fromArgsArray(string $class, array $args): object
     {
@@ -293,8 +211,7 @@ class Registry implements ContainerInterface
     /** @psalm-param class-string $class */
     protected function fromArgsClosure(string $class, Closure $callback): object
     {
-        $rf = new ReflectionFunction($callback);
-        $args = $this->resolveArgs($rf);
+        $args = $this->resolver->resolveClosureArgs($callback);
 
         /** @psalm-suppress MixedMethodCall */
         return new $class(...$callback(...$args));
