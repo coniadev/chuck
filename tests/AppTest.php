@@ -19,29 +19,42 @@ uses(TestCase::class);
 
 
 test('Create helper', function () {
-    expect(App::create($this->config()))->toBeInstanceOf(App::class);
+    expect(App::create())->toBeInstanceOf(App::class);
 });
 
 
 test('Helper methods', function () {
-    $app = App::create($this->config());
+    $app = App::create();
 
     expect($app->router())->toBeInstanceOf(Router::class);
     expect($app->config())->toBeInstanceOf(Config::class);
 });
 
 
+test('Config init', function () {
+    $app = App::create();
+
+    expect($app->config())->toBeInstanceOf(Config::class);
+    expect($app->config()->app())->toBe('chuck');
+
+    $app = App::create(new Config('test'));
+
+    expect($app->config())->toBeInstanceOf(Config::class);
+    expect($app->config()->app())->toBe('test');
+});
+
+
 test('Create with third party container', function () {
     $container = new League\Container\Container();
     $container->add('external', new stdClass());
-    $app = App::create($this->config(), $container);
+    $app = App::create(null, $container);
 
     expect($app->registry()->get('external') instanceof stdClass)->toBe(true);
 });
 
 
 test('Middleware helper', function () {
-    $app = App::create($this->config());
+    $app = App::create();
 
     $app->middleware(function (Request $request, callable $next): Request|Response {
         return $next($request);
@@ -52,7 +65,7 @@ test('Middleware helper', function () {
 
 
 test('Static route helper', function () {
-    $app = App::create($this->config());
+    $app = App::create();
     $app->staticRoute('/static', C::root() . C::DS . 'public' . C::DS . 'static', 'static');
     $app->staticRoute('/unnamedstatic', C::root() . C::DS . 'public' . C::DS . 'static');
 
@@ -62,8 +75,7 @@ test('Static route helper', function () {
 
 
 test('App run', function () {
-    $request = $this->request(method: 'GET', url: '/');
-    $app = new App($this->config(), new Router(), $this->registry());
+    $app = new App(new Config('chuck'), new Router(), $this->registry());
     $app->route('/', 'Conia\Chuck\Tests\Fixtures\TestController::textView');
     ob_start();
     $app->run();
@@ -75,7 +87,7 @@ test('App run', function () {
 
 
 test('App::register helper', function () {
-    $app = new App($this->config(), new Router(), $this->registry());
+    $app = new App(new Config('chuck'), new Router(), $this->registry());
     $app->register('Chuck', 'Schuldiner')->asIs();
     $registry = $app->registry();
 
@@ -84,7 +96,7 @@ test('App::register helper', function () {
 
 
 test('App::addRoute/::addGroup helper', function () {
-    $app = App::create($this->config());
+    $app = App::create();
     $route = new Route('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
     $group = new Group('/albums', function (Group $group) {
         $ctrl = TestController::class;
@@ -99,7 +111,7 @@ test('App::addRoute/::addGroup helper', function () {
 
 
 test('App::route helper', function () {
-    $app = App::create($this->config());
+    $app = App::create();
     $app->route('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
@@ -107,7 +119,7 @@ test('App::route helper', function () {
 
 
 test('App::get helper', function () {
-    $app = App::create($this->config());
+    $app = App::create();
     $app->get('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
@@ -115,7 +127,7 @@ test('App::get helper', function () {
 
 
 test('App::post helper', function () {
-    $app = App::create($this->config());
+    $app = App::create();
     $app->post('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
@@ -123,7 +135,7 @@ test('App::post helper', function () {
 
 
 test('App::put helper', function () {
-    $app = App::create($this->config());
+    $app = App::create();
     $app->put('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
@@ -131,7 +143,7 @@ test('App::put helper', function () {
 
 
 test('App::patch helper', function () {
-    $app = App::create($this->config());
+    $app = App::create();
     $app->patch('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
@@ -139,7 +151,7 @@ test('App::patch helper', function () {
 
 
 test('App::delete helper', function () {
-    $app = App::create($this->config());
+    $app = App::create();
     $app->delete('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
@@ -147,7 +159,7 @@ test('App::delete helper', function () {
 
 
 test('App::head helper', function () {
-    $app = App::create($this->config());
+    $app = App::create();
     $app->head('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
@@ -155,7 +167,7 @@ test('App::head helper', function () {
 
 
 test('App::options helper', function () {
-    $app = App::create($this->config());
+    $app = App::create();
     $app->options('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
@@ -163,7 +175,7 @@ test('App::options helper', function () {
 
 
 test('App::group helper', function () {
-    $app = App::create($this->config());
+    $app = App::create();
     $app->group('/albums', function (Group $group) {
         $ctrl = TestController::class;
         $group->addRoute(Route::get('/{name}', "{$ctrl}::albumName", 'name'));
@@ -174,7 +186,7 @@ test('App::group helper', function () {
 
 
 test('Add renderer', function () {
-    $app = App::create($this->config());
+    $app = App::create();
     $app->renderer('test', TestRenderer::class);
     $registry = $app->registry();
 

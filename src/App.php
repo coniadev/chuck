@@ -36,8 +36,12 @@ class App
         $this->initializeRegistry();
     }
 
-    public static function create(Config $config, ?ContainerInterface $container = null): static
+    public static function create(?Config $config = null, ?ContainerInterface $container = null): static
     {
+        if (!$config) {
+            $config = new Config('chuck', debug: false);
+        }
+
         $registry = new Registry($container);
         $router = new Router();
 
