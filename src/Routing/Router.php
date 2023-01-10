@@ -28,7 +28,7 @@ class Router
 
     protected ?Route $route = null;
 
-    /** @var array<string, list<Route>> */
+    /** @psalm-var array<string, list<Route>> */
     protected array $routes = [];
 
     /** @var array<string, StaticRoute> */
@@ -210,7 +210,7 @@ class Router
     /** @return HandlerList */
     protected function collectMiddleware(View $view): array
     {
-        /** @var list<MiddlewareInterface> */
+        /** @psalm-var list<MiddlewareInterface> */
         $middlewareAttributes = $view->attributes(MiddlewareInterface::class);
 
         return array_merge(

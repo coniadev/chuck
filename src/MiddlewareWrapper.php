@@ -14,11 +14,11 @@ use Conia\Chuck\Response;
  */
 class MiddlewareWrapper implements MiddlewareInterface
 {
-    /** @var MiddlewareClosure */
+    /** @psalm-var MiddlewareClosure */
     protected Closure $callable;
 
     /**
-     * @param MiddlewareCallable $callable
+     * @psalm-param MiddlewareCallable $callable
      */
     public function __construct(callable $callable)
     {

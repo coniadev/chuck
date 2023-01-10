@@ -95,7 +95,7 @@ class Resolver
 
         if ($rf) {
             foreach ($rf->getParameters() as $param) {
-                /** @var list<mixed> */
+                /** @psalm-var list<mixed> */
                 $args[] = $this->resolveParam($param);
             }
         }

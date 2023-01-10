@@ -57,7 +57,7 @@ class Registry implements ContainerInterface
             return $this->resolveEntry($entry);
         }
 
-        if ($this->container?->has($id)) {
+        if ($this->container && $this->container->has($id)) {
             return $this->container->get($id);
         }
 

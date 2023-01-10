@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Conia\Chuck\Routing;
 
 use Closure;
+use Conia\Chuck\Exception\RuntimeException;
+use Throwable;
 
 class Group
 {
@@ -59,8 +61,13 @@ class Group
             $route->replaceMiddleware(array_merge($this->middleware, $route->getMiddleware()));
         }
 
-        assert(isset($this->router));
-        $this->router->addRoute($route);
+        if ($this->router) {
+            $this->router->addRoute($route);
+
+            return;
+        }
+
+        throw new RuntimeException('Router not set');
     }
 
     public function create(Router $router): void

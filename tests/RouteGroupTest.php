@@ -3,19 +3,18 @@
 declare(strict_types=1);
 
 use Conia\Chuck\Exception\HttpMethodNotAllowed;
+use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\MiddlewareWrapper;
 use Conia\Chuck\Routing\Group;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\Routing\Router;
 use Conia\Chuck\Tests\Fixtures\TestController;
-use Conia\Chuck\Tests\Fixtures\TestMiddleware1;
 use Conia\Chuck\Tests\Fixtures\TestMiddleware2;
 use Conia\Chuck\Tests\Fixtures\TestMiddleware3;
 use Conia\Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
-
 
 test('Matching :: named', function () {
     $router = new Router();
@@ -173,3 +172,9 @@ test('Middleware', function () {
     expect($middleware[0])->toBeInstanceOf(MiddlewareWrapper::class);
     expect($middleware[1])->toBeInstanceOf(MiddlewareWrapper::class);
 });
+
+test('Fail without calling create before', function () {
+    $group = new Group('/albums', function (Group $group) {
+    }, 'test:');
+    $group->addRoute(Route::get('/', fn () => ''));
+})->throws(RuntimeException::class, 'Router not set');

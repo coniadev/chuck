@@ -155,7 +155,7 @@ class Request
      *
      * @no-named-arguments
      *
-     * @param list<string>|string ...$keys
+     * @psalm-param list<string>|string ...$keys
      *
      * @throws OutOfBoundsException RuntimeException
      */
@@ -270,9 +270,9 @@ class Request
     }
 
     /**
-     * @param list<list<string>|string> $keys
+     * @psalm-param list<list<string>|string> $keys
      *
-     * @return list<string>
+     * @psalm-return list<string>
      */
     private function validateKeys(array $keys): array
     {
@@ -283,7 +283,7 @@ class Request
             $keys = $keys[0];
         }
 
-        /** @var list<string> */
+        /** @psalm-var list<string> */
         return $keys;
     }
 }

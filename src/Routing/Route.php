@@ -14,6 +14,9 @@ const LEFT_BRACE = '§§§€§§§';
 const RIGHT_BRACE = '§§§£§§§';
 
 
+/**
+ * @psalm-type View = callable|list{string, string}|non-empty-string
+ */
 class Route
 {
     use AddsMiddleware;
@@ -21,31 +24,30 @@ class Route
     protected string $name;
     protected array $args = [];
 
-    /** @var null|list<string> */
+    /** @psalm-var null|list<string> */
     protected ?array $methods = null;
     protected ?RendererConfig $renderer = null;
 
-    /** @var Closure|list{string, string}|string */
+    /** @psalm-var Closure|list{string, string}|string */
     protected Closure|array|string $view;
 
     /**
-     * @param $pattern The URL pattern of the route
-     * @param $view The callable view. Can be a closure, an invokable object or any other callable
-     * @param $name The name of the route. If not given the pattern will be hashed and used as name.
-     * @param $params Optional arry which is stored alongside the route that can be consumed in the app
+     * @param string $pattern The URL pattern of the route
+     *
+     * @psalm-param View $view The callable view. Can be a closure, an invokable object or any other callable
+     *
+     * @param ?string $name   The name of the route. If not given the pattern will be hashed and used as name.
+     * @param array   $params Optional array which is stored alongside the route that can be consumed in the app
      */
     public function __construct(
         protected string $pattern,
-        /** @psalm-param callable|list{string, string}|non-empty-string */
         callable|array|string $view,
         ?string $name = null,
         protected array $params = [],
     ) {
         if (is_callable($view)) {
-            /** @var callable $view -- this is somehow necessary */
             $this->view = Closure::fromCallable($view);
         } else {
-            /** @psalm-var list{string, string}|non-empty-string $view */
             $this->view = $view;
         }
 
@@ -56,65 +58,70 @@ class Route
         }
     }
 
+    /** @psalm-param View $view */
     public static function get(
         string $pattern,
-        /** @property Closure|list{string, string}|string */
-        Closure|array|string $view,
+        callable|array|string $view,
         ?string $name = null,
         array $params = []
     ): static {
         return (new self($pattern, $view, $name, $params))->method('GET');
     }
 
+    /** @psalm-param View $view */
     public static function post(
         string $pattern,
-        /** @property Closure|list{string, string}|string */
-        Closure|array|string $view,
+        callable|array|string $view,
         ?string $name = null,
         array $params = []
     ): static {
         return (new self($pattern, $view, $name, $params))->method('POST');
     }
 
+    /** @psalm-param View $view */
     public static function put(
         string $pattern,
-        Closure|array|string $view,
+        callable|array|string $view,
         ?string $name = null,
         array $params = []
     ): static {
         return (new self($pattern, $view, $name, $params))->method('PUT');
     }
 
+    /** @psalm-param View $view */
     public static function patch(
         string $pattern,
-        Closure|array|string $view,
+        callable|array|string $view,
         ?string $name = null,
         array $params = []
     ): static {
         return (new self($pattern, $view, $name, $params))->method('PATCH');
     }
 
+    /** @psalm-param View $view */
     public static function delete(
         string $pattern,
-        Closure|array|string $view,
+        callable|array|string $view,
         ?string $name = null,
         array $params = []
     ): static {
         return (new self($pattern, $view, $name, $params))->method('DELETE');
     }
 
+    /** @psalm-param View $view */
     public static function head(
         string $pattern,
-        Closure|array|string $view,
+        callable|array|string $view,
         ?string $name = null,
         array $params = []
     ): static {
         return (new self($pattern, $view, $name, $params))->method('HEAD');
     }
 
+    /** @psalm-param View $view */
     public static function options(
         string $pattern,
-        Closure|array|string $view,
+        callable|array|string $view,
         ?string $name = null,
         array $params = []
     ): static {
@@ -129,7 +136,7 @@ class Route
         return $this;
     }
 
-    /** @return list<string> */
+    /** @psalm-return list<string> */
     public function methods(): array
     {
         return $this->methods ?? [];
@@ -233,7 +240,7 @@ class Route
         return $url;
     }
 
-    /** @return Closure|list{string, string}|string */
+    /** @psalm-return Closure|list{string, string}|string */
     public function view(): Closure|array|string
     {
         return $this->view;

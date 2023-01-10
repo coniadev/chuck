@@ -26,9 +26,9 @@ class ErrorHandler
 
     public function setup(): callable|null
     {
-        set_error_handler($this->handleError(...), E_ALL);
+        set_error_handler([$this, 'handleError'], E_ALL);
 
-        return set_exception_handler($this->handleException(...));
+        return set_exception_handler([$this, 'handleException']);
     }
 
     public function handleError(

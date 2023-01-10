@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Routing;
 
-use Closure;
-
+/**
+ * @psalm-import-type View from \Conia\Chuck\Routing\Route
+ */
 trait AddsRoutes
 {
+    abstract public function addRoute(Route $route): void;
+
+    /** @psalm-param View $view */
     public function route(
         string $pattern,
-        Closure|array|string $view,
+        callable|array|string $view,
         ?string $name = null,
         array $params = []
     ): Route {
@@ -20,9 +24,10 @@ trait AddsRoutes
         return $route;
     }
 
+    /** @psalm-param View $view */
     public function get(
         string $pattern,
-        Closure|array|string $view,
+        callable|array|string $view,
         ?string $name = null,
         array $params = []
     ): Route {
@@ -32,9 +37,10 @@ trait AddsRoutes
         return $route;
     }
 
+    /** @psalm-param View $view */
     public function post(
         string $pattern,
-        Closure|array|string $view,
+        callable|array|string $view,
         ?string $name = null,
         array $params = []
     ): Route {
@@ -44,9 +50,10 @@ trait AddsRoutes
         return $route;
     }
 
+    /** @psalm-param View $view */
     public function put(
         string $pattern,
-        Closure|array|string $view,
+        callable|array|string $view,
         ?string $name = null,
         array $params = []
     ): Route {
@@ -56,9 +63,10 @@ trait AddsRoutes
         return $route;
     }
 
+    /** @psalm-param View $view */
     public function patch(
         string $pattern,
-        Closure|array|string $view,
+        callable|array|string $view,
         ?string $name = null,
         array $params = []
     ): Route {
@@ -68,9 +76,10 @@ trait AddsRoutes
         return $route;
     }
 
+    /** @psalm-param View $view */
     public function delete(
         string $pattern,
-        Closure|array|string $view,
+        callable|array|string $view,
         ?string $name = null,
         array $params = []
     ): Route {
@@ -80,9 +89,10 @@ trait AddsRoutes
         return $route;
     }
 
+    /** @psalm-param View $view */
     public function head(
         string $pattern,
-        Closure|array|string $view,
+        callable|array|string $view,
         ?string $name = null,
         array $params = []
     ): Route {
@@ -92,9 +102,10 @@ trait AddsRoutes
         return $route;
     }
 
+    /** @psalm-param View $view */
     public function options(
         string $pattern,
-        Closure|array|string $view,
+        callable|array|string $view,
         ?string $name = null,
         array $params = []
     ): Route {

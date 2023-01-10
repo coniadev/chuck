@@ -12,7 +12,7 @@ use Conia\Chuck\Exception\ContainerException;
  */
 class Entry
 {
-    /** @var null|Args */
+    /** @psalm-var null|Args */
     protected array|Closure|null $args = null;
     protected bool $asIs = false;
     protected bool $reify;
@@ -68,10 +68,10 @@ class Entry
 
         if ($numArgs === 1) {
             if (is_string(array_key_first($args))) {
-                /** @var Args */
+                /** @psalm-var Args */
                 $this->args = $args;
             } elseif (is_array($args[0]) || $args[0] instanceof Closure) {
-                /** @var Args */
+                /** @psalm-var Args */
                 $this->args = $args[0];
             } else {
                 throw new ContainerException(

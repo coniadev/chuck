@@ -16,10 +16,10 @@ use Psr\Http\Server\MiddlewareInterface as PsrMiddlewareInterface;
  */
 trait AddsMiddleware
 {
-    /** @var MiddlewareList */
+    /** @psalm-var MiddlewareList */
     protected array $middleware = [];
 
-    /** @param ValidMiddleware ...$middleware */
+    /** @psalm-param ValidMiddleware ...$middleware */
     public function middleware(
         MiddlewareInterface|PsrMiddlewareInterface|callable ...$middleware
     ): static {
@@ -41,7 +41,7 @@ trait AddsMiddleware
         return $this;
     }
 
-    /** @return MiddlewareList */
+    /** @psalm-return MiddlewareList */
     public function getMiddleware(): array
     {
         return $this->middleware;
