@@ -9,6 +9,9 @@ use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Logger;
 use Conia\Chuck\Registry;
+use Conia\Chuck\Renderer\JsonRenderer;
+use Conia\Chuck\Renderer\Renderer;
+use Conia\Chuck\Renderer\TextRenderer;
 use Conia\Chuck\Request;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase as BaseTestCase;
@@ -163,6 +166,8 @@ class TestCase extends BaseTestCase
         $registry->add($request::class, $request);
         $registry->add(Config::class, $config);
         $registry->add($config::class, $config);
+        $registry->addTagged(Renderer::class, 'text', TextRenderer::class)->asIs();
+        $registry->addTagged(Renderer::class, 'json', JsonRenderer::class)->asIs();
 
         return $registry;
     }

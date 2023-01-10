@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Conia\Chuck\Attribute;
 
 use Attribute;
-use Conia\Chuck\Config;
+use Closure;
 use Conia\Chuck\Registry;
+use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 
@@ -20,14 +21,20 @@ class Render
         $this->args = $args;
     }
 
-    public function response(Request $request, Config $config, Registry $registry, mixed $data): Response
+    public function response(Request $request, Registry $registry, mixed $data): Response
     {
-        $renderer = $config->renderer(
-            $request,
-            $registry,
-            $this->renderer,
-            ...$this->args,
-        );
+        $entry = $registry->tag(Renderer::class)->entry($this->renderer);
+        $class = $entry->definition();
+        $options = $entry->getArgs();
+
+        if ($options instanceof Closure) {
+            /** @var mixed */
+            $options = $options();
+        }
+
+        assert(is_string($class));
+        assert(is_subclass_of($class, Renderer::class));
+        $renderer = new $class($request, $registry, $this->args, $options);
 
         return $renderer->response($data);
     }

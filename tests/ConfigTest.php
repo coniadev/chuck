@@ -6,7 +6,6 @@ use Conia\Chuck\Config;
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Logger;
-use Conia\Chuck\Tests\Fixtures\TestRenderer;
 use Conia\Chuck\Tests\Setup\C;
 use Conia\Chuck\Tests\Setup\TestCase;
 use Psr\Log\LoggerInterface;
@@ -83,18 +82,3 @@ test('Logger call without setup', function () {
 
     expect($config->logger())->toBe(null);
 });
-
-
-test('Add renderer', function () {
-    $config = new Config('chuck');
-    $config->addRenderer('test', TestRenderer::class);
-    $renderer = $config->renderer($this->request(), $this->registry(), 'test');
-
-    expect($renderer)->toBeInstanceOf(TestRenderer::class);
-});
-
-
-test('Add wrong renderer', function () {
-    $config = new Config('chuck');
-    $config->addRenderer('test', Config::class);
-})->throws(ValueError::class, 'must extend');

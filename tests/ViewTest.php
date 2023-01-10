@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Registry;
-use Conia\Chuck\Request;
+use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Response;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\Tests\Fixtures\TestAttribute;
 use Conia\Chuck\Tests\Fixtures\TestAttributeDiff;
 use Conia\Chuck\Tests\Fixtures\TestAttributeExt;
 use Conia\Chuck\Tests\Fixtures\TestController;
+use Conia\Chuck\Tests\Fixtures\TestRendererArgsOptions;
 use Conia\Chuck\Tests\Setup\TestCase;
 use Conia\Chuck\View;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 
 require __DIR__ . '/Setup/globalSymbols.php';
 
@@ -138,7 +137,7 @@ test('View response Response', function () {
     });
     $route->match('/');
     $view = new View($route->view(), $route->args(), $this->registry());
-    $response = $view->respond($this->request(), $route, $this->registry(), $this->config());
+    $response = $view->respond($this->request(), $route, $this->registry());
 
     expect((string)$response->getBody())->toBe('Chuck Response');
     expect($response->headers()['Content-Type'][0])->toBe('text/plain');
@@ -156,7 +155,7 @@ test('View response PSR Response', function () {
     });
     $route->match('/');
     $view = new View($route->view(), $route->args(), $this->registry());
-    $response = $view->respond($this->request(), $route, $this->registry(), $this->config());
+    $response = $view->respond($this->request(), $route, $this->registry());
 
     expect((string)$response->getBody())->toBe('Chuck PSR Response');
     expect($response->headers()['Content-Type'][0])->toBe('text/plain');
@@ -167,7 +166,7 @@ test('View response array', function () {
     $route = new Route('/', fn () => ['chuck' => 'schuldiner']);
     $route->match('/');
     $view = new View($route->view(), $route->args(), $this->registry());
-    $response = $view->respond($this->request(), $route, $this->registry(), $this->config());
+    $response = $view->respond($this->request(), $route, $this->registry());
 
     expect((string)$response->getBody())->toBe('{"chuck":"schuldiner"}');
     expect($response->headers()['Content-Type'][0])->toBe('application/json');
@@ -178,7 +177,7 @@ test('View response string', function () {
     $route = new Route('/', fn () => '<h1>Chuck</h1>');
     $route->match('/');
     $view = new View($route->view(), $route->args(), $this->registry());
-    $response = $view->respond($this->request(), $route, $this->registry(), $this->config());
+    $response = $view->respond($this->request(), $route, $this->registry());
 
     expect((string)$response->getBody())->toBe('<h1>Chuck</h1>');
     expect($response->headers()['Content-Type'][0])->toBe('text/html');
@@ -194,8 +193,56 @@ test('View response Stringable', function () {
     });
     $route->match('/');
     $view = new View($route->view(), $route->args(), $this->registry());
-    $response = $view->respond($this->request(), $route, $this->registry(), $this->config());
+    $response = $view->respond($this->request(), $route, $this->registry());
 
     expect((string)$response->getBody())->toBe('<h1>Chuck</h1>');
     expect($response->headers()['Content-Type'][0])->toBe('text/html');
+});
+
+
+test('View response renderer', function () {
+    $route = (new Route('/', fn () => ['name' => 'Chuck']))->render('json');
+    $route->match('/');
+    $view = new View($route->view(), $route->args(), $this->registry());
+    $response = $view->respond($this->request(), $route, $this->registry());
+
+    expect((string)$response->getBody())->toBe('{"name":"Chuck"}');
+    expect($response->headers()['Content-Type'][0])->toBe('application/json');
+});
+
+
+test('View response renderer with args and options', function () {
+    $registry = $this->registry();
+    $registry
+        ->tag(Renderer::class)
+        ->add('test', TestRendererArgsOptions::class)
+        ->args(option1: 13, option2: 'Option')
+        ->asIs();
+
+    $route = (new Route('/', fn () => ['name' => 'Chuck']))->render('test', arg1: 'Arg', arg2: 73);
+    $route->match('/');
+    $view = new View($route->view(), $route->args(), $registry);
+    $response = $view->respond($this->request(), $route, $registry);
+
+    expect((string)$response->getBody())
+        ->toBe('{"name":"Chuck","arg1":"Arg","arg2":73,"option1":13,"option2":"Option"}');
+    expect($response->headers()['Content-Type'][0])->toBe('application/json');
+});
+
+
+test('View response renderer with options closure', function () {
+    $registry = $this->registry();
+    $registry
+        ->tag(Renderer::class)
+        ->add('test', TestRendererArgsOptions::class)
+        ->args(fn () => ['option1' => 13, 'option2' => 'Option'])
+        ->asIs();
+
+    $route = (new Route('/', fn () => ['name' => 'Chuck']))->render('test');
+    $route->match('/');
+    $view = new View($route->view(), $route->args(), $registry);
+    $response = $view->respond($this->request(), $route, $registry);
+
+    expect((string)$response->getBody())->toBe('{"name":"Chuck","option1":13,"option2":"Option"}');
+    expect($response->headers()['Content-Type'][0])->toBe('application/json');
 });

@@ -7,9 +7,6 @@ namespace Conia\Chuck;
 use Closure;
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\ValueError;
-use Conia\Chuck\Renderer\JsonRenderer;
-use Conia\Chuck\Renderer\Renderer;
-use Conia\Chuck\Renderer\TextRenderer;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -21,9 +18,6 @@ class Config
     protected ?Closure $loggerCallback = null;
     protected ?LoggerInterface $logger = null;
 
-    /** @psalm-var array<string, array{class: class-string<Renderer>, options: mixed}> */
-    protected array $renderers = [];
-
     /**
      * @param array<never, never>|array<string, mixed> -- Stores additional user defined settings
      */
@@ -34,11 +28,6 @@ class Config
         protected array $settings = [],
     ) {
         $this->validateApp($app);
-
-        $this->renderers = [
-            'text' => ['class' => TextRenderer::class, 'options' => null],
-            'json' => ['class' => JsonRenderer::class, 'options' => null],
-        ];
     }
 
     public function set(string $key, mixed $value): void
@@ -79,26 +68,6 @@ class Config
     public function env(): string
     {
         return $this->env;
-    }
-
-    /** @psalm-param class-string<Renderer> $class */
-    public function addRenderer(string $name, string $class, mixed $options = null): void
-    {
-        if (is_subclass_of($class, Renderer::class)) {
-            $this->renderers[$name] = ['class' => $class, 'options' => $options];
-        } else {
-            throw new ValueError('A renderer must extend ' . Renderer::class);
-        }
-    }
-
-    public function renderer(Request $request, Registry $registry, string $type, mixed ...$args): Renderer
-    {
-        $class = $this->renderers[$type]['class'];
-
-        /** @psalm-suppress MixedAssignment -- options are mixed values by nature */
-        $options = $this->renderers[$type]['options'];
-
-        return new $class($request, $registry, $args, $options);
     }
 
     /** @param callable():LoggerInterface $callable */

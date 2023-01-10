@@ -6,11 +6,12 @@ namespace Conia\Chuck;
 
 use Closure;
 use Conia\Chuck\Attribute\Render;
-use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Registry;
+use Conia\Chuck\Renderer\Config as RendererConfig;
+use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 use Conia\Chuck\ResponseFactory;
@@ -55,7 +56,6 @@ class View
         Request $request,
         Route $route,
         Registry $registry,
-        Config $config,
     ): Response {
         /**
          * @psalm-suppress MixedAssignment
@@ -67,23 +67,18 @@ class View
         if ($result instanceof Response) {
             return $result;
         }
+
         if ($result instanceof ResponseInterface) {
             $sf = $registry->get(StreamFactoryInterface::class);
             assert($sf instanceof StreamFactoryInterface);
 
             return new Response($result, $sf);
         }
+
         $rendererConfig = $route->getRenderer();
 
         if ($rendererConfig) {
-            $renderer = $config->renderer(
-                $request,
-                $registry,
-                $rendererConfig->type,
-                ...$rendererConfig->args
-            );
-
-            return $renderer->response($result);
+            return $this->respondFromRenderer($request, $registry, $rendererConfig, $result);
         }
 
         $renderAttributes = $this->attributes(Render::class);
@@ -91,7 +86,7 @@ class View
         if (count($renderAttributes) > 0) {
             assert($renderAttributes[0] instanceof Render);
 
-            return $renderAttributes[0]->response($request, $config, $registry, $result);
+            return $renderAttributes[0]->response($request, $registry, $result);
         }
 
         $responseFactory = new ResponseFactory($registry);
@@ -141,6 +136,28 @@ class View
         }
 
         return $this->attributes;
+    }
+
+    protected function respondFromRenderer(
+        Request $request,
+        Registry $registry,
+        RendererConfig $rendererConfig,
+        mixed $result,
+    ): Response {
+        $entry = $registry->tag(Renderer::class)->entry($rendererConfig->type);
+        $class = $entry->definition();
+        $options = $entry->getArgs();
+
+        if ($options instanceof Closure) {
+            /** @var mixed */
+            $options = $options();
+        }
+
+        assert(is_string($class));
+        assert(is_subclass_of($class, Renderer::class));
+        $renderer = new $class($request, $registry, $rendererConfig->args, $options);
+
+        return $renderer->response($result);
     }
 
     protected function getClosure(array|string $view): Closure

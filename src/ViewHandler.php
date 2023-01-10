@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-use Conia\Chuck\Config;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
@@ -16,7 +15,6 @@ class ViewHandler
     public function __construct(
         protected readonly View $view,
         protected readonly Registry $registry,
-        protected readonly Config $config,
         protected readonly Route $route,
     ) {
     }
@@ -27,7 +25,6 @@ class ViewHandler
             $request,
             $this->route,
             $this->registry,
-            $this->config
         );
     }
 }

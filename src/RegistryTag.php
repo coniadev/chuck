@@ -22,7 +22,7 @@ class RegistryTag
 
     public function entry(string $id): RegistryEntry
     {
-        return $this->registry->taggedEntry($this->tag, $id);
+        return $this->registry->getTaggedEntry($this->tag, $id);
     }
 
     public function get(string $id): mixed

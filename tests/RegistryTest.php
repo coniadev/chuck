@@ -479,7 +479,7 @@ test('Third party container', function () {
     $container = new League\Container\Container();
     $container->add('external', new stdClass());
     $registry = new Registry($container);
-    $registry->addAnyway('internal', new Registry());
+    $registry->add('internal', new Registry());
 
     expect($registry->get('external') instanceof stdClass)->toBe(true);
     expect($registry->get('internal') instanceof Registry)->toBe(true);

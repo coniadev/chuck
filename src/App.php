@@ -9,6 +9,9 @@ use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\Registry;
 use Conia\Chuck\RegistryEntry;
+use Conia\Chuck\Renderer\JsonRenderer;
+use Conia\Chuck\Renderer\Renderer;
+use Conia\Chuck\Renderer\TextRenderer;
 use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Routing\AddsRoutes;
 use Conia\Chuck\Routing\Group;
@@ -102,9 +105,18 @@ class App
     }
 
     /**
+     * @psalm-param non-empty-string $name
+     * @psalm-param non-empty-string $class
+     */
+    public function renderer(string $name, string $class): RegistryEntry
+    {
+        return $this->registry->addTagged(Renderer::class, $name, $class)->asIs();
+    }
+
+    /**
      * @psalm-param non-empty-string $key
      * @psalm-param class-string|object $value
-     * */
+     */
     public function register(string $key, object|string $value): RegistryEntry
     {
         return $this->registry->add($key, $value);
@@ -115,9 +127,9 @@ class App
         $serverRequest = $this->registry->get(ServerRequestInterface::class);
         assert($serverRequest instanceof ServerRequestInterface);
         $request = new Request($serverRequest);
-        $this->registry->addAnyway(Request::class, $request);
+        $this->registry->add(Request::class, $request);
 
-        $response = $this->router->dispatch($request, $this->config, $this->registry);
+        $response = $this->router->dispatch($request, $this->registry);
 
         (new Emitter())->emit($response->psr7());
 
@@ -128,16 +140,16 @@ class App
     {
         $registry = $this->registry;
 
-        $registry->addAnyway(Config::class, $this->config);
-        $registry->addAnyway($this->config::class, $this->config);
-        $registry->addAnyway(Router::class, $this->router);
-        $registry->addAnyway($this->router::class, $this->router);
-        $registry->addAnyway(App::class, $this);
+        $registry->add(Config::class, $this->config);
+        $registry->add($this->config::class, $this->config);
+        $registry->add(Router::class, $this->router);
+        $registry->add($this->router::class, $this->router);
+        $registry->add(App::class, $this);
 
-        $registry->addAnyway(ResponseFactoryInterface::class, \Nyholm\Psr7\Factory\Psr17Factory::class);
-        $registry->addAnyway(StreamFactoryInterface::class, \Nyholm\Psr7\Factory\Psr17Factory::class);
-        $registry->addAnyway(ResponseFactory::class, new ResponseFactory($this->registry));
-        $registry->addAnyway(ServerRequestInterface::class, function (): ServerRequestInterface {
+        $registry->add(ResponseFactoryInterface::class, \Nyholm\Psr7\Factory\Psr17Factory::class);
+        $registry->add(StreamFactoryInterface::class, \Nyholm\Psr7\Factory\Psr17Factory::class);
+        $registry->add(ResponseFactory::class, new ResponseFactory($this->registry));
+        $registry->add(ServerRequestInterface::class, function (): ServerRequestInterface {
             try {
                 $psr17Factory = new \Nyholm\Psr7\Factory\Psr17Factory();
                 $creator = new \Nyholm\Psr7Server\ServerRequestCreator(
@@ -154,5 +166,8 @@ class App
                 // @codeCoverageIgnoreEnd
             }
         });
+
+        $registry->addTagged(Renderer::class, 'text', TextRenderer::class)->asIs();
+        $registry->addTagged(Renderer::class, 'json', JsonRenderer::class)->asIs();
     }
 }

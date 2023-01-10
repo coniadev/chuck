@@ -5,11 +5,13 @@ declare(strict_types=1);
 use Conia\Chuck\App;
 use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ContainerException;
+use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 use Conia\Chuck\Routing\Group;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\Routing\Router;
+use Conia\Chuck\Tests\Fixtures\TestRenderer;
 use Conia\Chuck\Tests\Setup\C;
 use Conia\Chuck\Tests\Setup\TestCase;
 
@@ -36,14 +38,6 @@ test('Create with third party container', function () {
 
     expect($app->registry()->get('external') instanceof stdClass)->toBe(true);
 });
-
-
-test('Fail on register helper when using third party container', function () {
-    $container = new League\Container\Container();
-    $app = App::create($this->config(), $container);
-
-    $app->register('external', new stdClass());
-})->throws(ContainerException::class, 'Third party container');
 
 
 test('Middleware helper', function () {
@@ -176,4 +170,13 @@ test('App::group helper', function () {
     }, 'albums:');
 
     expect($app->router()->routeUrl('albums:name', ['name' => 'symbolic']))->toBe('/albums/symbolic');
+});
+
+
+test('Add renderer', function () {
+    $app = App::create($this->config());
+    $app->renderer('test', TestRenderer::class);
+    $registry = $app->registry();
+
+    expect($registry->tag(Renderer::class)->get('test'))->toBe(TestRenderer::class);
 });

@@ -32,13 +32,13 @@ class Registry implements ContainerInterface
         protected readonly bool $autowire = true
     ) {
         if ($container) {
-            $this->addAnyway(ContainerInterface::class, $container);
-            $this->addAnyway($container::class, $container);
+            $this->add(ContainerInterface::class, $container);
+            $this->add($container::class, $container);
         } else {
-            $this->addAnyway(ContainerInterface::class, $this);
+            $this->add(ContainerInterface::class, $this);
         }
 
-        $this->addAnyway(Registry::class, $this);
+        $this->add(Registry::class, $this);
     }
 
     public function has(string $id): bool
@@ -81,21 +81,6 @@ class Registry implements ContainerInterface
         mixed $value = null,
         string $paramName = '',
     ): RegistryEntry {
-        if ($this->container) {
-            throw new ContainerException('Third party container implementation in use');
-        }
-
-        return $this->addAnyway($id, $value, $paramName);
-    }
-
-    /**
-     * @psalm-param non-empty-string $id
-     */
-    public function addAnyway(
-        string $id,
-        mixed $value = null,
-        string $paramName = '',
-    ): RegistryEntry {
         $paramName = $this->normalizeParameterName($paramName);
         $entry = new RegistryEntry($id, $value ?? $id);
         $this->entries[$id . $paramName] = $entry;
@@ -113,7 +98,7 @@ class Registry implements ContainerInterface
         return isset($this->taggedEntries[$tag][$id]);
     }
 
-    public function taggedEntry(string $tag, string $id): RegistryEntry
+    public function getTaggedEntry(string $tag, string $id): RegistryEntry
     {
         return $this->taggedEntries[$tag][$id];
     }

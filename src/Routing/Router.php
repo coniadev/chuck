@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Routing;
 
-use Conia\Chuck\Config;
 use Conia\Chuck\Dispatcher;
 use Conia\Chuck\Exception\HttpMethodNotAllowed;
 use Conia\Chuck\Exception\HttpNotFound;
@@ -185,13 +184,13 @@ class Router
     /**
      * Looks up the matching route and generates the response.
      */
-    public function dispatch(Request $request, Config $config, Registry $registry): Response
+    public function dispatch(Request $request, Registry $registry): Response
     {
         $this->route = $this->match($request);
 
         $view = new View($this->route->view(), $this->route->args(), $registry);
         $queue = $this->collectMiddleware($view);
-        $queue[] = new ViewHandler($view, $registry, $config, $this->route);
+        $queue[] = new ViewHandler($view, $registry, $this->route);
 
         return (new Dispatcher($queue, $registry))->dispatch($request);
     }
