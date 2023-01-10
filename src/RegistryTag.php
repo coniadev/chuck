@@ -7,7 +7,7 @@ namespace Conia\Chuck;
 class RegistryTag
 {
     /**
-     * @param non-empty-string $id
+     * @psalm-param non-empty-string $id
      * */
     public function __construct(
         readonly protected string $tag,
@@ -31,7 +31,7 @@ class RegistryTag
     }
 
     /**
-     * @param non-empty-string $id
+     * @psalm-param non-empty-string $id
      */
     public function add(string $id, mixed $value = null): RegistryEntry
     {

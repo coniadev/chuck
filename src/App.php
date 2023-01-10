@@ -102,8 +102,8 @@ class App
     }
 
     /**
-     * @param non-empty-string    $key
-     * @param class-string|object $value
+     * @psalm-param non-empty-string $key
+     * @psalm-param class-string|object $value
      * */
     public function register(string $key, object|string $value): RegistryEntry
     {

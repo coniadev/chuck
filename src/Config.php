@@ -25,7 +25,7 @@ class Config
     protected ?Closure $loggerCallback = null;
     protected ?LoggerInterface $logger = null;
 
-    /** @var array<string, array{class: class-string<Renderer>, options: mixed}> */
+    /** @psalm-var array<string, array{class: class-string<Renderer>, options: mixed}> */
     protected array $renderers = [];
 
     /**
@@ -87,7 +87,7 @@ class Config
         return $this->env;
     }
 
-    /** @param class-string<Renderer> $class */
+    /** @psalm-param class-string<Renderer> $class */
     public function addRenderer(string $name, string $class, mixed $options = null): void
     {
         if (is_subclass_of($class, Renderer::class)) {

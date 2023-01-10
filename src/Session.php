@@ -12,8 +12,8 @@ use Psr\Http\Message\ServerRequestInterface;
 class Session
 {
     /**
-     * @param non-empty-string $flashMessagesKey
-     * @param non-empty-string $rememberedUriKey
+     * @psalm-param non-empty-string $flashMessagesKey
+     * @psalm-param non-empty-string $rememberedUriKey
      */
     public function __construct(
         protected string $name,
@@ -70,7 +70,7 @@ class Session
         session_destroy();
     }
 
-    /** @param non-empty-string $key */
+    /** @psalm-param non-empty-string $key */
     public function get(string $key, mixed $default = null): mixed
     {
         if ($this->has($key)) {
@@ -88,20 +88,20 @@ class Session
     /**
      * @psalm-suppress MixedAssignment
      *
-     * @param non-empty-string $key
+     * @psalm-param non-empty-string $key
      * */
     public function set(string $key, mixed $value): void
     {
         $_SESSION[$key] = $value;
     }
 
-    /** @param non-empty-string $key */
+    /** @psalm-param non-empty-string $key */
     public function has(string $key): bool
     {
         return isset($_SESSION[$key]);
     }
 
-    /** @param non-empty-string $key */
+    /** @psalm-param non-empty-string $key */
     public function unset(string $key): void
     {
         unset($_SESSION[$key]);

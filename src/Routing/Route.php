@@ -36,7 +36,7 @@ class Route
      */
     public function __construct(
         protected string $pattern,
-        /** @param callable|list{string, string}|non-empty-string */
+        /** @psalm-param callable|list{string, string}|non-empty-string */
         callable|array|string $view,
         ?string $name = null,
         protected array $params = [],
@@ -45,7 +45,7 @@ class Route
             /** @var callable $view -- this is somehow necessary */
             $this->view = Closure::fromCallable($view);
         } else {
-            /** @var list{string, string}|non-empty-string $view */
+            /** @psalm-var list{string, string}|non-empty-string $view */
             $this->view = $view;
         }
 

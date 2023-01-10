@@ -19,7 +19,7 @@ class RegistryEntry
     protected mixed $instance = null;
 
     /**
-     * @param non-empty-string $id
+     * @psalm-param non-empty-string $id
      * */
     public function __construct(
         readonly protected string $id,

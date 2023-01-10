@@ -200,7 +200,7 @@ class Request
      *
      * @no-named-arguments
      *
-     * @param list<non-empty-string>|string ...$keys
+     * @psalm-param list<non-empty-string>|string ...$keys
      *
      * @return UploadedFileInterface
      *
@@ -260,7 +260,7 @@ class Request
         }
     }
 
-    /** @param non-empty-list<string> $keys */
+    /** @psalm-param non-empty-list<string> $keys */
     private function formatKeys(array $keys): string
     {
         return implode('', array_map(

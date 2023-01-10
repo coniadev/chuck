@@ -62,7 +62,7 @@ class View
          * @psalm-suppress MixedAssignment
          *
          * Later in the function we check the type of $result.
-         * */
+         */
         $result = $this->execute();
 
         if ($result instanceof Response) {
@@ -124,7 +124,7 @@ class View
         return new ReflectionFunction($callable);
     }
 
-    /** @param $filter ?class-string */
+    /** @psalm-param $filter ?class-string */
     public function attributes(string $filter = null): array
     {
         $reflector = new ReflectionFunction($this->closure);

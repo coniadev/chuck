@@ -77,7 +77,7 @@ class Registry implements ContainerInterface
     }
 
     /**
-     * @param non-empty-string $id
+     * @psalm-param non-empty-string $id
      */
     public function add(
         string $id,
@@ -92,7 +92,7 @@ class Registry implements ContainerInterface
     }
 
     /**
-     * @param non-empty-string $id
+     * @psalm-param non-empty-string $id
      */
     public function addAnyway(
         string $id,
@@ -133,7 +133,7 @@ class Registry implements ContainerInterface
     }
 
     /**
-     * @param non-empty-string $id
+     * @psalm-param non-empty-string $id
      */
     public function addTagged(string $tag, string $id, mixed $value = null): RegistryEntry
     {
@@ -293,7 +293,7 @@ class Registry implements ContainerInterface
         return $value;
     }
 
-    /** @param class-string $class */
+    /** @psalm-param class-string $class */
     protected function autowire(string $class): object
     {
         $rc = new ReflectionClass($class);
@@ -323,14 +323,14 @@ class Registry implements ContainerInterface
         return $args;
     }
 
-    /** @param class-string $class */
+    /** @psalm-param class-string $class */
     protected function fromArgsArray(string $class, array $args): object
     {
         /** @psalm-suppress MixedMethodCall */
         return new $class(...$args);
     }
 
-    /** @param class-string $class */
+    /** @psalm-param class-string $class */
     protected function fromArgsClosure(string $class, Closure $callback): object
     {
         $rf = new ReflectionFunction($callback);

@@ -21,9 +21,8 @@ class Logger implements LoggerInterface
     public const ALERT = 700;
     public const EMERGENCY = 800;
 
-    /** @var array<int, non-empty-string> */
+    /** @psalm-var array<int, non-empty-string> */
     protected array $levelLabels;
-
 
     public function __construct(
         protected int $minimumLevel = self::DEBUG,
