@@ -13,16 +13,10 @@ use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface as PsrMiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-/**
- * @psalm-type HandlerList = list<MiddlewareInterface|PsrMiddlewareInterface|ViewHandler>
- */
 class Dispatcher
 {
     protected StreamFactoryInterface $streamFactory;
 
-    /**
-     * @psalm-param HandlerList $queue
-     */
     public function __construct(
         protected readonly array $queue,
         protected readonly Registry $registry
@@ -35,23 +29,17 @@ class Dispatcher
     /**
      * Recursively calls the callables in the middleware/view handler queue
      * and then the view callable.
-     *
-     * @psalm-param HandlerList $queue
      */
     public function handle(array $queue, Request $request): Response
     {
+        /** @psalm-var non-empty-list<MiddlewareInterface|PsrMiddlewareInterface|ViewHandler> $queue */
         $handler = $queue[0];
 
         if ($handler instanceof MiddlewareInterface) {
             return $handler(
                 $request,
-                function (
-                    Request $req
-                ) use ($queue): Response {
-                    return $this->handle(
-                        array_slice($queue, 1),
-                        $req,
-                    );
+                function (Request $req) use ($queue): Response {
+                    return $this->handle(array_slice($queue, 1), $req);
                 }
             );
         } elseif ($handler instanceof PsrMiddlewareInterface) {
@@ -59,7 +47,6 @@ class Dispatcher
                 $request->psr7(),
                 // Create an anonymous PSR-15 RequestHandler
                 new class ($this, array_slice($queue, 1)) implements RequestHandlerInterface {
-                    /** @psalm-param HandlerList $queue */
                     public function __construct(
                         protected readonly Dispatcher $dispatcher,
                         protected readonly array $queue

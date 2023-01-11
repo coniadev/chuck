@@ -109,6 +109,11 @@ class Response
         return $this->psr7->getBody();
     }
 
+    public function write(string $content): int
+    {
+        return $this->psr7->getBody()->write($content);
+    }
+
     public function redirect(string $url, int $code = 302): static
     {
         $this->header('Location', $url);

@@ -204,5 +204,5 @@ test('Route middleware', function () {
     $middleware = $route->getMiddleware();
 
     expect($middleware[0])->toBeInstanceOf(TestMiddleware1::class);
-    expect($middleware[1])->toBeInstanceOf(MiddlewareWrapper::class);
+    expect($middleware[1])->toBeInstanceOf(TestMiddleware2::class);
 });

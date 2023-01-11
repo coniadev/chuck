@@ -383,13 +383,23 @@ test('Dispatch view with route params including request', function () {
 test('Middleware add', function () {
     $router = new Router();
 
-    $router->middleware(function (Request $request, callable $next): Response|Request {
+    $router->middleware(function (Request $request, callable $next): Response {
         return $next($request);
     });
     $router->middleware(new TestMiddleware1());
 
     expect(count($router->getMiddleware()))->toBe(2);
 });
+
+
+test('Fail after adding invalid middleware', function () {
+    $router = new Router();
+    $router->middleware('this-is-no-middleware');
+    $index = new Route('/', fn () => '');
+    $router->addRoute($index);
+
+    $router->dispatch($this->request(), $this->registry());
+})->throws(RuntimeException::class, 'Invalid middleware: this-is-no-middleware');
 
 
 test('GET matching', function () {

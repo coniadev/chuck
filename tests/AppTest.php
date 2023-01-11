@@ -56,7 +56,7 @@ test('Create with third party container', function () {
 test('Middleware helper', function () {
     $app = App::create();
 
-    $app->middleware(function (Request $request, callable $next): Request|Response {
+    $app->middleware(function (Request $request, callable $next): Response {
         return $next($request);
     });
 

@@ -8,18 +8,11 @@ use Closure;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 
-/**
- * @psalm-import-type MiddlewareCallable from \Conia\Chuck\MiddlewareInterface
- * @psalm-import-type MiddlewareClosure from \Conia\Chuck\MiddlewareInterface
- */
 class MiddlewareWrapper implements MiddlewareInterface
 {
-    /** @psalm-var MiddlewareClosure */
     protected Closure $callable;
 
-    /**
-     * @psalm-param MiddlewareCallable $callable
-     */
+    /** @psalm-param callable(Request, callable):Response $callable */
     public function __construct(callable $callable)
     {
         $this->callable = Closure::fromCallable($callable);
@@ -29,6 +22,7 @@ class MiddlewareWrapper implements MiddlewareInterface
         Request $request,
         callable $next
     ): Response {
+        /** @psalm-var Closure(Request, callable):Response $this->callable */
         return ($this->callable)($request, $next);
     }
 }

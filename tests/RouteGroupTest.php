@@ -164,14 +164,15 @@ test('Middleware', function () {
     $route = $router->match($this->request(method: 'GET', url: '/albums/human'));
     $middleware = $route->getMiddleware();
     expect(count($middleware))->toBe(1);
-    expect($middleware[0])->toBeInstanceOf(MiddlewareWrapper::class);
+    expect($middleware[0])->toBeInstanceOf(TestMiddleware2::class);
 
     $route = $router->match($this->request(method: 'GET', url: '/albums/home'));
     $middleware = $route->getMiddleware();
     expect(count($middleware))->toBe(2);
-    expect($middleware[0])->toBeInstanceOf(MiddlewareWrapper::class);
-    expect($middleware[1])->toBeInstanceOf(MiddlewareWrapper::class);
+    expect($middleware[0])->toBeInstanceOf(TestMiddleware2::class);
+    expect($middleware[1])->toBeInstanceOf(TestMiddleware3::class);
 });
+
 
 test('Fail without calling create before', function () {
     $group = new Group('/albums', function (Group $group) {

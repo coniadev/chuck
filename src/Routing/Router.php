@@ -9,16 +9,16 @@ use Conia\Chuck\Exception\HttpMethodNotAllowed;
 use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\MiddlewareInterface;
+use Conia\Chuck\MiddlewareWrapper;
 use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\Registry\Resolver;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 use Conia\Chuck\View;
 use Conia\Chuck\ViewHandler;
+use Psr\Http\Server\MiddlewareInterface as PsrMiddlewareInterface;
 use Throwable;
 
-/**
- * @psalm-import-type HandlerList from \Conia\Chuck\Dispatcher
- */
 class Router
 {
     use AddsRoutes;
@@ -189,7 +189,7 @@ class Router
         $this->route = $this->match($request);
 
         $view = new View($this->route->view(), $this->route->args(), $registry);
-        $queue = $this->collectMiddleware($view);
+        $queue = $this->collectMiddleware($view, $registry);
         $queue[] = new ViewHandler($view, $registry, $this->route);
 
         return (new Dispatcher($queue, $registry))->dispatch($request);
@@ -207,16 +207,40 @@ class Router
         }
     }
 
-    /** @return HandlerList */
-    protected function collectMiddleware(View $view): array
+    protected function collectMiddleware(View $view, Registry $registry): array
     {
-        /** @psalm-var list<MiddlewareInterface> */
         $middlewareAttributes = $view->attributes(MiddlewareInterface::class);
 
-        return array_merge(
-            $this->middleware,
-            isset($this->route) ? $this->route->getMiddleware() : [],
-            $middlewareAttributes,
+        return array_map(
+            function (
+                MiddlewareInterface|PsrMiddlewareInterface|callable|string $middleware
+            ) use ($registry): MiddlewareInterface|PsrMiddlewareInterface {
+                if (
+                    ($middleware instanceof MiddlewareInterface)
+                    || ($middleware instanceof PsrMiddlewareInterface)
+                ) {
+                    return $middleware;
+                }
+
+                if (is_string($middleware) && class_exists($middleware)) {
+                    $object = (new Resolver($registry))->autowire($middleware);
+                    assert($object instanceof MiddlewareInterface || $object instanceof PsrMiddlewareInterface);
+
+                    return $object;
+                }
+
+                if (is_callable($middleware)) {
+                    /** @psalm-var callable(Request, callable):Response $middleware */
+                    return new MiddlewareWrapper($middleware);
+                }
+
+                throw new RuntimeException('Invalid middleware: ' . print_r($middleware, true));
+            },
+            array_merge(
+                $this->middleware,
+                isset($this->route) ? $this->route->getMiddleware() : [],
+                $middlewareAttributes,
+            )
         );
     }
 }
