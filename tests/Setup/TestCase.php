@@ -138,12 +138,7 @@ class TestCase extends BaseTestCase
 
     public function config(bool $debug = false): Config
     {
-        $config = new Config('chuck', debug: $debug);
-        $config->setupLogger(function (): LoggerInterface {
-            return new Logger();
-        });
-
-        return $config;
+        return new Config('chuck', debug: $debug);
     }
 
     public function app(Config $config = null): App
@@ -166,6 +161,9 @@ class TestCase extends BaseTestCase
         $registry->add($request::class, $request);
         $registry->add(Config::class, $config);
         $registry->add($config::class, $config);
+        $registry->add(LoggerInterface::class, function (): LoggerInterface {
+            return new Logger();
+        });
 
         $registry->tag(Renderer::class)->add('text', TextRenderer::class)->asIs();
         $registry->tag(Renderer::class)->add('json', JsonRenderer::class)->asIs();

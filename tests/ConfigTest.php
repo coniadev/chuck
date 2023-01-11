@@ -6,9 +6,7 @@ use Conia\Chuck\Config;
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Logger;
-use Conia\Chuck\Tests\Setup\C;
 use Conia\Chuck\Tests\Setup\TestCase;
-use Psr\Log\LoggerInterface;
 
 uses(TestCase::class);
 
@@ -61,24 +59,3 @@ test('Missing key', function () {
 
     $config->get('missing');
 })->throws(OutOfBoundsException::class, 'does not exist');
-
-
-test('Logger setup', function () {
-    $config = new Config('chuck');
-    $config->setupLogger(function (): LoggerInterface {
-        $logfile = C::root() . C::DS . 'log' . C::DS . bin2hex(random_bytes(4)) . '.log';
-
-        return new Logger(Logger::DEBUG, $logfile);
-    });
-
-    expect($config->logger())->toBeInstanceOf(Logger::class);
-    // fetches the memoized logger
-    expect($config->logger())->toBeInstanceOf(Logger::class);
-});
-
-
-test('Logger call without setup', function () {
-    $config = new Config('chuck');
-
-    expect($config->logger())->toBe(null);
-});

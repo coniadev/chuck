@@ -234,7 +234,9 @@ class Router
                     return new MiddlewareWrapper($middleware);
                 }
 
-                throw new RuntimeException('Invalid middleware: ' . print_r($middleware, true));
+                throw new RuntimeException('Invalid middleware: ' .
+                    /** @scrutinizer ignore-type */
+                    print_r($middleware, true));
             },
             array_merge(
                 $this->middleware,

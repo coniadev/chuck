@@ -21,6 +21,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Log\LoggerInterface;
 use Throwable;
 
 /** @psalm-consistent-constructor */
@@ -115,6 +116,12 @@ class App
     public function renderer(string $name, string $class): Entry
     {
         return $this->registry->tag(Renderer::class)->add($name, $class)->asIs();
+    }
+
+    /** @param callable(mixed ...$args):LoggerInterface $callable */
+    public function logger(callable $callback): void
+    {
+        $this->registry->add(LoggerInterface::class, Closure::fromCallable($callback));
     }
 
     /**

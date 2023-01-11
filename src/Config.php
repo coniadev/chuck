@@ -70,28 +70,6 @@ class Config
         return $this->env;
     }
 
-    /** @param callable():LoggerInterface $callable */
-    public function setupLogger(callable $callback): void
-    {
-        /** @psalm-var Closure():LoggerInterface */
-        $this->loggerCallback = Closure::fromCallable($callback);
-    }
-
-    public function logger(): ?LoggerInterface
-    {
-        if ($this->loggerCallback) {
-            if ($this->logger) {
-                return $this->logger;
-            }
-
-            $this->logger = ($this->loggerCallback)();
-
-            return $this->logger;
-        }
-
-        return null;
-    }
-
     protected function validateApp(string $app): void
     {
         if (!preg_match('/^[a-z0-9_$-]{1,64}$/', $app)) {

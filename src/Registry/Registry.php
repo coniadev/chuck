@@ -198,7 +198,7 @@ class Registry implements ContainerInterface
             return $value;
         }
 
-        throw new NotFoundException('Unresolvable id: ' . print_r($value, true));
+        throw new NotFoundException('Unresolvable id: ' . (string)$value);
     }
 
     /** @psalm-param class-string $class */

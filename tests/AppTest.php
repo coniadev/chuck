@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Conia\Chuck\App;
 use Conia\Chuck\Config;
-use Conia\Chuck\Exception\ContainerException;
+use Conia\Chuck\Logger;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
@@ -14,6 +14,7 @@ use Conia\Chuck\Routing\Router;
 use Conia\Chuck\Tests\Fixtures\TestRenderer;
 use Conia\Chuck\Tests\Setup\C;
 use Conia\Chuck\Tests\Setup\TestCase;
+use Psr\Log\LoggerInterface;
 
 uses(TestCase::class);
 
@@ -191,4 +192,23 @@ test('Add renderer', function () {
     $registry = $app->registry();
 
     expect($registry->tag(Renderer::class)->get('test'))->toBe(TestRenderer::class);
+});
+
+
+
+test('Add logger', function () {
+    $app = $this->app();
+    $app->Logger(function (): LoggerInterface {
+        $logfile = C::root() . C::DS . 'log' . C::DS . bin2hex(random_bytes(4)) . '.log';
+
+        return new Logger(Logger::DEBUG, $logfile);
+    });
+    $registry = $app->registry();
+    $logger = $registry->get(LoggerInterface::class);
+
+    expect($logger)->toBeInstanceOf(Logger::class);
+
+    $logger2 = $registry->get(LoggerInterface::class);
+
+    expect($logger === $logger2)->toBe(true);
 });

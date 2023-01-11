@@ -16,6 +16,7 @@ use Conia\Chuck\Exception\HttpUnauthorized;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\ResponseFactory;
 use ErrorException;
+use Psr\Log\LoggerInterface;
 use Throwable;
 
 class ErrorHandler
@@ -89,9 +90,9 @@ class ErrorHandler
 
     public function log(Throwable $exception): void
     {
-        $logger = $this->config->logger();
-
-        if ($logger) {
+        if ($this->registry->has(LoggerInterface::class)) {
+            $logger = $this->registry->get(LoggerInterface::class);
+            assert($logger instanceof LoggerInterface);
             $method = $this->getLoggerMethod($exception);
             ([$logger, $method])('Uncaught Exception:', ['exception' => $exception]);
         }
