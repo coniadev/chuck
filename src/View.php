@@ -17,9 +17,11 @@ use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Routing\Route;
+use Conia\Chuck\ViewAttributeInterface;
 use JsonException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
@@ -126,7 +128,7 @@ class View
 
         if (!isset($this->attributes)) {
             $this->attributes = array_map(function ($attribute) {
-                return $attribute->newInstance();
+                return $this->newAttributeInstance($attribute);
             }, $reflector->getAttributes());
         }
 
@@ -137,6 +139,24 @@ class View
         }
 
         return $this->attributes;
+    }
+
+    protected function newAttributeInstance(ReflectionAttribute $attribute): object
+    {
+        $taggedRegistry = $this->registry->tag(ViewAttributeInterface::class);
+        $attrName = $attribute->getName();
+
+        if ($taggedRegistry->has($attrName)) {
+            $instance = $taggedRegistry->new($attrName, ...$attribute->getArguments());
+        } else {
+            $instance = $attribute->newInstance();
+        }
+
+        if ($instance instanceof ViewAttributeInterface) {
+            $instance->injectRegistry($this->registry);
+        }
+
+        return $instance;
     }
 
     protected function respondFromRenderer(

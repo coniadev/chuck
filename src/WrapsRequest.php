@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
 trait WrapsRequest
 {
+    protected ServerRequestInterface $psr7;
+
     public function getServerParams(): array
     {
         return $this->psr7->getServerParams();

@@ -11,9 +11,11 @@ use Conia\Chuck\Response;
 use Conia\Chuck\Routing\Group;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\Routing\Router;
+use Conia\Chuck\Tests\Fixtures\TestAttribute;
 use Conia\Chuck\Tests\Fixtures\TestRenderer;
 use Conia\Chuck\Tests\Setup\C;
 use Conia\Chuck\Tests\Setup\TestCase;
+use Conia\Chuck\ViewAttributeInterface;
 use Psr\Log\LoggerInterface;
 
 uses(TestCase::class);
@@ -194,6 +196,14 @@ test('Add renderer', function () {
     expect($registry->tag(Renderer::class)->get('test'))->toBe(TestRenderer::class);
 });
 
+
+test('Add view attribute', function () {
+    $app = App::create();
+    $app->viewAttr('test', TestAttribute::class);
+    $registry = $app->registry();
+
+    expect($registry->tag(ViewAttributeInterface::class)->get('test'))->toBe(TestAttribute::class);
+});
 
 
 test('Add logger', function () {

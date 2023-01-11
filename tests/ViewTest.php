@@ -10,10 +10,12 @@ use Conia\Chuck\Routing\Route;
 use Conia\Chuck\Tests\Fixtures\TestAttribute;
 use Conia\Chuck\Tests\Fixtures\TestAttributeDiff;
 use Conia\Chuck\Tests\Fixtures\TestAttributeExt;
+use Conia\Chuck\Tests\Fixtures\TestAttributeViewAttr;
 use Conia\Chuck\Tests\Fixtures\TestController;
 use Conia\Chuck\Tests\Fixtures\TestRendererArgsOptions;
 use Conia\Chuck\Tests\Setup\TestCase;
 use Conia\Chuck\View;
+use Conia\Chuck\ViewAttributeInterface;
 
 require __DIR__ . '/Setup/globalSymbols.php';
 
@@ -24,7 +26,6 @@ test('Closure', function () {
     $route->match('/');
     $view = new View($route->view(), $route->args(), $this->registry());
 
-    expect($view::class)->toBe(View::class);
     expect($view->execute())->toBe('chuck');
     expect($view->attributes()[0])->toBeInstanceOf(TestAttribute::class);
 });
@@ -35,7 +36,6 @@ test('Function', function () {
     $route->match('/symbolic');
     $view = new View($route->view(), $route->args(), $this->registry());
 
-    expect($view::class)->toBe(View::class);
     expect($view->execute())->toBe('symbolic');
     expect($view->attributes()[0])->toBeInstanceOf(TestAttribute::class);
 });
@@ -46,7 +46,6 @@ test('Controller String', function () {
     $route->match('/');
     $view = new View($route->view(), $route->args(), $this->registry());
 
-    expect($view::class)->toBe(View::class);
     expect($view->execute())->toBe('text');
     expect($view->attributes()[0])->toBeInstanceOf(TestAttribute::class);
 });
@@ -57,7 +56,6 @@ test('Controller [class, method]', function () {
     $route->match('/');
     $view = new View($route->view(), $route->args(), $this->registry());
 
-    expect($view::class)->toBe(View::class);
     expect($view->execute())->toBe('text');
     expect($view->attributes()[0])->toBeInstanceOf(TestAttribute::class);
 });
@@ -69,7 +67,6 @@ test('Controller [object, method]', function () {
     $route->match('/');
     $view = new View($route->view(), $route->args(), $this->registry());
 
-    expect($view::class)->toBe(View::class);
     expect($view->execute())->toBe('text');
     expect($view->attributes()[0])->toBeInstanceOf(TestAttribute::class);
 });
@@ -79,7 +76,6 @@ test('Attribute filtering :: Callable view', function () {
     $route = new Route('/', #[TestAttribute, TestAttributeExt, TestAttributeDiff] fn () => 'chuck');
     $view = new View($route->view(), $route->args(), $this->registry());
 
-    expect($view::class)->toBe(View::class);
     expect(count($view->attributes()))->toBe(3);
     expect(count($view->attributes(TestAttribute::class)))->toBe(2);
     expect(count($view->attributes(TestAttributeExt::class)))->toBe(1);
@@ -91,11 +87,35 @@ test('Attribute filtering :: Controller view', function () {
     $route = new Route('/', [TestController::class, 'arrayView']);
     $view = new View($route->view(), $route->args(), $this->registry());
 
-    expect($view::class)->toBe(View::class);
     expect(count($view->attributes()))->toBe(3);
     expect(count($view->attributes(TestAttribute::class)))->toBe(2);
     expect(count($view->attributes(TestAttributeExt::class)))->toBe(1);
     expect(count($view->attributes(TestAttributeDiff::class)))->toBe(1);
+});
+
+
+test('Attribute with ViewAttrInterface', function () {
+    $route = new Route('/', #[TestAttributeViewAttr] fn () => '');
+    $route->match('/');
+    $view = new View($route->view(), $route->args(), $this->registry());
+
+    $attr = $view->attributes()[0];
+    expect($attr)->toBeInstanceOf(ViewAttributeInterface::class);
+    expect($attr->registry)->toBeInstanceOf(Registry::class);
+});
+
+
+test('Attribute with registered ViewAttrInterface', function () {
+    $registry = $this->registry();
+    $registry->tag(ViewAttributeInterface::class)->add('vattr', TestAttributeViewAttr::class)->asIs();
+    $route = new Route('/', #[vattr('teststring')] fn () => '');
+    $route->match('/');
+    $view = new View($route->view(), $route->args(), $registry);
+
+    $attr = $view->attributes()[0];
+    expect($attr)->toBeInstanceOf(ViewAttributeInterface::class);
+    expect($attr->registry)->toBeInstanceOf(Registry::class);
+    expect($attr->name)->toBe('teststring');
 });
 
 
