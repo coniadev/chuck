@@ -17,7 +17,7 @@ use Conia\Chuck\Routing\AddsRoutes;
 use Conia\Chuck\Routing\Group;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\Routing\Router;
-use Conia\Chuck\ViewAttrInterface;
+use Conia\Chuck\ViewAttributeInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;

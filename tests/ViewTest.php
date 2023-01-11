@@ -94,7 +94,7 @@ test('Attribute filtering :: Controller view', function () {
 });
 
 
-test('Attribute with ViewAttrInterface', function () {
+test('Attribute with ViewAttributeInterface', function () {
     $route = new Route('/', #[TestAttributeViewAttr] fn () => '');
     $route->match('/');
     $view = new View($route->view(), $route->args(), $this->registry());
@@ -105,7 +105,7 @@ test('Attribute with ViewAttrInterface', function () {
 });
 
 
-test('Attribute with registered ViewAttrInterface', function () {
+test('Attribute with registered ViewAttributeInterface', function () {
     $registry = $this->registry();
     $registry->tag(ViewAttributeInterface::class)->add('vattr', TestAttributeViewAttr::class)->asIs();
     $route = new Route('/', #[vattr('teststring')] fn () => '');

@@ -7,17 +7,10 @@ namespace Conia\Chuck;
 use Closure;
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\ValueError;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 class Config
 {
-    public const DEFAULT = 'default';
-
-    /** @var null|Closure():LoggerInterface */
-    protected ?Closure $loggerCallback = null;
-    protected ?LoggerInterface $logger = null;
-
     /**
      * @param array<never, never>|array<string, mixed> -- Stores additional user defined settings
      */
