@@ -9,6 +9,7 @@ use Conia\Chuck\Routing\Group;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\Routing\Router;
 use Conia\Chuck\Tests\Fixtures\TestController;
+use Conia\Chuck\Tests\Fixtures\TestEndpoint;
 use Conia\Chuck\Tests\Fixtures\TestMiddleware2;
 use Conia\Chuck\Tests\Fixtures\TestMiddleware3;
 use Conia\Chuck\Tests\Setup\TestCase;
@@ -126,22 +127,50 @@ test('Controller prefixing', function () {
     $router->addRoute($index);
 
     $group = (new Group('/albums', function (Group $group) {
-        $group->addRoute(Route::get('-list', '::albumList', 'list'));
+        $group->addRoute(Route::get('-list', 'albumList', 'list'));
     }, 'albums-'))->controller(TestController::class);
     $group->create($router);
 
     $route = $router->match($this->request(method: 'GET', url: '/albums-list'));
     expect($route->name())->toBe('albums-list');
-    expect($route->view())->toBe(TestController::class . '::albumList');
+    expect($route->view())->toBe([TestController::class, 'albumList']);
+});
+
+test('Endpoint in group', function () {
+    $router = new Router();
+    $index = new Route('/', fn () => null);
+    $router->addRoute($index);
+
+    $group = (new Group('/media', function (Group $group) {
+        $group->endpoint('/albums', TestEndpoint::class, 'id')->name('albums')->add();
+    }, 'media-'));
+    $group->create($router);
+
+    $route = $router->match($this->request(method: 'GET', url: '/media/albums/666'));
+    expect($route->name())->toBe('media-albums-get');
+    expect($route->view())->toBe([TestEndpoint::class, 'get']);
+    expect($route->args())->toBe(['id' => '666']);
 });
 
 
-test('Controller prefixing error', function () {
+test('Controller prefixing error using closure', function () {
     $router = new Router();
 
     $group = (new Group('/albums', function (Group $group) {
-        $group->addRoute(Route::get('-list', function () {
-        }));
+        $group->addRoute(
+            Route::get('-list', function () {
+            })
+        );
+    }))->controller(TestController::class);
+    $group->create($router);
+})->throws(ValueError::class, 'Cannot add controller');
+
+
+test('Controller prefixing error using endpoint', function () {
+    $router = new Router();
+
+    $group = (new Group('/media', function (Group $group) {
+        $group->endpoint('/albums', TestEndpoint::class, 'id')->name('albums')->add();
     }))->controller(TestController::class);
     $group->create($router);
 })->throws(ValueError::class, 'Cannot add controller');

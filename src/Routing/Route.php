@@ -137,12 +137,13 @@ class Route
     public function controller(string $controller): static
     {
         if (is_string($this->view)) {
-            $this->view = $controller . $this->view;
+            $this->view = [$controller, $this->view];
 
             return $this;
         }
 
-        throw new ValueError('Cannot add controller to view of type Closure');
+        throw new ValueError('Cannot add controller to view of type Closure or array. ' .
+            'Also, Endpoints cannot be used in a Group which utilises controllers');
     }
 
     public function name(): string

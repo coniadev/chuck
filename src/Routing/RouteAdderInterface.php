@@ -36,9 +36,5 @@ interface RouteAdderInterface
     public function options(string $pattern, callable|array|string $view, string $name = ''): Route;
 
     /** @psalm-param class-string $controller */
-    public function endpoint(
-        array|string $path,
-        string $controller,
-        string|array $args
-    ): Endpoint;
+    public function endpoint(array|string $path, string $controller, string|array $args): Endpoint;
 }

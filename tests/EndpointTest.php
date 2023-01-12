@@ -137,37 +137,37 @@ test('Endpoint with name', function () {
     (new Endpoint($router, '/endpoints', TestEndpoint::class, 'id'))->name('albums')->add();
 
     $route = $router->match($this->request(method: 'DELETE', url: '/endpoints'));
-    expect($route->name())->toBe('albums_deleteList');
+    expect($route->name())->toBe('albums-deleteList');
 
     $route = $router->match($this->request(method: 'DELETE', url: '/endpoints/13'));
-    expect($route->name())->toBe('albums_delete');
+    expect($route->name())->toBe('albums-delete');
 
     $route = $router->match($this->request(method: 'GET', url: '/endpoints'));
-    expect($route->name())->toBe('albums_list');
+    expect($route->name())->toBe('albums-list');
 
     $route = $router->match($this->request(method: 'GET', url: '/endpoints/13'));
-    expect($route->name())->toBe('albums_get');
+    expect($route->name())->toBe('albums-get');
 
     $route = $router->match($this->request(method: 'HEAD', url: '/endpoints'));
-    expect($route->name())->toBe('albums_headList');
+    expect($route->name())->toBe('albums-headList');
 
     $route = $router->match($this->request(method: 'HEAD', url: '/endpoints/13'));
-    expect($route->name())->toBe('albums_head');
+    expect($route->name())->toBe('albums-head');
 
     $route = $router->match($this->request(method: 'OPTIONS', url: '/endpoints'));
-    expect($route->name())->toBe('albums_optionsList');
+    expect($route->name())->toBe('albums-optionsList');
 
     $route = $router->match($this->request(method: 'OPTIONS', url: '/endpoints/13'));
-    expect($route->name())->toBe('albums_options');
+    expect($route->name())->toBe('albums-options');
 
     $route = $router->match($this->request(method: 'PATCH', url: '/endpoints/13'));
-    expect($route->name())->toBe('albums_patch');
+    expect($route->name())->toBe('albums-patch');
 
     $route = $router->match($this->request(method: 'POST', url: '/endpoints'));
-    expect($route->name())->toBe('albums_post');
+    expect($route->name())->toBe('albums-post');
 
     $route = $router->match($this->request(method: 'PUT', url: '/endpoints/13'));
-    expect($route->name())->toBe('albums_put');
+    expect($route->name())->toBe('albums-put');
 });
 
 

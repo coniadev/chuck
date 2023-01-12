@@ -87,7 +87,7 @@ class Endpoint
     protected function addRoute(string $httpMethod, string $path, string $controllerMethod): void
     {
         if (method_exists($this->controller, $controllerMethod)) {
-            $name = $this->name ? $this->name . '_' . $controllerMethod : '';
+            $name = $this->name ? $this->name . '-' . $controllerMethod : '';
 
             $this->adder->addRoute(
                 (new Route($path, [$this->controller, $controllerMethod], $name))
