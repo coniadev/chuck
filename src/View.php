@@ -153,7 +153,14 @@ class View
         }
 
         if ($instance instanceof ViewAttributeInterface) {
-            $instance->injectRegistry($this->registry);
+            if (method_exists($instance, 'inject')) {
+                $resolver = new Resolver($this->registry);
+
+                /** @psalm-var callable */
+                $callable = [$instance, 'inject'];
+                $args = $resolver->resolveCallableArgs($callable);
+                $instance->inject(...$args);
+            }
         }
 
         return $instance;

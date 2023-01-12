@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Renderer\Renderer;
@@ -102,6 +103,7 @@ test('Attribute with ViewAttributeInterface', function () {
     $attr = $view->attributes()[0];
     expect($attr)->toBeInstanceOf(ViewAttributeInterface::class);
     expect($attr->registry)->toBeInstanceOf(Registry::class);
+    expect($attr->config)->toBeInstanceOf(Config::class);
 });
 
 

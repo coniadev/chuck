@@ -82,7 +82,8 @@ class Resolver
             '$' . $param->getName() . ', ...)';
     }
 
-    public function resolveCallableArgs(callable $callable, array $predefinedArgs = []): array
+    /** @psalm-param callable-array|callable $callable */
+    public function resolveCallableArgs(array|callable $callable, array $predefinedArgs = []): array
     {
         $callable = Closure::fromCallable($callable);
         $rf = new ReflectionFunction($callable);
