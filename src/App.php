@@ -16,6 +16,7 @@ use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Routing\AddsRoutes;
 use Conia\Chuck\Routing\Group;
 use Conia\Chuck\Routing\Route;
+use Conia\Chuck\Routing\RouteAdderInterface;
 use Conia\Chuck\Routing\Router;
 use Conia\Chuck\ViewAttributeInterface;
 use Psr\Container\ContainerInterface;
@@ -26,7 +27,7 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 
 /** @psalm-consistent-constructor */
-class App
+class App implements RouteAdderInterface
 {
     use AddsRoutes;
 
@@ -81,7 +82,7 @@ class App
     public function group(
         string $patternPrefix,
         Closure $createClosure,
-        ?string $namePrefix = null,
+        string $namePrefix = '',
     ): Group {
         $group = new Group($patternPrefix, $createClosure, $namePrefix);
         $this->router->addGroup($group);
@@ -92,7 +93,7 @@ class App
     public function staticRoute(
         string $prefix,
         string $path,
-        ?string $name = null,
+        string $name = '',
     ): void {
         $this->router->addStatic($prefix, $path, $name);
     }

@@ -147,10 +147,11 @@ test('Route prefix', function () {
     $route = Route::get('/albums', fn () => 'chuck')->prefix(pattern: 'api');
     expect($route->match('/api/albums'))->toBe($route);
 
-    $route = Route::get('albums', fn () => 'chuck')->prefix('api/', 'api::');
+    $route = Route::get('albums', fn () => 'chuck', 'albums')->prefix('api/', 'api::');
+    expect($route->pattern())->toBe('api/albums');
     expect($route->name())->toBe('api::albums');
 
-    $route = Route::get('albums', fn () => 'chuck')->prefix(name: 'api::');
+    $route = Route::get('albums', fn () => 'chuck', 'albums')->prefix(name: 'api::');
     expect($route->match('/albums'))->toBe($route);
     expect($route->name())->toBe('api::albums');
 });
@@ -187,7 +188,7 @@ test('Get view :: array', function () {
 test('Route name unnamed', function () {
     $route = Route::get('/albums', fn () => 'chuck');
 
-    expect($route->name())->toBe('/albums');
+    expect($route->name())->toBe('');
 });
 
 

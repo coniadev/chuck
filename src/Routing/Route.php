@@ -21,7 +21,6 @@ class Route
 {
     use AddsMiddleware;
 
-    protected string $name;
     protected array $args = [];
 
     /** @psalm-var null|list<string> */
@@ -36,13 +35,13 @@ class Route
      *
      * @psalm-param View $view The callable view. Can be a closure, an invokable object or any other callable
      *
-     * @param ?string $name   The name of the route. If not given the pattern will be hashed and used as name.
-     * @param array   $params Optional array which is stored alongside the route that can be consumed in the app
+     * @param string $name   The name of the route. If not given the pattern will be hashed and used as name.
+     * @param array  $params Optional array which is stored alongside the route that can be consumed in the app
      */
     public function __construct(
         protected string $pattern,
         callable|array|string $view,
-        ?string $name = null,
+        protected string $name = '',
         protected array $params = [],
     ) {
         if (is_callable($view)) {
@@ -50,19 +49,13 @@ class Route
         } else {
             $this->view = $view;
         }
-
-        if ($name) {
-            $this->name = $name;
-        } else {
-            $this->name = $this->pattern;
-        }
     }
 
     /** @psalm-param View $view */
     public static function get(
         string $pattern,
         callable|array|string $view,
-        ?string $name = null,
+        string $name = '',
         array $params = []
     ): static {
         return (new self($pattern, $view, $name, $params))->method('GET');
@@ -72,7 +65,7 @@ class Route
     public static function post(
         string $pattern,
         callable|array|string $view,
-        ?string $name = null,
+        string $name = '',
         array $params = []
     ): static {
         return (new self($pattern, $view, $name, $params))->method('POST');
@@ -82,7 +75,7 @@ class Route
     public static function put(
         string $pattern,
         callable|array|string $view,
-        ?string $name = null,
+        string $name = '',
         array $params = []
     ): static {
         return (new self($pattern, $view, $name, $params))->method('PUT');
@@ -92,7 +85,7 @@ class Route
     public static function patch(
         string $pattern,
         callable|array|string $view,
-        ?string $name = null,
+        string $name = '',
         array $params = []
     ): static {
         return (new self($pattern, $view, $name, $params))->method('PATCH');
@@ -102,7 +95,7 @@ class Route
     public static function delete(
         string $pattern,
         callable|array|string $view,
-        ?string $name = null,
+        string $name = '',
         array $params = []
     ): static {
         return (new self($pattern, $view, $name, $params))->method('DELETE');
@@ -112,7 +105,7 @@ class Route
     public static function head(
         string $pattern,
         callable|array|string $view,
-        ?string $name = null,
+        string $name = '',
         array $params = []
     ): static {
         return (new self($pattern, $view, $name, $params))->method('HEAD');
@@ -122,7 +115,7 @@ class Route
     public static function options(
         string $pattern,
         callable|array|string $view,
-        ?string $name = null,
+        string $name = '',
         array $params = []
     ): static {
         return (new self($pattern, $view, $name, $params))->method('OPTIONS');
@@ -251,9 +244,14 @@ class Route
         return $this->args;
     }
 
+    public function pattern(): string
+    {
+        return $this->pattern;
+    }
+
     public function match(string $url): ?Route
     {
-        if (preg_match($this->pattern(), $url, $matches)) {
+        if (preg_match($this->compiledPattern(), $url, $matches)) {
             // Remove integer indexes from array
             $matches = array_filter(
                 $matches,
@@ -320,7 +318,7 @@ class Route
         return str_replace(LEFT_BRACE, '{', str_replace(RIGHT_BRACE, '}', $str));
     }
 
-    protected function pattern(): string
+    protected function compiledPattern(): string
     {
         // Ensure leading slash
         $pattern = '/' . ltrim($this->pattern, '/');

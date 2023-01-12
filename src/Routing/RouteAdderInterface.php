@@ -7,9 +7,9 @@ namespace Conia\Chuck\Routing;
 /**
  * @psalm-import-type View from \Conia\Chuck\Routing\Route
  */
-trait AddsRoutes
+interface RouteAdderInterface
 {
-    abstract public function addRoute(Route $route): void;
+    public function addRoute(Route $route): void;
 
     /** @psalm-param View $view */
     public function route(
@@ -17,12 +17,7 @@ trait AddsRoutes
         callable|array|string $view,
         string $name = '',
         array $params = []
-    ): Route {
-        $route = new Route($pattern, $view, $name, $params);
-        $this->addRoute($route);
-
-        return $route;
-    }
+    ): Route;
 
     /** @psalm-param View $view */
     public function get(
@@ -30,12 +25,7 @@ trait AddsRoutes
         callable|array|string $view,
         string $name = '',
         array $params = []
-    ): Route {
-        $route = Route::get($pattern, $view, $name, $params);
-        $this->addRoute($route);
-
-        return $route;
-    }
+    ): Route;
 
     /** @psalm-param View $view */
     public function post(
@@ -43,12 +33,7 @@ trait AddsRoutes
         callable|array|string $view,
         string $name = '',
         array $params = []
-    ): Route {
-        $route = Route::post($pattern, $view, $name, $params);
-        $this->addRoute($route);
-
-        return $route;
-    }
+    ): Route;
 
     /** @psalm-param View $view */
     public function put(
@@ -56,12 +41,7 @@ trait AddsRoutes
         callable|array|string $view,
         string $name = '',
         array $params = []
-    ): Route {
-        $route = Route::put($pattern, $view, $name, $params);
-        $this->addRoute($route);
-
-        return $route;
-    }
+    ): Route;
 
     /** @psalm-param View $view */
     public function patch(
@@ -69,12 +49,7 @@ trait AddsRoutes
         callable|array|string $view,
         string $name = '',
         array $params = []
-    ): Route {
-        $route = Route::patch($pattern, $view, $name, $params);
-        $this->addRoute($route);
-
-        return $route;
-    }
+    ): Route;
 
     /** @psalm-param View $view */
     public function delete(
@@ -82,12 +57,7 @@ trait AddsRoutes
         callable|array|string $view,
         string $name = '',
         array $params = []
-    ): Route {
-        $route = Route::delete($pattern, $view, $name, $params);
-        $this->addRoute($route);
-
-        return $route;
-    }
+    ): Route;
 
     /** @psalm-param View $view */
     public function head(
@@ -95,12 +65,7 @@ trait AddsRoutes
         callable|array|string $view,
         string $name = '',
         array $params = []
-    ): Route {
-        $route = Route::head($pattern, $view, $name, $params);
-        $this->addRoute($route);
-
-        return $route;
-    }
+    ): Route;
 
     /** @psalm-param View $view */
     public function options(
@@ -108,19 +73,12 @@ trait AddsRoutes
         callable|array|string $view,
         string $name = '',
         array $params = []
-    ): Route {
-        $route = Route::options($pattern, $view, $name, $params);
-        $this->addRoute($route);
-
-        return $route;
-    }
+    ): Route;
 
     /** @psalm-param class-string $controller */
     public function endpoint(
         array|string $path,
         string $controller,
         string|array $args
-    ): Endpoint {
-        return new Endpoint($this, $path, $controller, $args);
-    }
+    ): Endpoint;
 }

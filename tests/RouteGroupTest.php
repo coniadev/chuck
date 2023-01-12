@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Conia\Chuck\Exception\HttpMethodNotAllowed;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Exception\ValueError;
-use Conia\Chuck\MiddlewareWrapper;
 use Conia\Chuck\Routing\Group;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\Routing\Router;
@@ -52,11 +51,10 @@ test('Matching :: unnamed', function () {
     });
     $group->create($router);
 
-    expect($router->match($this->request(method: 'GET', url: ''))->name())->toBe('/');
-    expect($router->match($this->request(method: 'GET', url: '/albums/symbolic'))->name())->toBe('/albums/{name}');
-    expect($router->match($this->request(method: 'GET', url: '/albums/home'))->name())->toBe('/albums/home');
-    expect($router->match($this->request(method: 'GET', url: '/albums'))->name())->toBe('/albums');
-    expect($router->routeUrl('/albums/{name}', name: 'symbolic'))->toBe('/albums/symbolic');
+    expect($router->match($this->request(method: 'GET', url: ''))->name())->toBe('');
+    expect($router->match($this->request(method: 'GET', url: '/albums/symbolic'))->name())->toBe('');
+    expect($router->match($this->request(method: 'GET', url: '/albums/home'))->name())->toBe('');
+    expect($router->match($this->request(method: 'GET', url: '/albums'))->name())->toBe('');
 });
 
 

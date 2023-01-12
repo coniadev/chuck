@@ -19,7 +19,7 @@ use Conia\Chuck\ViewHandler;
 use Psr\Http\Server\MiddlewareInterface as PsrMiddlewareInterface;
 use Throwable;
 
-class Router
+class Router implements RouteAdderInterface
 {
     use AddsRoutes;
     use AddsMiddleware;
@@ -51,12 +51,6 @@ class Router
         $name = $route->name();
         $noMethodGiven = true;
 
-        if (array_key_exists($name, $this->names)) {
-            throw new RuntimeException(
-                'Duplicate route: ' . $name . '. If you want to use the same ' .
-                    'url pattern with different methods, you have to create routes with names.'
-            );
-        }
 
         foreach ($route->methods() as $method) {
             $noMethodGiven = false;
@@ -67,7 +61,16 @@ class Router
             $this->routes[self::ALL][] = $route;
         }
 
-        $this->names[$name] = $route;
+        if ($name) {
+            if (array_key_exists($name, $this->names)) {
+                throw new RuntimeException(
+                    'Duplicate route: ' . $name . '. If you want to use the same ' .
+                        'url pattern with different methods, you have to create routes with names.'
+                );
+            }
+
+            $this->names[$name] = $route;
+        }
     }
 
     public function addGroup(Group $group): void
@@ -78,7 +81,7 @@ class Router
     public function addStatic(
         string $prefix,
         string $dir,
-        ?string $name = null,
+        string $name = '',
     ): void {
         if (empty($name)) {
             $name = $prefix;

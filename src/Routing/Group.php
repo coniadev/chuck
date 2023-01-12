@@ -6,29 +6,22 @@ namespace Conia\Chuck\Routing;
 
 use Closure;
 use Conia\Chuck\Exception\RuntimeException;
-use Throwable;
 
-class Group
+class Group implements RouteAdderInterface
 {
     use AddsRoutes;
     use AddsMiddleware;
 
     protected ?Router $router = null;
 
-    protected string $namePrefix;
     protected ?string $renderer = null;
     protected ?string $controller = null;
 
     public function __construct(
         protected string $patternPrefix,
         protected Closure $createClosure,
-        ?string $namePrefix = null,
+        protected string $namePrefix = '',
     ) {
-        if ($namePrefix) {
-            $this->namePrefix = $namePrefix;
-        } else {
-            $this->namePrefix = $this->patternPrefix;
-        }
     }
 
     public function controller(string $controller): static
