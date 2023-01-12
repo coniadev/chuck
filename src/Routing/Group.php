@@ -38,7 +38,7 @@ class Group implements RouteAdderInterface
         return $this;
     }
 
-    public function addRoute(Route $route): void
+    public function addRoute(Route $route): Route
     {
         $route->prefix($this->patternPrefix, $this->namePrefix);
 
@@ -57,7 +57,7 @@ class Group implements RouteAdderInterface
         if ($this->router) {
             $this->router->addRoute($route);
 
-            return;
+            return $route;
         }
 
         throw new RuntimeException('Router not set');

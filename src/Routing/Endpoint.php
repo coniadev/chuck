@@ -8,7 +8,7 @@ class Endpoint
 {
     use AddsMiddleware;
 
-    protected array $params = [];
+    protected array $attrs = [];
     protected string $name = '';
     protected string $renderer = 'json';
     protected array $rendererArgs = [];
@@ -60,9 +60,9 @@ class Endpoint
         return $this;
     }
 
-    public function params(array $params): static
+    public function attrs(mixed ...$attrs): static
     {
-        $this->params = $params;
+        $this->attrs = $attrs;
 
         return $this;
     }
@@ -90,15 +90,11 @@ class Endpoint
             $name = $this->name ? $this->name . '_' . $controllerMethod : '';
 
             $this->adder->addRoute(
-                (new Route(
-                    $path,
-                    [$this->controller, $controllerMethod],
-                    $name,
-                    $this->params
-                ))
+                (new Route($path, [$this->controller, $controllerMethod], $name))
                     ->method($httpMethod)
                     ->middleware(...$this->middleware)
                     ->render($this->renderer, ...$this->rendererArgs)
+                    ->attrs(...$this->attrs)
             );
         }
     }

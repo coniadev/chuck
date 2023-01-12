@@ -691,42 +691,42 @@ test('Endpoint with name', function () {
 });
 
 
-test('Endpoint with params', function () {
+test('Endpoint with attributes', function () {
     $router = new Router();
-    $router->endpoint('/endpoints', TestEndpoint::class, 'id')->params(['cat' => 'albums'])->add();
+    $router->endpoint('/endpoints', TestEndpoint::class, 'id')->attrs(cat: 'albums')->add();
 
     $route = $router->match($this->request(method: 'DELETE', url: '/endpoints'));
-    expect($route->params())->toBe(['cat' => 'albums']);
+    expect($route->getAttrs())->toBe(['cat' => 'albums']);
 
     $route = $router->match($this->request(method: 'DELETE', url: '/endpoints/13'));
-    expect($route->params())->toBe(['cat' => 'albums']);
+    expect($route->getAttrs())->toBe(['cat' => 'albums']);
 
     $route = $router->match($this->request(method: 'GET', url: '/endpoints'));
-    expect($route->params())->toBe(['cat' => 'albums']);
+    expect($route->getAttrs())->toBe(['cat' => 'albums']);
 
     $route = $router->match($this->request(method: 'GET', url: '/endpoints/13'));
-    expect($route->params())->toBe(['cat' => 'albums']);
+    expect($route->getAttrs())->toBe(['cat' => 'albums']);
 
     $route = $router->match($this->request(method: 'HEAD', url: '/endpoints'));
-    expect($route->params())->toBe(['cat' => 'albums']);
+    expect($route->getAttrs())->toBe(['cat' => 'albums']);
 
     $route = $router->match($this->request(method: 'HEAD', url: '/endpoints/13'));
-    expect($route->params())->toBe(['cat' => 'albums']);
+    expect($route->getAttrs())->toBe(['cat' => 'albums']);
 
     $route = $router->match($this->request(method: 'OPTIONS', url: '/endpoints'));
-    expect($route->params())->toBe(['cat' => 'albums']);
+    expect($route->getAttrs())->toBe(['cat' => 'albums']);
 
     $route = $router->match($this->request(method: 'OPTIONS', url: '/endpoints/13'));
-    expect($route->params())->toBe(['cat' => 'albums']);
+    expect($route->getAttrs())->toBe(['cat' => 'albums']);
 
     $route = $router->match($this->request(method: 'PATCH', url: '/endpoints/13'));
-    expect($route->params())->toBe(['cat' => 'albums']);
+    expect($route->getAttrs())->toBe(['cat' => 'albums']);
 
     $route = $router->match($this->request(method: 'POST', url: '/endpoints'));
-    expect($route->params())->toBe(['cat' => 'albums']);
+    expect($route->getAttrs())->toBe(['cat' => 'albums']);
 
     $route = $router->match($this->request(method: 'PUT', url: '/endpoints/13'));
-    expect($route->params())->toBe(['cat' => 'albums']);
+    expect($route->getAttrs())->toBe(['cat' => 'albums']);
 });
 
 

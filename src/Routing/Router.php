@@ -46,7 +46,7 @@ class Router implements RouteAdderInterface
         return $this->route;
     }
 
-    public function addRoute(Route $route): void
+    public function addRoute(Route $route): Route
     {
         $name = $route->name();
         $noMethodGiven = true;
@@ -71,6 +71,8 @@ class Router implements RouteAdderInterface
 
             $this->names[$name] = $route;
         }
+
+        return $route;
     }
 
     public function addGroup(Group $group): void

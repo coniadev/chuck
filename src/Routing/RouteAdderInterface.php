@@ -9,71 +9,31 @@ namespace Conia\Chuck\Routing;
  */
 interface RouteAdderInterface
 {
-    public function addRoute(Route $route): void;
+    public function addRoute(Route $route): Route;
 
     /** @psalm-param View $view */
-    public function route(
-        string $pattern,
-        callable|array|string $view,
-        string $name = '',
-        array $params = []
-    ): Route;
+    public function route(string $pattern, callable|array|string $view, string $name = ''): Route;
 
     /** @psalm-param View $view */
-    public function get(
-        string $pattern,
-        callable|array|string $view,
-        string $name = '',
-        array $params = []
-    ): Route;
+    public function get(string $pattern, callable|array|string $view, string $name = ''): Route;
 
     /** @psalm-param View $view */
-    public function post(
-        string $pattern,
-        callable|array|string $view,
-        string $name = '',
-        array $params = []
-    ): Route;
+    public function post(string $pattern, callable|array|string $view, string $name = ''): Route;
 
     /** @psalm-param View $view */
-    public function put(
-        string $pattern,
-        callable|array|string $view,
-        string $name = '',
-        array $params = []
-    ): Route;
+    public function put(string $pattern, callable|array|string $view, string $name = ''): Route;
 
     /** @psalm-param View $view */
-    public function patch(
-        string $pattern,
-        callable|array|string $view,
-        string $name = '',
-        array $params = []
-    ): Route;
+    public function patch(string $pattern, callable|array|string $view, string $name = ''): Route;
 
     /** @psalm-param View $view */
-    public function delete(
-        string $pattern,
-        callable|array|string $view,
-        string $name = '',
-        array $params = []
-    ): Route;
+    public function delete(string $pattern, callable|array|string $view, string $name = ''): Route;
 
     /** @psalm-param View $view */
-    public function head(
-        string $pattern,
-        callable|array|string $view,
-        string $name = '',
-        array $params = []
-    ): Route;
+    public function head(string $pattern, callable|array|string $view, string $name = ''): Route;
 
     /** @psalm-param View $view */
-    public function options(
-        string $pattern,
-        callable|array|string $view,
-        string $name = '',
-        array $params = []
-    ): Route;
+    public function options(string $pattern, callable|array|string $view, string $name = ''): Route;
 
     /** @psalm-param class-string $controller */
     public function endpoint(

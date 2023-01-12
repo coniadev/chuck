@@ -157,10 +157,10 @@ test('Route prefix', function () {
 });
 
 
-test('Route params', function () {
-    $route = new Route('/', 'chuck', params: ['option' => true]);
+test('Route attributes', function () {
+    $route = (new Route('/', 'chuck'))->attrs(option: true);
 
-    expect($route->params())->toBe(['option' => true]);
+    expect($route->getAttrs())->toBe(['option' => true]);
 });
 
 

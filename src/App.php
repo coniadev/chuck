@@ -69,9 +69,9 @@ class App implements RouteAdderInterface
         return $this->registry;
     }
 
-    public function addRoute(Route $route): void
+    public function addRoute(Route $route): Route
     {
-        $this->router->addRoute($route);
+        return $this->router->addRoute($route);
     }
 
     public function addGroup(Group $group): void
