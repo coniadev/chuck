@@ -6,16 +6,19 @@ namespace Conia\Chuck\Routing;
 
 use Closure;
 use Conia\Chuck\Exception\RuntimeException;
+use Conia\Chuck\Routing\RouteAdderInterface;
 
 class Group implements RouteAdderInterface
 {
     use AddsRoutes;
     use AddsMiddleware;
 
-    protected ?Router $router = null;
-
+    /** @psalm-var list<Group> */
+    protected array $subgroups = [];
+    protected ?RouteAdderInterface $routeAdder = null;
     protected ?string $renderer = null;
     protected ?string $controller = null;
+    protected bool $created = false;
 
     public function __construct(
         protected string $patternPrefix,
@@ -54,18 +57,43 @@ class Group implements RouteAdderInterface
             $route->replaceMiddleware(array_merge($this->middleware, $route->getMiddleware()));
         }
 
-        if ($this->router) {
-            $this->router->addRoute($route);
+        if ($this->routeAdder) {
+            $this->routeAdder->addRoute($route);
 
             return $route;
         }
 
-        throw new RuntimeException('Router not set');
+        throw new RuntimeException('RouteAdder not set');
     }
 
-    public function create(Router $router): void
+    public function addGroup(Group $group): void
     {
-        $this->router = $router;
+        $group->create($this);
+    }
+
+    public function group(
+        string $patternPrefix,
+        Closure $createClosure,
+        string $namePrefix = '',
+    ): Group {
+        $group = new Group($patternPrefix, $createClosure, $namePrefix);
+        $this->subgroups[] = $group;
+
+        return $group;
+    }
+
+    public function create(RouteAdderInterface $adder): void
+    {
+        if ($this->created) {
+            return;
+        }
+
+        $this->created = true;
+        $this->routeAdder = $adder;
         ($this->createClosure)($this);
+
+        foreach ($this->subgroups as $subgroup) {
+            $subgroup->create($this);
+        }
     }
 }

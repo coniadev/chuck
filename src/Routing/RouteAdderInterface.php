@@ -11,6 +11,8 @@ interface RouteAdderInterface
 {
     public function addRoute(Route $route): Route;
 
+    public function addGroup(Group $group): void;
+
     /** @psalm-param View $view */
     public function route(string $pattern, callable|array|string $view, string $name = ''): Route;
 

@@ -51,7 +51,6 @@ class Router implements RouteAdderInterface
         $name = $route->name();
         $noMethodGiven = true;
 
-
         foreach ($route->methods() as $method) {
             $noMethodGiven = false;
             $this->routes[$method][] = $route;

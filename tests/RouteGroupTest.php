@@ -153,6 +153,37 @@ test('Endpoint in group', function () {
 });
 
 
+test('Nested groups', function () {
+    $router = new Router();
+
+    (new Group('/media', function (Group $group) {
+        // Create using ::group - will not be created immediately
+        $group->group('/music', function (Group $group) {
+            // Create using ::addGroup - will internally be created immediately
+            $group->addGroup((new Group('/albums', function (Group $group) {
+                // Create using ::group shortcut and create immediately
+                $group->group('/songs', function (Group $group) {
+                    // Create  in place - checks if it skips already created groups
+                    $group->endpoint('/times', TestEndpoint::class, 'id')
+                        ->name('times')
+                        ->middleware('times-middleware')
+                        ->add();
+                }, 'songs-')->middleware('songs-middleware')->create($group);
+            }, 'albums-'))->middleware('albums-middleware'));
+        }, 'music-');
+    }, 'media-'))->middleware('media-middleware')->create($router);
+
+    $route = $router->match($this->request(method: 'GET', url: '/media/music/albums/songs/times/666'));
+    expect($route->name())->toBe('media-music-albums-songs-times-get');
+    expect($route->view())->toBe([TestEndpoint::class, 'get']);
+    expect($route->pattern())->toBe('/media/music/albums/songs/times/{id}');
+    expect($route->args())->toBe(['id' => '666']);
+    expect($route->getMiddleware())->toBe([
+        'media-middleware', 'albums-middleware', 'songs-middleware', 'times-middleware',
+    ]);
+});
+
+
 test('Controller prefixing error using closure', function () {
     $router = new Router();
 
@@ -205,4 +236,4 @@ test('Fail without calling create before', function () {
     $group = new Group('/albums', function (Group $group) {
     }, 'test:');
     $group->addRoute(Route::get('/', fn () => ''));
-})->throws(RuntimeException::class, 'Router not set');
+})->throws(RuntimeException::class, 'RouteAdder not set');
