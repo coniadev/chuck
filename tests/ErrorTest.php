@@ -9,8 +9,6 @@ use Conia\Chuck\Exception\HttpMethodNotAllowed;
 use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Exception\HttpUnauthorized;
-use Conia\Chuck\Request;
-use Conia\Chuck\Routing\Router;
 use Conia\Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
@@ -19,9 +17,10 @@ uses(TestCase::class);
 beforeEach(function () {
     // capture output of error_log calls in a temporary file
     // to prevent it printed to the console.
-    $this->default = ini_set('error_log', stream_get_meta_data(tmpfile())['uri']);
+    $this->default = ini_get('error_log');
     $this->tmpfile = tmpfile();
     $this->logfile = stream_get_meta_data($this->tmpfile)['uri'];
+    ini_set('error_log', $this->logfile);
 });
 
 

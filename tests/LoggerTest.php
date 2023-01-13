@@ -8,15 +8,16 @@ use Psr\Log\InvalidArgumentException;
 beforeEach(function () {
     // capture output of error_log calls in a temporary file
     // to prevent it printed to the console.
-    $this->default = ini_set('error_log', stream_get_meta_data(tmpfile())['uri']);
-    $tmpfile = tmpfile();
-    $this->logfile = stream_get_meta_data($tmpfile)['uri'];
+    $this->default = ini_get('error_log');
+    $this->tmpfile = tmpfile();
+    $this->logfile = stream_get_meta_data($this->tmpfile)['uri'];
+    ini_set('error_log', $this->logfile);
 });
 
 
 afterEach(function () {
     // Restore default error_log
-    ini_set('error_log', $this->default);
+    // ini_set('error_log', $this->default);
 });
 
 
@@ -98,27 +99,23 @@ test('Logger with wrong log level', function () {
 test('Message interpolation', function () {
     $logger = new Logger(logfile: $this->logfile);
 
-    try {
-        throw new Exception('The test exception');
-    } catch (Exception $e) {
-        $logger->warning(
-            'String: {string}, Integer: {integer} ' .
-                'DateTime: {datetime}, Array: {array}' .
-                'Float: {float}, Object: {object} ' .
-                'Other: {other}, Null: {null}',
-            [
-                'string' => 'Scream Bloody Gore',
-                'integer' => 13,
-                'float' => 73.23,
-                'datetime' => new DateTime('1987-05-25T13:31:23'),
-                'array' => [13, 23, 71],
-                'object' => new stdClass(),
-                'other' => stream_context_create(),
-                'null' => null,
-                'exception' => $e,
-            ]
-        );
-    }
+    $logger->warning(
+        'String: {string}, Integer: {integer}, ' .
+            'DateTime: {datetime}, Array: {array}' .
+            'Float: {float}, Object: {object} ' .
+            'Other: {other}, Null: {null}',
+        [
+            'string' => 'Scream Bloody Gore',
+            'integer' => 13,
+            'float' => 73.23,
+            'datetime' => new DateTime('1987-05-25T13:31:23'),
+            'array' => [13, 23, 71],
+            'object' => new stdClass(),
+            'other' => stream_context_create(),
+            'null' => null,
+            'exception' => new Exception('The test exception'),
+        ]
+    );
 
     $output = file_get_contents($this->logfile);
 

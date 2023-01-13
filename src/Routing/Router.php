@@ -244,7 +244,7 @@ class Router implements RouteAdderInterface
             },
             array_merge(
                 $this->middleware,
-                isset($this->route) ? $this->route->getMiddleware() : [],
+                $this->route ? $this->route->getMiddleware() : [],
                 $middlewareAttributes,
             )
         );

@@ -121,7 +121,7 @@ class Logger implements LoggerInterface
         /**
          * @psalm-suppress MixedAssignment
          *
-         * $values types are exhaustively checked
+         * $value types are exhaustively checked
          */
         foreach ($context as $key => $value) {
             $placeholder = '{' . $key . '}';
@@ -130,26 +130,25 @@ class Logger implements LoggerInterface
                 continue;
             }
 
-            if (
-                is_scalar($value)
-                || (is_object($value) && method_exists($value, '__toString'))
-            ) {
-                $substitudes[$placeholder] = $value;
-            } elseif ($value instanceof DateTimeInterface) {
-                $substitudes[$placeholder] = $value->format('Y-m-d H:i:s T');
-            } elseif (is_object($value)) {
-                $substitudes[$placeholder] = '[Instance of ' . $value::class . ']';
-            } elseif (is_array($value)) {
-                $substitudes[$placeholder] =
-                    '[Array ' . json_encode($value, JSON_UNESCAPED_SLASHES) . ']';
-            } elseif (is_null($value)) {
-                $substitudes[$placeholder] = '[null]';
-            } else {
-                $substitudes[$placeholder] = '[' . get_debug_type($value) . ']';
-            }
+            $substitudes[$placeholder] = match (true) {
+                (is_scalar($value) || (is_object($value) && method_exists($value, '__toString'))) => (string)$value,
+                $value instanceof DateTimeInterface => $value->format('Y-m-d H:i:s T'),
+                is_object($value) => '[Instance of ' . $value::class . ']',
+                is_array($value) => '[Array ' . json_encode($value, JSON_UNESCAPED_SLASHES) . ']',
+                is_null($value) => '[null]',
+                default => '[' . get_debug_type($value) . ']',
+            };
         }
 
         $message = strtr($template, $substitudes);
+        $message .= $this->getExceptionMessage($context);
+
+        return $message;
+    }
+
+    protected function getExceptionMessage(array $context): string
+    {
+        $message = '';
 
         if (
             array_key_exists('exception', $context)
