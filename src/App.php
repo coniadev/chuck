@@ -18,7 +18,6 @@ use Conia\Chuck\Routing\Group;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\Routing\RouteAdderInterface;
 use Conia\Chuck\Routing\Router;
-use Conia\Chuck\ViewAttributeInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -118,15 +117,6 @@ class App implements RouteAdderInterface
     public function renderer(string $name, string $class): Entry
     {
         return $this->registry->tag(Renderer::class)->add($name, $class)->asIs();
-    }
-
-    /**
-     * @psalm-param non-empty-string $name
-     * @psalm-param non-empty-string $class
-     */
-    public function viewAttr(string $name, string $class): Entry
-    {
-        return $this->registry->tag(ViewAttributeInterface::class)->add($name, $class)->asIs();
     }
 
     /** @param callable(mixed ...$args):LoggerInterface $callable */
