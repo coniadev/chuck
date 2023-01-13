@@ -96,9 +96,9 @@ class ResponseFactory
         $this->validateFile($file, $throwNotFound);
 
         $finfo = new finfo(FILEINFO_MIME_TYPE);
-        $contentType = finfo_file($finfo, $file);
+        $contentType = $finfo->file($file);
         $finfo = new finfo(FILEINFO_MIME_ENCODING);
-        $encoding = finfo_file($finfo, $file);
+        $encoding = $finfo->file($file);
 
         $psr7Response = $this->createPsr7Response($code, $reasonPhrase)
             ->withAddedHeader('Content-Type', $contentType)
