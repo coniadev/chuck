@@ -7,10 +7,10 @@ namespace Conia\Chuck\Tests\Fixtures;
 use Attribute;
 use Conia\Chuck\Config;
 use Conia\Chuck\Registry\Registry;
-use Conia\Chuck\ViewAttributeInterface;
+use Conia\Chuck\Registry\Resolve;
 
-#[Attribute]
-class TestAttributeViewAttr implements ViewAttributeInterface
+#[Attribute, Resolve('initialize')]
+class TestAttributeViewAttr
 {
     public ?Registry $registry = null;
     public ?Config $config = null;
@@ -19,7 +19,7 @@ class TestAttributeViewAttr implements ViewAttributeInterface
     {
     }
 
-    public function inject(Registry $registry, Config $config): void
+    public function initialize(Registry $registry, Config $config): void
     {
         $this->registry = $registry;
         $this->config = $config;

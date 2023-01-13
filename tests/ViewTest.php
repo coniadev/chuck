@@ -16,7 +16,6 @@ use Conia\Chuck\Tests\Fixtures\TestController;
 use Conia\Chuck\Tests\Fixtures\TestRendererArgsOptions;
 use Conia\Chuck\Tests\Setup\TestCase;
 use Conia\Chuck\View;
-use Conia\Chuck\ViewAttributeInterface;
 
 require __DIR__ . '/Setup/globalSymbols.php';
 
@@ -95,29 +94,15 @@ test('Attribute filtering :: Controller view', function () {
 });
 
 
-test('Attribute with ViewAttributeInterface', function () {
+test('Attribute with Resolve attribute', function () {
     $route = new Route('/', #[TestAttributeViewAttr] fn () => '');
     $route->match('/');
     $view = new View($route->view(), $route->args(), $this->registry());
 
     $attr = $view->attributes()[0];
-    expect($attr)->toBeInstanceOf(ViewAttributeInterface::class);
+
     expect($attr->registry)->toBeInstanceOf(Registry::class);
     expect($attr->config)->toBeInstanceOf(Config::class);
-});
-
-
-test('Attribute with registered ViewAttributeInterface', function () {
-    $registry = $this->registry();
-    $registry->tag(ViewAttributeInterface::class)->add('vattr', TestAttributeViewAttr::class)->asIs();
-    $route = new Route('/', #[vattr('teststring')] fn () => '');
-    $route->match('/');
-    $view = new View($route->view(), $route->args(), $registry);
-
-    $attr = $view->attributes()[0];
-    expect($attr)->toBeInstanceOf(ViewAttributeInterface::class);
-    expect($attr->registry)->toBeInstanceOf(Registry::class);
-    expect($attr->name)->toBe('teststring');
 });
 
 

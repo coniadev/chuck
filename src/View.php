@@ -10,6 +10,7 @@ use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\Registry\Resolve;
 use Conia\Chuck\Registry\Resolver;
 use Conia\Chuck\Renderer\Config as RendererConfig;
 use Conia\Chuck\Renderer\Renderer;
@@ -17,7 +18,6 @@ use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Routing\Route;
-use Conia\Chuck\ViewAttributeInterface;
 use JsonException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -143,24 +143,20 @@ class View
 
     protected function newAttributeInstance(ReflectionAttribute $attribute): object
     {
-        $taggedRegistry = $this->registry->tag(ViewAttributeInterface::class);
-        $attrName = $attribute->getName();
+        $instance = $attribute->newInstance();
+        $resolveAttr = (new ReflectionObject($instance))->getAttributes(Resolve::class);
 
-        if ($taggedRegistry->has($attrName)) {
-            $instance = $taggedRegistry->new($attrName, ...$attribute->getArguments());
-        } else {
-            $instance = $attribute->newInstance();
-        }
+        // See if the attribute itself has an Resolve attribute. If so, resolve/autowire
+        // the arguments of the method it states and call it.
+        if (count($resolveAttr) > 0) {
+            $resolver = new Resolver($this->registry);
+            $resolveAttr = $resolveAttr[0]->newInstance();
+            $methodToResolve = $resolveAttr->method;
 
-        if ($instance instanceof ViewAttributeInterface) {
-            if (method_exists($instance, 'inject')) {
-                $resolver = new Resolver($this->registry);
-
-                /** @psalm-var callable */
-                $callable = [$instance, 'inject'];
-                $args = $resolver->resolveCallableArgs($callable);
-                $instance->inject(...$args);
-            }
+            /** @psalm-var callable */
+            $callable = [$instance, $methodToResolve];
+            $args = $resolver->resolveCallableArgs($callable);
+            $callable(...$args);
         }
 
         return $instance;
