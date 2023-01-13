@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Conia\Chuck\Attribute\Render;
+use Conia\Chuck\Renderer\Render;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Tests\Fixtures\TestRenderer;
 use Conia\Chuck\Tests\Fixtures\TestRendererArgsOptions;

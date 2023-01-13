@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Tests\Fixtures;
 
-use Conia\Chuck\Attribute\Render;
+use Conia\Chuck\Renderer\Render;
 use Conia\Chuck\Request;
 
 class TestControllerWithRequest

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Conia\Chuck\Attribute\Render;
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Exception\HttpMethodNotAllowed;
 use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Exception\RuntimeException;
+use Conia\Chuck\Renderer\Render;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;

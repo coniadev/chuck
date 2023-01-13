@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Conia\Chuck\App;
-use Conia\Chuck\Attribute\Render;
+use Conia\Chuck\Renderer\Render;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\Tests\Fixtures\TestMiddlewareAutowire;
 use Conia\Chuck\Tests\Fixtures\TestMiddlewareEarlyResponse;
