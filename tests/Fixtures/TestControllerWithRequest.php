@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Tests\Fixtures;
 
+use Conia\Chuck\Attribute\Render;
 use Conia\Chuck\Request;
 
 class TestControllerWithRequest
@@ -18,6 +19,7 @@ class TestControllerWithRequest
         return stream_context_create();
     }
 
+    #[Render('text')]
     public function requestOnly(): string
     {
         return $this->request::class;

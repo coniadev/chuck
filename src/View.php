@@ -78,12 +78,6 @@ class View
             return new Response($result, $sf);
         }
 
-        $rendererConfig = $route->getRenderer();
-
-        if ($rendererConfig) {
-            return $this->respondFromRenderer($request, $registry, $rendererConfig, $result);
-        }
-
         $renderAttributes = $this->attributes(Render::class);
 
         if (count($renderAttributes) > 0) {
@@ -92,20 +86,13 @@ class View
             return $renderAttributes[0]->response($request, $registry, $result);
         }
 
-        $responseFactory = new ResponseFactory($registry);
+        $rendererConfig = $route->getRenderer();
 
-        if (is_string($result)) {
-            return $responseFactory->html($result);
-        }
-        if ($result instanceof Stringable) {
-            return $responseFactory->html($result->__toString());
+        if ($rendererConfig) {
+            return $this->respondFromRenderer($request, $registry, $rendererConfig, $result);
         }
 
-        try {
-            return $responseFactory->json($result);
-        } catch (JsonException) {
-            throw new RuntimeException('Cannot determine a response handler for the return type of the view');
-        }
+        throw new RuntimeException('Cannot determine a response handler for the return type of the view');
     }
 
     public static function getReflectionFunction(
@@ -133,9 +120,11 @@ class View
         }
 
         if ($filter) {
-            return array_filter($this->attributes, function ($attribute) use ($filter) {
-                return $attribute instanceof $filter;
-            });
+            return array_values(
+                array_filter($this->attributes, function ($attribute) use ($filter) {
+                    return $attribute instanceof $filter;
+                })
+            );
         }
 
         return $this->attributes;

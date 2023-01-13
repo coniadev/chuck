@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Conia\Chuck\App;
+use Conia\Chuck\Attribute\Render;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\Tests\Fixtures\TestMiddlewareAutowire;
 use Conia\Chuck\Tests\Fixtures\TestMiddlewareEarlyResponse;
@@ -81,7 +82,7 @@ test('Middleware flow with attribute and PSR-15 middleware', function () {
 
 test('Middleware autowiring', function () {
     $app = App::create($this->config());
-    $route = new Route('/', fn () => '');
+    $route = new Route('/', #[Render('text')] fn () => '');
     $route->middleware(TestMiddlewareAutowire::class);
     $app->addRoute($route);
 

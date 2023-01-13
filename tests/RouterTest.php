@@ -147,40 +147,6 @@ test('Dispatch closure', function () {
 });
 
 
-test('View without renderer returning string', function () {
-    $router = new Router();
-    $index = new Route('/', fn () => 'Chuck');
-    $router->addRoute($index);
-
-    $response = $router->dispatch($this->request(method: 'GET', url: '/'), $this->registry());
-    expect($response)->toBeInstanceOf(Response::class);
-    // expect($response->headers()['Content-Type'][0]['value'])->toBe('text/html');
-    expect((string)$response->getBody())->toBe('Chuck');
-});
-
-
-test('Dispatch class method returning a string', function () {
-    $router = new Router();
-    $route = new Route('/text', 'Conia\Chuck\Tests\Fixtures\TestController::textView');
-    $router->addRoute($route);
-    $response = $router->dispatch($this->request(method: 'GET', url: '/text'), $this->registry());
-
-    expect($response)->toBeInstanceOf(Response::class);
-    expect((string)$response->getBody())->toBe('text');
-});
-
-
-test('Dispatch class method returning a stringable', function () {
-    $router = new Router();
-    $route = new Route('/text', 'Conia\Chuck\Tests\Fixtures\TestController::stringableView');
-    $router->addRoute($route);
-    $response = $router->dispatch($this->request(method: 'GET', url: '/text'), $this->registry());
-
-    expect($response)->toBeInstanceOf(Response::class);
-    expect((string)$response->getBody())->toBe('Stringable');
-});
-
-
 test('Dispatch class method returing an array with renderer', function () {
     $router = new Router();
     $route = Route::get('/text', [TestController::class, 'arrayView'])->render('json');

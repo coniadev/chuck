@@ -11,7 +11,6 @@ use Conia\Chuck\Response;
 use Conia\Chuck\Routing\Group;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\Routing\Router;
-use Conia\Chuck\Tests\Fixtures\TestAttribute;
 use Conia\Chuck\Tests\Fixtures\TestRenderer;
 use Conia\Chuck\Tests\Setup\C;
 use Conia\Chuck\Tests\Setup\TestCase;

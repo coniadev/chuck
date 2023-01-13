@@ -12,7 +12,7 @@ use Conia\Chuck\ResponseFactory;
 
 class TestController
 {
-    #[TestAttribute]
+    #[TestAttribute, Render('text')]
     public function textView(): string
     {
         return 'text';

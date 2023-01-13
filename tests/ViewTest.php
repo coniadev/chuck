@@ -169,44 +169,6 @@ test('View response PSR Response', function () {
 });
 
 
-test('View response array', function () {
-    $route = new Route('/', fn () => ['chuck' => 'schuldiner']);
-    $route->match('/');
-    $view = new View($route->view(), $route->args(), $this->registry());
-    $response = $view->respond($this->request(), $route, $this->registry());
-
-    expect((string)$response->getBody())->toBe('{"chuck":"schuldiner"}');
-    expect($response->headers()['Content-Type'][0])->toBe('application/json');
-});
-
-
-test('View response string', function () {
-    $route = new Route('/', fn () => '<h1>Chuck</h1>');
-    $route->match('/');
-    $view = new View($route->view(), $route->args(), $this->registry());
-    $response = $view->respond($this->request(), $route, $this->registry());
-
-    expect((string)$response->getBody())->toBe('<h1>Chuck</h1>');
-    expect($response->headers()['Content-Type'][0])->toBe('text/html');
-});
-
-
-test('View response Stringable', function () {
-    $route = new Route('/', fn () => new class () {
-        public function __toString(): string
-        {
-            return '<h1>Chuck</h1>';
-        }
-    });
-    $route->match('/');
-    $view = new View($route->view(), $route->args(), $this->registry());
-    $response = $view->respond($this->request(), $route, $this->registry());
-
-    expect((string)$response->getBody())->toBe('<h1>Chuck</h1>');
-    expect($response->headers()['Content-Type'][0])->toBe('text/html');
-});
-
-
 test('View response renderer', function () {
     $route = (new Route('/', fn () => ['name' => 'Chuck']))->render('json');
     $route->match('/');
