@@ -23,7 +23,7 @@ class Registry implements ContainerInterface
 
     public function __construct(
         protected readonly ?ContainerInterface $container = null,
-        protected readonly bool $autowire = true,
+        public readonly bool $autowire = true,
         protected readonly string $tag = '',
     ) {
         if ($container) {
@@ -118,7 +118,7 @@ class Registry implements ContainerInterface
             }
         }
 
-        if ($this->autowire && class_exists($id)) {
+        if (class_exists($id)) {
             /** @psalm-suppress MixedMethodCall */
             return new $id(...$args);
         }

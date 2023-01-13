@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Registry\Resolver;
+use Conia\Chuck\Response;
 use Conia\Chuck\Tests\Fixtures\TestClass;
 use Conia\Chuck\Tests\Fixtures\TestClassResolver;
 use Conia\Chuck\Tests\Fixtures\TestClassResolverDefault;
@@ -68,3 +70,9 @@ test('Get callable object args', function () {
     expect($args[0])->toBe('default');
     expect($args[1])->toBe(13);
 });
+
+
+test('Fail when autowire is turned off', function () {
+    $resolver = new Resolver($this->registry(autowire: false));
+    $resolver->autowire(Response::class);
+})->throws(ContainerException::class, 'Autowiring is turned off');

@@ -24,6 +24,16 @@ class Resolver
     /** @psalm-param class-string $class */
     public function autowire(string $class, array $predefinedArgs = []): object
     {
+        if (!$this->registry->autowire) {
+            try {
+                $this->registry->new($class);
+            } catch (Throwable $e) {
+                throw new ContainerException(
+                    "Autowiring is turned off. Tried to instantiate class '{$class}'"
+                );
+            }
+        }
+
         $rc = new ReflectionClass($class);
         $constructor = $rc->getConstructor();
         $args = $this->resolveArgs($constructor, $predefinedArgs);

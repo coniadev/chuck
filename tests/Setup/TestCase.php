@@ -149,8 +149,9 @@ class TestCase extends BaseTestCase
     public function registry(
         ?Request $request = null,
         ?Config $config = null,
+        bool $autowire = true,
     ): Registry {
-        $registry = new Registry();
+        $registry = new Registry(autowire: $autowire);
         $request = $request ?: $this->request();
         $config = $config ?: $this->config();
 

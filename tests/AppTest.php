@@ -87,6 +87,18 @@ test('App run', function () {
 });
 
 
+test('App run with autowiring turned off', function () {
+    $app = new App(new Config('chuck'), new Router(), $this->registry(autowire: false));
+    $app->route('/', 'Conia\Chuck\Tests\Fixtures\TestController::textView');
+    ob_start();
+    $app->run();
+    $output = ob_get_contents();
+    ob_end_clean();
+
+    expect($output)->toBe('text');
+});
+
+
 test('App::register helper', function () {
     $app = new App(new Config('chuck'), new Router(), $this->registry());
     $app->register('Chuck', 'Schuldiner')->asIs();
