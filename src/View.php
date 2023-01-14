@@ -130,18 +130,18 @@ class View
     protected function newAttributeInstance(ReflectionAttribute $attribute): object
     {
         $instance = $attribute->newInstance();
-        $resolveAttr = (new ReflectionObject($instance))->getAttributes(Call::class);
+        $callAttrs = (new ReflectionObject($instance))->getAttributes(Call::class);
 
-        // See if the attribute itself has an Call attribute. If so, resolve/autowire
-        // the arguments of the method it states and call it.
-        if (count($resolveAttr) > 0) {
+        // See if the attribute itself has one or more Call attributes. If so,
+        // resolve/autowire the arguments of the method it states and call it.
+        foreach ($callAttrs as $callAttr) {
             $resolver = new Resolver($this->registry);
-            $resolveAttr = $resolveAttr[0]->newInstance();
-            $methodToResolve = $resolveAttr->method;
+            $callAttr = $callAttr->newInstance();
+            $methodToResolve = $callAttr->method;
 
             /** @psalm-var callable */
             $callable = [$instance, $methodToResolve];
-            $args = $resolver->resolveCallableArgs($callable);
+            $args = $resolver->resolveCallableArgs($callable, $callAttr->args);
             $callable(...$args);
         }
 

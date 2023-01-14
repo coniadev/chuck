@@ -7,6 +7,7 @@ use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Http\Factory;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Renderer\Renderer;
+use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\Tests\Fixtures\TestAttribute;
@@ -104,6 +105,8 @@ test('Attribute with Call attribute', function () {
 
     expect($attr->registry)->toBeInstanceOf(Registry::class);
     expect($attr->config)->toBeInstanceOf(Config::class);
+    expect($attr->request)->toBeInstanceOf(Request::class);
+    expect($attr->after)->toBe('Called after');
 });
 
 

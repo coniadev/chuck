@@ -8,12 +8,15 @@ use Attribute;
 use Conia\Chuck\Config;
 use Conia\Chuck\Registry\Call;
 use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\Request;
 
-#[Attribute, Call('initialize')]
+#[Attribute, Call('initialize'), Call('after', after: 'Called after')]
 class TestAttributeViewAttr
 {
     public ?Registry $registry = null;
     public ?Config $config = null;
+    public ?Request $request = null;
+    public string $after = '';
 
     public function __construct(public readonly string $name = '')
     {
@@ -23,5 +26,11 @@ class TestAttributeViewAttr
     {
         $this->registry = $registry;
         $this->config = $config;
+    }
+
+    public function after(Request $request, string $after): void
+    {
+        $this->request = $request;
+        $this->after = $after;
     }
 }
