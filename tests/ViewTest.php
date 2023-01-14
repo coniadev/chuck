@@ -137,7 +137,7 @@ test('View response Response', function () {
     $route = new Route('/', function (Registry $registry) {
         $factory = $registry->get(Factory::class);
         $response = new Response($factory->response(), $factory);
-        $response->body('Chuck Response');
+        $response->write('Chuck Response');
         $response->header('Content-Type', 'text/plain');
 
         return $response;

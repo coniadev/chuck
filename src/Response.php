@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
+use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Http\Factory;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -12,10 +13,19 @@ class Response
 {
     use WrapsMessage;
 
+    protected ?Factory $factory = null;
+
     public function __construct(
         protected ResponseInterface $psr7,
-        protected Factory $factory,
+        StreamInterface|Factory|null $streamOrFactory = null,
     ) {
+        if ($streamOrFactory) {
+            if ($streamOrFactory instanceof Factory) {
+                $this->factory = $streamOrFactory;
+            } else {
+                $this->psr7 = $psr7->withBody($streamOrFactory);
+            }
+        }
     }
 
     public function status(int $statusCode, ?string $reasonPhrase = null): static
@@ -87,14 +97,21 @@ class Response
         return $this->psr7->hasHeader($name);
     }
 
-    public function body(mixed $body): static
+    public function body(StreamInterface|string $body): static
     {
-        $stream = $this->factory->stream($body);
-        assert($stream instanceof StreamInterface);
+        if ($body instanceof StreamInterface) {
+            $this->psr7 = $this->psr7->withBody($body);
 
-        $this->psr7 = $this->psr7->withBody($stream);
+            return $this;
+        }
 
-        return $this;
+        if ($this->factory) {
+            $this->psr7 = $this->psr7->withBody($this->factory->stream($body));
+
+            return $this;
+        }
+
+        throw new RuntimeException('No factory instance set in response object');
     }
 
     public function getBody(): StreamInterface
@@ -102,9 +119,11 @@ class Response
         return $this->psr7->getBody();
     }
 
-    public function write(string $content): int
+    public function write(string $content): static
     {
-        return $this->psr7->getBody()->write($content);
+        $this->psr7->getBody()->write($content);
+
+        return $this;
     }
 
     public function redirect(string $url, int $code = 302): static

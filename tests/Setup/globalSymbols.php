@@ -14,18 +14,14 @@ if (!function_exists('_testJsonRendererIterator')) {
             yield $a;
         }
     }
-}
 
-if (!function_exists('_testFunctionMiddleware')) {
     function _testFunctionMiddleware(Request $request, callable $next): Response
     {
         $response = $next($request);
 
         return $response->body('first' . (string)$response->getBody());
     }
-}
 
-if (!function_exists('_testViewWithAttribute')) {
     #[TestAttribute]
     function _testViewWithAttribute(string $name): string
     {

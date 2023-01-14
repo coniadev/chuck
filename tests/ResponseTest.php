@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Response;
 use Conia\Chuck\Tests\Setup\TestCase;
 use Nyholm\Psr7\Stream;
@@ -11,7 +12,7 @@ uses(TestCase::class);
 
 test('Get & set PSR-7 response', function () {
     $psr7 = $this->psr7Response();
-    $response = new Response($psr7, $this->factory());
+    $response = new Response($psr7);
 
     expect($response->psr7())->toBe($psr7);
 
@@ -22,7 +23,7 @@ test('Get & set PSR-7 response', function () {
 
 
 test('Get status code', function () {
-    $response = new Response($this->psr7Response(), $this->factory());
+    $response = new Response($this->psr7Response());
 
     expect($response->getStatusCode())->toBe(200);
     expect($response->getReasonPhrase())->toBe('OK');
@@ -78,7 +79,7 @@ test('Protocol version', function () {
 
 test('Create with string body', function () {
     $text = 'text';
-    $response = (new Response($this->psr7Response(), $this->factory()))->body($text);
+    $response = (new Response($this->psr7Response(), $this->factory()))->write($text);
     expect((string)$response->getBody())->toBe($text);
 });
 
@@ -86,33 +87,37 @@ test('Create with string body', function () {
 test('Create with resource body', function () {
     $fh = fopen('php://temp', 'r+');
     fwrite($fh, 'Chuck resource');
-    $response = (new Response($this->psr7Response(), $this->factory()))->body($fh);
+    $response = new Response($this->psr7Response(), $this->factory()->stream($fh));
 
     expect((string)$response->getBody())->toBe('Chuck resource');
 });
 
 
-test('Html response from Stringable', function () {
-    $response = (new Response($this->psr7Response(), $this->factory()))->body(
-        new class () {
-            public function __toString(): string
-            {
-                return 'Chuck Stringable';
-            }
-        }
-    );
-
-    expect((string)$response->getBody())->toBe('Chuck Stringable');
+test('Create with text body', function () {
+    $stream = $this->factory()->stream('Chuck text');
+    $response = new Response($this->psr7Response(), $stream);
+    expect((string)$response->getBody())->toBe('Chuck text');
 });
 
 
-test('Html response invalid data', function () {
-    (new Response($this->psr7Response(), $this->factory()))->body(new stdClass());
-})->throws(RuntimeException::class, 'strings, Stringable or resources');
+test('Set body', function () {
+    $stream = $this->factory()->stream('Chuck text');
+    $response = new Response($this->psr7Response());
+    $response->body($stream);
+    expect((string)$response->getBody())->toBe('Chuck text');
+});
+
+
+test('Fail setting body without factory', function () {
+    $fh = fopen('php://temp', 'r+');
+    fwrite($fh, 'Chuck resource');
+    $response = new Response($this->psr7Response());
+    $response->body('fails');
+})->throws(RuntimeException::class, 'No factory');
 
 
 test('Init with header', function () {
-    $response = new Response($this->psr7Response(), $this->factory());
+    $response = new Response($this->psr7Response());
     $response->header('header-value', 'value');
 
     expect($response->hasHeader('Header-Value'))->toBe(true);
