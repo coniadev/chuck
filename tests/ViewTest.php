@@ -95,7 +95,7 @@ test('Attribute filtering :: Controller view', function () {
 });
 
 
-test('Attribute with Resolve attribute', function () {
+test('Attribute with Call attribute', function () {
     $route = new Route('/', #[TestAttributeViewAttr] fn () => '');
     $route->match('/');
     $view = new View($route->view(), $route->args(), $this->registry());

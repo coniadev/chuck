@@ -6,10 +6,10 @@ namespace Conia\Chuck\Tests\Fixtures;
 
 use Attribute;
 use Conia\Chuck\Config;
+use Conia\Chuck\Registry\Call;
 use Conia\Chuck\Registry\Registry;
-use Conia\Chuck\Registry\Resolve;
 
-#[Attribute, Resolve('initialize')]
+#[Attribute, Call('initialize')]
 class TestAttributeViewAttr
 {
     public ?Registry $registry = null;

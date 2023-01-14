@@ -9,8 +9,8 @@ use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Http\Factory;
+use Conia\Chuck\Registry\Call;
 use Conia\Chuck\Registry\Registry;
-use Conia\Chuck\Registry\Resolve;
 use Conia\Chuck\Registry\Resolver;
 use Conia\Chuck\Renderer\Config as RendererConfig;
 use Conia\Chuck\Renderer\Render;
@@ -130,9 +130,9 @@ class View
     protected function newAttributeInstance(ReflectionAttribute $attribute): object
     {
         $instance = $attribute->newInstance();
-        $resolveAttr = (new ReflectionObject($instance))->getAttributes(Resolve::class);
+        $resolveAttr = (new ReflectionObject($instance))->getAttributes(Call::class);
 
-        // See if the attribute itself has an Resolve attribute. If so, resolve/autowire
+        // See if the attribute itself has an Call attribute. If so, resolve/autowire
         // the arguments of the method it states and call it.
         if (count($resolveAttr) > 0) {
             $resolver = new Resolver($this->registry);
