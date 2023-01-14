@@ -6,11 +6,13 @@ use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Http\Factory;
 use Conia\Chuck\Registry\Call;
+use Conia\Chuck\Registry\Inject;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Registry\Resolver;
 use Conia\Chuck\Response;
 use Conia\Chuck\Tests\Fixtures\TestClass;
 use Conia\Chuck\Tests\Fixtures\TestClassCall;
+use Conia\Chuck\Tests\Fixtures\TestClassInject;
 use Conia\Chuck\Tests\Fixtures\TestClassResolver;
 use Conia\Chuck\Tests\Fixtures\TestClassResolverDefault;
 use Conia\Chuck\Tests\Fixtures\TestClassWithConstructor;
@@ -98,3 +100,62 @@ test('Fail when autowire is turned off', function () {
     $resolver = new Resolver($this->registry(autowire: false));
     $resolver->autowire(Response::class);
 })->throws(ContainerException::class, 'Autowiring is turned off');
+
+
+test('Inject attribute on closure', function () {
+    $registry = $this->registry();
+    $resolver = new Resolver($registry);
+    $registry->add('injected', new Config('injected'));
+
+    $func = #[Inject(name: 'Chuck', config: 'injected')] function (
+        Factory $factory,
+        Config $config,
+        string $name
+    ): array {
+        return [$config, $name, $factory];
+    };
+
+    $result = $func(...$resolver->resolveCallableArgs($func));
+
+    expect($result[0]->app())->toBe('injected');
+    expect($result[1])->toBe('Chuck');
+    expect($result[2])->toBeInstanceOf(Factory::class);
+});
+
+
+test('Inject attribute on constructor', function () {
+    $registry = $this->registry();
+    $resolver = new Resolver($registry);
+    $registry->add('injected', new Config('injected'));
+
+    $args = $resolver->resolveConstructorArgs(TestClassInject::class);
+    $obj = new TestClassInject(...$args);
+
+    expect($obj->config->app())->toBe('injected');
+    expect($obj->arg1)->toBe('arg1');
+    expect($obj->arg2)->toBe(13);
+    expect($obj->registry)->toBeInstanceOf(Registry::class);
+    expect((string)$obj->tc)->toBe('Stringable extended');
+});
+
+
+test('Inject attribute does not allow unnamed args', function () {
+    new Inject('arg');
+})->throws(RuntimeException::class, 'Arguments for Inject');
+
+
+test('Inject and Call combined', function () {
+    $registry = $this->registry();
+    $registry->add('injected', new Config('injected'));
+    $resolver = new Resolver($registry);
+
+    $obj = $resolver->autowire(TestClassInject::class);
+
+    expect($obj->config->app())->toBe('injected');
+    expect($obj->arg1)->toBe('arg1');
+    expect($obj->arg2)->toBe(13);
+    expect($obj->registry)->toBeInstanceOf(Registry::class);
+    expect((string)$obj->tc)->toBe('Stringable extended');
+    expect($obj->calledArg1)->toBe('calledArg1');
+    expect($obj->calledArg2)->toBe(73);
+});

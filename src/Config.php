@@ -65,7 +65,7 @@ class Config
 
     protected function validateApp(string $app): void
     {
-        if (!preg_match('/^[a-z0-9_$-]{1,64}$/', $app)) {
+        if (!preg_match('/^[a-zA-Z0-9_$-]{1,64}$/', $app)) {
             throw new ValueError(
                 'The app name must be a nonempty string which consist only of lower case ' .
                     'letters and numbers. Its length must not be longer than 32 characters.'

@@ -27,7 +27,7 @@ class Resolver
     {
         if (!$this->registry->autowire) {
             try {
-                $this->registry->new($class);
+                $this->registry->new($class, ...$predefinedArgs);
             } catch (Throwable $e) {
                 throw new ContainerException(
                     "Autowiring is turned off. Tried to instantiate class '{$class}'"
@@ -36,8 +36,7 @@ class Resolver
         }
 
         $rc = new ReflectionClass($class);
-        $constructor = $rc->getConstructor();
-        $args = $this->resolveArgs($constructor, $predefinedArgs);
+        $args = $this->resolveConstructorArgs($rc, $predefinedArgs);
 
         try {
             return $this->resolveCallAttributes($rc->newInstance(...$args));
@@ -55,13 +54,12 @@ class Resolver
         // See if the attribute itself has one or more Call attributes. If so,
         // resolve/autowire the arguments of the method it states and call it.
         foreach ($callAttrs as $callAttr) {
-            $resolver = new Resolver($this->registry);
             $callAttr = $callAttr->newInstance();
             $methodToResolve = $callAttr->method;
 
             /** @psalm-var callable */
             $callable = [$instance, $methodToResolve];
-            $args = $resolver->resolveCallableArgs($callable, $callAttr->args);
+            $args = $this->resolveCallableArgs($callable, $callAttr->args);
             $callable(...$args);
         }
 
@@ -118,17 +116,24 @@ class Resolver
     {
         $callable = Closure::fromCallable($callable);
         $rf = new ReflectionFunction($callable);
+        $predefinedArgs = array_merge($this->getInjectedArgs($rf), $predefinedArgs);
 
         return $this->resolveArgs($rf, $predefinedArgs);
     }
 
-    /** @psalm-param class-string $class */
-    public function resolveConstructorArgs(string $class, array $predefinedArgs = []): array
+    /** @psalm-param ReflectionClass|class-string $class */
+    public function resolveConstructorArgs(ReflectionClass|string $class, array $predefinedArgs = []): array
     {
-        $rc = new ReflectionClass($class);
+        $rc = is_string($class) ? new ReflectionClass($class) : $class;
         $constructor = $rc->getConstructor();
 
-        return $this->resolveArgs($constructor, $predefinedArgs);
+        if ($constructor) {
+            $combinedArgs = array_merge($this->getInjectedArgs($constructor), $predefinedArgs);
+
+            return $this->resolveArgs($constructor, $combinedArgs);
+        }
+
+        return $predefinedArgs;
     }
 
     protected function resolveArgs(
@@ -152,5 +157,35 @@ class Resolver
         }
 
         return $args;
+    }
+
+    protected function getInjectedArgs(ReflectionFunctionAbstract $rf): array
+    {
+        /** @psalm-var array<non-empty-string, mixed> */
+        $result = [];
+        $injectAttrs = $rf->getAttributes(Inject::class);
+
+        foreach ($injectAttrs as $injectAttr) {
+            $instance = $injectAttr->newInstance();
+
+            /** @psalm-suppress MixedAssignment */
+            foreach ($instance->args as $name => $value) {
+                assert(is_string($name));
+
+                if (is_string($value)) {
+                    if ($this->registry->has($value)) {
+                        $result[$name] = $this->registry->get($value);
+                    } elseif (class_exists($value)) {
+                        $result[$name] = $this->autowire($value);
+                    } else {
+                        $result[$name] = $value;
+                    }
+                } else {
+                    $result[$name] = $value;
+                }
+            }
+        }
+
+        return $result;
     }
 }
