@@ -244,4 +244,4 @@ test('Registry initialized', function () {
     expect($value instanceof Factory)->toBe(true);
     expect($registry->tag(Renderer::class)->get('text'))->toBe(TextRenderer::class);
     expect($registry->tag(Renderer::class)->get('json'))->toBe(JsonRenderer::class);
-})->only();
+});
