@@ -13,13 +13,14 @@
     "prefer-stable": true,
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^1",
+        "guzzlehttp/psr7": "^2",
         "league/container": "^4",
         "nyholm/psr7": "^1.5",
         "nyholm/psr7-server": "^1.0",
         "pestphp/pest": "^1",
+        "phpbench/phpbench": "^1.2",
         "phpunit/phpunit": "^9",
-        "vimeo/psalm": "^5",
-        "phpbench/phpbench": "^1.2"
+        "vimeo/psalm": "^5"
     },
     "require": {
         "php": ">=8.1",
