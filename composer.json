@@ -14,9 +14,10 @@
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^1",
         "guzzlehttp/psr7": "^2",
+        "laminas/laminas-diactoros": "^2",
         "league/container": "^4",
         "nyholm/psr7": "^1.5",
-        "nyholm/psr7-server": "^1.0",
+        "nyholm/psr7-server": "^1",
         "pestphp/pest": "^1",
         "phpbench/phpbench": "^1.2",
         "phpunit/phpunit": "^9",

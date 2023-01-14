@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Conia\Chuck\Http\Guzzle;
+use Conia\Chuck\Http\Laminas;
 use Conia\Chuck\Http\Nyholm;
 use Conia\Chuck\Tests\Setup\TestCase;
 
@@ -56,4 +57,29 @@ test('Guzzle', function () {
 
 test('Guzzle stream failing', function () {
     (new Guzzle())->stream(new stdClass());
+})->throws(RuntimeException::class, 'Only strings');
+
+
+test('Laminas', function () {
+    $factory = new Laminas();
+
+    $request = $factory->request();
+    expect($request)->toBeInstanceOf(\Laminas\Diactoros\ServerRequest::class);
+
+    $response = $factory->response();
+    expect($response)->toBeInstanceOf(\Laminas\Diactoros\Response::class);
+
+    $stream = $factory->stream();
+    expect($stream)->toBeInstanceOf(\Laminas\Diactoros\Stream::class);
+
+    $stream = $factory->stream(fopen('php://temp', 'r+'));
+    expect($stream)->toBeInstanceOf(\Laminas\Diactoros\Stream::class);
+
+    $stream = $factory->streamFromFile(__DIR__ . '/Fixtures/public/assets/image.webp');
+    expect($stream)->toBeInstanceOf(\Laminas\Diactoros\Stream::class);
+});
+
+
+test('Laminas stream failing', function () {
+    (new Laminas())->stream(new stdClass());
 })->throws(RuntimeException::class, 'Only strings');
