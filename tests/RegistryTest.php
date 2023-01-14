@@ -12,7 +12,6 @@ use Conia\Chuck\Request;
 use Conia\Chuck\Tests\Fixtures\TestClass;
 use Conia\Chuck\Tests\Fixtures\TestClassIntersectionTypeConstructor;
 use Conia\Chuck\Tests\Fixtures\TestClassRegistryArgs;
-use Conia\Chuck\Tests\Fixtures\TestClassRegistryNamedParam;
 use Conia\Chuck\Tests\Fixtures\TestClassRegistrySingleArg;
 use Conia\Chuck\Tests\Fixtures\TestClassUnionTypeConstructor;
 use Conia\Chuck\Tests\Fixtures\TestClassUntypedConstructor;
@@ -34,16 +33,6 @@ test('Entry methods', function () {
     expect($entry->definition())->toBe(stdClass::class);
     expect($entry->get())->toBe($obj);
     expect($entry->instance())->toBe($obj);
-});
-
-
-test('Add value with key', function () {
-    $registry = new Registry();
-    $registry->add(Config::class, new Config('unbound'));
-    $registry->add(Config::class, new Config('bound'), 'bound');
-
-    expect($registry->entry(Config::class, 'bound')->definition()->app())->toBe('bound');
-    expect($registry->entry(Config::class)->definition()->app())->toBe('unbound');
 });
 
 
@@ -170,51 +159,6 @@ test('Resolve class with constructor', function () {
 
     expect($object::class)->toBe(TestClassWithConstructor::class);
     expect($object->tc::class)->toBe(TestClass::class);
-});
-
-
-test('Resolve class named parameter', function () {
-    // with $
-    $registry = new Registry();
-    $registry->add(Config::class, new Config('chuck'));
-    $registry->add(Config::class, new Config('$named'), '$namedConfig');
-
-    $object = $registry->get(TestClassRegistryNamedParam::class);
-
-    expect($object->config->app())->toBe('chuck');
-    expect($object->namedConfig->app())->toBe('$named');
-
-    // without $
-    $registry = new Registry();
-    $registry->add(Config::class, new Config('chuck'));
-    $registry->add(Config::class, new Config('named'), 'namedConfig');
-
-    $object = $registry->get(TestClassRegistryNamedParam::class);
-
-    expect($object->config->app())->toBe('chuck');
-    expect($object->namedConfig->app())->toBe('named');
-});
-
-
-test('Get named parameter entry', function () {
-    $registry = new Registry();
-    $registry->add(Config::class, new Config('named'), '$namedConfig');
-    $registry->add(Config::class, new Config('chuck'));
-
-    $config1 = $registry->get(Config::class);
-    $config2 = $registry->getWithParamName(Config::class, 'namedConfig');
-
-    expect($config1->app())->toBe('chuck');
-    expect($config2->app())->toBe('named');
-
-    $config3 = $registry->getWithParamName(Config::class, '$namedConfig');
-    $config4 = $registry->getWithParamName(Config::class, '$wrongName');
-
-    expect($config3->app())->toBe('named');
-    expect($config4->app())->toBe('chuck');
-
-    expect($config1)->toBe($config4);
-    expect($config2)->toBe($config3);
 });
 
 

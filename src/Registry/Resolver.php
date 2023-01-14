@@ -74,7 +74,7 @@ class Resolver
 
         if ($type instanceof ReflectionNamedType) {
             try {
-                return $this->registry->getWithParamName(ltrim($type->getName(), '?'), '$' . $param->getName());
+                return $this->registry->get(ltrim($type->getName(), '?'));
             } catch (NotFoundException $e) {
                 if ($param->isDefaultValueAvailable()) {
                     return $param->getDefaultValue();

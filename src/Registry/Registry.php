@@ -42,11 +42,9 @@ class Registry implements ContainerInterface
         return isset($this->entries[$id]) || $this->container?->has($id);
     }
 
-    public function entry(string $id, string $paramName = ''): Entry
+    public function entry(string $id): Entry
     {
-        $paramName = $this->normalizeParameterName($paramName);
-
-        return $this->entries[$id . $paramName];
+        return $this->entries[$id];
     }
 
     public function get(string $id): mixed
@@ -79,11 +77,9 @@ class Registry implements ContainerInterface
     public function add(
         string $id,
         mixed $value = null,
-        string $paramName = '',
     ): Entry {
-        $paramName = $this->normalizeParameterName($paramName);
         $entry = new Entry($id, $value ?? $id);
-        $this->entries[$id . $paramName] = $entry;
+        $this->entries[$id] = $entry;
 
         return $entry;
     }
@@ -124,19 +120,6 @@ class Registry implements ContainerInterface
         }
 
         throw new NotFoundException('Cannot instantiate ' . $id);
-    }
-
-    public function getWithParamName(string $id, string $paramName): mixed
-    {
-        $paramName = $this->normalizeParameterName($paramName);
-
-        // See if there's a entry with a bound parameter name:
-        // e. g. '\Namespace\MyClass$myParameter'
-        // If $paramName is emtpy an existing unbound entry should
-        // be found on first try.
-        return isset($this->entries[$id . $paramName]) ?
-            $this->resolveEntry($this->entries[$id . $paramName]) :
-            $this->get($id);
     }
 
     protected function reifyAndReturn(Entry $entry, mixed $value): mixed
@@ -215,16 +198,5 @@ class Registry implements ContainerInterface
 
         /** @psalm-suppress MixedMethodCall */
         return new $class(...$callback(...$args));
-    }
-
-    protected function normalizeParameterName(string $paramName): string
-    {
-        if (empty($paramName)) {
-            return $paramName;
-        }
-
-        $paramName = trim($paramName);
-
-        return str_starts_with($paramName, '$') ? $paramName : '$' . $paramName;
     }
 }
