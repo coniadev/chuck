@@ -36,6 +36,24 @@ test('Entry methods', function () {
 });
 
 
+test('Entry call method', function () {
+    $entry = new Entry('key', stdClass::class);
+    $entry->call('method', arg1: 13, arg2: 'arg2');
+    $entry->call('next');
+
+    $call1 = $entry->getCalls()[0];
+    $call2 = $entry->getCalls()[1];
+
+    expect($call1->method)->toBe('method');
+    expect($call1->args)->toBe([
+        'arg1' => 13,
+        'arg2' => 'arg2',
+    ]);
+    expect($call2->method)->toBe('next');
+    expect($call2->args)->toBe([]);
+});
+
+
 test('Add key without value', function () {
     $registry = new Registry();
     $registry->add(Config::class);
@@ -79,6 +97,16 @@ test('Instantiate', function () {
 
     expect($reg instanceof Registry)->toBe(true);
     expect($req instanceof Request)->toBe(true);
+});
+
+
+test('Instantiate with call', function () {
+    $registry = new Registry();
+    $registry->add(TestClass::class)->call('init', value: 'testvalue');
+    $tc = $registry->get(TestClass::class);
+
+    expect($tc instanceof TestClass)->toBe(true);
+    expect($tc->value)->toBe('testvalue');
 });
 
 

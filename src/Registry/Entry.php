@@ -18,6 +18,9 @@ class Entry
     protected bool $reify;
     protected mixed $instance = null;
 
+    /** @psalm-var list<Call> */
+    protected array $calls = [];
+
     /**
      * @psalm-param non-empty-string $id
      * */
@@ -43,14 +46,14 @@ class Entry
         return $this->args;
     }
 
-    public function reify(bool $reify = true): self
+    public function reify(bool $reify = true): static
     {
         $this->reify = $reify;
 
         return $this;
     }
 
-    public function asIs(bool $asIs = true): self
+    public function asIs(bool $asIs = true): static
     {
         // An update call is unecessary
         if ($asIs) {
@@ -62,7 +65,7 @@ class Entry
         return $this;
     }
 
-    public function args(mixed ...$args): self
+    public function args(mixed ...$args): static
     {
         $numArgs = count($args);
 
@@ -93,6 +96,13 @@ class Entry
         return $this;
     }
 
+    public function call(string $method, mixed ...$args): static
+    {
+        $this->calls[] = new Call($method, ...$args);
+
+        return $this;
+    }
+
     public function definition(): mixed
     {
         return $this->definition;
@@ -111,6 +121,12 @@ class Entry
     public function set(mixed $instance): void
     {
         $this->instance = $instance;
+    }
+
+    /** @psalm-return list<Call> */
+    public function getCalls(): array
+    {
+        return $this->calls;
     }
 
     protected function negotiateReify(mixed $definition): bool

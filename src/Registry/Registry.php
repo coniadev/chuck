@@ -122,8 +122,17 @@ class Registry implements ContainerInterface
         throw new NotFoundException('Cannot instantiate ' . $id);
     }
 
-    protected function reifyAndReturn(Entry $entry, mixed $value): mixed
+    protected function callAndReify(Entry $entry, mixed $value): mixed
     {
+        foreach ($entry->getCalls() as $call) {
+            $methodToResolve = $call->method;
+
+            /** @psalm-var callable */
+            $callable = [$value, $methodToResolve];
+            $args = $this->resolver->resolveCallableArgs($callable, $call->args);
+            $callable(...$args);
+        }
+
         if ($entry->shouldReify()) {
             $entry->set($value);
         }
@@ -147,13 +156,13 @@ class Registry implements ContainerInterface
                 if (isset($args)) {
                     // Don't autowire if $args are given
                     if ($args instanceof Closure) {
-                        return $this->reifyAndReturn($entry, $this->fromArgsClosure($value, $args));
+                        return $this->callAndReify($entry, $this->fromArgsClosure($value, $args));
                     }
 
-                    return $this->reifyAndReturn($entry, $this->fromArgsArray($value, $args));
+                    return $this->callAndReify($entry, $this->fromArgsArray($value, $args));
                 }
 
-                return $this->reifyAndReturn($entry, $this->resolver->autowire($value));
+                return $this->callAndReify($entry, $this->resolver->autowire($value));
             }
 
             if (isset($this->entries[$value])) {
@@ -174,7 +183,7 @@ class Registry implements ContainerInterface
             /** @var mixed */
             $result = $value(...$args);
 
-            return $this->reifyAndReturn($entry, $result);
+            return $this->callAndReify($entry, $result);
         }
 
         if (is_object($value)) {
