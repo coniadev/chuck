@@ -1,2 +1,0 @@
-Images and Assets
-=================

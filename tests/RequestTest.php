@@ -412,6 +412,7 @@ test('PSR-7 server request wrapper methods', function () {
         ],
     ]);
 
+    expect($request->getUri()->getHost())->toBe('www.newexample.com');
     expect($request->getServerParams()['SERVER_PROTOCOL'])->toBe('HTTP/1.1');
     expect($request->getMethod())->toBe('PUT');
     expect($request->getRequestTarget())->toBe('/chuck');

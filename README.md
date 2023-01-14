@@ -14,9 +14,7 @@ Chuck is a lightweight and easily extendable PHP 8.1 web framework.
 It features:
 
 * Routing
-* Csrf protection
 * An autowiring container
-* Session and cookie helpers
 * Custom and PSR-15 middleware 
 * Logging (PHP builtin logging or PSR-3 support)
 
