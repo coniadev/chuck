@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Conia\Chuck\Tests\Fixtures;
 
 use Conia\Chuck\Config;
-use Conia\Chuck\Http\Factory;
 use Conia\Chuck\Registry\Call;
 use Conia\Chuck\Registry\Inject;
 use Conia\Chuck\Registry\Registry;
@@ -15,7 +14,6 @@ class TestClassInject
 {
     public ?Registry $registry = null;
     public ?Config $config = null;
-    public ?Factory $factory = null;
     public ?TestClass $tc = null;
     public string $arg1 = '';
     public int $arg2 = 0;
