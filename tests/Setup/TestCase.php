@@ -7,6 +7,8 @@ namespace Conia\Chuck\Tests\Setup;
 use Conia\Chuck\App;
 use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ValueError;
+use Conia\Chuck\Http\Factory;
+use Conia\Chuck\Http\Nyholm;
 use Conia\Chuck\Logger;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Renderer\JsonRenderer;
@@ -15,10 +17,8 @@ use Conia\Chuck\Renderer\TextRenderer;
 use Conia\Chuck\Request;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase as BaseTestCase;
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -157,8 +157,7 @@ class TestCase extends BaseTestCase
 
         $registry->add(Registry::class, $registry);
         $registry->add(Request::class, $request);
-        $registry->add(ResponseFactoryInterface::class, Psr17Factory::class);
-        $registry->add(StreamFactoryInterface::class, Psr17Factory::class);
+        $registry->add(Factory::class, Nyholm::class);
         $registry->add($request::class, $request);
         $registry->add(Config::class, $config);
         $registry->add($config::class, $config);
@@ -172,9 +171,9 @@ class TestCase extends BaseTestCase
         return $registry;
     }
 
-    public function psr7Factory(): Psr17Factory
+    public function factory(): Factory
     {
-        return new Psr17Factory();
+        return $this->registry()->get(Factory::class);
     }
 
     public function psr7Request(): ServerRequestInterface

@@ -5,25 +5,21 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use Closure;
-use Conia\Chuck\Exception\RuntimeException;
+use Conia\Chuck\Http\Factory;
 use Conia\Chuck\MiddlewareInterface;
 use Conia\Chuck\Registry\Entry;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Renderer\JsonRenderer;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Renderer\TextRenderer;
-use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Routing\AddsRoutes;
 use Conia\Chuck\Routing\Group;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\Routing\RouteAdderInterface;
 use Conia\Chuck\Routing\Router;
 use Psr\Container\ContainerInterface;
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\LoggerInterface;
-use Throwable;
 
 /** @psalm-consistent-constructor */
 class App implements RouteAdderInterface
@@ -136,8 +132,9 @@ class App implements RouteAdderInterface
 
     public function run(): Response
     {
-        $serverRequest = $this->registry->get(ServerRequestInterface::class);
-        assert($serverRequest instanceof ServerRequestInterface);
+        $factory = $this->registry->get(Factory::class);
+        assert($factory instanceof Factory);
+        $serverRequest = $factory->request();
         $request = new Request($serverRequest);
         $this->registry->add(Request::class, $request);
 
@@ -158,25 +155,12 @@ class App implements RouteAdderInterface
         $registry->add($this->router::class, $this->router);
         $registry->add(App::class, $this);
 
-        $registry->add(ResponseFactoryInterface::class, \Nyholm\Psr7\Factory\Psr17Factory::class);
-        $registry->add(StreamFactoryInterface::class, \Nyholm\Psr7\Factory\Psr17Factory::class);
-        $registry->add(ResponseFactory::class, new ResponseFactory($this->registry));
-        $registry->add(ServerRequestInterface::class, function (): ServerRequestInterface {
-            try {
-                $psr17Factory = new \Nyholm\Psr7\Factory\Psr17Factory();
-                $creator = new \Nyholm\Psr7Server\ServerRequestCreator(
-                    $psr17Factory, // ServerRequestFactory
-                    $psr17Factory, // UriFactory
-                    $psr17Factory, // UploadedFileFactory
-                    $psr17Factory  // StreamFactory
-                );
+        $registry->add(Factory::class, \Conia\Chuck\Http\Nyholm::class);
+        $registry->add(Response::class, function (Registry $registry): Response {
+            $factory = $registry->get(Factory::class);
+            assert($factory instanceof Factory);
 
-                return $creator->fromGlobals();
-                // @codeCoverageIgnoreStart
-            } catch (Throwable) {
-                throw new RuntimeException('Install nyholm/psr7-server');
-                // @codeCoverageIgnoreEnd
-            }
+            return new Response($factory->response(), $factory);
         });
 
         $registry->tag(Renderer::class)->add('text', TextRenderer::class)->asIs();

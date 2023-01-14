@@ -6,15 +6,13 @@ namespace Conia\Chuck;
 
 use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\RuntimeException;
+use Conia\Chuck\Http\Factory;
 use Conia\Chuck\Json;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Response;
 use finfo;
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
-use Stringable;
 
 class ResponseFactory
 {
@@ -29,7 +27,7 @@ class ResponseFactory
         int $code = 200,
         string $reasonPhrase = '',
     ): Response {
-        return new Response($this->createPsr7Response($code, $reasonPhrase), $this->createPsr7StreamFactory());
+        return new Response($this->createPsr7Response($code, $reasonPhrase), $this->createHttpFactory());
     }
 
     /**
@@ -46,10 +44,10 @@ class ResponseFactory
         );
 
         if ($body) {
-            $psr7Response = $psr7Response->withBody($this->createPsr7Stream($body));
+            $psr7Response = $psr7Response->withBody($this->createHttp($body));
         }
 
-        return new Response($psr7Response, $this->createPsr7StreamFactory());
+        return new Response($psr7Response, $this->createHttpFactory());
     }
 
     /**
@@ -66,10 +64,10 @@ class ResponseFactory
         );
 
         if ($body) {
-            $psr7Response = $psr7Response->withBody($this->createPsr7Stream($body));
+            $psr7Response = $psr7Response->withBody($this->createHttp($body));
         }
 
-        return new Response($psr7Response, $this->createPsr7StreamFactory());
+        return new Response($psr7Response, $this->createHttpFactory());
     }
 
     public function json(
@@ -82,9 +80,9 @@ class ResponseFactory
             'application/json'
         );
 
-        $psr7Response = $psr7Response->withBody($this->createPsr7Stream(Json::encode($data)));
+        $psr7Response = $psr7Response->withBody($this->createHttp(Json::encode($data)));
 
-        return new Response($psr7Response, $this->createPsr7StreamFactory());
+        return new Response($psr7Response, $this->createHttpFactory());
     }
 
     public function file(
@@ -104,14 +102,14 @@ class ResponseFactory
             ->withAddedHeader('Content-Type', $contentType)
             ->withAddedHeader('Content-Transfer-Encoding', $encoding);
 
-        $stream = $this->createPsr7StreamFactory()->createStreamFromFile($file, 'rb');
+        $stream = $this->createHttpFactory()->streamFromFile($file, 'rb');
         $size = $stream->getSize();
 
         if (!is_null($size)) {
             $psr7Response = $psr7Response->withAddedHeader('Content-Length', (string)$size);
         }
 
-        return new Response($psr7Response->withBody($stream), $this->createPsr7StreamFactory());
+        return new Response($psr7Response->withBody($stream), $this->createHttpFactory());
     }
 
     public function download(
@@ -146,41 +144,31 @@ class ResponseFactory
             $psr7Response = $psr7Response->withAddedHeader('X-Sendfile', $file);
         }
 
-        return new Response($psr7Response, $this->createPsr7StreamFactory());
+        return new Response($psr7Response, $this->createHttpFactory());
     }
 
     protected function createPsr7Response(
         int $code = 200,
         string $reasonPhrase = ''
     ): ResponseInterface {
-        $factory = $this->registry->get(ResponseFactoryInterface::class);
-        assert($factory instanceof ResponseFactoryInterface);
-        $response = $factory->createResponse($code, $reasonPhrase);
+        $response = $this->createHttpFactory()->response($code, $reasonPhrase);
         assert($response instanceof ResponseInterface);
 
         return $response;
     }
 
-    protected function createPsr7StreamFactory(): StreamFactoryInterface
+    protected function createHttpFactory(): Factory
     {
-        $factory = $this->registry->get(StreamFactoryInterface::class);
-        assert($factory instanceof StreamFactoryInterface);
+        $factory = $this->registry->get(Factory::class);
+        assert($factory instanceof Factory);
 
         return $factory;
     }
 
-    protected function createPsr7Stream(mixed $body): StreamInterface
+    protected function createHttp(mixed $body): StreamInterface
     {
-        $psr7Factory = $this->createPsr7StreamFactory();
-
-        if (is_string($body) || $body instanceof Stringable) {
-            $stream = $psr7Factory->createStream((string)$body);
-        } elseif (is_resource($body)) {
-            $stream = $psr7Factory->createStreamFromResource($body);
-        } else {
-            throw new RuntimeException('Only strings, Stringable or resources are allowed');
-        }
-
+        $factory = $this->createHttpFactory();
+        $stream = $factory->stream($body);
         assert($stream instanceof StreamInterface);
 
         return $stream;

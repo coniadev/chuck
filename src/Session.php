@@ -22,11 +22,19 @@ class Session
     ) {
     }
 
+//  session_set_cookie_params(
+//     int $lifetime_or_options,
+//     ?string $path = null,
+//     ?string $domain = null,
+//     ?bool $secure = null,
+//     ?bool $httponly = null
+// ): bool
     public function start(): void
     {
         if (session_status() === PHP_SESSION_NONE) {
             if (!headers_sent($file, $line)) {
                 session_name($this->name);
+                // session_cache_limiter(false);
 
                 if (!session_start()) {
                     // @codeCoverageIgnoreStart

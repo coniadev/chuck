@@ -4,26 +4,26 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
+use Conia\Chuck\Http\Factory;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface as PsrMiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 class Dispatcher
 {
-    protected StreamFactoryInterface $streamFactory;
+    protected Factory $factory;
 
     public function __construct(
         protected readonly array $queue,
         protected readonly Registry $registry
     ) {
-        $sf = $registry->get(StreamFactoryInterface::class);
-        assert($sf instanceof StreamFactoryInterface);
-        $this->streamFactory = $sf;
+        $factory = $registry->get(Factory::class);
+        assert($factory instanceof Factory);
+        $this->factory = $factory;
     }
 
     /**
@@ -58,7 +58,7 @@ class Dispatcher
                         return $this->dispatcher->handle($this->queue, new Request($request))->psr7();
                     }
                 }
-            ), $this->streamFactory);
+            ), $this->factory);
         }
 
         return $handler($request);

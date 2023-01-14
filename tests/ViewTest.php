@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ContainerException;
+use Conia\Chuck\Http\Factory;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Response;
@@ -134,9 +135,8 @@ test('Reflect function', function () {
 
 test('View response Response', function () {
     $route = new Route('/', function (Registry $registry) {
-        $sf = $registry->get(Psr\Http\Message\StreamFactoryInterface::class);
-        $rf = $registry->get(Psr\Http\Message\ResponseFactoryInterface::class);
-        $response = new Response($rf->createResponse(), $sf);
+        $factory = $registry->get(Factory::class);
+        $response = new Response($factory->response(), $factory);
         $response->body('Chuck Response');
         $response->header('Content-Type', 'text/plain');
 
@@ -153,11 +153,10 @@ test('View response Response', function () {
 
 test('View response PSR Response', function () {
     $route = new Route('/', function (Registry $registry) {
-        $sf = $registry->get(Psr\Http\Message\StreamFactoryInterface::class);
-        $rf = $registry->get(Psr\Http\Message\ResponseFactoryInterface::class);
+        $factory = $registry->get(Factory::class);
 
-        return $rf->createResponse()
-            ->withBody($sf->createStream('Chuck PSR Response'))
+        return $factory->response()
+            ->withBody($factory->stream('Chuck PSR Response'))
             ->withHeader('Content-Type', 'text/plain');
     });
     $route->match('/');

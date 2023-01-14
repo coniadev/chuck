@@ -8,6 +8,7 @@ use Closure;
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Exception\RuntimeException;
+use Conia\Chuck\Http\Factory;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Registry\Resolve;
 use Conia\Chuck\Registry\Resolver;
@@ -16,18 +17,14 @@ use Conia\Chuck\Renderer\Render;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
-use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Routing\Route;
-use JsonException;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use ReflectionObject;
-use Stringable;
 use Throwable;
 
 class View
@@ -72,10 +69,10 @@ class View
         }
 
         if ($result instanceof ResponseInterface) {
-            $sf = $registry->get(StreamFactoryInterface::class);
-            assert($sf instanceof StreamFactoryInterface);
+            $factory = $registry->get(Factory::class);
+            assert($factory instanceof Factory);
 
-            return new Response($result, $sf);
+            return new Response($result, $factory);
         }
 
         $renderAttributes = $this->attributes(Render::class);

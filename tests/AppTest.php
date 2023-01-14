@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 use Conia\Chuck\App;
 use Conia\Chuck\Config;
+use Conia\Chuck\Http\Factory;
 use Conia\Chuck\Logger;
+use Conia\Chuck\Renderer\JsonRenderer;
 use Conia\Chuck\Renderer\Renderer;
+use Conia\Chuck\Renderer\TextRenderer;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 use Conia\Chuck\Routing\Group;
@@ -223,3 +226,22 @@ test('Add logger', function () {
 
     expect($logger === $logger2)->toBe(true);
 });
+
+
+test('Registry initialized', function () {
+    $app = $this->app();
+    $registry = $app->registry();
+
+    $value = $registry->get(App::class);
+    expect($value)->toBe($app);
+    $value = $registry->get(Response::class);
+    expect($value instanceof Response)->toBe(true);
+    $value = $registry->get(Response::class);
+    expect($value instanceof Response)->toBe(true);
+    $value = $registry->get(Config::class);
+    expect($value instanceof Config)->toBe(true);
+    $value = $registry->get(Factory::class);
+    expect($value instanceof Factory)->toBe(true);
+    expect($registry->tag(Renderer::class)->get('text'))->toBe(TextRenderer::class);
+    expect($registry->tag(Renderer::class)->get('json'))->toBe(JsonRenderer::class);
+})->only();
