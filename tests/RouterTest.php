@@ -505,3 +505,15 @@ test('Add Endpoint', function () {
     expect($route->view())->toBe([TestEndpoint::class, 'post']);
     expect($route->args())->toBe([]);
 });
+
+
+test('Add routes with callback', function () {
+    $router = new Router();
+    $router->routes(function (Router $r): void {
+        $r->get('/', fn () => null, 'index');
+        $r->post('/albums', fn () => null);
+    });
+
+    expect($router->match($this->request(method: 'GET', url: ''))->name())->toBe('index');
+    expect($router->match($this->request(method: 'POST', url: '/albums'))->name())->toBe('');
+});

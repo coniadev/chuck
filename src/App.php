@@ -64,6 +64,12 @@ class App implements RouteAdderInterface
         return $this->registry;
     }
 
+    /** @psalm-param Closure(Router $router):void $creator */
+    public function routes(Closure $creator, string $cacheFile = '', bool $shouldCache = true): void
+    {
+        $this->router->routes($creator, $cacheFile, $shouldCache);
+    }
+
     public function addRoute(Route $route): Route
     {
         return $this->router->addRoute($route);

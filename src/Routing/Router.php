@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Routing;
 
+use Closure;
 use Conia\Chuck\Dispatcher;
 use Conia\Chuck\Exception\HttpMethodNotAllowed;
 use Conia\Chuck\Exception\HttpNotFound;
@@ -26,6 +27,8 @@ class Router implements RouteAdderInterface
 
     protected const ALL = 'ALL';
 
+    protected string $cacheFile = '';
+    protected bool $shouldCache = false;
     protected ?Route $route = null;
 
     /** @psalm-var array<string, list<Route>> */
@@ -44,6 +47,15 @@ class Router implements RouteAdderInterface
         }
 
         return $this->route;
+    }
+
+    /** @psalm-param Closure(Router $router):void $creator */
+    public function routes(Closure $creator, string $cacheFile = '', bool $shouldCache = true): void
+    {
+        $this->cacheFile = $cacheFile;
+        $this->shouldCache = $shouldCache;
+
+        $creator($this);
     }
 
     public function addRoute(Route $route): Route

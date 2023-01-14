@@ -134,6 +134,16 @@ test('App::route helper', function () {
 });
 
 
+test('App::routes helper', function () {
+    $app = App::create();
+    $app->routes(function (Router $r): void {
+        $r->get('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
+    });
+
+    expect($app->router()->routeUrl('albums'))->toBe('/albums');
+});
+
+
 test('App::get helper', function () {
     $app = App::create();
     $app->get('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
