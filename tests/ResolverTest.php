@@ -2,10 +2,15 @@
 
 declare(strict_types=1);
 
+use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ContainerException;
+use Conia\Chuck\Http\Factory;
+use Conia\Chuck\Registry\Call;
+use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Registry\Resolver;
 use Conia\Chuck\Response;
 use Conia\Chuck\Tests\Fixtures\TestClass;
+use Conia\Chuck\Tests\Fixtures\TestClassCall;
 use Conia\Chuck\Tests\Fixtures\TestClassResolver;
 use Conia\Chuck\Tests\Fixtures\TestClassResolverDefault;
 use Conia\Chuck\Tests\Fixtures\TestClassWithConstructor;
@@ -70,6 +75,23 @@ test('Get callable object args', function () {
     expect($args[0])->toBe('default');
     expect($args[1])->toBe(13);
 });
+
+
+test('Call attributes', function () {
+    $resolver = new Resolver($this->registry());
+    $attr = $resolver->autowire(TestClassCall::class);
+
+    expect($attr->registry)->toBeInstanceOf(Registry::class);
+    expect($attr->config)->toBeInstanceOf(Config::class);
+    expect($attr->factory)->toBeInstanceOf(Factory::class);
+    expect($attr->arg1)->toBe('arg1');
+    expect($attr->arg2)->toBe('arg2');
+});
+
+
+test('Call attribute does not allow unnamed args', function () {
+    new Call('method', 'arg');
+})->throws(RuntimeException::class, 'Arguments for Call');
 
 
 test('Fail when autowire is turned off', function () {

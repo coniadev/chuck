@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Exception\NotFoundException;
-use Conia\Chuck\Registry\Call;
 use Conia\Chuck\Registry\Entry;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Registry\Resolver;
@@ -500,8 +499,3 @@ test('Getting non existent tagged entry fails', function () {
 
     $registry->tag('tag')->get('NonExistent');
 })->throws(NotFoundException::class, 'Unresolvable tagged id: tag::NonExistent');
-
-
-test('Call attribute does not allow unnamed args', function () {
-    new Call('method', 'arg');
-})->throws(RuntimeException::class, 'Arguments for Call');

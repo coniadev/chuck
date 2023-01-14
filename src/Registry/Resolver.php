@@ -12,6 +12,7 @@ use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use ReflectionNamedType;
+use ReflectionObject;
 use ReflectionParameter;
 use Throwable;
 
@@ -39,12 +40,32 @@ class Resolver
         $args = $this->resolveArgs($constructor, $predefinedArgs);
 
         try {
-            return $rc->newInstance(...$args);
+            return $this->resolveCallAttributes($rc->newInstance(...$args));
         } catch (Throwable $e) {
             throw new ContainerException(
                 'Autowiring unresolvable: ' . $class . ' Details: ' . $e->getMessage()
             );
         }
+    }
+
+    public function resolveCallAttributes(object $instance): object
+    {
+        $callAttrs = (new ReflectionObject($instance))->getAttributes(Call::class);
+
+        // See if the attribute itself has one or more Call attributes. If so,
+        // resolve/autowire the arguments of the method it states and call it.
+        foreach ($callAttrs as $callAttr) {
+            $resolver = new Resolver($this->registry);
+            $callAttr = $callAttr->newInstance();
+            $methodToResolve = $callAttr->method;
+
+            /** @psalm-var callable */
+            $callable = [$instance, $methodToResolve];
+            $args = $resolver->resolveCallableArgs($callable, $callAttr->args);
+            $callable(...$args);
+        }
+
+        return $instance;
     }
 
     public function resolveParam(ReflectionParameter $param): mixed
