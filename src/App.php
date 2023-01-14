@@ -136,6 +136,9 @@ class App implements RouteAdderInterface
         assert($factory instanceof Factory);
         $serverRequest = $factory->request();
         $request = new Request($serverRequest);
+
+        $this->registry->add(ServerRequestInterface::class, $serverRequest);
+        $this->registry->add($serverRequest::class, $serverRequest);
         $this->registry->add(Request::class, $request);
 
         $response = $this->router->dispatch($request, $this->registry);
