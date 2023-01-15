@@ -28,17 +28,6 @@ class Response
         }
     }
 
-    public function status(int $statusCode, ?string $reasonPhrase = null): static
-    {
-        if (empty($reasonPhrase)) {
-            $this->psr7 = $this->psr7->withStatus($statusCode);
-        } else {
-            $this->psr7 = $this->psr7->withStatus($statusCode, $reasonPhrase);
-        }
-
-        return $this;
-    }
-
     public function psr7(): ResponseInterface
     {
         return $this->psr7;
@@ -47,6 +36,17 @@ class Response
     public function setPsr7(ResponseInterface $psr7): static
     {
         $this->psr7 = $psr7;
+
+        return $this;
+    }
+
+    public function status(int $statusCode, ?string $reasonPhrase = null): static
+    {
+        if (empty($reasonPhrase)) {
+            $this->psr7 = $this->psr7->withStatus($statusCode);
+        } else {
+            $this->psr7 = $this->psr7->withStatus($statusCode, $reasonPhrase);
+        }
 
         return $this;
     }
@@ -132,10 +132,5 @@ class Response
         $this->status($code);
 
         return $this;
-    }
-
-    public function withStatus(int $code, string $reasonPhrase = ''): static
-    {
-        return $this->status($code, $reasonPhrase);
     }
 }

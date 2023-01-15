@@ -48,24 +48,6 @@ test('Set status code and reason phrase', function () {
 });
 
 
-test('Set status code with PSR-7 Wrapper', function () {
-    $response = new Response($this->psr7Response(), $this->factory());
-    $response->withStatus(404);
-
-    expect($response->getStatusCode())->toBe(404);
-    expect($response->getReasonPhrase())->toBe('Not Found');
-});
-
-
-test('Set status code and reason phrase with PSR-7 Wrapper', function () {
-    $response = new Response($this->psr7Response(), $this->factory());
-    $response->withStatus(404, 'Nothing to see');
-
-    expect($response->getStatusCode())->toBe(404);
-    expect($response->getReasonPhrase())->toBe('Nothing to see');
-});
-
-
 test('Protocol version', function () {
     $response = new Response($this->psr7Response(), $this->factory());
 
