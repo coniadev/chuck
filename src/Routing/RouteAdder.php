@@ -7,7 +7,7 @@ namespace Conia\Chuck\Routing;
 /**
  * @psalm-import-type View from \Conia\Chuck\Routing\Route
  */
-interface RouteAdderInterface
+interface RouteAdder
 {
     public function addRoute(Route $route): Route;
 

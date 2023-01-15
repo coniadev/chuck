@@ -20,7 +20,7 @@ use Conia\Chuck\ViewHandler;
 use Psr\Http\Server\MiddlewareInterface as PsrMiddleware;
 use Throwable;
 
-class Router implements RouteAdderInterface
+class Router implements RouteAdder
 {
     use AddsRoutes;
     use AddsMiddleware;

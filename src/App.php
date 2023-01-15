@@ -15,14 +15,14 @@ use Conia\Chuck\Renderer\TextRenderer;
 use Conia\Chuck\Routing\AddsRoutes;
 use Conia\Chuck\Routing\Group;
 use Conia\Chuck\Routing\Route;
-use Conia\Chuck\Routing\RouteAdderInterface;
+use Conia\Chuck\Routing\RouteAdder;
 use Conia\Chuck\Routing\Router;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
 /** @psalm-consistent-constructor */
-class App implements RouteAdderInterface
+class App implements RouteAdder
 {
     use AddsRoutes;
 

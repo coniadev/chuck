@@ -6,16 +6,16 @@ namespace Conia\Chuck\Routing;
 
 use Closure;
 use Conia\Chuck\Exception\RuntimeException;
-use Conia\Chuck\Routing\RouteAdderInterface;
+use Conia\Chuck\Routing\RouteAdder;
 
-class Group implements RouteAdderInterface
+class Group implements RouteAdder
 {
     use AddsRoutes;
     use AddsMiddleware;
 
     /** @psalm-var list<Group> */
     protected array $subgroups = [];
-    protected ?RouteAdderInterface $routeAdder = null;
+    protected ?RouteAdder $routeAdder = null;
     protected ?string $renderer = null;
     protected ?string $controller = null;
     protected bool $created = false;
@@ -82,7 +82,7 @@ class Group implements RouteAdderInterface
         return $group;
     }
 
-    public function create(RouteAdderInterface $adder): void
+    public function create(RouteAdder $adder): void
     {
         if ($this->created) {
             return;

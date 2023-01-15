@@ -65,7 +65,7 @@ trait AddsRoutes
     /** @psalm-param class-string $controller */
     public function endpoint(array|string $path, string $controller, string|array $args): Endpoint
     {
-        /** @var RouteAdderInterface $this */
+        /** @var RouteAdder $this */
         return new Endpoint($this, $path, $controller, $args);
     }
 }

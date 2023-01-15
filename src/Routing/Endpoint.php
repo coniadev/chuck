@@ -17,7 +17,7 @@ class Endpoint
      * @psalm-param class-string $controller
      */
     public function __construct(
-        protected readonly RouteAdderInterface $adder,
+        protected readonly RouteAdder $adder,
         protected readonly array|string $path,
         protected readonly string $controller,
         protected readonly string|array $args
