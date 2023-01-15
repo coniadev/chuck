@@ -8,7 +8,7 @@ use Conia\Chuck\Exception\RuntimeException;
 use Laminas\Diactoros\ResponseFactory;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Diactoros\StreamFactory;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
 use Throwable;
 
 class Laminas extends AbstractFactory
@@ -25,7 +25,7 @@ class Laminas extends AbstractFactory
         }
     }
 
-    public function request(): ServerRequestInterface
+    public function request(): PsrServerRequest
     {
         return ServerRequestFactory::fromGlobals();
     }

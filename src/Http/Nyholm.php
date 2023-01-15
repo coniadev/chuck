@@ -7,7 +7,7 @@ namespace Conia\Chuck\Http;
 use Conia\Chuck\Exception\RuntimeException;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
 use Throwable;
 
 class Nyholm extends AbstractFactory
@@ -25,7 +25,7 @@ class Nyholm extends AbstractFactory
         }
     }
 
-    public function request(): ServerRequestInterface
+    public function request(): PsrServerRequest
     {
         $creator = new ServerRequestCreator(
             $this->factory, // ServerRequestFactory

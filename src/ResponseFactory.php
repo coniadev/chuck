@@ -11,8 +11,8 @@ use Conia\Chuck\Json;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Response;
 use finfo;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\ResponseInterface as PsrResponse;
+use Psr\Http\Message\StreamInterface as PsrStream;
 
 class ResponseFactory
 {
@@ -21,7 +21,7 @@ class ResponseFactory
     }
 
     /**
-     * @param null|resource|StreamInterface|string $body
+     * @param null|PsrStream|resource|string $body
      */
     public function create(
         int $code = 200,
@@ -31,7 +31,7 @@ class ResponseFactory
     }
 
     /**
-     * @param null|resource|StreamInterface|string $body
+     * @param null|PsrStream|resource|string $body
      */
     public function html(
         mixed $body = null,
@@ -51,7 +51,7 @@ class ResponseFactory
     }
 
     /**
-     * @param null|resource|StreamInterface|string $body
+     * @param null|PsrStream|resource|string $body
      */
     public function text(
         mixed $body = null,
@@ -150,9 +150,9 @@ class ResponseFactory
     protected function createPsr7Response(
         int $code = 200,
         string $reasonPhrase = ''
-    ): ResponseInterface {
+    ): PsrResponse {
         $response = $this->createHttpFactory()->response($code, $reasonPhrase);
-        assert($response instanceof ResponseInterface);
+        assert($response instanceof PsrResponse);
 
         return $response;
     }
@@ -165,11 +165,11 @@ class ResponseFactory
         return $factory;
     }
 
-    protected function createHttp(mixed $body): StreamInterface
+    protected function createHttp(mixed $body): PsrStream
     {
         $factory = $this->createHttpFactory();
         $stream = $factory->stream($body);
-        assert($stream instanceof StreamInterface);
+        assert($stream instanceof PsrStream);
 
         return $stream;
     }

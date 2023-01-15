@@ -6,7 +6,7 @@ use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Tests\Setup\TestCase;
 use Nyholm\Psr7\Stream;
 use Nyholm\Psr7\Uri;
-use Psr\Http\Message\UploadedFileInterface;
+use Psr\Http\Message\UploadedFileInterface as PsrUploadedFile;
 
 uses(TestCase::class);
 
@@ -238,7 +238,7 @@ test('Get file instance', function () {
     $request = $this->request();
     $file = $request->file('myfile');
 
-    expect($file)->toBeInstanceOf(UploadedFileInterface::class);
+    expect($file)->toBeInstanceOf(PsrUploadedFile::class);
 });
 
 
@@ -254,7 +254,7 @@ test('Get nested file instance', function () {
     $request = $this->request();
     $file = $request->file('nested', 'myfile');
 
-    expect($file)->toBeInstanceOf(UploadedFileInterface::class);
+    expect($file)->toBeInstanceOf(PsrUploadedFile::class);
 });
 
 
@@ -275,8 +275,8 @@ test('Get files instances', function () {
     $files = $request->files('myfile');
 
     expect(count($files))->toBe(2);
-    expect($files[0])->toBeInstanceOf(UploadedFileInterface::class);
-    expect($files[1])->toBeInstanceOf(UploadedFileInterface::class);
+    expect($files[0])->toBeInstanceOf(PsrUploadedFile::class);
+    expect($files[1])->toBeInstanceOf(PsrUploadedFile::class);
 });
 
 
@@ -286,8 +286,8 @@ test('Get nested files instances', function () {
     $files = $request->files('nested', 'myfile');
 
     expect(count($files))->toBe(2);
-    expect($files[0])->toBeInstanceOf(UploadedFileInterface::class);
-    expect($files[1])->toBeInstanceOf(UploadedFileInterface::class);
+    expect($files[0])->toBeInstanceOf(PsrUploadedFile::class);
+    expect($files[1])->toBeInstanceOf(PsrUploadedFile::class);
 });
 
 
@@ -297,8 +297,8 @@ test('Get nested files instances using an array', function () {
     $files = $request->files(['nested', 'myfile']);
 
     expect(count($files))->toBe(2);
-    expect($files[0])->toBeInstanceOf(UploadedFileInterface::class);
-    expect($files[1])->toBeInstanceOf(UploadedFileInterface::class);
+    expect($files[0])->toBeInstanceOf(PsrUploadedFile::class);
+    expect($files[1])->toBeInstanceOf(PsrUploadedFile::class);
 });
 
 
@@ -308,7 +308,7 @@ test('Get files instances with only one present', function () {
     $files = $request->files('myfile');
 
     expect(count($files))->toBe(1);
-    expect($files[0])->toBeInstanceOf(UploadedFileInterface::class);
+    expect($files[0])->toBeInstanceOf(PsrUploadedFile::class);
 });
 
 

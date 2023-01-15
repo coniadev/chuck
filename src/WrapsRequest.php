@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UriInterface;
+use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
+use Psr\Http\Message\UriInterface as PsrUri;
 
 trait WrapsRequest
 {
-    protected ServerRequestInterface $psr7;
+    protected PsrServerRequest $psr7;
 
     public function getServerParams(): array
     {
@@ -88,14 +88,14 @@ trait WrapsRequest
         return $this->psr7->getUploadedFiles();
     }
 
-    public function withUri(UriInterface $uri, bool $preserveHost = false): static
+    public function withUri(PsrUri $uri, bool $preserveHost = false): static
     {
         $this->psr7 = $this->psr7->withUri($uri, $preserveHost);
 
         return $this;
     }
 
-    public function getUri(): UriInterface
+    public function getUri(): PsrUri
     {
         return $this->psr7->getUri();
     }

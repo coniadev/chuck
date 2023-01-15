@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\StreamInterface as PsrStream;
 
 trait WrapsMessage
 {
@@ -61,12 +61,12 @@ trait WrapsMessage
         return $this;
     }
 
-    public function getBody(): StreamInterface
+    public function getBody(): PsrStream
     {
         return $this->psr7->getBody();
     }
 
-    public function withBody(StreamInterface $body): static
+    public function withBody(PsrStream $body): static
     {
         $this->psr7 = $this->psr7->withBody($body);
 

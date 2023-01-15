@@ -17,7 +17,7 @@ use Conia\Chuck\Routing\Router;
 use Conia\Chuck\Tests\Fixtures\TestRenderer;
 use Conia\Chuck\Tests\Setup\C;
 use Conia\Chuck\Tests\Setup\TestCase;
-use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerInterface as PsrLogger;
 
 uses(TestCase::class);
 
@@ -222,17 +222,17 @@ test('Add renderer', function () {
 
 test('Add logger', function () {
     $app = $this->app();
-    $app->Logger(function (): LoggerInterface {
+    $app->Logger(function (): PsrLogger {
         $logfile = C::root() . C::DS . 'log' . C::DS . bin2hex(random_bytes(4)) . '.log';
 
         return new Logger(Logger::DEBUG, $logfile);
     });
     $registry = $app->registry();
-    $logger = $registry->get(LoggerInterface::class);
+    $logger = $registry->get(PsrLogger::class);
 
     expect($logger)->toBeInstanceOf(Logger::class);
 
-    $logger2 = $registry->get(LoggerInterface::class);
+    $logger2 = $registry->get(PsrLogger::class);
 
     expect($logger === $logger2)->toBe(true);
 });

@@ -17,9 +17,9 @@ use Conia\Chuck\Renderer\TextRenderer;
 use Conia\Chuck\Request;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase as BaseTestCase;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Log\LoggerInterface;
+use Psr\Http\Message\ResponseInterface as PsrResponse;
+use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
+use Psr\Log\LoggerInterface as PsrLogger;
 
 /**
  * @internal
@@ -161,7 +161,7 @@ class TestCase extends BaseTestCase
         $registry->add($request::class, $request);
         $registry->add(Config::class, $config);
         $registry->add($config::class, $config);
-        $registry->add(LoggerInterface::class, function (): LoggerInterface {
+        $registry->add(PsrLogger::class, function (): PsrLogger {
             return new Logger();
         });
 
@@ -176,7 +176,7 @@ class TestCase extends BaseTestCase
         return $this->registry()->get(Factory::class);
     }
 
-    public function psr7Request(): ServerRequestInterface
+    public function psr7Request(): PsrServerRequest
     {
         $psr17Factory = new Psr17Factory();
 
@@ -190,7 +190,7 @@ class TestCase extends BaseTestCase
         return $creator->fromGlobals();
     }
 
-    public function psr7Response(): ResponseInterface
+    public function psr7Response(): PsrResponse
     {
         $psr17Factory = new Psr17Factory();
 

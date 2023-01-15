@@ -7,7 +7,7 @@ namespace Conia\Chuck\Http;
 use Conia\Chuck\Exception\RuntimeException;
 use GuzzleHttp\Psr7\HttpFactory;
 use GuzzleHttp\Psr7\ServerRequest;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
 use Throwable;
 
 class Guzzle extends AbstractFactory
@@ -23,7 +23,7 @@ class Guzzle extends AbstractFactory
         }
     }
 
-    public function request(): ServerRequestInterface
+    public function request(): PsrServerRequest
     {
         return ServerRequest::fromGlobals();
     }

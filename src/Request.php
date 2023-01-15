@@ -6,10 +6,10 @@ namespace Conia\Chuck;
 
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\RuntimeException;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\StreamInterface;
-use Psr\Http\Message\UploadedFileInterface;
-use Psr\Http\Message\UriInterface;
+use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
+use Psr\Http\Message\StreamInterface as PsrStream;
+use Psr\Http\Message\UploadedFileInterface as PsrUploadedFile;
+use Psr\Http\Message\UriInterface as PsrUri;
 use Throwable;
 
 class Request
@@ -17,16 +17,16 @@ class Request
     use WrapsMessage;
     use WrapsRequest;
 
-    public function __construct(protected ServerRequestInterface $psr7)
+    public function __construct(protected PsrServerRequest $psr7)
     {
     }
 
-    public function psr7(): ServerRequestInterface
+    public function psr7(): PsrServerRequest
     {
         return $this->psr7;
     }
 
-    public function setPsr7(ServerRequestInterface $psr7): static
+    public function setPsr7(PsrServerRequest $psr7): static
     {
         $this->psr7 = $psr7;
 
@@ -102,7 +102,7 @@ class Request
         return $this->returnOrFail($params, $key, $default, $error, func_num_args());
     }
 
-    public function uri(): UriInterface
+    public function uri(): PsrUri
     {
         return $this->psr7->getUri();
     }
@@ -128,7 +128,7 @@ class Request
         return strtoupper($method) === $this->method();
     }
 
-    public function body(): StreamInterface
+    public function body(): PsrStream
     {
         return $this->psr7->getBody();
     }
@@ -182,7 +182,7 @@ class Request
             throw new OutOfBoundsException('Invalid files key ' . $this->formatKeys($keys));
         }
 
-        if ($files instanceof UploadedFileInterface) {
+        if ($files instanceof PsrUploadedFile) {
             return [$files];
         }
 
@@ -202,11 +202,11 @@ class Request
      *
      * @psalm-param list<non-empty-string>|string ...$keys
      *
-     * @return UploadedFileInterface
+     * @return PsrUploadedFile
      *
      * @throws OutOfBoundsException RuntimeException
      */
-    public function file(array|string ...$keys): UploadedFileInterface|array
+    public function file(array|string ...$keys): PsrUploadedFile|array
     {
         $keys = $this->validateKeys($keys);
 
@@ -219,11 +219,11 @@ class Request
 
         foreach ($keys as $key) {
             if (isset($files[$key])) {
-                /** @var array|UploadedFileInterface */
+                /** @var array|PsrUploadedFile */
                 $files = $files[$key];
                 $i++;
 
-                if ($files instanceof UploadedFileInterface) {
+                if ($files instanceof PsrUploadedFile) {
                     if ($i < count($keys)) {
                         throw new OutOfBoundsException(
                             'Invalid file key (too deep) ' . $this->formatKeys($keys)

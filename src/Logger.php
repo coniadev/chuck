@@ -6,11 +6,11 @@ namespace Conia\Chuck;
 
 use DateTimeInterface;
 use Psr\Log\InvalidArgumentException;
-use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerInterface as PsrLogger;
 use Stringable;
 use Throwable;
 
-class Logger implements LoggerInterface
+class Logger implements PsrLogger
 {
     public const DEBUG = 100;
     public const INFO = 200;

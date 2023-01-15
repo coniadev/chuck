@@ -6,8 +6,8 @@ namespace Conia\Chuck;
 
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Http\Factory;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\ResponseInterface as PsrResponse;
+use Psr\Http\Message\StreamInterface as PsrStream;
 
 class Response
 {
@@ -16,8 +16,8 @@ class Response
     protected ?Factory $factory = null;
 
     public function __construct(
-        protected ResponseInterface $psr7,
-        StreamInterface|Factory|null $streamOrFactory = null,
+        protected PsrResponse $psr7,
+        PsrStream|Factory|null $streamOrFactory = null,
     ) {
         if ($streamOrFactory) {
             if ($streamOrFactory instanceof Factory) {
@@ -28,12 +28,12 @@ class Response
         }
     }
 
-    public function psr7(): ResponseInterface
+    public function psr7(): PsrResponse
     {
         return $this->psr7;
     }
 
-    public function setPsr7(ResponseInterface $psr7): static
+    public function setPsr7(PsrResponse $psr7): static
     {
         $this->psr7 = $psr7;
 
@@ -97,9 +97,9 @@ class Response
         return $this->psr7->hasHeader($name);
     }
 
-    public function body(StreamInterface|string $body): static
+    public function body(PsrStream|string $body): static
     {
-        if ($body instanceof StreamInterface) {
+        if ($body instanceof PsrStream) {
             $this->psr7 = $this->psr7->withBody($body);
 
             return $this;
@@ -114,7 +114,7 @@ class Response
         throw new RuntimeException('No factory instance set in response object');
     }
 
-    public function getBody(): StreamInterface
+    public function getBody(): PsrStream
     {
         return $this->psr7->getBody();
     }

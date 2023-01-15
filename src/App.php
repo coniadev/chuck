@@ -17,9 +17,9 @@ use Conia\Chuck\Routing\Group;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\Routing\RouteAdder;
 use Conia\Chuck\Routing\Router;
-use Psr\Container\ContainerInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Log\LoggerInterface;
+use Psr\Container\ContainerInterface as PsrContainer;
+use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
+use Psr\Log\LoggerInterface as PsrLogger;
 
 /** @psalm-consistent-constructor */
 class App implements RouteAdder
@@ -34,7 +34,7 @@ class App implements RouteAdder
         $this->initializeRegistry();
     }
 
-    public static function create(?Config $config = null, ?ContainerInterface $container = null): static
+    public static function create(?Config $config = null, ?PsrContainer $container = null): static
     {
         if (!$config) {
             $config = new Config('chuck', debug: false);
@@ -121,10 +121,10 @@ class App implements RouteAdder
         return $this->registry->tag(Renderer::class)->add($name, $class);
     }
 
-    /** @param callable(mixed ...$args):LoggerInterface $callable */
+    /** @param callable(mixed ...$args):PsrLogger $callable */
     public function logger(callable $callback): void
     {
-        $this->registry->add(LoggerInterface::class, Closure::fromCallable($callback));
+        $this->registry->add(PsrLogger::class, Closure::fromCallable($callback));
     }
 
     /**
@@ -143,7 +143,7 @@ class App implements RouteAdder
         $serverRequest = $factory->request();
         $request = new Request($serverRequest);
 
-        $this->registry->add(ServerRequestInterface::class, $serverRequest);
+        $this->registry->add(PsrServerRequest::class, $serverRequest);
         $this->registry->add($serverRequest::class, $serverRequest);
         $this->registry->add(Request::class, $request);
 

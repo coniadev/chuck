@@ -6,12 +6,12 @@ namespace Conia\Chuck\Registry;
 
 use Closure;
 use Conia\Chuck\Exception\NotFoundException;
-use Psr\Container\ContainerInterface;
+use Psr\Container\ContainerInterface as PsrContainer;
 
 /**
  * @psalm-type EntryArray = array<never, never>|array<string, Entry>
  */
-class Registry implements ContainerInterface
+class Registry implements PsrContainer
 {
     protected Resolver $resolver;
 
@@ -22,16 +22,16 @@ class Registry implements ContainerInterface
     protected array $tags = [];
 
     public function __construct(
-        protected readonly ?ContainerInterface $container = null,
+        protected readonly ?PsrContainer $container = null,
         public readonly bool $autowire = true,
         protected readonly string $tag = '',
         protected readonly ?Registry $parent = null,
     ) {
         if ($container) {
-            $this->add(ContainerInterface::class, $container);
+            $this->add(PsrContainer::class, $container);
             $this->add($container::class, $container);
         } else {
-            $this->add(ContainerInterface::class, $this);
+            $this->add(PsrContainer::class, $this);
         }
 
         $this->add(Registry::class, $this);

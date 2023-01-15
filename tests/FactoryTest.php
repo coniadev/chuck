@@ -8,7 +8,7 @@ use Conia\Chuck\Http\Guzzle;
 use Conia\Chuck\Http\Laminas;
 use Conia\Chuck\Http\Nyholm;
 use Conia\Chuck\Tests\Setup\TestCase;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
 
 uses(TestCase::class);
 
@@ -51,8 +51,8 @@ test('Nyholm app run', function () {
     expect($output)->toBe('text');
     expect($response->psr7())->toBeInstanceOf(\Nyholm\Psr7\Response::class);
 
-    $request1 = $registry->get(ServerRequestInterface::class);
-    expect($request1)->toBeInstanceOf(ServerRequestInterface::class);
+    $request1 = $registry->get(PsrServerRequest::class);
+    expect($request1)->toBeInstanceOf(PsrServerRequest::class);
 
     $request2 = $registry->get(\Nyholm\Psr7\ServerRequest::class);
     expect($request2)->toBeInstanceOf(\Nyholm\Psr7\ServerRequest::class);
@@ -98,8 +98,8 @@ test('Guzzle app run', function () {
     expect($output)->toBe('text');
     expect($response->psr7())->toBeInstanceOf(\GuzzleHttp\Psr7\Response::class);
 
-    $request1 = $registry->get(ServerRequestInterface::class);
-    expect($request1)->toBeInstanceOf(ServerRequestInterface::class);
+    $request1 = $registry->get(PsrServerRequest::class);
+    expect($request1)->toBeInstanceOf(PsrServerRequest::class);
 
     $request2 = $registry->get(\GuzzleHttp\Psr7\ServerRequest::class);
     expect($request2)->toBeInstanceOf(\GuzzleHttp\Psr7\ServerRequest::class);
@@ -145,8 +145,8 @@ test('Laminas app run', function () {
     expect($output)->toBe('text');
     expect($response->psr7())->toBeInstanceOf(\Laminas\Diactoros\Response::class);
 
-    $request1 = $registry->get(ServerRequestInterface::class);
-    expect($request1)->toBeInstanceOf(ServerRequestInterface::class);
+    $request1 = $registry->get(PsrServerRequest::class);
+    expect($request1)->toBeInstanceOf(PsrServerRequest::class);
 
     $request2 = $registry->get(\Laminas\Diactoros\ServerRequest::class);
     expect($request2)->toBeInstanceOf(\Laminas\Diactoros\ServerRequest::class);

@@ -8,10 +8,10 @@ use Conia\Chuck\Http\Factory;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface as PsrResponse;
+use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
 use Psr\Http\Server\MiddlewareInterface as PsrMiddleware;
-use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Server\RequestHandlerInterface as PsrRequestHandler;
 
 class Dispatcher
 {
@@ -46,14 +46,14 @@ class Dispatcher
             return new Response($handler->process(
                 $request->psr7(),
                 // Create an anonymous PSR-15 RequestHandler
-                new class ($this, array_slice($queue, 1)) implements RequestHandlerInterface {
+                new class ($this, array_slice($queue, 1)) implements PsrRequestHandler {
                     public function __construct(
                         protected readonly Dispatcher $dispatcher,
                         protected readonly array $queue
                     ) {
                     }
 
-                    public function handle(ServerRequestInterface $request): ResponseInterface
+                    public function handle(PsrServerRequest $request): PsrResponse
                     {
                         return $this->dispatcher->handle($this->queue, new Request($request))->psr7();
                     }
