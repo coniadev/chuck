@@ -9,13 +9,11 @@ use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Http\Factory;
-use Conia\Chuck\Registry\Call;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Registry\Resolver;
 use Conia\Chuck\Renderer\Config as RendererConfig;
 use Conia\Chuck\Renderer\Render;
 use Conia\Chuck\Renderer\Renderer;
-use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 use Conia\Chuck\Routing\Route;
 use Psr\Http\Message\ResponseInterface;
@@ -53,7 +51,6 @@ class View
     }
 
     public function respond(
-        Request $request,
         Route $route,
         Registry $registry,
     ): Response {
@@ -80,13 +77,13 @@ class View
         if (count($renderAttributes) > 0) {
             assert($renderAttributes[0] instanceof Render);
 
-            return $renderAttributes[0]->response($request, $registry, $result);
+            return $renderAttributes[0]->response($registry, $result);
         }
 
         $rendererConfig = $route->getRenderer();
 
         if ($rendererConfig) {
-            return $this->respondFromRenderer($request, $registry, $rendererConfig, $result);
+            return $this->respondFromRenderer($registry, $rendererConfig, $result);
         }
 
         throw new RuntimeException('Cannot determine a response handler for the return type of the view');
@@ -134,25 +131,14 @@ class View
     }
 
     protected function respondFromRenderer(
-        Request $request,
         Registry $registry,
         RendererConfig $rendererConfig,
         mixed $result,
     ): Response {
-        $entry = $registry->tag(Renderer::class)->entry($rendererConfig->type);
-        $class = $entry->definition();
-        $options = $entry->getArgs();
+        $renderer = $registry->tag(Renderer::class)->get($rendererConfig->type);
+        assert($renderer instanceof Renderer);
 
-        if ($options instanceof Closure) {
-            /** @var mixed */
-            $options = $options();
-        }
-
-        assert(is_string($class));
-        assert(is_subclass_of($class, Renderer::class));
-        $renderer = new $class($request, $registry, $rendererConfig->args, $options);
-
-        return $renderer->response($result);
+        return $renderer->response($result, ...$rendererConfig->args);
     }
 
     protected function getClosure(array|string $view): Closure

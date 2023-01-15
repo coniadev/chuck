@@ -8,15 +8,19 @@ use Conia\Chuck\Json;
 use Conia\Chuck\Response;
 use Conia\Chuck\ResponseFactory;
 
-class JsonRenderer extends Renderer
+class JsonRenderer implements Renderer
 {
-    public function render(mixed $data): string
+    public function __construct(protected ResponseFactory $response)
+    {
+    }
+
+    public function render(mixed $data, mixed ...$args): string
     {
         return Json::encode($data);
     }
 
-    public function response(mixed $data): Response
+    public function response(mixed $data, mixed ...$args): Response
     {
-        return (new ResponseFactory($this->registry))->json($data);
+        return $this->response->json($data);
     }
 }

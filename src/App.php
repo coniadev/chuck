@@ -118,7 +118,7 @@ class App implements RouteAdderInterface
      */
     public function renderer(string $name, string $class): Entry
     {
-        return $this->registry->tag(Renderer::class)->add($name, $class)->asIs();
+        return $this->registry->tag(Renderer::class)->add($name, $class);
     }
 
     /** @param callable(mixed ...$args):LoggerInterface $callable */
@@ -172,7 +172,7 @@ class App implements RouteAdderInterface
             return new Response($factory->response(), $factory);
         });
 
-        $registry->tag(Renderer::class)->add('text', TextRenderer::class)->asIs();
-        $registry->tag(Renderer::class)->add('json', JsonRenderer::class)->asIs();
+        $registry->tag(Renderer::class)->add('text', TextRenderer::class);
+        $registry->tag(Renderer::class)->add('json', JsonRenderer::class);
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Conia\Chuck\Renderer\JsonRenderer;
 use Conia\Chuck\Renderer\TextRenderer;
+use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Tests\Setup\TestCase;
 
 require __DIR__ . '/Setup/globalSymbols.php';
@@ -11,7 +12,7 @@ require __DIR__ . '/Setup/globalSymbols.php';
 uses(TestCase::class);
 
 test('JSON Renderer :: render()', function () {
-    $renderer = new JsonRenderer($this->request(), $this->registry(), []);
+    $renderer = new JsonRenderer(new ResponseFactory($this->registry()), []);
 
     expect($renderer->render([
         'album' => 'Spiritual Healing',
@@ -21,14 +22,14 @@ test('JSON Renderer :: render()', function () {
 
 
 test('JSON Renderer :: response()', function () {
-    $renderer = new JsonRenderer($this->request(), $this->registry(), []);
+    $renderer = new JsonRenderer(new ResponseFactory($this->registry()), []);
 
     expect((string)$renderer->response([
         'album' => 'Spiritual Healing',
         'released' => 1990,
     ])->getBody())->toBe('{"album":"Spiritual Healing","released":1990}');
 
-    $renderer = new JsonRenderer($this->request(), $this->registry(), []);
+    $renderer = new JsonRenderer(new ResponseFactory($this->registry()), []);
 
     $response = $renderer->response(_testJsonRendererIterator());
     expect((string)$response->getBody())->toBe('[13,31,73]');
@@ -45,7 +46,7 @@ test('JSON Renderer :: response()', function () {
 
 
 test('Text Renderer', function () {
-    $renderer = new TextRenderer($this->request(), $this->registry(), []);
+    $renderer = new TextRenderer(new ResponseFactory($this->registry()), []);
     $response = $renderer->response('<h1>Symbolic</h1>');
 
     $hasContentType = false;

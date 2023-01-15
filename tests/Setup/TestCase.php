@@ -165,8 +165,8 @@ class TestCase extends BaseTestCase
             return new Logger();
         });
 
-        $registry->tag(Renderer::class)->add('text', TextRenderer::class)->asIs();
-        $registry->tag(Renderer::class)->add('json', JsonRenderer::class)->asIs();
+        $registry->tag(Renderer::class)->add('text', TextRenderer::class);
+        $registry->tag(Renderer::class)->add('json', JsonRenderer::class);
 
         return $registry;
     }

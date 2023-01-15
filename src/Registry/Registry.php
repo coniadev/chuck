@@ -161,12 +161,12 @@ class Registry implements ContainerInterface
                 if (isset($args)) {
                     // Don't autowire if $args are given
                     if ($args instanceof Closure) {
+                        /** @psalm-var array<string, mixed> */
+                        $args = $args(...$this->resolver->resolveCallableArgs($args));
+
                         return $this->callAndReify(
                             $entry,
-                            $this->resolver->autowire(
-                                $value,
-                                $args(...$this->resolver->resolveCallableArgs($args))
-                            )
+                            $this->resolver->autowire($value, $args)
                         );
                     }
 

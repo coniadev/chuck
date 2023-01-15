@@ -8,31 +8,38 @@ use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Response;
 use Conia\Chuck\ResponseFactory;
 
-class TestRendererArgsOptions extends Renderer
+class TestRendererArgsOptions implements Renderer
 {
-    public function render(mixed $data): string
-    {
-        return print_r($this->prepareData($data), return: true);
+    public function __construct(
+        protected ResponseFactory $response,
+        protected int $option1,
+        protected string $option2,
+    ) {
     }
 
-    public function response(mixed $data): Response
+    public function render(mixed $data, mixed ...$args): string
     {
-        $data = $this->prepareData($data);
+        return print_r($this->prepareData($data, $args), return: true);
+    }
+
+    public function response(mixed $data, mixed ...$args): Response
+    {
+        $data = $this->prepareData($data, $args);
 
         if (is_array($data)) {
-            return (new ResponseFactory($this->registry))->json($data);
+            return $this->response->json($data);
         }
 
-        return (new ResponseFactory($this->registry))->text($this->render($data));
+        return $this->response->text($this->render($data));
     }
 
-    private function prepareData(mixed $data): mixed
+    private function prepareData(mixed $data, array $args): mixed
     {
-        if (is_array($data) && is_array($this->args)) {
-            $data = array_merge($data, $this->args);
+        if (is_array($data)) {
+            $data = array_merge($data, $args);
         }
-        if (is_array($data) && is_array($this->options)) {
-            $data = array_merge($data, $this->options);
+        if (is_array($data)) {
+            $data = array_merge($data, ['option1' => $this->option1, 'option2' => $this->option2]);
         }
 
         return $data;

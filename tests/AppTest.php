@@ -216,7 +216,7 @@ test('Add renderer', function () {
     $app->renderer('test', TestRenderer::class);
     $registry = $app->registry();
 
-    expect($registry->tag(Renderer::class)->get('test'))->toBe(TestRenderer::class);
+    expect($registry->tag(Renderer::class)->get('test'))->toBeInstanceOf(TestRenderer::class);
 });
 
 
@@ -252,6 +252,6 @@ test('Registry initialized', function () {
     expect($value instanceof Config)->toBe(true);
     $value = $registry->get(Factory::class);
     expect($value instanceof Factory)->toBe(true);
-    expect($registry->tag(Renderer::class)->get('text'))->toBe(TextRenderer::class);
-    expect($registry->tag(Renderer::class)->get('json'))->toBe(JsonRenderer::class);
+    expect($registry->tag(Renderer::class)->get('text'))->toBeInstanceOf(TextRenderer::class);
+    expect($registry->tag(Renderer::class)->get('json'))->toBeInstanceOf(JsonRenderer::class);
 });

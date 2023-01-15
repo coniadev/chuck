@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use Conia\Chuck\Registry\Registry;
-use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\View;
@@ -19,10 +18,9 @@ class ViewHandler
     ) {
     }
 
-    public function __invoke(Request $request): Response
+    public function __invoke(): Response
     {
         return $this->view->respond(
-            $request,
             $this->route,
             $this->registry,
         );

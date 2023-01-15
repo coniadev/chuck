@@ -8,15 +8,19 @@ use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Response;
 use Conia\Chuck\ResponseFactory;
 
-class TestRenderer extends Renderer
+class TestRenderer implements Renderer
 {
-    public function render(mixed $data): string
+    public function __construct(protected ResponseFactory $response)
+    {
+    }
+
+    public function render(mixed $data, mixed ...$args): string
     {
         return print_r($data, return: true);
     }
 
-    public function response(mixed $data): Response
+    public function response(mixed $data, mixed ...$args): Response
     {
-        return (new ResponseFactory($this->registry))->text($this->render($data));
+        return $this->response->text($this->render($data));
     }
 }

@@ -61,7 +61,7 @@ class Dispatcher
             ), $this->factory);
         }
 
-        return $handler($request);
+        return $handler();
     }
 
     public function dispatch(

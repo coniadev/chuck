@@ -181,7 +181,7 @@ test('Dispatch controller with request constructor', function () {
 
 test('Dispatch closure with Render attribute', function () {
     $registry = $this->registry();
-    $registry->tag(Renderer::class)->add('test', TestRenderer::class)->asIs();
+    $registry->tag(Renderer::class)->add('test', TestRenderer::class);
 
     $router = new Router();
     $index = new Route(
