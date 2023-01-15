@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Routing;
 
-use Conia\Chuck\MiddlewareInterface;
-use Psr\Http\Server\MiddlewareInterface as PsrMiddlewareInterface;
+use Conia\Chuck\Middleware;
+use Psr\Http\Server\MiddlewareInterface as PsrMiddleware;
 
 /**
- * @psalm-type Middleware = callable|MiddlewareInterface|PsrMiddlewareInterface|non-empty-string
+ * @psalm-type Middleware = callable|Middleware|PsrMiddleware|non-empty-string
  * @psalm-type MiddlewareList = array<never,never>|list<Middleware>
  */
 trait AddsMiddleware
@@ -18,7 +18,7 @@ trait AddsMiddleware
 
     /** @psalm-param Middleware ...$middleware */
     public function middleware(
-        MiddlewareInterface|PsrMiddlewareInterface|callable|string ...$middleware
+        Middleware|PsrMiddleware|callable|string ...$middleware
     ): static {
         $this->middleware = array_merge($this->middleware, array_values($middleware));
 

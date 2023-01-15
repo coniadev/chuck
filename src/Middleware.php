@@ -7,7 +7,7 @@ namespace Conia\Chuck;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 
-interface MiddlewareInterface
+interface Middleware
 {
     public function __invoke(
         Request $request,

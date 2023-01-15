@@ -8,7 +8,7 @@ use Closure;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 
-class MiddlewareWrapper implements MiddlewareInterface
+class MiddlewareWrapper implements Middleware
 {
     protected Closure $callable;
 

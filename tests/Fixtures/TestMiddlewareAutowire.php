@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Conia\Chuck\Tests\Fixtures;
 
 use Conia\Chuck\Config;
-use Conia\Chuck\MiddlewareInterface;
+use Conia\Chuck\Middleware;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 
-class TestMiddlewareAutowire implements MiddlewareInterface
+class TestMiddlewareAutowire implements Middleware
 {
     public function __construct(protected Registry $registry, protected Config $config)
     {

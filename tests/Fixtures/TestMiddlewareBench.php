@@ -6,7 +6,7 @@ namespace Conia\Chuck\Tests\Fixtures;
 
 use Conia\Chuck\Config;
 use Conia\Chuck\Http\Factory;
-use Conia\Chuck\MiddlewareInterface;
+use Conia\Chuck\Middleware;
 use Conia\Chuck\Registry\Call;
 use Conia\Chuck\Registry\Inject;
 use Conia\Chuck\Registry\Registry;
@@ -14,7 +14,7 @@ use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 
 #[Call('init')]
-class TestMiddlewareBench implements MiddlewareInterface
+class TestMiddlewareBench implements Middleware
 {
     public ?Factory $factory = null;
     public string $calledArg1 = '';

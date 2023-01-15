@@ -9,7 +9,7 @@ use Conia\Chuck\Dispatcher;
 use Conia\Chuck\Exception\HttpMethodNotAllowed;
 use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\RuntimeException;
-use Conia\Chuck\MiddlewareInterface;
+use Conia\Chuck\Middleware;
 use Conia\Chuck\MiddlewareWrapper;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Registry\Resolver;
@@ -17,7 +17,7 @@ use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 use Conia\Chuck\View;
 use Conia\Chuck\ViewHandler;
-use Psr\Http\Server\MiddlewareInterface as PsrMiddlewareInterface;
+use Psr\Http\Server\MiddlewareInterface as PsrMiddleware;
 use Throwable;
 
 class Router implements RouteAdderInterface
@@ -225,22 +225,22 @@ class Router implements RouteAdderInterface
 
     protected function collectMiddleware(View $view, Registry $registry): array
     {
-        $middlewareAttributes = $view->attributes(MiddlewareInterface::class);
+        $middlewareAttributes = $view->attributes(Middleware::class);
 
         return array_map(
             function (
-                MiddlewareInterface|PsrMiddlewareInterface|callable|string $middleware
-            ) use ($registry): MiddlewareInterface|PsrMiddlewareInterface {
+                Middleware|PsrMiddleware|callable|string $middleware
+            ) use ($registry): Middleware|PsrMiddleware {
                 if (
-                    ($middleware instanceof MiddlewareInterface)
-                    || ($middleware instanceof PsrMiddlewareInterface)
+                    ($middleware instanceof Middleware)
+                    || ($middleware instanceof PsrMiddleware)
                 ) {
                     return $middleware;
                 }
 
                 if (is_string($middleware) && class_exists($middleware)) {
                     $object = (new Resolver($registry))->autowire($middleware);
-                    assert($object instanceof MiddlewareInterface || $object instanceof PsrMiddlewareInterface);
+                    assert($object instanceof Middleware || $object instanceof PsrMiddleware);
 
                     return $object;
                 }

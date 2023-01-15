@@ -6,7 +6,7 @@ namespace Conia\Chuck;
 
 use Closure;
 use Conia\Chuck\Http\Factory;
-use Conia\Chuck\MiddlewareInterface;
+use Conia\Chuck\Middleware;
 use Conia\Chuck\Registry\Entry;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Renderer\JsonRenderer;
@@ -100,14 +100,14 @@ class App implements RouteAdderInterface
     }
 
     /**
-     * @param MiddlewareInterface|callable(
+     * @param Middleware|callable(
      *     Request,
      *     callable
      * ):\Conia\Chuck\Response $middleware
      *
-     * TODO: Why can't we import the custom psalm type MiddlewareCallable from MiddlewareInterface
+     * TODO: Why can't we import the custom psalm type MiddlewareCallable from Middleware
      */
-    public function middleware(MiddlewareInterface|callable ...$middleware): void
+    public function middleware(Middleware|callable ...$middleware): void
     {
         $this->router->middleware(...$middleware);
     }
