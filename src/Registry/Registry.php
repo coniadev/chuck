@@ -25,6 +25,7 @@ class Registry implements ContainerInterface
         protected readonly ?ContainerInterface $container = null,
         public readonly bool $autowire = true,
         protected readonly string $tag = '',
+        protected readonly ?Registry $parent = null,
     ) {
         if ($container) {
             $this->add(ContainerInterface::class, $container);
@@ -59,6 +60,10 @@ class Registry implements ContainerInterface
             return $this->container->get($id);
         }
 
+        if ($this->parent && $this->parent->has($id)) {
+            return $this->parent->get($id);
+        }
+
         // Autowiring: $id does not exists as an entry in the registry
         if ($this->autowire && class_exists($id)) {
             return $this->resolver->autowire($id);
@@ -88,7 +93,7 @@ class Registry implements ContainerInterface
     public function tag(string $tag): Registry
     {
         if (!isset($this->tags[$tag])) {
-            $this->tags[$tag] = new self(tag: $tag);
+            $this->tags[$tag] = new self(tag: $tag, parent: $this);
         }
 
         return $this->tags[$tag];
@@ -156,10 +161,16 @@ class Registry implements ContainerInterface
                 if (isset($args)) {
                     // Don't autowire if $args are given
                     if ($args instanceof Closure) {
-                        return $this->callAndReify($entry, $this->fromArgsClosure($value, $args));
+                        return $this->callAndReify(
+                            $entry,
+                            $this->resolver->autowire(
+                                $value,
+                                $args(...$this->resolver->resolveCallableArgs($args))
+                            )
+                        );
                     }
 
-                    return $this->callAndReify($entry, $this->fromArgsArray($value, $args));
+                    return $this->callAndReify($entry, $this->resolver->autowire($value, $args));
                 }
 
                 return $this->callAndReify($entry, $this->resolver->autowire($value));
@@ -191,21 +202,5 @@ class Registry implements ContainerInterface
         }
 
         throw new NotFoundException('Unresolvable id: ' . (string)$value);
-    }
-
-    /** @psalm-param class-string $class */
-    protected function fromArgsArray(string $class, array $args): object
-    {
-        /** @psalm-suppress MixedMethodCall */
-        return new $class(...$args);
-    }
-
-    /** @psalm-param class-string $class */
-    protected function fromArgsClosure(string $class, Closure $callback): object
-    {
-        $args = $this->resolver->resolveCallableArgs($callback);
-
-        /** @psalm-suppress MixedMethodCall */
-        return new $class(...$callback(...$args));
     }
 }
