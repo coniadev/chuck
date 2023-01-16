@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Conia\Chuck\Emitter;
+use Conia\Chuck\Http\Emitter;
 use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Tests\Setup\C;
 use Conia\Chuck\Tests\Setup\TestCase;

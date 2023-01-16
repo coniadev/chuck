@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace Conia\Chuck\Routing;
 
 use Closure;
-use Conia\Chuck\Dispatcher;
 use Conia\Chuck\Exception\HttpMethodNotAllowed;
 use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Middleware;
-use Conia\Chuck\MiddlewareWrapper;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Registry\Resolver;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
-use Conia\Chuck\View;
-use Conia\Chuck\ViewHandler;
+use Conia\Chuck\View\Dispatcher;
+use Conia\Chuck\View\MiddlewareWrapper;
+use Conia\Chuck\View\View;
+use Conia\Chuck\View\ViewHandler;
 use Psr\Http\Server\MiddlewareInterface as PsrMiddleware;
 use Throwable;
 

@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck;
+namespace Conia\Chuck\View;
 
+use Conia\Chuck\Middleware;
 use Conia\Chuck\Psr\Factory;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Request;

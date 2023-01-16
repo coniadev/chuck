@@ -6,6 +6,8 @@ namespace Conia\Chuck;
 
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\RuntimeException;
+use Conia\Chuck\Http\WrapsMessage;
+use Conia\Chuck\Http\WrapsRequest;
 use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
 use Psr\Http\Message\StreamInterface as PsrStream;
 use Psr\Http\Message\UploadedFileInterface as PsrUploadedFile;

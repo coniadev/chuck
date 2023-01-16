@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck;
+namespace Conia\Chuck\Http;
 
 use Psr\Http\Message\StreamInterface as PsrStream;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck;
+namespace Conia\Chuck\View;
 
 use Closure;
 use Conia\Chuck\Exception\ContainerException;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use Closure;
+use Conia\Chuck\Http\Emitter;
 use Conia\Chuck\Middleware;
 use Conia\Chuck\Psr\Factory;
 use Conia\Chuck\Registry\Entry;

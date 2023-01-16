@@ -17,7 +17,7 @@ use Conia\Chuck\Tests\Fixtures\TestAttributeViewAttr;
 use Conia\Chuck\Tests\Fixtures\TestController;
 use Conia\Chuck\Tests\Fixtures\TestRendererArgsOptions;
 use Conia\Chuck\Tests\Setup\TestCase;
-use Conia\Chuck\View;
+use Conia\Chuck\View\View;
 
 require __DIR__ . '/Setup/globalSymbols.php';
 

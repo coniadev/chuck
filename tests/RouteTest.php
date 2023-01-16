@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Conia\Chuck\Exception\InvalidArgumentException;
 use Conia\Chuck\Exception\ValueError;
-use Conia\Chuck\MiddlewareWrapper;
 use Conia\Chuck\Routing\Route;
 use Conia\Chuck\Tests\Fixtures\TestMiddleware1;
 use Conia\Chuck\Tests\Fixtures\TestMiddleware2;
