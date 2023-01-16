@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Conia\Chuck\Tests\Fixtures;
 
 use Conia\Chuck\Config;
-use Conia\Chuck\Registry\Call;
-use Conia\Chuck\Registry\Inject;
-use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\Di\Call;
+use Conia\Chuck\Di\Inject;
+use Conia\Chuck\Registry;
 
 #[Call('callThis')]
 class TestClassInject

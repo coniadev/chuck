@@ -6,8 +6,8 @@ namespace Conia\Chuck\Tests\Fixtures;
 
 use Attribute;
 use Conia\Chuck\Config;
-use Conia\Chuck\Registry\Call;
-use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\Di\Call;
+use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
 
 #[Attribute, Call('initialize'), Call('after', after: 'Called after')]

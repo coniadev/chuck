@@ -6,7 +6,7 @@ namespace Conia\Chuck\Tests\Fixtures;
 
 use Conia\Chuck\Config;
 use Conia\Chuck\Middleware;
-use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 

@@ -91,5 +91,5 @@ test('Middleware autowiring', function () {
     $output = ob_get_contents();
     ob_end_clean();
 
-    expect($output)->toBe('chuck Conia\Chuck\Registry\Registry');
+    expect($output)->toBe('chuck Conia\Chuck\Registry');
 });

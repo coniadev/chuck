@@ -14,7 +14,7 @@ use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Exception\HttpUnauthorized;
 use Conia\Chuck\Http\Emitter;
-use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\Registry;
 use Conia\Chuck\ResponseFactory;
 use ErrorException;
 use Psr\Log\LoggerInterface as PsrLogger;

@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use Closure;
+use Conia\Chuck\Di\Entry;
 use Conia\Chuck\Http\Emitter;
 use Conia\Chuck\Middleware;
 use Conia\Chuck\Psr\Factory;
-use Conia\Chuck\Registry\Entry;
-use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\Registry;
 use Conia\Chuck\Renderer\JsonRenderer;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Renderer\TextRenderer;

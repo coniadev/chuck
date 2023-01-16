@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Conia\Chuck\Renderer;
 
 use Attribute;
-use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\Registry;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Response;
 

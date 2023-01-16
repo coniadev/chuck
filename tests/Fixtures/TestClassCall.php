@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Conia\Chuck\Tests\Fixtures;
 
 use Conia\Chuck\Config;
+use Conia\Chuck\Di\Call;
 use Conia\Chuck\Psr\Factory;
-use Conia\Chuck\Registry\Call;
-use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\Registry;
 
 #[Call('method1'), Call('method2', arg2: 'arg2', arg1: 'arg1')]
 class TestClassCall

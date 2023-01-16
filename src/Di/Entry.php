@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck\Registry;
+namespace Conia\Chuck\Di;
 
 use Closure;
 use Conia\Chuck\Exception\ContainerException;

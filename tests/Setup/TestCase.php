@@ -10,7 +10,7 @@ use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Logger;
 use Conia\Chuck\Psr\Factory;
 use Conia\Chuck\Psr\Nyholm;
-use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\Registry;
 use Conia\Chuck\Renderer\JsonRenderer;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Renderer\TextRenderer;

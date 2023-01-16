@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Conia\Chuck\Tests\Fixtures;
 
 use Conia\Chuck\Config;
+use Conia\Chuck\Di\Call;
+use Conia\Chuck\Di\Inject;
 use Conia\Chuck\Middleware;
 use Conia\Chuck\Psr\Factory;
-use Conia\Chuck\Registry\Call;
-use Conia\Chuck\Registry\Inject;
-use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 

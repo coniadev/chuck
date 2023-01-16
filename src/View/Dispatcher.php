@@ -6,7 +6,7 @@ namespace Conia\Chuck\View;
 
 use Conia\Chuck\Middleware;
 use Conia\Chuck\Psr\Factory;
-use Conia\Chuck\Registry\Registry;
+use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 use Psr\Http\Message\ResponseInterface as PsrResponse;

@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck\Registry;
+namespace Conia\Chuck\Di;
 
 use Closure;
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Exception\NotFoundException;
+use Conia\Chuck\Registry;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;

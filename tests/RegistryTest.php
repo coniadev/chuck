@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 use Conia\Chuck\Config;
+use Conia\Chuck\Di\Entry;
+use Conia\Chuck\Di\Resolver;
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Exception\NotFoundException;
-use Conia\Chuck\Registry\Entry;
-use Conia\Chuck\Registry\Registry;
-use Conia\Chuck\Registry\Resolver;
+use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Tests\Fixtures\TestClass;
 use Conia\Chuck\Tests\Fixtures\TestClassIntersectionTypeConstructor;

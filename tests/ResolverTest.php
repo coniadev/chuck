@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 use Conia\Chuck\Config;
+use Conia\Chuck\Di\Call;
+use Conia\Chuck\Di\Inject;
+use Conia\Chuck\Di\Resolver;
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Psr\Factory;
-use Conia\Chuck\Registry\Call;
-use Conia\Chuck\Registry\Inject;
-use Conia\Chuck\Registry\Registry;
-use Conia\Chuck\Registry\Resolver;
+use Conia\Chuck\Registry;
 use Conia\Chuck\Response;
 use Conia\Chuck\Tests\Fixtures\TestClass;
 use Conia\Chuck\Tests\Fixtures\TestClassCall;

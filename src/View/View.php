@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Conia\Chuck\View;
 
 use Closure;
+use Conia\Chuck\Di\Resolver;
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Psr\Factory;
-use Conia\Chuck\Registry\Registry;
-use Conia\Chuck\Registry\Resolver;
+use Conia\Chuck\Registry;
 use Conia\Chuck\Renderer\Config as RendererConfig;
 use Conia\Chuck\Renderer\Render;
 use Conia\Chuck\Renderer\Renderer;

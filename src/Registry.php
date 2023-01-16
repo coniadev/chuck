@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck\Registry;
+namespace Conia\Chuck;
 
 use Closure;
+use Conia\Chuck\Di\Entry;
+use Conia\Chuck\Di\Resolver;
 use Conia\Chuck\Exception\NotFoundException;
 use Psr\Container\ContainerInterface as PsrContainer;
 
