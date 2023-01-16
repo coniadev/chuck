@@ -53,27 +53,27 @@ test('Handle HTTP Exceptions', function () {
     $err = new Handler($this->config(debug: true), $this->registry());
 
     $response = $err->handleException(new HttpBadRequest(), $this->request());
-    expect((string)$response->getBody())->toStartWith('<h1>400 Bad Request</h1><h2>HTTP Error</h2>');
+    expect((string)$response->getBody())->toContain('<h1>400 Bad Request</h1><h2>HTTP Error</h2>');
     expect((string)$response->getBody())->toContain('<br>#1');
 
     $response = $err->handleException(new HttpUnauthorized(), $this->request());
-    expect((string)$response->getBody())->toStartWith('<h1>401 Unauthorized</h1><h2>HTTP Error</h2>');
+    expect((string)$response->getBody())->toContain('<h1>401 Unauthorized</h1><h2>HTTP Error</h2>');
     expect((string)$response->getBody())->toContain('<br>#1');
 
     $response = $err->handleException(new HttpForbidden(), $this->request());
-    expect((string)$response->getBody())->toStartWith('<h1>403 Forbidden</h1><h2>HTTP Error</h2>');
+    expect((string)$response->getBody())->toContain('<h1>403 Forbidden</h1><h2>HTTP Error</h2>');
     expect((string)$response->getBody())->toContain('<br>#1');
 
     $response = $err->handleException(new HttpNotFound(), $this->request());
-    expect((string)$response->getBody())->toStartWith('<h1>404 Not Found</h1><h2>HTTP Error</h2>');
+    expect((string)$response->getBody())->toContain('<h1>404 Not Found</h1><h2>HTTP Error</h2>');
     expect((string)$response->getBody())->toContain('<br>#1');
 
     $response = $err->handleException(new HttpMethodNotAllowed(), $this->request());
-    expect((string)$response->getBody())->toStartWith('<h1>405 Method Not Allowed</h1><h2>HTTP Error</h2>');
+    expect((string)$response->getBody())->toContain('<h1>405 Method Not Allowed</h1><h2>HTTP Error</h2>');
     expect((string)$response->getBody())->toContain('<br>#1');
 
     $response = $err->handleException(new HttpServerError(), $this->request());
-    expect((string)$response->getBody())->toStartWith('<h1>500 Internal Server Error</h1><h2>HTTP Error</h2>');
+    expect((string)$response->getBody())->toContain('<h1>500 Internal Server Error</h1><h2>HTTP Error</h2>');
     expect((string)$response->getBody())->toContain('<br>#1');
 });
 
@@ -120,7 +120,8 @@ test('Handle PHP Exceptions', function () {
     $err = new Handler($this->config(), $this->registry());
     $response = $err->handleException(new DivisionByZeroError('Division by zero'), $this->request());
 
-    expect((string)$response->getBody())->toBe('<h1>500 Internal Server Error</h1>');
+    expect((string)$response->getBody())->toContain('<h1>500 Internal Server Error</h1>');
+    expect((string)$response->getBody())->not()->toContain('<h2>');
 });
 
 
@@ -128,7 +129,8 @@ test('Debug mode traceback', function () {
     $err = new Handler($this->config(debug: true), $this->registry());
 
     $response = $err->handleException(new HttpBadRequest(), null);
-    expect((string)$response->getBody())->toStartWith('<h1>400 Bad Request</h1><h2>HTTP Error</h2>');
+    expect((string)$response->getBody())->toContain('<h1>400 Bad Request</h1><h2>HTTP Error</h2>');
+    expect((string)$response->getBody())->toContain('#1');
 });
 
 
@@ -139,7 +141,10 @@ test('Handled by middleware', function () {
     $response = $app->run();
     ob_end_clean();
 
-    expect((string)$response->getBody())->toBe('<h1>500 Internal Server Error</h1>');
+    expect((string)$response->getBody())->toContain('<title>500 Internal Server Error</title>');
+    expect((string)$response->getBody())->toContain('<h1>500 Internal Server Error</h1>');
+    expect((string)$response->getBody())->not()->toContain('<h2>');
+    expect((string)$response->getBody())->not()->toContain('#1');
 });
 
 
@@ -150,7 +155,7 @@ test('Handled by middleware (debug: true)', function () {
     $response = $app->run();
     ob_end_clean();
 
-    expect((string)$response->getBody())->toStartWith('<h1>500 Internal Server Error</h1><h2>Unable to');
+    expect((string)$response->getBody())->toContain('<h1>500 Internal Server Error</h1><h2>Unable to');
 });
 
 
@@ -161,7 +166,11 @@ test('Emit PHP Exceptions', function () {
     $err->emitException(new DivisionByZeroError('Division by zero'));
     $output = ob_get_contents();
     ob_end_clean();
-    expect($output)->toBe('<h1>500 Internal Server Error</h1>');
+
+    expect($output)->toContain('<title>500 Internal Server Error</title>');
+    expect($output)->toContain('<h1>500 Internal Server Error</h1>');
+    expect($output)->not()->toContain('<h2>');
+    expect($output)->not()->toContain('#1');
 });
 
 
@@ -172,5 +181,8 @@ test('Emit PHP Exceptions (debug: true)', function () {
     $err->emitException(new DivisionByZeroError('Division by zero'));
     $output = ob_get_contents();
     ob_end_clean();
-    expect($output)->toStartWith('<h1>500 Internal Server Error</h1><h2>Division by zero</h2>');
+
+    expect($output)->toContain('<title>500 Internal Server Error</title>');
+    expect($output)->toContain('<h1>500 Internal Server Error</h1><h2>Division by zero</h2>');
+    expect($output)->toContain('#1');
 });
