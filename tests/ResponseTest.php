@@ -11,19 +11,19 @@ uses(TestCase::class);
 
 
 test('Get & set PSR-7 response', function () {
-    $psr7 = $this->psr7Response();
-    $response = new Response($psr7);
+    $psr = $this->psrResponse();
+    $response = new Response($psr);
 
-    expect($response->psr7())->toBe($psr7);
+    expect($response->psr())->toBe($psr);
 
-    $response->setPsr7($this->psr7Response());
+    $response->setPsr($this->psrResponse());
 
-    expect($response->psr7())->not->toBe($psr7);
+    expect($response->psr())->not->toBe($psr);
 });
 
 
 test('Get status code', function () {
-    $response = new Response($this->psr7Response());
+    $response = new Response($this->psrResponse());
 
     expect($response->getStatusCode())->toBe(200);
     expect($response->getReasonPhrase())->toBe('OK');
@@ -31,7 +31,7 @@ test('Get status code', function () {
 
 
 test('Set status code', function () {
-    $response = new Response($this->psr7Response(), $this->factory());
+    $response = new Response($this->psrResponse(), $this->factory());
     $response->status(404);
 
     expect($response->getStatusCode())->toBe(404);
@@ -40,7 +40,7 @@ test('Set status code', function () {
 
 
 test('Set status code and reason phrase', function () {
-    $response = new Response($this->psr7Response(), $this->factory());
+    $response = new Response($this->psrResponse(), $this->factory());
     $response->status(404, 'Nothing to see');
 
     expect($response->getStatusCode())->toBe(404);
@@ -49,7 +49,7 @@ test('Set status code and reason phrase', function () {
 
 
 test('Protocol version', function () {
-    $response = new Response($this->psr7Response(), $this->factory());
+    $response = new Response($this->psrResponse(), $this->factory());
 
     expect($response->getProtocolVersion())->toBe('1.1');
 
@@ -61,7 +61,7 @@ test('Protocol version', function () {
 
 test('Create with string body', function () {
     $text = 'text';
-    $response = (new Response($this->psr7Response(), $this->factory()))->write($text);
+    $response = (new Response($this->psrResponse(), $this->factory()))->write($text);
     expect((string)$response->getBody())->toBe($text);
 });
 
@@ -69,7 +69,7 @@ test('Create with string body', function () {
 test('Create with resource body', function () {
     $fh = fopen('php://temp', 'r+');
     fwrite($fh, 'Chuck resource');
-    $response = new Response($this->psr7Response(), $this->factory()->stream($fh));
+    $response = new Response($this->psrResponse(), $this->factory()->stream($fh));
 
     expect((string)$response->getBody())->toBe('Chuck resource');
 });
@@ -77,14 +77,14 @@ test('Create with resource body', function () {
 
 test('Create with text body', function () {
     $stream = $this->factory()->stream('Chuck text');
-    $response = new Response($this->psr7Response(), $stream);
+    $response = new Response($this->psrResponse(), $stream);
     expect((string)$response->getBody())->toBe('Chuck text');
 });
 
 
 test('Set body', function () {
     $stream = $this->factory()->stream('Chuck text');
-    $response = new Response($this->psr7Response());
+    $response = new Response($this->psrResponse());
     $response->body($stream);
     expect((string)$response->getBody())->toBe('Chuck text');
 });
@@ -93,13 +93,13 @@ test('Set body', function () {
 test('Fail setting body without factory', function () {
     $fh = fopen('php://temp', 'r+');
     fwrite($fh, 'Chuck resource');
-    $response = new Response($this->psr7Response());
+    $response = new Response($this->psrResponse());
     $response->body('fails');
 })->throws(RuntimeException::class, 'No factory');
 
 
 test('Init with header', function () {
-    $response = new Response($this->psr7Response());
+    $response = new Response($this->psrResponse());
     $response->header('header-value', 'value');
 
     expect($response->hasHeader('Header-Value'))->toBe(true);
@@ -107,7 +107,7 @@ test('Init with header', function () {
 
 
 test('Get header', function () {
-    $response = new Response($this->psr7Response(), $this->factory());
+    $response = new Response($this->psrResponse(), $this->factory());
     $response = $response->header('header-value', 'value');
 
     expect($response->getHeader('Header-Value')[0])->toBe('value');
@@ -115,7 +115,7 @@ test('Get header', function () {
 
 
 test('Remove header', function () {
-    $response = new Response($this->psr7Response(), $this->factory());
+    $response = new Response($this->psrResponse(), $this->factory());
     $response->header('header-value', 'value');
 
     expect($response->hasHeader('Header-Value'))->toBe(true);
@@ -127,7 +127,7 @@ test('Remove header', function () {
 
 
 test('Redirect temporary', function () {
-    $response = new Response($this->psr7Response(), $this->factory());
+    $response = new Response($this->psrResponse(), $this->factory());
     $response->redirect('/chuck');
 
     expect($response->getStatusCode())->toBe(302);
@@ -136,7 +136,7 @@ test('Redirect temporary', function () {
 
 
 test('Redirect permanent', function () {
-    $response = new Response($this->psr7Response(), $this->factory());
+    $response = new Response($this->psrResponse(), $this->factory());
     $response->redirect('/chuck', 301);
 
     expect($response->getStatusCode())->toBe(301);
@@ -145,7 +145,7 @@ test('Redirect permanent', function () {
 
 
 test('PSR-7 message wrapper methods', function () {
-    $response = new Response($this->psr7Response(), $this->factory());
+    $response = new Response($this->psrResponse(), $this->factory());
     $response->withProtocolVersion('2.0')
         ->withHeader('test-header', 'test-value')
         ->withHeader('test-header', 'test-value-replaced')

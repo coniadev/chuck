@@ -16,7 +16,7 @@ test('SapiEmitter', function () {
 
     $emitter = new Emitter();
     ob_start();
-    $emitter->emit($response->psr7());
+    $emitter->emit($response->psr());
     $output = ob_get_contents();
     ob_end_clean();
 
@@ -31,7 +31,7 @@ test('SapiStreamEmitter', function () {
 
     $emitter = new Emitter();
     ob_start();
-    $emitter->emit($response->psr7());
+    $emitter->emit($response->psr());
     $output = ob_get_contents();
     ob_end_clean();
 

@@ -358,11 +358,11 @@ test('Nested file instances are not available', function () {
 
 
 test('Getting and setting PSR-7 instance', function () {
-    $psr7 = $this->psr7Request();
+    $psr = $this->psrRequest();
     $request = $this->request();
-    $request->setPsr7($psr7);
+    $request->setPsr($psr);
 
-    expect($request->psr7())->toBe($psr7);
+    expect($request->psr())->toBe($psr);
 });
 
 

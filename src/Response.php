@@ -16,26 +16,26 @@ class Response
     protected ?Factory $factory = null;
 
     public function __construct(
-        protected PsrResponse $psr7,
+        protected PsrResponse $psr,
         PsrStream|Factory|null $streamOrFactory = null,
     ) {
         if ($streamOrFactory) {
             if ($streamOrFactory instanceof Factory) {
                 $this->factory = $streamOrFactory;
             } else {
-                $this->psr7 = $psr7->withBody($streamOrFactory);
+                $this->psr = $psr->withBody($streamOrFactory);
             }
         }
     }
 
-    public function psr7(): PsrResponse
+    public function psr(): PsrResponse
     {
-        return $this->psr7;
+        return $this->psr;
     }
 
-    public function setPsr7(PsrResponse $psr7): static
+    public function setPsr(PsrResponse $psr): static
     {
-        $this->psr7 = $psr7;
+        $this->psr = $psr;
 
         return $this;
     }
@@ -43,9 +43,9 @@ class Response
     public function status(int $statusCode, ?string $reasonPhrase = null): static
     {
         if (empty($reasonPhrase)) {
-            $this->psr7 = $this->psr7->withStatus($statusCode);
+            $this->psr = $this->psr->withStatus($statusCode);
         } else {
-            $this->psr7 = $this->psr7->withStatus($statusCode, $reasonPhrase);
+            $this->psr = $this->psr->withStatus($statusCode, $reasonPhrase);
         }
 
         return $this;
@@ -53,60 +53,60 @@ class Response
 
     public function getStatusCode(): int
     {
-        return $this->psr7->getStatusCode();
+        return $this->psr->getStatusCode();
     }
 
     public function getReasonPhrase(): string
     {
-        return $this->psr7->getReasonPhrase();
+        return $this->psr->getReasonPhrase();
     }
 
     public function protocolVersion(string $protocol): static
     {
-        $this->psr7 = $this->psr7->withProtocolVersion($protocol);
+        $this->psr = $this->psr->withProtocolVersion($protocol);
 
         return $this;
     }
 
     public function header(string $name, string $value): static
     {
-        $this->psr7 = $this->psr7->withAddedHeader($name, $value);
+        $this->psr = $this->psr->withAddedHeader($name, $value);
 
         return $this;
     }
 
     public function removeHeader(string $name): static
     {
-        $this->psr7 = $this->psr7->withoutHeader($name);
+        $this->psr = $this->psr->withoutHeader($name);
 
         return $this;
     }
 
     public function headers(): array
     {
-        return $this->psr7->getHeaders();
+        return $this->psr->getHeaders();
     }
 
     public function getHeader(string $name): array
     {
-        return $this->psr7->getHeader($name);
+        return $this->psr->getHeader($name);
     }
 
     public function hasHeader(string $name): bool
     {
-        return $this->psr7->hasHeader($name);
+        return $this->psr->hasHeader($name);
     }
 
     public function body(PsrStream|string $body): static
     {
         if ($body instanceof PsrStream) {
-            $this->psr7 = $this->psr7->withBody($body);
+            $this->psr = $this->psr->withBody($body);
 
             return $this;
         }
 
         if ($this->factory) {
-            $this->psr7 = $this->psr7->withBody($this->factory->stream($body));
+            $this->psr = $this->psr->withBody($this->factory->stream($body));
 
             return $this;
         }
@@ -116,12 +116,12 @@ class Response
 
     public function getBody(): PsrStream
     {
-        return $this->psr7->getBody();
+        return $this->psr->getBody();
     }
 
     public function write(string $content): static
     {
-        $this->psr7->getBody()->write($content);
+        $this->psr->getBody()->write($content);
 
         return $this;
     }

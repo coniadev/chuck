@@ -176,25 +176,25 @@ class TestCase extends BaseTestCase
         return $this->registry()->get(Factory::class);
     }
 
-    public function psr7Request(): PsrServerRequest
+    public function psrRequest(): PsrServerRequest
     {
-        $psr17Factory = new Psr17Factory();
+        $factory = new Psr17Factory();
 
         $creator = new \Nyholm\Psr7Server\ServerRequestCreator(
-            $psr17Factory, // ServerRequestFactory
-            $psr17Factory, // UriFactory
-            $psr17Factory, // UploadedFileFactory
-            $psr17Factory  // StreamFactory
+            $factory, // ServerRequestFactory
+            $factory, // UriFactory
+            $factory, // UploadedFileFactory
+            $factory  // StreamFactory
         );
 
         return $creator->fromGlobals();
     }
 
-    public function psr7Response(): PsrResponse
+    public function psrResponse(): PsrResponse
     {
-        $psr17Factory = new Psr17Factory();
+        $factory = new Psr17Factory();
 
-        return $psr17Factory->createResponse();
+        return $factory->createResponse();
     }
 
     public function request(
@@ -218,7 +218,7 @@ class TestCase extends BaseTestCase
             }
         }
 
-        return new Request($this->psr7Request());
+        return new Request($this->psrRequest());
     }
 
     public function setupFile()

@@ -149,7 +149,7 @@ class App implements RouteAdder
 
         $response = $this->router->dispatch($request, $this->registry);
 
-        (new Emitter())->emit($response->psr7());
+        (new Emitter())->emit($response->psr());
 
         return $response;
     }

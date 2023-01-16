@@ -85,7 +85,7 @@ class ErrorHandler
 
         $this->log($exception);
 
-        (new Emitter())->emit($response->body($body)->psr7());
+        (new Emitter())->emit($response->body($body)->psr());
     }
 
     public function log(Throwable $exception): void

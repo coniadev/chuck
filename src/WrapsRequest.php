@@ -9,118 +9,118 @@ use Psr\Http\Message\UriInterface as PsrUri;
 
 trait WrapsRequest
 {
-    protected PsrServerRequest $psr7;
+    protected PsrServerRequest $psr;
 
     public function getServerParams(): array
     {
-        return $this->psr7->getServerParams();
+        return $this->psr->getServerParams();
     }
 
     public function withMethod(string $method): static
     {
-        $this->psr7 = $this->psr7->withMethod($method);
+        $this->psr = $this->psr->withMethod($method);
 
         return $this;
     }
 
     public function getMethod(): string
     {
-        return $this->psr7->getMethod();
+        return $this->psr->getMethod();
     }
 
     public function withRequestTarget(string $requestTarget): static
     {
-        $this->psr7 = $this->psr7->withRequestTarget($requestTarget);
+        $this->psr = $this->psr->withRequestTarget($requestTarget);
 
         return $this;
     }
 
     public function getRequestTarget(): string
     {
-        return $this->psr7->getRequestTarget();
+        return $this->psr->getRequestTarget();
     }
 
     public function withQueryParams(array $query): static
     {
-        $this->psr7 = $this->psr7->withQueryParams($query);
+        $this->psr = $this->psr->withQueryParams($query);
 
         return $this;
     }
 
     public function getQueryParams(): array
     {
-        return $this->psr7->getQueryParams();
+        return $this->psr->getQueryParams();
     }
 
     public function withParsedBody(null|array|object $data): static
     {
-        $this->psr7 = $this->psr7->withParsedBody($data);
+        $this->psr = $this->psr->withParsedBody($data);
 
         return $this;
     }
 
     public function getParsedBody(): null|array|object
     {
-        return $this->psr7->getParsedBody();
+        return $this->psr->getParsedBody();
     }
 
     public function withCookieParams(array $cookies): static
     {
-        $this->psr7 = $this->psr7->withCookieParams($cookies);
+        $this->psr = $this->psr->withCookieParams($cookies);
 
         return $this;
     }
 
     public function getCookieParams(): array
     {
-        return $this->psr7->getCookieParams();
+        return $this->psr->getCookieParams();
     }
 
     public function withUploadedFiles(array $uploadedFiles): static
     {
-        $this->psr7 = $this->psr7->withUploadedFiles($uploadedFiles);
+        $this->psr = $this->psr->withUploadedFiles($uploadedFiles);
 
         return $this;
     }
 
     public function getUploadedFiles(): array
     {
-        return $this->psr7->getUploadedFiles();
+        return $this->psr->getUploadedFiles();
     }
 
     public function withUri(PsrUri $uri, bool $preserveHost = false): static
     {
-        $this->psr7 = $this->psr7->withUri($uri, $preserveHost);
+        $this->psr = $this->psr->withUri($uri, $preserveHost);
 
         return $this;
     }
 
     public function getUri(): PsrUri
     {
-        return $this->psr7->getUri();
+        return $this->psr->getUri();
     }
 
     public function withAttribute(string $attribute, mixed $value): static
     {
-        $this->psr7 = $this->psr7->withAttribute($attribute, $value);
+        $this->psr = $this->psr->withAttribute($attribute, $value);
 
         return $this;
     }
 
     public function withoutAttribute(string $attribute): static
     {
-        $this->psr7 = $this->psr7->withoutAttribute($attribute);
+        $this->psr = $this->psr->withoutAttribute($attribute);
 
         return $this;
     }
 
     public function getAttributes(): array
     {
-        return $this->psr7->getAttributes();
+        return $this->psr->getAttributes();
     }
 
     public function getAttribute(string $attribute, mixed $default = null): mixed
     {
-        return $this->psr7->getAttribute($attribute, $default);
+        return $this->psr->getAttribute($attribute, $default);
     }
 }

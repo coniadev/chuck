@@ -27,7 +27,7 @@ class ResponseFactory
         int $code = 200,
         string $reasonPhrase = '',
     ): Response {
-        return new Response($this->createPsr7Response($code, $reasonPhrase), $this->createHttpFactory());
+        return new Response($this->createPsrResponse($code, $reasonPhrase), $this->createHttpFactory());
     }
 
     /**
@@ -38,16 +38,16 @@ class ResponseFactory
         int $code = 200,
         string $reasonPhrase = '',
     ): Response {
-        $psr7Response = $this->createPsr7Response($code, $reasonPhrase)->withAddedHeader(
+        $psrResponse = $this->createPsrResponse($code, $reasonPhrase)->withAddedHeader(
             'Content-Type',
             'text/html'
         );
 
         if ($body) {
-            $psr7Response = $psr7Response->withBody($this->createHttp($body));
+            $psrResponse = $psrResponse->withBody($this->createHttp($body));
         }
 
-        return new Response($psr7Response, $this->createHttpFactory());
+        return new Response($psrResponse, $this->createHttpFactory());
     }
 
     /**
@@ -58,16 +58,16 @@ class ResponseFactory
         int $code = 200,
         string $reasonPhrase = '',
     ): Response {
-        $psr7Response = $this->createPsr7Response($code, $reasonPhrase)->withAddedHeader(
+        $psrResponse = $this->createPsrResponse($code, $reasonPhrase)->withAddedHeader(
             'Content-Type',
             'text/plain'
         );
 
         if ($body) {
-            $psr7Response = $psr7Response->withBody($this->createHttp($body));
+            $psrResponse = $psrResponse->withBody($this->createHttp($body));
         }
 
-        return new Response($psr7Response, $this->createHttpFactory());
+        return new Response($psrResponse, $this->createHttpFactory());
     }
 
     public function json(
@@ -75,14 +75,14 @@ class ResponseFactory
         int $code = 200,
         string $reasonPhrase = '',
     ): Response {
-        $psr7Response = $this->createPsr7Response($code, $reasonPhrase)->withAddedHeader(
+        $psrResponse = $this->createPsrResponse($code, $reasonPhrase)->withAddedHeader(
             'Content-Type',
             'application/json'
         );
 
-        $psr7Response = $psr7Response->withBody($this->createHttp(Json::encode($data)));
+        $psrResponse = $psrResponse->withBody($this->createHttp(Json::encode($data)));
 
-        return new Response($psr7Response, $this->createHttpFactory());
+        return new Response($psrResponse, $this->createHttpFactory());
     }
 
     public function file(
@@ -98,7 +98,7 @@ class ResponseFactory
         $finfo = new finfo(FILEINFO_MIME_ENCODING);
         $encoding = $finfo->file($file);
 
-        $psr7Response = $this->createPsr7Response($code, $reasonPhrase)
+        $psrResponse = $this->createPsrResponse($code, $reasonPhrase)
             ->withAddedHeader('Content-Type', $contentType)
             ->withAddedHeader('Content-Transfer-Encoding', $encoding);
 
@@ -106,10 +106,10 @@ class ResponseFactory
         $size = $stream->getSize();
 
         if (!is_null($size)) {
-            $psr7Response = $psr7Response->withAddedHeader('Content-Length', (string)$size);
+            $psrResponse = $psrResponse->withAddedHeader('Content-Length', (string)$size);
         }
 
-        return new Response($psr7Response->withBody($stream), $this->createHttpFactory());
+        return new Response($psrResponse->withBody($stream), $this->createHttpFactory());
     }
 
     public function download(
@@ -136,18 +136,18 @@ class ResponseFactory
     ): Response {
         $this->validateFile($file, $throwNotFound);
         $server = strtolower($_SERVER['SERVER_SOFTWARE'] ?? '');
-        $psr7Response = $this->createPsr7Response($code, $reasonPhrase);
+        $psrResponse = $this->createPsrResponse($code, $reasonPhrase);
 
         if (strpos($server, 'nginx') !== false) {
-            $psr7Response = $psr7Response->withAddedHeader('X-Accel-Redirect', $file);
+            $psrResponse = $psrResponse->withAddedHeader('X-Accel-Redirect', $file);
         } else {
-            $psr7Response = $psr7Response->withAddedHeader('X-Sendfile', $file);
+            $psrResponse = $psrResponse->withAddedHeader('X-Sendfile', $file);
         }
 
-        return new Response($psr7Response, $this->createHttpFactory());
+        return new Response($psrResponse, $this->createHttpFactory());
     }
 
-    protected function createPsr7Response(
+    protected function createPsrResponse(
         int $code = 200,
         string $reasonPhrase = ''
     ): PsrResponse {

@@ -93,7 +93,7 @@ test('Instantiate', function () {
     $registry->add('registry', Registry::class);
     $registry->add('request', Request::class);
     $reg = $registry->new('registry');
-    $req = $registry->new('request', $this->psr7Request());
+    $req = $registry->new('request', $this->psrRequest());
 
     expect($reg instanceof Registry)->toBe(true);
     expect($req instanceof Request)->toBe(true);

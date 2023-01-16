@@ -17,30 +17,30 @@ class Request
     use WrapsMessage;
     use WrapsRequest;
 
-    public function __construct(protected PsrServerRequest $psr7)
+    public function __construct(protected PsrServerRequest $psr)
     {
     }
 
-    public function psr7(): PsrServerRequest
+    public function psr(): PsrServerRequest
     {
-        return $this->psr7;
+        return $this->psr;
     }
 
-    public function setPsr7(PsrServerRequest $psr7): static
+    public function setPsr(PsrServerRequest $psr): static
     {
-        $this->psr7 = $psr7;
+        $this->psr = $psr;
 
         return $this;
     }
 
     public function params(): array
     {
-        return $this->psr7->getQueryParams();
+        return $this->psr->getQueryParams();
     }
 
     public function param(string $key, mixed $default = null): mixed
     {
-        $params = $this->psr7->getQueryParams();
+        $params = $this->psr->getQueryParams();
         $error = 'Query string variable not found';
 
         return $this->returnOrFail($params, $key, $default, $error, func_num_args());
@@ -48,7 +48,7 @@ class Request
 
     public function form(): ?array
     {
-        $body = $this->psr7->getParsedBody();
+        $body = $this->psr->getParsedBody();
         assert(is_null($body) || is_array($body));
 
         return $body;
@@ -56,7 +56,7 @@ class Request
 
     public function field(string $key, mixed $default = null): mixed
     {
-        $body = $this->psr7->getParsedBody();
+        $body = $this->psr->getParsedBody();
         assert(is_null($body) || is_array($body));
         $error = 'Form field not found';
 
@@ -65,12 +65,12 @@ class Request
 
     public function cookies(): array
     {
-        return $this->psr7->getCookieParams();
+        return $this->psr->getCookieParams();
     }
 
     public function cookie(string $key, mixed $default = null): mixed
     {
-        $params = $this->psr7->getCookieParams();
+        $params = $this->psr->getCookieParams();
         $error = 'Cookie not found';
 
         return $this->returnOrFail($params, $key, $default, $error, func_num_args());
@@ -78,12 +78,12 @@ class Request
 
     public function serverParams(): array
     {
-        return $this->psr7->getServerParams();
+        return $this->psr->getServerParams();
     }
 
     public function server(string $key, mixed $default = null): mixed
     {
-        $params = $this->psr7->getServerParams();
+        $params = $this->psr->getServerParams();
         $error = 'Server parameter not found';
 
         return $this->returnOrFail($params, $key, $default, $error, func_num_args());
@@ -91,12 +91,12 @@ class Request
 
     public function attributes(): array
     {
-        return $this->psr7->getAttributes();
+        return $this->psr->getAttributes();
     }
 
     public function attribute(string $key, mixed $default = null): mixed
     {
-        $params = $this->psr7->getAttributes();
+        $params = $this->psr->getAttributes();
         $error = 'Request attribute not found';
 
         return $this->returnOrFail($params, $key, $default, $error, func_num_args());
@@ -104,12 +104,12 @@ class Request
 
     public function uri(): PsrUri
     {
-        return $this->psr7->getUri();
+        return $this->psr->getUri();
     }
 
     public function origin(): string
     {
-        $uri = $this->psr7->getUri();
+        $uri = $this->psr->getUri();
         $scheme = $uri->getScheme();
         $origin = $scheme ? $scheme . ':' : '';
         $authority = $uri->getAuthority();
@@ -120,7 +120,7 @@ class Request
 
     public function method(): string
     {
-        return strtoupper($this->psr7->getMethod());
+        return strtoupper($this->psr->getMethod());
     }
 
     public function isMethod(string $method): bool
@@ -130,13 +130,13 @@ class Request
 
     public function body(): PsrStream
     {
-        return $this->psr7->getBody();
+        return $this->psr->getBody();
     }
 
     public function json(
         int $flags = JSON_OBJECT_AS_ARRAY,
     ): mixed {
-        $body = (string)$this->psr7->getBody();
+        $body = (string)$this->psr->getBody();
 
         return json_decode(
             $body,
@@ -161,7 +161,7 @@ class Request
      */
     public function files(array|string ...$keys): array
     {
-        $files = $this->psr7->getUploadedFiles();
+        $files = $this->psr->getUploadedFiles();
         $keys = $this->validateKeys($keys);
 
         if (count($keys) === 0) {
@@ -214,7 +214,7 @@ class Request
             throw new RuntimeException('No file key given');
         }
 
-        $files = $this->psr7->getUploadedFiles();
+        $files = $this->psr->getUploadedFiles();
         $i = 0;
 
         foreach ($keys as $key) {

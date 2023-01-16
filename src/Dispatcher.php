@@ -44,7 +44,7 @@ class Dispatcher
             );
         } elseif ($handler instanceof PsrMiddleware) {
             return new Response($handler->process(
-                $request->psr7(),
+                $request->psr(),
                 // Create an anonymous PSR-15 RequestHandler
                 new class ($this, array_slice($queue, 1)) implements PsrRequestHandler {
                     public function __construct(
@@ -55,7 +55,7 @@ class Dispatcher
 
                     public function handle(PsrServerRequest $request): PsrResponse
                     {
-                        return $this->dispatcher->handle($this->queue, new Request($request))->psr7();
+                        return $this->dispatcher->handle($this->queue, new Request($request))->psr();
                     }
                 }
             ), $this->factory);

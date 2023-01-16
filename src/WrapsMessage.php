@@ -10,65 +10,65 @@ trait WrapsMessage
 {
     public function getProtocolVersion(): string
     {
-        return $this->psr7->getProtocolVersion();
+        return $this->psr->getProtocolVersion();
     }
 
     public function withProtocolVersion(string $version): static
     {
-        $this->psr7 = $this->psr7->withProtocolVersion($version);
+        $this->psr = $this->psr->withProtocolVersion($version);
 
         return $this;
     }
 
     public function getHeaders(): array
     {
-        return $this->psr7->getHeaders();
+        return $this->psr->getHeaders();
     }
 
     public function hasHeader(string $header): bool
     {
-        return $this->psr7->hasHeader($header);
+        return $this->psr->hasHeader($header);
     }
 
     public function getHeader(string $header): array
     {
-        return $this->psr7->getHeader($header);
+        return $this->psr->getHeader($header);
     }
 
     public function getHeaderLine(string $header): string
     {
-        return $this->psr7->getHeaderLine($header);
+        return $this->psr->getHeaderLine($header);
     }
 
     public function withHeader(string $header, string $value): static
     {
-        $this->psr7 = $this->psr7->withHeader($header, $value);
+        $this->psr = $this->psr->withHeader($header, $value);
 
         return $this;
     }
 
     public function withAddedHeader(string $header, string $value): static
     {
-        $this->psr7 = $this->psr7->withAddedHeader($header, $value);
+        $this->psr = $this->psr->withAddedHeader($header, $value);
 
         return $this;
     }
 
     public function withoutHeader(string $header): static
     {
-        $this->psr7 = $this->psr7->withoutHeader($header);
+        $this->psr = $this->psr->withoutHeader($header);
 
         return $this;
     }
 
     public function getBody(): PsrStream
     {
-        return $this->psr7->getBody();
+        return $this->psr->getBody();
     }
 
     public function withBody(PsrStream $body): static
     {
-        $this->psr7 = $this->psr7->withBody($body);
+        $this->psr = $this->psr->withBody($body);
 
         return $this;
     }
