@@ -17,7 +17,9 @@ use Conia\Chuck\Tests\Fixtures\TestController;
 use Conia\Chuck\Tests\Fixtures\TestMiddlewareBench;
 
 /**
- * @Iterations(1)
+ * @Warmup(2)
+ * @Revs(1000)
+ * @Iterations(5)
  */
 class AppBench
 {
@@ -30,7 +32,6 @@ class AppBench
     }
 
     /**
-     * @Revs(1000)
      * @BeforeMethods({"initIndexRequest"})
      */
     public function benchSimpleApp()
@@ -43,10 +44,9 @@ class AppBench
     }
 
     /**
-     * @Revs(1000)
      * @BeforeMethods({"initAlbumRequest"})
      */
-    public function benchLargeApp()
+    public function benchRealworldApp()
     {
         $app = App::create();
         $app->register('injected', new Config('injected'));
