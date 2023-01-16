@@ -8,7 +8,7 @@ use Closure;
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Exception\RuntimeException;
-use Conia\Chuck\Http\Factory;
+use Conia\Chuck\Psr\Factory;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Registry\Resolver;
 use Conia\Chuck\Renderer\Config as RendererConfig;

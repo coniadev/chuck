@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-use Conia\Chuck\Http\Factory;
+use Conia\Chuck\Psr\Factory;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;

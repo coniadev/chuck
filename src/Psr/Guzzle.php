@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck\Http;
+namespace Conia\Chuck\Psr;
 
 use Conia\Chuck\Exception\RuntimeException;
 use GuzzleHttp\Psr7\HttpFactory;

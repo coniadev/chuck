@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Conia\Chuck\Tests\Fixtures;
 
 use Conia\Chuck\Config;
-use Conia\Chuck\Http\Factory;
 use Conia\Chuck\Middleware;
+use Conia\Chuck\Psr\Factory;
 use Conia\Chuck\Registry\Call;
 use Conia\Chuck\Registry\Inject;
 use Conia\Chuck\Registry\Registry;

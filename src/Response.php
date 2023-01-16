@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use Conia\Chuck\Exception\RuntimeException;
-use Conia\Chuck\Http\Factory;
+use Conia\Chuck\Psr\Factory;
 use Psr\Http\Message\ResponseInterface as PsrResponse;
 use Psr\Http\Message\StreamInterface as PsrStream;
 

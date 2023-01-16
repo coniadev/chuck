@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Conia\Chuck\App;
 use Conia\Chuck\Config;
-use Conia\Chuck\Http\Factory;
 use Conia\Chuck\Logger;
+use Conia\Chuck\Psr\Factory;
 use Conia\Chuck\Renderer\JsonRenderer;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Renderer\TextRenderer;

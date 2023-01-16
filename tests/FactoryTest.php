@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use Conia\Chuck\App;
-use Conia\Chuck\Http\Factory;
-use Conia\Chuck\Http\Guzzle;
-use Conia\Chuck\Http\Laminas;
-use Conia\Chuck\Http\Nyholm;
+use Conia\Chuck\Psr\Factory;
+use Conia\Chuck\Psr\Guzzle;
+use Conia\Chuck\Psr\Laminas;
+use Conia\Chuck\Psr\Nyholm;
 use Conia\Chuck\Tests\Setup\TestCase;
 use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
 

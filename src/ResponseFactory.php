@@ -6,8 +6,8 @@ namespace Conia\Chuck;
 
 use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\RuntimeException;
-use Conia\Chuck\Http\Factory;
 use Conia\Chuck\Json;
+use Conia\Chuck\Psr\Factory;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Response;
 use finfo;

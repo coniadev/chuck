@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Conia\Chuck;
 
 use Closure;
-use Conia\Chuck\Http\Factory;
 use Conia\Chuck\Middleware;
+use Conia\Chuck\Psr\Factory;
 use Conia\Chuck\Registry\Entry;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Renderer\JsonRenderer;
@@ -164,7 +164,7 @@ class App implements RouteAdder
         $registry->add($this->router::class, $this->router);
         $registry->add(App::class, $this);
 
-        $registry->add(Factory::class, \Conia\Chuck\Http\Nyholm::class);
+        $registry->add(Factory::class, \Conia\Chuck\Psr\Nyholm::class);
         $registry->add(Response::class, function (Registry $registry): Response {
             $factory = $registry->get(Factory::class);
             assert($factory instanceof Factory);
