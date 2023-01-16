@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck\Routing;
+namespace Conia\Chuck;
 
 use Closure;
 use Conia\Chuck\Exception\RuntimeException;
+use Conia\Chuck\Routing\AddsMiddleware;
+use Conia\Chuck\Routing\AddsRoutes;
 use Conia\Chuck\Routing\RouteAdder;
 
 class Group implements RouteAdder

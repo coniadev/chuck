@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Routing;
 
+use Conia\Chuck\Route;
+
 /**
- * @psalm-import-type View from \Conia\Chuck\Routing\Route
+ * @psalm-import-type View from \Conia\Chuck\Route
  */
 trait AddsRoutes
 {

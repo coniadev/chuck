@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck\Routing;
+namespace Conia\Chuck;
 
 use Closure;
 use Conia\Chuck\Di\Resolver;
@@ -17,6 +17,10 @@ use Conia\Chuck\Middleware;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
+use Conia\Chuck\Routing\AddsMiddleware;
+use Conia\Chuck\Routing\AddsRoutes;
+use Conia\Chuck\Routing\RouteAdder;
+use Conia\Chuck\Routing\StaticRoute;
 use Psr\Http\Server\MiddlewareInterface as PsrMiddleware;
 use Throwable;
 

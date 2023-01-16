@@ -15,7 +15,7 @@ use Conia\Chuck\Renderer\Config as RendererConfig;
 use Conia\Chuck\Renderer\Render;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Response;
-use Conia\Chuck\Routing\Route;
+use Conia\Chuck\Route;
 use Psr\Http\Message\ResponseInterface as PsrResponse;
 use ReflectionAttribute;
 use ReflectionClass;

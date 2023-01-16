@@ -10,7 +10,7 @@ use Conia\Chuck\Registry;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
-use Conia\Chuck\Routing\Route;
+use Conia\Chuck\Route;
 use Conia\Chuck\Tests\Fixtures\TestAttribute;
 use Conia\Chuck\Tests\Fixtures\TestAttributeDiff;
 use Conia\Chuck\Tests\Fixtures\TestAttributeExt;

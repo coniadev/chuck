@@ -6,12 +6,12 @@ namespace Conia\Chuck\Tests\Benchmark;
 
 use Conia\Chuck\App;
 use Conia\Chuck\Config;
+use Conia\Chuck\Group;
 use Conia\Chuck\Psr\Guzzle;
 use Conia\Chuck\Psr\Laminas;
 use Conia\Chuck\Psr\Nyholm;
 use Conia\Chuck\Request;
-use Conia\Chuck\Routing\Group;
-use Conia\Chuck\Routing\Route;
+use Conia\Chuck\Route;
 use Conia\Chuck\Tests\Fixtures\TestClassInject;
 use Conia\Chuck\Tests\Fixtures\TestController;
 use Conia\Chuck\Tests\Fixtures\TestMiddlewareBench;

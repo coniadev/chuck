@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
+use Conia\Chuck\Router;
 use Conia\Chuck\Routing\Endpoint;
-use Conia\Chuck\Routing\Router;
 use Conia\Chuck\Tests\Fixtures\TestEndpoint;
 use Conia\Chuck\Tests\Setup\TestCase;
 

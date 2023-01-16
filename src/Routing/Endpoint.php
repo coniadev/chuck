@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Routing;
 
+use Conia\Chuck\Route;
+
 class Endpoint
 {
     use AddsMiddleware;

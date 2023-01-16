@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck\Routing;
+namespace Conia\Chuck;
 
 use Closure;
 use Conia\Chuck\Exception\InvalidArgumentException;
 use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Renderer\Config as RendererConfig;
+use Conia\Chuck\Routing\AddsMiddleware;
 use Stringable;
 
 const LEFT_BRACE = '§§§€§§§';

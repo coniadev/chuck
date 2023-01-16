@@ -6,7 +6,7 @@ namespace Conia\Chuck\Http;
 
 use Conia\Chuck\Registry;
 use Conia\Chuck\Response;
-use Conia\Chuck\Routing\Route;
+use Conia\Chuck\Route;
 
 class ViewHandler
 {
