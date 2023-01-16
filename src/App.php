@@ -6,6 +6,7 @@ namespace Conia\Chuck;
 
 use Closure;
 use Conia\Chuck\Di\Entry;
+use Conia\Chuck\Error\Handler;
 use Conia\Chuck\Http\Emitter;
 use Conia\Chuck\Middleware;
 use Conia\Chuck\Psr\Factory;
@@ -17,6 +18,7 @@ use Conia\Chuck\Routing\AddsRoutes;
 use Conia\Chuck\Routing\RouteAdder;
 use Psr\Container\ContainerInterface as PsrContainer;
 use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
+use Psr\Http\Server\MiddlewareInterface as PsrMiddleware;
 use Psr\Log\LoggerInterface as PsrLogger;
 
 /** @psalm-consistent-constructor */
@@ -28,6 +30,7 @@ class App implements RouteAdder
         protected Config $config,
         protected Router $router,
         protected Registry $registry,
+        protected Middleware|PsrMiddleware|null $errorHandler = null,
     ) {
         $this->initializeRegistry();
     }
@@ -40,11 +43,11 @@ class App implements RouteAdder
 
         $registry = new Registry($container);
         $router = new Router();
+        $errorHandler = new Handler($config, $registry);
+        // The error handler should be the first middleware
+        $router->middleware($errorHandler);
 
-        $errorHandler = new ErrorHandler($config, $registry);
-        $errorHandler->setup();
-
-        return new static($config, $router, $registry);
+        return new static($config, $router, $registry, $errorHandler);
     }
 
     public function router(): Router

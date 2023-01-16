@@ -221,7 +221,7 @@ test('Dispatch wrong view return type', function () {
     $index = new Route('/', TestControllerWithRequest::class . '::wrongReturnType');
     $router->addRoute($index);
     $router->dispatch($this->request(method: 'GET', url: '/'), $this->registry());
-})->throws(RuntimeException::class, 'Cannot determine a response handler');
+})->throws(RuntimeException::class, 'Unable to determine a response handler');
 
 
 test('Dispatch missing route', function () {

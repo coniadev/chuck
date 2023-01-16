@@ -86,7 +86,7 @@ class View
             return $this->respondFromRenderer($registry, $rendererConfig, $result);
         }
 
-        throw new RuntimeException('Cannot determine a response handler for the return type of the view');
+        throw new RuntimeException('Unable to determine a response handler for the returned value of the view');
     }
 
     public static function getReflectionFunction(

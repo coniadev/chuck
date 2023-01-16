@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck;
+namespace Conia\Chuck\Error;
 
 use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ExitException;
@@ -14,23 +14,39 @@ use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Exception\HttpUnauthorized;
 use Conia\Chuck\Http\Emitter;
+use Conia\Chuck\Middleware;
 use Conia\Chuck\Registry;
+use Conia\Chuck\Request;
+use Conia\Chuck\Response;
 use Conia\Chuck\ResponseFactory;
 use ErrorException;
 use Psr\Log\LoggerInterface as PsrLogger;
 use Throwable;
 
-class ErrorHandler
+class Handler implements Middleware
 {
     public function __construct(protected Config $config, protected Registry $registry)
     {
+        set_error_handler([$this, 'handleError'], E_ALL);
+        set_exception_handler([$this, 'emitException']);
     }
 
-    public function setup(): callable|null
+    public function __destruct()
     {
-        set_error_handler([$this, 'handleError'], E_ALL);
+        restore_error_handler();
+        restore_exception_handler();
+    }
 
-        return set_exception_handler([$this, 'handleException']);
+    public function __invoke(Request $request, callable $next): Response
+    {
+        try {
+            $response = $next($request);
+            assert($response instanceof Response);
+
+            return $response;
+        } catch (Throwable $e) {
+            return $this->handleException($e);
+        }
     }
 
     public function handleError(
@@ -46,7 +62,13 @@ class ErrorHandler
         return false;
     }
 
-    public function handleException(Throwable $exception): void
+    public function emitException(Throwable $exception): void
+    {
+        $response = $this->handleException($exception);
+        (new Emitter())->emit($response->psr());
+    }
+
+    public function handleException(Throwable $exception): Response
     {
         $response = (new ResponseFactory($this->registry))->html(null);
         $debug = $this->config->debug();
@@ -71,7 +93,10 @@ class ErrorHandler
             $code = 500;
             $response->status($code);
             $body = '<h1>500 Internal Server Error</h1>';
-            $body .= '<h2>' . htmlspecialchars($exception->getMessage()) . '</h2>';
+
+            if ($debug) {
+                $body .= '<h2>' . htmlspecialchars($exception->getMessage()) . '</h2>';
+            }
         }
 
         if ($debug && $code === 500) {
@@ -86,7 +111,7 @@ class ErrorHandler
 
         $this->log($exception);
 
-        (new Emitter())->emit($response->body($body)->psr());
+        return $response->body($body);
     }
 
     public function log(Throwable $exception): void

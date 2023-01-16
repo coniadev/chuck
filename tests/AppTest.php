@@ -64,7 +64,8 @@ test('Middleware helper', function () {
         return $next($request);
     });
 
-    expect(count($app->router()->getMiddleware()))->toBe(1);
+    // The error handler middleware is always added when using ::create()
+    expect(count($app->router()->getMiddleware()))->toBe(2);
 });
 
 
