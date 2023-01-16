@@ -6,13 +6,13 @@ namespace Conia\Chuck;
 
 use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\RuntimeException;
-use Conia\Chuck\Json;
 use Conia\Chuck\Psr\Factory;
 use Conia\Chuck\Registry\Registry;
 use Conia\Chuck\Response;
 use finfo;
 use Psr\Http\Message\ResponseInterface as PsrResponse;
 use Psr\Http\Message\StreamInterface as PsrStream;
+use Traversable;
 
 class ResponseFactory
 {
@@ -74,13 +74,20 @@ class ResponseFactory
         mixed $data,
         int $code = 200,
         string $reasonPhrase = '',
+        int $flags = JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR,
     ): Response {
         $psrResponse = $this->createPsrResponse($code, $reasonPhrase)->withAddedHeader(
             'Content-Type',
             'application/json'
         );
 
-        $psrResponse = $psrResponse->withBody($this->createHttp(Json::encode($data)));
+        if ($data instanceof Traversable) {
+            $data = json_encode(iterator_to_array($data), $flags);
+        } else {
+            $data = json_encode($data, $flags);
+        }
+
+        $psrResponse = $psrResponse->withBody($this->createHttp($data));
 
         return new Response($psrResponse, $this->createHttpFactory());
     }
