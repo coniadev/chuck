@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Conia\Chuck\View;
+namespace Conia\Chuck\Http;
 
 use Conia\Chuck\Registry;
 use Conia\Chuck\Response;

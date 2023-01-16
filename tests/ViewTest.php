@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ContainerException;
+use Conia\Chuck\Http\View;
 use Conia\Chuck\Psr\Factory;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Renderer\Renderer;
@@ -17,7 +18,6 @@ use Conia\Chuck\Tests\Fixtures\TestAttributeViewAttr;
 use Conia\Chuck\Tests\Fixtures\TestController;
 use Conia\Chuck\Tests\Fixtures\TestRendererArgsOptions;
 use Conia\Chuck\Tests\Setup\TestCase;
-use Conia\Chuck\View\View;
 
 require __DIR__ . '/Setup/globalSymbols.php';
 

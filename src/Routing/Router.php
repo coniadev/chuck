@@ -9,14 +9,14 @@ use Conia\Chuck\Di\Resolver;
 use Conia\Chuck\Exception\HttpMethodNotAllowed;
 use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\RuntimeException;
+use Conia\Chuck\Http\Dispatcher;
+use Conia\Chuck\Http\MiddlewareWrapper;
+use Conia\Chuck\Http\View;
+use Conia\Chuck\Http\ViewHandler;
 use Conia\Chuck\Middleware;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
-use Conia\Chuck\View\Dispatcher;
-use Conia\Chuck\View\MiddlewareWrapper;
-use Conia\Chuck\View\View;
-use Conia\Chuck\View\ViewHandler;
 use Psr\Http\Server\MiddlewareInterface as PsrMiddleware;
 use Throwable;
 
