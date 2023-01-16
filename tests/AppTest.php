@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Conia\Chuck\App;
 use Conia\Chuck\Config;
+use Conia\Chuck\Error\ErrorRenderer;
 use Conia\Chuck\Error\Handler;
-use Conia\Chuck\Error\RendererConfig;
 use Conia\Chuck\Group;
 use Conia\Chuck\Logger;
 use Conia\Chuck\Psr\Factory;
@@ -227,7 +227,7 @@ test('Add error renderer', function () {
     $registry = $app->registry();
     $config = $registry->tag(Handler::class)->get('test');
 
-    expect($config)->toBeInstanceOf(RendererConfig::class);
+    expect($config)->toBeInstanceOf(ErrorRenderer::class);
     expect($config->renderer)->toBe('testError');
     expect($config->args['arg'])->toBe(1);
 });

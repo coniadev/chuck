@@ -22,10 +22,6 @@ use ErrorException;
 use Psr\Log\LoggerInterface as PsrLogger;
 use Throwable;
 
-/**
- * @psalm-suppress MixedPropertyFetch, MixedArgument, MixedReturnStatement
- * @psalm-suppress MixedMethodCall, MixedAssignment, MixedInferredReturnType
- */
 class Handler implements Middleware
 {
     public const RENDERER = 'errorRenderer';
@@ -95,8 +91,9 @@ class Handler implements Middleware
         $this->log($exception);
 
         $accepted = $request ? $this->getAcceptedContentType($request) : 'text/html';
-        $renderConfig = $this->registry->tag(self::class)->get($accepted);
-        $render = new Render($renderConfig->renderer, ...$renderConfig->args);
+        $rendererConfig = $this->registry->tag(self::class)->get($accepted);
+        assert($rendererConfig instanceof ErrorRenderer);
+        $render = new Render($rendererConfig->renderer, ...$rendererConfig->args);
         $response = $render->response($this->registry, $error);
         $response->status($code);
 
@@ -133,6 +130,6 @@ class Handler implements Middleware
         $renderers = $tag->entries();
         $available = array_intersect($accepted, $renderers);
 
-        return array_shift($available) ?? 'text/plain';
+        return (string)(array_shift($available) ?? 'text/plain');
     }
 }

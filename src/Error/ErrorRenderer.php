@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Error;
 
-class RendererConfig
+class ErrorRenderer
 {
     public function __construct(
         public readonly string $renderer,

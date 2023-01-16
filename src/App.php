@@ -6,8 +6,8 @@ namespace Conia\Chuck;
 
 use Closure;
 use Conia\Chuck\Di\Entry;
+use Conia\Chuck\Error\ErrorRenderer;
 use Conia\Chuck\Error\Handler;
-use Conia\Chuck\Error\RendererConfig;
 use Conia\Chuck\Http\Emitter;
 use Conia\Chuck\Middleware;
 use Conia\Chuck\Psr\Factory;
@@ -134,7 +134,7 @@ class App implements RouteAdder
     public function errorRenderer(string $contentType, string $renderer, mixed ...$args): Entry
     {
         return $this->registry->tag(Handler::class)
-            ->add($contentType, RendererConfig::class)->args(renderer: $renderer, args: $args);
+            ->add($contentType, ErrorRenderer::class)->args(renderer: $renderer, args: $args);
     }
 
     /** @param callable(mixed ...$args):PsrLogger $callable */
@@ -200,8 +200,8 @@ class App implements RouteAdder
         // Register mimetypes which are compared to the Accept header on error.
         // If the header matches a registered Renderer
         $handlerTag = $registry->tag(Handler::class);
-        $handlerTag->add('text/plain', RendererConfig::class)->args(renderer: 'textError', args: []);
-        $handlerTag->add('text/html', RendererConfig::class)->args(renderer: 'htmlError', args: []);
-        $handlerTag->add('application/json', RendererConfig::class)->args(renderer: 'jsonError', args: []);
+        $handlerTag->add('text/plain', ErrorRenderer::class)->args(renderer: 'textError', args: []);
+        $handlerTag->add('text/html', ErrorRenderer::class)->args(renderer: 'htmlError', args: []);
+        $handlerTag->add('application/json', ErrorRenderer::class)->args(renderer: 'jsonError', args: []);
     }
 }
