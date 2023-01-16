@@ -7,7 +7,6 @@ namespace Conia\Chuck\Http;
 use Closure;
 use Conia\Chuck\Di\Resolver;
 use Conia\Chuck\Exception\ContainerException;
-use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Psr\Factory;
 use Conia\Chuck\Registry;
@@ -166,10 +165,10 @@ class View
             }
             $view = $controllerName . '::' . $method;
 
-            throw HttpServerError::withSubTitle("Controller method not found {$view}");
+            throw new RuntimeException("View method not found {$view}");
         }
 
-        throw HttpServerError::withSubTitle("Controller not found {$controllerName}");
+        throw new RuntimeException("Controller not found {$controllerName}");
     }
 
     /**

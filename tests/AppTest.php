@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 use Conia\Chuck\App;
 use Conia\Chuck\Config;
+use Conia\Chuck\Error\Handler;
+use Conia\Chuck\Error\RendererConfig;
 use Conia\Chuck\Group;
 use Conia\Chuck\Logger;
 use Conia\Chuck\Psr\Factory;
-use Conia\Chuck\Renderer\JsonRenderer;
 use Conia\Chuck\Renderer\Renderer;
-use Conia\Chuck\Renderer\TextRenderer;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 use Conia\Chuck\Route;
@@ -221,6 +221,18 @@ test('Add renderer', function () {
 });
 
 
+test('Add error renderer', function () {
+    $app = App::create();
+    $app->errorRenderer('test', 'testError', arg: 1);
+    $registry = $app->registry();
+    $config = $registry->tag(Handler::class)->get('test');
+
+    expect($config)->toBeInstanceOf(RendererConfig::class);
+    expect($config->renderer)->toBe('testError');
+    expect($config->args['arg'])->toBe(1);
+});
+
+
 test('Add logger', function () {
     $app = $this->app();
     $app->Logger(function (): PsrLogger {
@@ -243,8 +255,6 @@ test('Registry initialized', function () {
     $app = $this->app();
     $registry = $app->registry();
 
-    $value = $registry->get(App::class);
-    expect($value)->toBe($app);
     $value = $registry->get(Response::class);
     expect($value instanceof Response)->toBe(true);
     $value = $registry->get(Response::class);
@@ -253,6 +263,20 @@ test('Registry initialized', function () {
     expect($value instanceof Config)->toBe(true);
     $value = $registry->get(Factory::class);
     expect($value instanceof Factory)->toBe(true);
-    expect($registry->tag(Renderer::class)->get('text'))->toBeInstanceOf(TextRenderer::class);
-    expect($registry->tag(Renderer::class)->get('json'))->toBeInstanceOf(JsonRenderer::class);
+    expect($registry->tag(Renderer::class)->get('text'))
+        ->toBeInstanceOf(\Conia\Chuck\Renderer\TextRenderer::class);
+    expect($registry->tag(Renderer::class)->get('json'))
+        ->toBeInstanceOf(\Conia\Chuck\Renderer\JsonRenderer::class);
+    expect($registry->tag(Renderer::class)->get('html'))
+        ->toBeInstanceOf(\Conia\Chuck\Renderer\HtmlRenderer::class);
+    expect($registry->tag(Renderer::class)->get('textError'))
+        ->toBeInstanceOf(\Conia\Chuck\Renderer\TextErrorRenderer::class);
+    expect($registry->tag(Renderer::class)->get('jsonError'))
+        ->toBeInstanceOf(\Conia\Chuck\Renderer\JsonErrorRenderer::class);
+    expect($registry->tag(Renderer::class)->get('htmlError'))
+        ->toBeInstanceOf(\Conia\Chuck\Renderer\HtmlErrorRenderer::class);
+
+    expect($registry->tag(Handler::class)->get('text/plain')->renderer)->toBe('textError');
+    expect($registry->tag(Handler::class)->get('text/html')->renderer)->toBe('htmlError');
+    expect($registry->tag(Handler::class)->get('application/json')->renderer)->toBe('jsonError');
 });

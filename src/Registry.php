@@ -45,6 +45,12 @@ class Registry implements PsrContainer
         return isset($this->entries[$id]) || $this->container?->has($id);
     }
 
+    /** @psalm-return list<string> */
+    public function entries(): array
+    {
+        return array_keys($this->entries);
+    }
+
     public function entry(string $id): Entry
     {
         return $this->entries[$id];

@@ -9,12 +9,9 @@ use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Logger;
 use Conia\Chuck\Psr\Factory;
-use Conia\Chuck\Psr\Nyholm;
 use Conia\Chuck\Registry;
-use Conia\Chuck\Renderer\JsonRenderer;
-use Conia\Chuck\Renderer\Renderer;
-use Conia\Chuck\Renderer\TextRenderer;
 use Conia\Chuck\Request;
+use Conia\Chuck\Router;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Psr\Http\Message\ResponseInterface as PsrResponse;
@@ -156,21 +153,17 @@ class TestCase extends BaseTestCase
         bool $autowire = true,
     ): Registry {
         $registry = new Registry(autowire: $autowire);
-        $request = $request ?: $this->request();
         $config = $config ?: $this->config();
 
-        $registry->add(Registry::class, $registry);
+        App::initializeRegistry($registry, $config, new Router());
+
+        $request = $request ?: $this->request();
         $registry->add(Request::class, $request);
-        $registry->add(Factory::class, Nyholm::class);
         $registry->add($request::class, $request);
-        $registry->add(Config::class, $config);
-        $registry->add($config::class, $config);
+
         $registry->add(PsrLogger::class, function (): PsrLogger {
             return new Logger();
         });
-
-        $registry->tag(Renderer::class)->add('text', TextRenderer::class);
-        $registry->tag(Renderer::class)->add('json', JsonRenderer::class);
 
         return $registry;
     }

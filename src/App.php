@@ -7,12 +7,17 @@ namespace Conia\Chuck;
 use Closure;
 use Conia\Chuck\Di\Entry;
 use Conia\Chuck\Error\Handler;
+use Conia\Chuck\Error\RendererConfig;
 use Conia\Chuck\Http\Emitter;
 use Conia\Chuck\Middleware;
 use Conia\Chuck\Psr\Factory;
 use Conia\Chuck\Registry;
+use Conia\Chuck\Renderer\HtmlErrorRenderer;
+use Conia\Chuck\Renderer\HtmlRenderer;
+use Conia\Chuck\Renderer\JsonErrorRenderer;
 use Conia\Chuck\Renderer\JsonRenderer;
 use Conia\Chuck\Renderer\Renderer;
+use Conia\Chuck\Renderer\TextErrorRenderer;
 use Conia\Chuck\Renderer\TextRenderer;
 use Conia\Chuck\Routing\AddsRoutes;
 use Conia\Chuck\Routing\RouteAdder;
@@ -32,7 +37,7 @@ class App implements RouteAdder
         protected Registry $registry,
         protected Middleware|PsrMiddleware|null $errorHandler = null,
     ) {
-        $this->initializeRegistry();
+        self::initializeRegistry($registry, $config, $router);
     }
 
     public static function create(?Config $config = null, ?PsrContainer $container = null): static
@@ -122,6 +127,16 @@ class App implements RouteAdder
         return $this->registry->tag(Renderer::class)->add($name, $class);
     }
 
+    /**
+     * @psalm-param non-empty-string $contentType
+     * @psalm-param non-empty-string $renderer
+     */
+    public function errorRenderer(string $contentType, string $renderer, mixed ...$args): Entry
+    {
+        return $this->registry->tag(Handler::class)
+            ->add($contentType, RendererConfig::class)->args(renderer: $renderer, args: $args);
+    }
+
     /** @param callable(mixed ...$args):PsrLogger $callable */
     public function logger(callable $callback): void
     {
@@ -155,15 +170,15 @@ class App implements RouteAdder
         return $response;
     }
 
-    protected function initializeRegistry(): void
-    {
-        $registry = $this->registry;
-
-        $registry->add(Config::class, $this->config);
-        $registry->add($this->config::class, $this->config);
-        $registry->add(Router::class, $this->router);
-        $registry->add($this->router::class, $this->router);
-        $registry->add(App::class, $this);
+    public static function initializeRegistry(
+        Registry $registry,
+        Config $config,
+        Router $router,
+    ): void {
+        $registry->add(Config::class, $config);
+        $registry->add($config::class, $config);
+        $registry->add(Router::class, $router);
+        $registry->add($router::class, $router);
 
         $registry->add(Factory::class, \Conia\Chuck\Psr\Nyholm::class);
         $registry->add(Response::class, function (Registry $registry): Response {
@@ -173,7 +188,20 @@ class App implements RouteAdder
             return new Response($factory->response(), $factory);
         });
 
-        $registry->tag(Renderer::class)->add('text', TextRenderer::class);
-        $registry->tag(Renderer::class)->add('json', JsonRenderer::class);
+        // Add default renderers
+        $rendererTag = $registry->tag(Renderer::class);
+        $rendererTag->add('text', TextRenderer::class);
+        $rendererTag->add('json', JsonRenderer::class);
+        $rendererTag->add('html', HtmlRenderer::class);
+        $rendererTag->add('textError', TextErrorRenderer::class);
+        $rendererTag->add('jsonError', JsonErrorRenderer::class);
+        $rendererTag->add('htmlError', HtmlErrorRenderer::class);
+
+        // Register mimetypes which are compared to the Accept header on error.
+        // If the header matches a registered Renderer
+        $handlerTag = $registry->tag(Handler::class);
+        $handlerTag->add('text/plain', RendererConfig::class)->args(renderer: 'textError', args: []);
+        $handlerTag->add('text/html', RendererConfig::class)->args(renderer: 'htmlError', args: []);
+        $handlerTag->add('application/json', RendererConfig::class)->args(renderer: 'jsonError', args: []);
     }
 }

@@ -52,30 +52,73 @@ test('Error handler II', function () {
 test('Handle HTTP Exceptions', function () {
     $err = new Handler($this->config(debug: true), $this->registry());
 
-    $response = $err->handleException(new HttpBadRequest());
-    expect((string)$response->getBody())->toBe('<h1>400 Bad Request</h1><h2>HTTP Error</h2>');
+    $response = $err->handleException(new HttpBadRequest(), $this->request());
+    expect((string)$response->getBody())->toStartWith('<h1>400 Bad Request</h1><h2>HTTP Error</h2>');
+    expect((string)$response->getBody())->toContain('<br>#1');
 
-    $response = $err->handleException(new HttpUnauthorized());
-    expect((string)$response->getBody())->toBe('<h1>401 Unauthorized</h1><h2>HTTP Error</h2>');
+    $response = $err->handleException(new HttpUnauthorized(), $this->request());
+    expect((string)$response->getBody())->toStartWith('<h1>401 Unauthorized</h1><h2>HTTP Error</h2>');
+    expect((string)$response->getBody())->toContain('<br>#1');
 
-    $response = $err->handleException(new HttpForbidden());
-    expect((string)$response->getBody())->toBe('<h1>403 Forbidden</h1><h2>HTTP Error</h2>');
+    $response = $err->handleException(new HttpForbidden(), $this->request());
+    expect((string)$response->getBody())->toStartWith('<h1>403 Forbidden</h1><h2>HTTP Error</h2>');
+    expect((string)$response->getBody())->toContain('<br>#1');
 
-    $response = $err->handleException(HttpNotFound::withSubtitle("I've searched everywhere"));
-    expect((string)$response->getBody())->toBe('<h1>404 Not Found</h1><h2>I&#039;ve searched everywhere</h2>');
+    $response = $err->handleException(new HttpNotFound(), $this->request());
+    expect((string)$response->getBody())->toStartWith('<h1>404 Not Found</h1><h2>HTTP Error</h2>');
+    expect((string)$response->getBody())->toContain('<br>#1');
 
-    $response = $err->handleException(new HttpMethodNotAllowed());
-    expect((string)$response->getBody())->toBe('<h1>405 Method Not Allowed</h1><h2>HTTP Error</h2>');
+    $response = $err->handleException(new HttpMethodNotAllowed(), $this->request());
+    expect((string)$response->getBody())->toStartWith('<h1>405 Method Not Allowed</h1><h2>HTTP Error</h2>');
+    expect((string)$response->getBody())->toContain('<br>#1');
 
-    $response = $err->handleException(new HttpServerError());
+    $response = $err->handleException(new HttpServerError(), $this->request());
     expect((string)$response->getBody())->toStartWith('<h1>500 Internal Server Error</h1><h2>HTTP Error</h2>');
     expect((string)$response->getBody())->toContain('<br>#1');
 });
 
 
+test('Handle Exception and render text/plain', function () {
+    $_SERVER['HTTP_ACCEPT'] = 'text/plain';
+    $err = new Handler($this->config(), $this->registry());
+
+    $response = $err->handleException(new HttpBadRequest(), $this->request());
+    expect((string)$response->getBody())->toBe('Error: 400 Bad Request');
+});
+
+
+test('Handle Exception and render text/plain (debug: true)', function () {
+    $_SERVER['HTTP_ACCEPT'] = 'text/plain';
+    $err = new Handler($this->config(debug: true), $this->registry());
+
+    $response = $err->handleException(new HttpBadRequest(), $this->request());
+    expect((string)$response->getBody())->toStartWith("Error: 400 Bad Request\n\nDescription: HTTP Error");
+    expect((string)$response->getBody())->toContain('#1');
+});
+
+
+test('Handle Exception and render application/json', function () {
+    $_SERVER['HTTP_ACCEPT'] = 'application/json';
+    $err = new Handler($this->config(), $this->registry());
+
+    $response = $err->handleException(new HttpBadRequest(), $this->request());
+    expect((string)$response->getBody())->toBe('{"error":"400 Bad Request"}');
+});
+
+
+test('Handle Exception and render application/json (debug: true)', function () {
+    $_SERVER['HTTP_ACCEPT'] = 'application/json';
+    $err = new Handler($this->config(debug: true), $this->registry());
+
+    $response = $err->handleException(new HttpBadRequest(), $this->request());
+    expect((string)$response->getBody())->toStartWith('{"error":"400 Bad Request","description":"HTTP Error"');
+    expect((string)$response->getBody())->toContain('#1');
+});
+
+
 test('Handle PHP Exceptions', function () {
     $err = new Handler($this->config(), $this->registry());
-    $response = $err->handleException(new DivisionByZeroError('Division by zero'));
+    $response = $err->handleException(new DivisionByZeroError('Division by zero'), $this->request());
 
     expect((string)$response->getBody())->toBe('<h1>500 Internal Server Error</h1>');
 });
@@ -84,7 +127,7 @@ test('Handle PHP Exceptions', function () {
 test('Debug mode traceback', function () {
     $err = new Handler($this->config(debug: true), $this->registry());
 
-    $response = $err->handleException(new HttpBadRequest());
+    $response = $err->handleException(new HttpBadRequest(), null);
     expect((string)$response->getBody())->toStartWith('<h1>400 Bad Request</h1><h2>HTTP Error</h2>');
 });
 

@@ -14,18 +14,4 @@ abstract class HttpError extends Exception implements ChuckException
     {
         return (string)$this->getCode() . ' ' . $this->getMessage();
     }
-
-    public static function withSubtitle(string $subTitle): static
-    {
-        /** @psalm-suppress UnsafeInstantiation */
-        $exception = new static();
-        $exception->subTitle = $subTitle;
-
-        return $exception;
-    }
-
-    public function getSubTitle(): ?string
-    {
-        return $this->subTitle;
-    }
 }

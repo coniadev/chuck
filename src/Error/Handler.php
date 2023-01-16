@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Conia\Chuck\Error;
 
 use Conia\Chuck\Config;
-use Conia\Chuck\Exception\ExitException;
 use Conia\Chuck\Exception\HttpBadRequest;
 use Conia\Chuck\Exception\HttpError;
 use Conia\Chuck\Exception\HttpForbidden;
@@ -16,15 +15,21 @@ use Conia\Chuck\Exception\HttpUnauthorized;
 use Conia\Chuck\Http\Emitter;
 use Conia\Chuck\Middleware;
 use Conia\Chuck\Registry;
+use Conia\Chuck\Renderer\Render;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
-use Conia\Chuck\ResponseFactory;
 use ErrorException;
 use Psr\Log\LoggerInterface as PsrLogger;
 use Throwable;
 
+/**
+ * @psalm-suppress MixedPropertyFetch, MixedArgument, MixedReturnStatement
+ * @psalm-suppress MixedMethodCall, MixedAssignment, MixedInferredReturnType
+ */
 class Handler implements Middleware
 {
+    public const RENDERER = 'errorRenderer';
+
     public function __construct(protected Config $config, protected Registry $registry)
     {
         set_error_handler([$this, 'handleError'], E_ALL);
@@ -45,7 +50,7 @@ class Handler implements Middleware
 
             return $response;
         } catch (Throwable $e) {
-            return $this->handleException($e);
+            return $this->handleException($e, $request);
         }
     }
 
@@ -64,49 +69,38 @@ class Handler implements Middleware
 
     public function emitException(Throwable $exception): void
     {
-        $response = $this->handleException($exception);
+        $response = $this->handleException($exception, null);
         (new Emitter())->emit($response->psr());
     }
 
-    public function handleException(Throwable $exception): Response
+    public function handleException(Throwable $exception, ?Request $request): Response
     {
-        $response = (new ResponseFactory($this->registry))->html(null);
-        $debug = $this->config->debug();
-
         if ($exception instanceof HttpError) {
             $code = $exception->getCode();
-            $response->status($code);
-            $body = '<h1>' . htmlspecialchars($exception->getTitle()) . '</h1>';
-            $subTitle = $exception->getSubtitle();
-
-            if ($subTitle) {
-                $body .= '<h2>' . htmlspecialchars($subTitle) . '</h2>';
-            } else {
-                $body .= '<h2>HTTP Error</h2>';
-            }
+            $title = htmlspecialchars($exception->getTitle());
+            $description = 'HTTP Error';
         } else {
             $code = 500;
-            $response->status($code);
-            $body = '<h1>500 Internal Server Error</h1>';
-
-            if ($debug) {
-                $body .= '<h2>' . htmlspecialchars($exception->getMessage()) . '</h2>';
-            }
+            $title = '500 Internal Server Error';
+            $description = $exception->getMessage();
         }
 
-        if ($debug && $code === 500) {
-            $trace = str_replace(
-                ['<', '>', '"'],
-                ['&lt;', '&gt', '&quot;'],
-                $exception->getTraceAsString()
-            );
-            $trace = implode('<br>#', explode('#', $trace));
-            $body .= preg_replace('/^<br>/', '', $trace);
-        }
+        $error = new Error(
+            $title,
+            $description,
+            $exception->getTraceAsString(),
+            $this->config->debug()
+        );
 
         $this->log($exception);
 
-        return $response->body($body);
+        $accepted = $request ? $this->getAcceptedContentType($request) : 'text/html';
+        $renderConfig = $this->registry->tag(self::class)->get($accepted);
+        $render = new Render($renderConfig->renderer, ...$renderConfig->args);
+        $response = $render->response($this->registry, $error);
+        $response->status($code);
+
+        return $response;
     }
 
     public function log(Throwable $exception): void
@@ -130,5 +124,15 @@ class Handler implements Middleware
             HttpServerError::class => 'error',
             default => 'error',
         };
+    }
+
+    protected function getAcceptedContentType(Request $request): string
+    {
+        $tag = $this->registry->tag(self::class);
+        $accepted = $request->accept();
+        $renderers = $tag->entries();
+        $available = array_intersect($accepted, $renderers);
+
+        return array_shift($available) ?? 'text/plain';
     }
 }

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Conia\Chuck\Renderer\HtmlRenderer;
 use Conia\Chuck\Renderer\JsonRenderer;
 use Conia\Chuck\Renderer\TextRenderer;
 use Conia\Chuck\ResponseFactory;
@@ -64,9 +65,25 @@ test('JSON Renderer :: response()', function () {
 });
 
 
+test('Html Renderer', function () {
+    $renderer = new HtmlRenderer(new ResponseFactory($this->registry()), []);
+    $response = $renderer->response('<h1>Symbolic</h1>');
+
+    $hasContentType = false;
+    foreach ($response->headers() as $key => $value) {
+        if ($key === 'Content-Type' && $value[0] === 'text/html') {
+            $hasContentType = true;
+        }
+    }
+
+    expect($hasContentType)->toBe(true);
+    expect((string)$response->getBody())->toBe('<h1>Symbolic</h1>');
+});
+
+
 test('Text Renderer', function () {
     $renderer = new TextRenderer(new ResponseFactory($this->registry()), []);
-    $response = $renderer->response('<h1>Symbolic</h1>');
+    $response = $renderer->response('Symbolic');
 
     $hasContentType = false;
     foreach ($response->headers() as $key => $value) {
@@ -76,5 +93,5 @@ test('Text Renderer', function () {
     }
 
     expect($hasContentType)->toBe(true);
-    expect((string)$response->getBody())->toBe('<h1>Symbolic</h1>');
+    expect((string)$response->getBody())->toBe('Symbolic');
 });

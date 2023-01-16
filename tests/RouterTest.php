@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Exception\HttpMethodNotAllowed;
 use Conia\Chuck\Exception\HttpNotFound;
-use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Group;
 use Conia\Chuck\Renderer\Render;
@@ -204,7 +203,7 @@ test('Dispatch nonexistent controller view', function () {
     $router->addRoute($index);
 
     $router->dispatch($this->request(method: 'GET', url: '/'), $this->registry());
-})->throws(HttpServerError::class);
+})->throws(RuntimeException::class, 'View method not found');
 
 
 test('Dispatch nonexistent controller', function () {
@@ -213,7 +212,7 @@ test('Dispatch nonexistent controller', function () {
     $router->addRoute($index);
 
     $router->dispatch($this->request(method: 'GET', url: '/'), $this->registry());
-})->throws(HttpServerError::class);
+})->throws(RuntimeException::class, 'Controller not found');
 
 
 test('Dispatch wrong view return type', function () {
