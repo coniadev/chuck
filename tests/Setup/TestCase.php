@@ -37,7 +37,12 @@ class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        $_SERVER['HTTP_ACCEPT'] = 'text/html,application/xhtml+xml,text/plain';
+        $_SERVER['HTTP_ACCEPT_ENCODING'] = 'gzip, deflate, br';
+        $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en-US,de;q=0.7,en;q=0.3';
         $_SERVER['HTTP_HOST'] = 'www.example.com';
+        $_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) ' .
+            'Gecko/20100101 Firefox/108.0';
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/';
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
@@ -46,16 +51,20 @@ class TestCase extends BaseTestCase
     protected function tearDown(): void
     {
         unset(
+            $_SERVER['CONTENT_TYPE'],
+            $_SERVER['HTTPS'],
+            $_SERVER['HTTP_ACCEPT'],
+            $_SERVER['HTTP_ACCEPT_ENCODING'],
+            $_SERVER['HTTP_ACCEPT_LANGUAGE'],
             $_SERVER['HTTP_HOST'],
+            $_SERVER['HTTP_USER_AGENT'],
+            $_SERVER['HTTP_X_FORWARDED_PROTO'],
+            $_SERVER['QUERY_STRING'],
             $_SERVER['REQUEST_METHOD'],
+            $_SERVER['REQUEST_SCHEME'],
             $_SERVER['REQUEST_URI'],
             $_SERVER['SERVER_PROTOCOL'],
-            $_SERVER['CONTENT_TYPE'],
-            $_SERVER['QUERY_STRING'],
             $_SERVER['argv'],
-            $_SERVER['HTTPS'],
-            $_SERVER['HTTP_X_FORWARDED_PROTO'],
-            $_SERVER['REQUEST_SCHEME']
         );
 
         global $_GET;
@@ -110,11 +119,6 @@ class TestCase extends BaseTestCase
         } else {
             $_SERVER['REQUEST_URI'] = "/{$url}";
         }
-    }
-
-    public function setHost(string $host): void
-    {
-        $_SERVER['HTTP_HOST'] = $host;
     }
 
     public function setQueryString(string $qs): void

@@ -91,6 +91,16 @@ class Request
         return $this->returnOrFail($params, $key, $default, $error, func_num_args());
     }
 
+    public function header(string $name): string
+    {
+        return $this->psr->getHeaderLine($name);
+    }
+
+    public function accept(): array
+    {
+        return explode(',', $this->getHeaderLine('Accept'));
+    }
+
     public function attributes(): array
     {
         return $this->psr->getAttributes();

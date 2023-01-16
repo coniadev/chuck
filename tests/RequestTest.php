@@ -46,6 +46,25 @@ test('Request::param', function () {
 });
 
 
+test('Request::header', function () {
+    $request = $this->request();
+
+    expect($request->header('Accept-Encoding'))->toBe('gzip, deflate, br');
+    expect($request->header('Does-Not-Exist'))->toBe('');
+});
+
+
+test('Request::accept', function () {
+    $request = $this->request();
+
+    expect($request->accept())->toBe([
+        'text/html',
+        'application/xhtml+xml',
+        'text/plain',
+    ]);
+});
+
+
 test('Request::param default', function () {
     $request = $this->request();
 
