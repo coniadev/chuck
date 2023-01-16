@@ -79,6 +79,15 @@ test('Json response', function () {
 });
 
 
+test('Json response traversable', function () {
+    $factory = new ResponseFactory($this->registry());
+    $response = $factory->json(_testJsonRendererIterator());
+
+    expect((string)$response->getBody())->toBe('[13,31,73]');
+    expect($response->getHeader('Content-Type')[0])->toBe('application/json');
+});
+
+
 test('File response', function () {
     $file = C::root() . C::DS . 'public' . C::DS . 'assets' . C::DS . 'image.jpg';
     $factory = new ResponseFactory($this->registry());

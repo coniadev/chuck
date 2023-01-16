@@ -21,6 +21,25 @@ test('JSON Renderer :: render()', function () {
 });
 
 
+test('JSON Renderer :: render() iterator', function () {
+    $renderer = new JsonRenderer(new ResponseFactory($this->registry()), []);
+
+    expect($renderer->render(_testJsonRendererIterator()))->toBe('[13,31,73]');
+});
+
+
+test('JSON Renderer :: render() with flags', function () {
+    $renderer = new JsonRenderer(new ResponseFactory($this->registry()), []);
+
+    expect($renderer->render([
+        'path' => 'album/leprosy',
+    ]))->toBe('{"path":"album/leprosy"}');
+    expect($renderer->render([
+        'path' => 'album/leprosy',
+    ], JSON_THROW_ON_ERROR))->toBe('{"path":"album\/leprosy"}');
+});
+
+
 test('JSON Renderer :: response()', function () {
     $renderer = new JsonRenderer(new ResponseFactory($this->registry()), []);
 

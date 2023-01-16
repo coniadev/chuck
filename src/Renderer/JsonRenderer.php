@@ -18,7 +18,8 @@ class JsonRenderer implements Renderer
     {
         $flags = JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR;
 
-        if (count($args) > 1) {
+        if (count($args) > 0) {
+            /** @var mixed */
             $arg = $args[array_key_first($args)];
 
             if (is_int($arg)) {
@@ -35,6 +36,10 @@ class JsonRenderer implements Renderer
 
     public function response(mixed $data, mixed ...$args): Response
     {
-        return $this->response->json($data);
+        $response = $this->response->create();
+        $response->header('Content-Type', 'application/json');
+        $response->body($this->render($data, ...$args));
+
+        return $response;
     }
 }
