@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Tests\Fixtures;
 
-use Conia\Chuck\Registry;
+use Conia\Chuck\Psr\Factory;
 use Conia\Chuck\Renderer\Render;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
@@ -29,17 +29,17 @@ class TestController
         return ['success' => true];
     }
 
-    public function middlewareView(Registry $registry): Response
+    public function middlewareView(Factory $factory): Response
     {
-        return (new ResponseFactory($registry))->html(' view');
+        return (new ResponseFactory($factory))->html(' view');
     }
 
     #[Render('text'), TestMiddleware1]
-    public function attributedMiddlewareView(Registry $registry): Response
+    public function attributedMiddlewareView(Factory $factory): Response
     {
         $s = ' attribute-string';
 
-        return (new ResponseFactory($registry))->html($s);
+        return (new ResponseFactory($factory))->html($s);
     }
 
     public function routeParams(string $string, float $float, Request $request, int $int): array

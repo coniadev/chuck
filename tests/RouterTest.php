@@ -135,7 +135,7 @@ test('Dispatch closure', function () {
     $index = new Route(
         '/',
         function () use ($self) {
-            return (new ResponseFactory($self->registry()))->html('Chuck', 200);
+            return (new ResponseFactory($self->factory()))->html('Chuck', 200);
         }
     );
     $router->addRoute($index);
@@ -159,7 +159,7 @@ test('Dispatch class method returing an array with renderer', function () {
 
 test('Dispatch invokable class', function () {
     $router = new Router();
-    $object = new Route('/object', 'Conia\Chuck\Tests\Fixtures\TestInvocableClass');
+    $object = new Route('/object', 'Conia\Chuck\Tests\Fixtures\TestInvokableClass');
     $router->addRoute($object);
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/object'), $this->registry());

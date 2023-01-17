@@ -7,7 +7,6 @@ namespace Conia\Chuck;
 use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Psr\Factory;
-use Conia\Chuck\Registry;
 use Conia\Chuck\Response;
 use finfo;
 use Psr\Http\Message\ResponseInterface as PsrResponse;
@@ -16,7 +15,7 @@ use Traversable;
 
 class ResponseFactory
 {
-    public function __construct(protected Registry $registry)
+    public function __construct(protected Factory $factory)
     {
     }
 
@@ -27,7 +26,7 @@ class ResponseFactory
         int $code = 200,
         string $reasonPhrase = '',
     ): Response {
-        return new Response($this->createPsrResponse($code, $reasonPhrase), $this->createHttpFactory());
+        return new Response($this->createPsrResponse($code, $reasonPhrase), $this->factory);
     }
 
     /**
@@ -44,10 +43,10 @@ class ResponseFactory
         );
 
         if ($body) {
-            $psrResponse = $psrResponse->withBody($this->createHttp($body));
+            $psrResponse = $psrResponse->withBody($this->createStream($body));
         }
 
-        return new Response($psrResponse, $this->createHttpFactory());
+        return new Response($psrResponse, $this->factory);
     }
 
     /**
@@ -64,10 +63,10 @@ class ResponseFactory
         );
 
         if ($body) {
-            $psrResponse = $psrResponse->withBody($this->createHttp($body));
+            $psrResponse = $psrResponse->withBody($this->createStream($body));
         }
 
-        return new Response($psrResponse, $this->createHttpFactory());
+        return new Response($psrResponse, $this->factory);
     }
 
     public function json(
@@ -87,9 +86,9 @@ class ResponseFactory
             $data = json_encode($data, $flags);
         }
 
-        $psrResponse = $psrResponse->withBody($this->createHttp($data));
+        $psrResponse = $psrResponse->withBody($this->createStream($data));
 
-        return new Response($psrResponse, $this->createHttpFactory());
+        return new Response($psrResponse, $this->factory);
     }
 
     public function file(
@@ -109,14 +108,14 @@ class ResponseFactory
             ->withAddedHeader('Content-Type', $contentType)
             ->withAddedHeader('Content-Transfer-Encoding', $encoding);
 
-        $stream = $this->createHttpFactory()->streamFromFile($file, 'rb');
+        $stream = $this->factory->streamFromFile($file, 'rb');
         $size = $stream->getSize();
 
         if (!is_null($size)) {
             $psrResponse = $psrResponse->withAddedHeader('Content-Length', (string)$size);
         }
 
-        return new Response($psrResponse->withBody($stream), $this->createHttpFactory());
+        return new Response($psrResponse->withBody($stream), $this->factory);
     }
 
     public function download(
@@ -151,31 +150,22 @@ class ResponseFactory
             $psrResponse = $psrResponse->withAddedHeader('X-Sendfile', $file);
         }
 
-        return new Response($psrResponse, $this->createHttpFactory());
+        return new Response($psrResponse, $this->factory);
     }
 
     protected function createPsrResponse(
         int $code = 200,
         string $reasonPhrase = ''
     ): PsrResponse {
-        $response = $this->createHttpFactory()->response($code, $reasonPhrase);
+        $response = $this->factory->response($code, $reasonPhrase);
         assert($response instanceof PsrResponse);
 
         return $response;
     }
 
-    protected function createHttpFactory(): Factory
+    protected function createStream(mixed $body): PsrStream
     {
-        $factory = $this->registry->get(Factory::class);
-        assert($factory instanceof Factory);
-
-        return $factory;
-    }
-
-    protected function createHttp(mixed $body): PsrStream
-    {
-        $factory = $this->createHttpFactory();
-        $stream = $factory->stream($body);
+        $stream = $this->factory->stream($body);
         assert($stream instanceof PsrStream);
 
         return $stream;

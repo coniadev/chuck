@@ -51,7 +51,7 @@ test('Middleware flow with attribute', function () {
 test('Early response', function () {
     $app = App::create($this->config());
     $app->route('/', 'Conia\Chuck\Tests\Fixtures\TestController::middlewareView');
-    $app->middleware(new TestMiddlewareEarlyResponse('immediate response', $this->registry()));
+    $app->middleware(new TestMiddlewareEarlyResponse('immediate response', $this->factory()));
     $app->middleware(new TestMiddlewareObject(' second'));
 
     ob_start();

@@ -11,7 +11,7 @@ uses(TestCase::class);
 
 
 test('SapiEmitter', function () {
-    $factory = new ResponseFactory($this->registry());
+    $factory = new ResponseFactory($this->factory());
     $response = $factory->json([1, 2, 3]);
 
     $emitter = new Emitter();
@@ -26,7 +26,7 @@ test('SapiEmitter', function () {
 
 test('SapiStreamEmitter', function () {
     $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.gif';
-    $factory = new ResponseFactory($this->registry());
+    $factory = new ResponseFactory($this->factory());
     $response = $factory->download($file);
 
     $emitter = new Emitter();
