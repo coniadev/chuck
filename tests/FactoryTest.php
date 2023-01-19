@@ -28,7 +28,7 @@ test('Nyholm', function () {
     $stream = $factory->stream(fopen('php://temp', 'r+'));
     expect($stream)->toBeInstanceOf(\Nyholm\Psr7\Stream::class);
 
-    $stream = $factory->streamFromFile(__DIR__ . '/Fixtures/public/assets/image.webp');
+    $stream = $factory->streamFromFile(__DIR__ . '/Fixtures/public/static/image.webp');
     expect($stream)->toBeInstanceOf(\Nyholm\Psr7\Stream::class);
 });
 
@@ -75,7 +75,7 @@ test('Guzzle', function () {
     $stream = $factory->stream(fopen('php://temp', 'r+'));
     expect($stream)->toBeInstanceOf(\GuzzleHttp\Psr7\Stream::class);
 
-    $stream = $factory->streamFromFile(__DIR__ . '/Fixtures/public/assets/image.webp');
+    $stream = $factory->streamFromFile(__DIR__ . '/Fixtures/public/static/image.webp');
     expect($stream)->toBeInstanceOf(\GuzzleHttp\Psr7\Stream::class);
 });
 
@@ -122,7 +122,7 @@ test('Laminas', function () {
     $stream = $factory->stream(fopen('php://temp', 'r+'));
     expect($stream)->toBeInstanceOf(\Laminas\Diactoros\Stream::class);
 
-    $stream = $factory->streamFromFile(__DIR__ . '/Fixtures/public/assets/image.webp');
+    $stream = $factory->streamFromFile(__DIR__ . '/Fixtures/public/static/image.webp');
     expect($stream)->toBeInstanceOf(\Laminas\Diactoros\Stream::class);
 });
 
