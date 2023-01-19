@@ -25,7 +25,7 @@ test('SapiEmitter', function () {
 
 
 test('SapiStreamEmitter', function () {
-    $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.gif';
+    $file = C::root() . '/public/static/pixel.gif';
     $factory = new ResponseFactory($this->factory());
     $response = $factory->download($file);
 

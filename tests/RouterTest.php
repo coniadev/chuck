@@ -81,7 +81,7 @@ test('Fail to generate route url', function () {
 
 test('Static routes: unnamed', function () {
     $router = new Router();
-    $router->addStatic('/static', C::root() . C::DS . 'public' . C::DS . 'static');
+    $router->addStatic('/static', C::root() . '/public/static');
 
     expect($router->staticUrl('/static', 'test.json'))->toBe('/static/test.json');
     expect($router->staticUrl('/static', 'test.json', true))->toMatch('/\?v=[a-f0-9]{8}$/');
@@ -104,28 +104,28 @@ test('Static routes: unnamed', function () {
 
 test('Static routes: named', function () {
     $router = new Router();
-    $router->addStatic('/static', C::root() . C::DS . 'public' . C::DS . 'static', 'staticroute');
+    $router->addStatic('/static', C::root() . '/public/static', 'staticroute');
 
     expect($router->staticUrl('staticroute', 'test.json'))->toBe('/static/test.json');
 });
 
 
 test('Static routes to nonexistent directory', function () {
-    (new Router())->addStatic('/static', C::root() . C::DS . 'fantasy' . C::DS . 'dir');
+    (new Router())->addStatic('/static', C::root() . '/fantasy/dir');
 })->throws(RuntimeException::class, 'does not exist');
 
 
 test('Static route duplicate named', function () {
     $router = new Router();
-    $router->addStatic('/static', C::root() . C::DS . 'public' . C::DS . 'static', 'static');
-    $router->addStatic('/anotherstatic', C::root() . C::DS . 'public' . C::DS . 'static', 'static');
+    $router->addStatic('/static', C::root() . '/public/static', 'static');
+    $router->addStatic('/anotherstatic', C::root() . '/public/static', 'static');
 })->throws(RuntimeException::class, 'Duplicate static route: static');
 
 
 test('Static route duplicate unnamed', function () {
     $router = new Router();
-    $router->addStatic('/static', C::root() . C::DS . 'public' . C::DS . 'static');
-    $router->addStatic('/static', C::root() . C::DS . 'public' . C::DS . 'static');
+    $router->addStatic('/static', C::root() . '/public/static');
+    $router->addStatic('/static', C::root() . '/public/static');
 })->throws(RuntimeException::class, 'Duplicate static route: /static');
 
 

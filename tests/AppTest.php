@@ -71,8 +71,8 @@ test('Middleware helper', function () {
 
 test('Static route helper', function () {
     $app = App::create();
-    $app->staticRoute('/static', C::root() . C::DS . 'public' . C::DS . 'static', 'static');
-    $app->staticRoute('/unnamedstatic', C::root() . C::DS . 'public' . C::DS . 'static');
+    $app->staticRoute('/static', C::root() . '/public/static', 'static');
+    $app->staticRoute('/unnamedstatic', C::root() . '/public/static');
 
     expect($app->router()->staticUrl('static', 'test.json'))->toBe('/static/test.json');
     expect($app->router()->staticUrl('/unnamedstatic', 'test.json'))->toBe('/unnamedstatic/test.json');
@@ -236,7 +236,7 @@ test('Add error renderer', function () {
 test('Add logger', function () {
     $app = $this->app();
     $app->Logger(function (): PsrLogger {
-        $logfile = C::root() . C::DS . 'log' . C::DS . bin2hex(random_bytes(4)) . '.log';
+        $logfile = C::root() . '/log/' . bin2hex(random_bytes(4)) . '.log';
 
         return new Logger(Logger::DEBUG, $logfile);
     });

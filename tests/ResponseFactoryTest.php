@@ -89,7 +89,7 @@ test('Json response traversable', function () {
 
 
 test('File response', function () {
-    $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'image.jpg';
+    $file = C::root() . '/public/static/image.jpg';
     $factory = new ResponseFactory($this->factory());
     $response = $factory->file($file);
 
@@ -99,7 +99,7 @@ test('File response', function () {
 
 
 test('File download response', function () {
-    $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'image.jpg';
+    $file = C::root() . '/public/static/image.jpg';
     $factory = new ResponseFactory($this->factory());
     $response = $factory->download($file);
 
@@ -112,7 +112,7 @@ test('File download response', function () {
 
 
 test('File download response with changed name', function () {
-    $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'image.jpg';
+    $file = C::root() . '/public/static/image.jpg';
     $factory = new ResponseFactory($this->factory());
     $response = $factory->download($file, 'newname.jpg');
 
@@ -127,7 +127,7 @@ test('File download response with changed name', function () {
 test('Sendfile response', function () {
     $_SERVER['SERVER_SOFTWARE'] = 'nginx';
 
-    $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'image.jpg';
+    $file = C::root() . '/public/static/image.jpg';
     $response = (new ResponseFactory($this->factory()))->sendfile($file);
 
     expect($response->getHeader('X-Accel-Redirect')[0])->toBe($file);
@@ -142,12 +142,12 @@ test('Sendfile response', function () {
 });
 
 test('File response nonexistent file', function () {
-    $file = C::root() . C::DS . 'static' . C::DS . 'pixel.jpg';
+    $file = C::root() . '/static/pixel.jpg';
     (new ResponseFactory($this->factory()))->file($file);
 })->throws(HttpNotFound::class);
 
 
 test('File response nonexistent file with runtime error', function () {
-    $file = C::root() . C::DS . 'public' . C::DS . 'static' . C::DS . 'pixel.jpg';
+    $file = C::root() . '/public/static/pixel.jpg';
     (new ResponseFactory($this->factory()))->file($file, throwNotFound: false);
 })->throws(RuntimeException::class, 'File not found');

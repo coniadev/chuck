@@ -6,8 +6,6 @@ namespace Conia\Chuck\Tests\Setup;
 
 class C
 {
-    public const DS = DIRECTORY_SEPARATOR;
-
     public static function root(): string
     {
         return dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Fixtures';
