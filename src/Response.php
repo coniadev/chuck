@@ -14,19 +14,15 @@ class Response
 {
     use WrapsMessage;
 
-    protected ?Factory $factory = null;
-
-    public function __construct(
+    final public function __construct(
         protected PsrResponse $psr,
-        PsrStream|Factory|null $streamOrFactory = null,
+        protected readonly Factory|null $factory = null,
     ) {
-        if ($streamOrFactory) {
-            if ($streamOrFactory instanceof Factory) {
-                $this->factory = $streamOrFactory;
-            } else {
-                $this->psr = $psr->withBody($streamOrFactory);
-            }
-        }
+    }
+
+    public static function fromFactory(Factory $factory): self
+    {
+        return new self($factory->response(), $factory);
     }
 
     public function psr(): PsrResponse

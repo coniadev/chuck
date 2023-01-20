@@ -66,22 +66,6 @@ test('Create with string body', function () {
 });
 
 
-test('Create with resource body', function () {
-    $fh = fopen('php://temp', 'r+');
-    fwrite($fh, 'Chuck resource');
-    $response = new Response($this->psrResponse(), $this->factory()->stream($fh));
-
-    expect((string)$response->getBody())->toBe('Chuck resource');
-});
-
-
-test('Create with text body', function () {
-    $stream = $this->factory()->stream('Chuck text');
-    $response = new Response($this->psrResponse(), $stream);
-    expect((string)$response->getBody())->toBe('Chuck text');
-});
-
-
 test('Set body', function () {
     $stream = $this->factory()->stream('Chuck text');
     $response = new Response($this->psrResponse());

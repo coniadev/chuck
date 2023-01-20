@@ -26,7 +26,6 @@ use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
 use Psr\Http\Server\MiddlewareInterface as PsrMiddleware;
 use Psr\Log\LoggerInterface as PsrLogger;
 
-/** @psalm-consistent-constructor */
 class App implements RouteAdder
 {
     use AddsRoutes;
@@ -40,7 +39,7 @@ class App implements RouteAdder
         self::initializeRegistry($registry, $config, $router);
     }
 
-    public static function create(?Config $config = null, ?PsrContainer $container = null): static
+    public static function create(?Config $config = null, ?PsrContainer $container = null): self
     {
         if (!$config) {
             $config = new Config('chuck', debug: false);
@@ -52,7 +51,7 @@ class App implements RouteAdder
         // The error handler should be the first middleware
         $router->middleware($errorHandler);
 
-        return new static($config, $router, $registry, $errorHandler);
+        return new self($config, $router, $registry, $errorHandler);
     }
 
     public function router(): Router
@@ -181,12 +180,7 @@ class App implements RouteAdder
         $registry->add($router::class, $router);
 
         $registry->add(Factory::class, \Conia\Chuck\Psr\Nyholm::class);
-        $registry->add(Response::class, function (Registry $registry): Response {
-            $factory = $registry->get(Factory::class);
-            assert($factory instanceof Factory);
-
-            return new Response($factory->response(), $factory);
-        });
+        $registry->add(Response::class)->constructor('fromFactory');
 
         // Add default renderers
         $rendererTag = $registry->tag(Renderer::class);
