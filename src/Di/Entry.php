@@ -14,6 +14,7 @@ class Entry
 {
     /** @psalm-var null|Args */
     protected array|Closure|null $args = null;
+    protected ?string $constructor = null;
     protected bool $asIs = false;
     protected bool $reify;
     protected mixed $instance = null;
@@ -31,26 +32,16 @@ class Entry
         $this->reify = $this->negotiateReify($definition);
     }
 
-    public function shouldReify(): bool
-    {
-        return $this->reify;
-    }
-
-    public function shouldReturnAsIs(): bool
-    {
-        return $this->asIs;
-    }
-
-    public function getArgs(): array|Closure|null
-    {
-        return $this->args;
-    }
-
     public function reify(bool $reify = true): static
     {
         $this->reify = $reify;
 
         return $this;
+    }
+
+    public function shouldReify(): bool
+    {
+        return $this->reify;
     }
 
     public function asIs(bool $asIs = true): static
@@ -63,6 +54,11 @@ class Entry
         $this->asIs = $asIs;
 
         return $this;
+    }
+
+    public function shouldReturnAsIs(): bool
+    {
+        return $this->asIs;
     }
 
     public function args(mixed ...$args): static
@@ -96,11 +92,34 @@ class Entry
         return $this;
     }
 
+    public function getArgs(): array|Closure|null
+    {
+        return $this->args;
+    }
+
+    public function constructor(string $methodName): static
+    {
+        $this->constructor = $methodName;
+
+        return $this;
+    }
+
+    public function getConstructor(): ?string
+    {
+        return $this->constructor;
+    }
+
     public function call(string $method, mixed ...$args): static
     {
         $this->calls[] = new Call($method, ...$args);
 
         return $this;
+    }
+
+    /** @psalm-return list<Call> */
+    public function getCalls(): array
+    {
+        return $this->calls;
     }
 
     public function definition(): mixed
