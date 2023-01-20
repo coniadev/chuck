@@ -123,15 +123,13 @@ class Entry
         $this->instance = $instance;
     }
 
-    /** @psalm-return list<Call> */
-    public function getCalls(): array
-    {
-        return $this->calls;
-    }
-
     protected function negotiateReify(mixed $definition): bool
     {
         if (is_string($definition)) {
+            if (is_callable($definition)) {
+                return true;
+            }
+
             if (!class_exists($definition)) {
                 return false;
             }
