@@ -22,6 +22,7 @@ use Conia\Chuck\Renderer\TextRenderer;
 use Conia\Chuck\Routing\AddsRoutes;
 use Conia\Chuck\Routing\RouteAdder;
 use Psr\Container\ContainerInterface as PsrContainer;
+use Psr\Http\Message\ResponseInterface as PsrResponse;
 use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
 use Psr\Http\Server\MiddlewareInterface as PsrMiddleware;
 use Psr\Log\LoggerInterface as PsrLogger;
@@ -151,7 +152,7 @@ class App implements RouteAdder
         return $this->registry->add($key, $value);
     }
 
-    public function run(): Response
+    public function run(): PsrResponse
     {
         $factory = $this->registry->get(Factory::class);
         assert($factory instanceof Factory);
@@ -164,7 +165,7 @@ class App implements RouteAdder
 
         $response = $this->router->dispatch($request, $this->registry);
 
-        (new Emitter())->emit($response->psr());
+        (new Emitter())->emit($response);
 
         return $response;
     }

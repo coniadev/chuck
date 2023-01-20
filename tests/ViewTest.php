@@ -17,6 +17,7 @@ use Conia\Chuck\Tests\Fixtures\TestAttributeExt;
 use Conia\Chuck\Tests\Fixtures\TestAttributeViewAttr;
 use Conia\Chuck\Tests\Fixtures\TestController;
 use Conia\Chuck\Tests\Fixtures\TestRendererArgsOptions;
+use Conia\Chuck\Tests\Fixtures\TestResponse;
 use Conia\Chuck\Tests\Setup\TestCase;
 
 require __DIR__ . '/Setup/globalSymbols.php';
@@ -167,6 +168,23 @@ test('View response PSR Response', function () {
     $response = $view->respond($route, $this->registry());
 
     expect((string)$response->getBody())->toBe('Chuck PSR Response');
+    expect($response->headers()['Content-Type'][0])->toBe('text/plain');
+});
+
+
+test('View response ResponseWrapper', function () {
+    $route = new Route('/', function (Registry $registry) {
+        $factory = $registry->get(Factory::class);
+
+        return new TestResponse($factory->response()
+            ->withBody($factory->stream('Chuck ResponseWrapper'))
+            ->withHeader('Content-Type', 'text/plain'));
+    });
+    $route->match('/');
+    $view = new View($route->view(), $route->args(), $this->registry());
+    $response = $view->respond($route, $this->registry());
+
+    expect((string)$response->getBody())->toBe('Chuck ResponseWrapper');
     expect($response->headers()['Content-Type'][0])->toBe('text/plain');
 });
 

@@ -20,6 +20,7 @@ use Conia\Chuck\Tests\Fixtures\TestMiddleware1;
 use Conia\Chuck\Tests\Fixtures\TestRenderer;
 use Conia\Chuck\Tests\Setup\C;
 use Conia\Chuck\Tests\Setup\TestCase;
+use Psr\Http\Message\ResponseInterface as PsrResponse;
 
 uses(TestCase::class);
 
@@ -140,7 +141,7 @@ test('Dispatch closure', function () {
     $router->addRoute($index);
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/'), $this->registry());
-    expect($response)->toBeInstanceOf(Response::class);
+    expect($response)->toBeInstanceOf(PsrResponse::class);
     expect((string)$response->getBody())->toBe('Chuck');
 });
 
@@ -151,7 +152,7 @@ test('Dispatch class method returing an array with renderer', function () {
     $router->addRoute($route);
     $response = $router->dispatch($this->request(method: 'GET', url: '/text'), $this->registry());
 
-    expect($response)->toBeInstanceOf(Response::class);
+    expect($response)->toBeInstanceOf(PsrResponse::class);
     expect((string)$response->getBody())->toBe('{"success":true}');
 });
 
@@ -162,7 +163,7 @@ test('Dispatch invokable class', function () {
     $router->addRoute($object);
 
     $response = $router->dispatch($this->request(method: 'GET', url: '/object'), $this->registry());
-    expect($response)->toBeInstanceOf(Response::class);
+    expect($response)->toBeInstanceOf(PsrResponse::class);
     expect((string)$response->getBody())->toBe('Schuldiner');
 });
 

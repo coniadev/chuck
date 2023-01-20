@@ -67,7 +67,9 @@ class Dispatcher
 
     public function dispatch(
         Request $request,
-    ): Response {
-        return $this->handle($this->queue, $request);
+    ): PsrResponse {
+        $response = $this->handle($this->queue, $request);
+
+        return $response->psr();
     }
 }

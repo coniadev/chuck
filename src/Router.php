@@ -16,11 +16,11 @@ use Conia\Chuck\Http\ViewHandler;
 use Conia\Chuck\Middleware;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
-use Conia\Chuck\Response;
 use Conia\Chuck\Routing\AddsMiddleware;
 use Conia\Chuck\Routing\AddsRoutes;
 use Conia\Chuck\Routing\RouteAdder;
 use Conia\Chuck\Routing\StaticRoute;
+use Psr\Http\Message\ResponseInterface as PsrResponse;
 use Psr\Http\Server\MiddlewareInterface as PsrMiddleware;
 use Throwable;
 
@@ -204,7 +204,7 @@ class Router implements RouteAdder
     /**
      * Looks up the matching route and generates the response.
      */
-    public function dispatch(Request $request, Registry $registry): Response
+    public function dispatch(Request $request, Registry $registry): PsrResponse
     {
         $this->route = $this->match($request);
 

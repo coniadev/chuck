@@ -14,6 +14,7 @@ use Conia\Chuck\Renderer\Config as RendererConfig;
 use Conia\Chuck\Renderer\Render;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Response;
+use Conia\Chuck\ResponseWrapper;
 use Conia\Chuck\Route;
 use Psr\Http\Message\ResponseInterface as PsrResponse;
 use ReflectionAttribute;
@@ -64,11 +65,12 @@ class View
             return $result;
         }
 
-        if ($result instanceof PsrResponse) {
-            $factory = $registry->get(Factory::class);
-            assert($factory instanceof Factory);
+        if ($result instanceof ResponseWrapper) {
+            return new Response($result->psr(), $this->getFactory());
+        }
 
-            return new Response($result, $factory);
+        if ($result instanceof PsrResponse) {
+            return new Response($result, $this->getFactory());
         }
 
         $renderAttributes = $this->attributes(Render::class);
@@ -121,6 +123,14 @@ class View
         }
 
         return $this->attributes;
+    }
+
+    protected function getFactory(): Factory
+    {
+        $factory = $this->registry->get(Factory::class);
+        assert($factory instanceof Factory);
+
+        return $factory;
     }
 
     protected function newAttributeInstance(ReflectionAttribute $attribute): object

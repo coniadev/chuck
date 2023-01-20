@@ -13,7 +13,7 @@ use Psr\Http\Message\ResponseInterface as PsrResponse;
 use Psr\Http\Message\StreamInterface as PsrStream;
 use Traversable;
 
-class Response
+class Response implements ResponseWrapper
 {
     use WrapsMessage;
 

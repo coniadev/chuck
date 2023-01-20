@@ -49,7 +49,7 @@ test('Nyholm app run', function () {
     ob_end_clean();
 
     expect($output)->toBe('text');
-    expect($response->psr())->toBeInstanceOf(\Nyholm\Psr7\Response::class);
+    expect($response)->toBeInstanceOf(\Nyholm\Psr7\Response::class);
 
     $request1 = $registry->get(PsrServerRequest::class);
     expect($request1)->toBeInstanceOf(PsrServerRequest::class);
@@ -96,7 +96,7 @@ test('Guzzle app run', function () {
     ob_end_clean();
 
     expect($output)->toBe('text');
-    expect($response->psr())->toBeInstanceOf(\GuzzleHttp\Psr7\Response::class);
+    expect($response)->toBeInstanceOf(\GuzzleHttp\Psr7\Response::class);
 
     $request1 = $registry->get(PsrServerRequest::class);
     expect($request1)->toBeInstanceOf(PsrServerRequest::class);
@@ -143,7 +143,7 @@ test('Laminas app run', function () {
     ob_end_clean();
 
     expect($output)->toBe('text');
-    expect($response->psr())->toBeInstanceOf(\Laminas\Diactoros\Response::class);
+    expect($response)->toBeInstanceOf(\Laminas\Diactoros\Response::class);
 
     $request1 = $registry->get(PsrServerRequest::class);
     expect($request1)->toBeInstanceOf(PsrServerRequest::class);
