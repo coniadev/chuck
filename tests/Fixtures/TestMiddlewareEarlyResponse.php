@@ -7,7 +7,6 @@ namespace Conia\Chuck\Tests\Fixtures;
 use Conia\Chuck\Psr\Factory;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
-use Conia\Chuck\ResponseFactory;
 
 class TestMiddlewareEarlyResponse
 {
@@ -17,6 +16,6 @@ class TestMiddlewareEarlyResponse
 
     public function __invoke(Request $request, callable $_): Response
     {
-        return (new ResponseFactory($this->factory))->html($this->text);
+        return Response::fromFactory($this->factory)->html($this->text);
     }
 }

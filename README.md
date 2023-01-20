@@ -41,10 +41,10 @@ Supported PSRs:
     $app = App::create(new Config('chuck'));
     $app->route('/', '\Namespace\Controller::index');
     $app->get('/user/{name}', (string $name) => "Hello, $name"));
-    $app->post('/users', function (Request $request): Response {
+    $app->post('/users', function (Request $request, Response $response): Response {
         Users::create($request->json());
 
-        return (new ResponseFactory())->json(['success' => true]);
+        return $response->json(['success' => true]);
     });
     $app->run();
 ```

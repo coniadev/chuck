@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Conia\Chuck\Renderer;
 
 use Conia\Chuck\Error\Error;
+use Conia\Chuck\Psr\Factory;
 use Conia\Chuck\Response;
-use Conia\Chuck\ResponseFactory;
 
 class HtmlErrorRenderer implements Renderer
 {
-    public function __construct(protected ResponseFactory $response)
+    public function __construct(protected Factory $factory)
     {
     }
 
@@ -53,6 +53,6 @@ class HtmlErrorRenderer implements Renderer
 
     public function response(mixed $data, mixed ...$args): Response
     {
-        return $this->response->html($this->render($data));
+        return Response::fromFactory($this->factory)->html($this->render($data));
     }
 }

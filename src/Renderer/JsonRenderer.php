@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Renderer;
 
+use Conia\Chuck\Psr\Factory;
 use Conia\Chuck\Response;
-use Conia\Chuck\ResponseFactory;
 use Traversable;
 
 class JsonRenderer implements Renderer
 {
-    public function __construct(protected ResponseFactory $response)
+    public function __construct(protected Factory $factory)
     {
     }
 
@@ -36,7 +36,7 @@ class JsonRenderer implements Renderer
 
     public function response(mixed $data, mixed ...$args): Response
     {
-        $response = $this->response->create();
+        $response = Response::fromFactory($this->factory);
         $response->header('Content-Type', 'application/json');
         $response->body($this->render($data, ...$args));
 

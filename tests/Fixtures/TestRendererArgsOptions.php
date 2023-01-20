@@ -6,12 +6,11 @@ namespace Conia\Chuck\Tests\Fixtures;
 
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Response;
-use Conia\Chuck\ResponseFactory;
 
 class TestRendererArgsOptions implements Renderer
 {
     public function __construct(
-        protected ResponseFactory $response,
+        protected Response $response,
         protected int $option1,
         protected string $option2,
     ) {

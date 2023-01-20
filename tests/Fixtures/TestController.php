@@ -8,7 +8,6 @@ use Conia\Chuck\Psr\Factory;
 use Conia\Chuck\Renderer\Render;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
-use Conia\Chuck\ResponseFactory;
 
 class TestController
 {
@@ -31,7 +30,7 @@ class TestController
 
     public function middlewareView(Factory $factory): Response
     {
-        return (new ResponseFactory($factory))->html(' view');
+        return Response::fromFactory($factory)->html(' view');
     }
 
     #[Render('text'), TestMiddleware1]
@@ -39,7 +38,7 @@ class TestController
     {
         $s = ' attribute-string';
 
-        return (new ResponseFactory($factory))->html($s);
+        return Response::fromFactory($factory)->html($s);
     }
 
     public function routeParams(string $string, float $float, Request $request, int $int): array

@@ -11,7 +11,6 @@ use Conia\Chuck\Renderer\Render;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
-use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Route;
 use Conia\Chuck\Router;
 use Conia\Chuck\Tests\Fixtures\TestController;
@@ -135,7 +134,7 @@ test('Dispatch closure', function () {
     $index = new Route(
         '/',
         function () use ($self) {
-            return (new ResponseFactory($self->factory()))->html('Chuck', 200);
+            return Response::fromFactory($self->factory())->html('Chuck', 200);
         }
     );
     $router->addRoute($index);

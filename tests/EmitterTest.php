@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Conia\Chuck\Http\Emitter;
-use Conia\Chuck\ResponseFactory;
+use Conia\Chuck\Response;
 use Conia\Chuck\Tests\Setup\C;
 use Conia\Chuck\Tests\Setup\TestCase;
 
@@ -11,7 +11,7 @@ uses(TestCase::class);
 
 
 test('SapiEmitter', function () {
-    $factory = new ResponseFactory($this->factory());
+    $factory = Response::fromFactory($this->factory());
     $response = $factory->json([1, 2, 3]);
 
     $emitter = new Emitter();
@@ -26,7 +26,7 @@ test('SapiEmitter', function () {
 
 test('SapiStreamEmitter', function () {
     $file = C::root() . '/public/static/pixel.gif';
-    $factory = new ResponseFactory($this->factory());
+    $factory = Response::fromFactory($this->factory());
     $response = $factory->download($file);
 
     $emitter = new Emitter();

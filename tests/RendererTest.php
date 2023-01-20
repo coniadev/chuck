@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Conia\Chuck\Renderer\HtmlRenderer;
 use Conia\Chuck\Renderer\JsonRenderer;
 use Conia\Chuck\Renderer\TextRenderer;
-use Conia\Chuck\ResponseFactory;
 use Conia\Chuck\Tests\Setup\TestCase;
 
 require __DIR__ . '/Setup/globalSymbols.php';
@@ -13,7 +12,7 @@ require __DIR__ . '/Setup/globalSymbols.php';
 uses(TestCase::class);
 
 test('JSON Renderer :: render()', function () {
-    $renderer = new JsonRenderer(new ResponseFactory($this->factory()), []);
+    $renderer = new JsonRenderer($this->factory(), []);
 
     expect($renderer->render([
         'album' => 'Spiritual Healing',
@@ -23,14 +22,14 @@ test('JSON Renderer :: render()', function () {
 
 
 test('JSON Renderer :: render() iterator', function () {
-    $renderer = new JsonRenderer(new ResponseFactory($this->factory()), []);
+    $renderer = new JsonRenderer($this->factory(), []);
 
     expect($renderer->render(_testJsonRendererIterator()))->toBe('[13,31,73]');
 });
 
 
 test('JSON Renderer :: render() with flags', function () {
-    $renderer = new JsonRenderer(new ResponseFactory($this->factory()), []);
+    $renderer = new JsonRenderer($this->factory(), []);
 
     expect($renderer->render([
         'path' => 'album/leprosy',
@@ -42,14 +41,14 @@ test('JSON Renderer :: render() with flags', function () {
 
 
 test('JSON Renderer :: response()', function () {
-    $renderer = new JsonRenderer(new ResponseFactory($this->factory()), []);
+    $renderer = new JsonRenderer($this->factory(), []);
 
     expect((string)$renderer->response([
         'album' => 'Spiritual Healing',
         'released' => 1990,
     ])->getBody())->toBe('{"album":"Spiritual Healing","released":1990}');
 
-    $renderer = new JsonRenderer(new ResponseFactory($this->factory()), []);
+    $renderer = new JsonRenderer($this->factory(), []);
 
     $response = $renderer->response(_testJsonRendererIterator());
     expect((string)$response->getBody())->toBe('[13,31,73]');
@@ -66,7 +65,7 @@ test('JSON Renderer :: response()', function () {
 
 
 test('Html Renderer', function () {
-    $renderer = new HtmlRenderer(new ResponseFactory($this->factory()), []);
+    $renderer = new HtmlRenderer($this->factory(), []);
     $response = $renderer->response('<h1>Symbolic</h1>');
 
     $hasContentType = false;
@@ -82,7 +81,7 @@ test('Html Renderer', function () {
 
 
 test('Text Renderer', function () {
-    $renderer = new TextRenderer(new ResponseFactory($this->factory()), []);
+    $renderer = new TextRenderer($this->factory(), []);
     $response = $renderer->response('Symbolic');
 
     $hasContentType = false;
