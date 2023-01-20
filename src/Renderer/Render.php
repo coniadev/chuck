@@ -7,7 +7,7 @@ namespace Conia\Chuck\Renderer;
 use Attribute;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Renderer\Renderer;
-use Conia\Chuck\Response;
+use Conia\Chuck\ResponseWrapper;
 
 #[Attribute]
 class Render
@@ -19,7 +19,7 @@ class Render
         $this->args = $args;
     }
 
-    public function response(Registry $registry, mixed $data): Response
+    public function response(Registry $registry, mixed $data): ResponseWrapper
     {
         $renderer = $registry->tag(Renderer::class)->get($this->renderer);
         assert($renderer instanceof Renderer);

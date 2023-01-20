@@ -31,7 +31,7 @@ class Dispatcher
      * Recursively calls the callables in the middleware/view handler queue
      * and then the view callable.
      */
-    public function handle(array $queue, Request $request): Response
+    public function handle(array $queue, Request $request): PsrResponse
     {
         /** @psalm-var non-empty-list<Middleware|PsrMiddleware|ViewHandler> $queue */
         $handler = $queue[0];
@@ -40,11 +40,11 @@ class Dispatcher
             return $handler(
                 $request,
                 function (Request $req) use ($queue): Response {
-                    return $this->handle(array_slice($queue, 1), $req);
+                    return new Response($this->handle(array_slice($queue, 1), $req), $this->factory);
                 }
-            );
+            )->psr();
         } elseif ($handler instanceof PsrMiddleware) {
-            return new Response($handler->process(
+            return $handler->process(
                 $request->psr(),
                 // Create an anonymous PSR-15 RequestHandler
                 new class ($this, array_slice($queue, 1)) implements PsrRequestHandler {
@@ -56,10 +56,10 @@ class Dispatcher
 
                     public function handle(PsrServerRequest $request): PsrResponse
                     {
-                        return $this->dispatcher->handle($this->queue, new Request($request))->psr();
+                        return $this->dispatcher->handle($this->queue, new Request($request));
                     }
                 }
-            ), $this->factory);
+            );
         }
 
         return $handler();
@@ -68,8 +68,6 @@ class Dispatcher
     public function dispatch(
         Request $request,
     ): PsrResponse {
-        $response = $this->handle($this->queue, $request);
-
-        return $response->psr();
+        return $this->handle($this->queue, $request);
     }
 }

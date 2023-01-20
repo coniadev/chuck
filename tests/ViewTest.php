@@ -138,7 +138,7 @@ test('Reflect function', function () {
 
 
 test('View response Response', function () {
-    $route = new Route('/', function (Registry $registry) {
+    $route = new Route('/', function (Registry $registry): Response {
         $factory = $registry->get(Factory::class);
         $response = new Response($factory->response(), $factory);
         $response->write('Chuck Response');
@@ -151,7 +151,7 @@ test('View response Response', function () {
     $response = $view->respond($route, $this->registry());
 
     expect((string)$response->getBody())->toBe('Chuck Response');
-    expect($response->headers()['Content-Type'][0])->toBe('text/plain');
+    expect($response->getHeaders()['Content-Type'][0])->toBe('text/plain');
 });
 
 
@@ -168,7 +168,7 @@ test('View response PSR Response', function () {
     $response = $view->respond($route, $this->registry());
 
     expect((string)$response->getBody())->toBe('Chuck PSR Response');
-    expect($response->headers()['Content-Type'][0])->toBe('text/plain');
+    expect($response->getHeaders()['Content-Type'][0])->toBe('text/plain');
 });
 
 
@@ -185,7 +185,7 @@ test('View response ResponseWrapper', function () {
     $response = $view->respond($route, $this->registry());
 
     expect((string)$response->getBody())->toBe('Chuck ResponseWrapper');
-    expect($response->headers()['Content-Type'][0])->toBe('text/plain');
+    expect($response->getHeaders()['Content-Type'][0])->toBe('text/plain');
 });
 
 
@@ -196,7 +196,7 @@ test('View response renderer', function () {
     $response = $view->respond($route, $this->registry());
 
     expect((string)$response->getBody())->toBe('{"name":"Chuck"}');
-    expect($response->headers()['Content-Type'][0])->toBe('application/json');
+    expect($response->getHeaders()['Content-Type'][0])->toBe('application/json');
 });
 
 
@@ -214,7 +214,7 @@ test('View response renderer with args and options', function () {
 
     expect((string)$response->getBody())
         ->toBe('{"name":"Chuck","arg1":"Arg","arg2":73,"option1":13,"option2":"Option"}');
-    expect($response->headers()['Content-Type'][0])->toBe('application/json');
+    expect($response->getHeaders()['Content-Type'][0])->toBe('application/json');
 });
 
 
@@ -231,5 +231,5 @@ test('View response renderer with options closure', function () {
     $response = $view->respond($route, $registry);
 
     expect((string)$response->getBody())->toBe('{"name":"Chuck","option1":13,"option2":"Option"}');
-    expect($response->headers()['Content-Type'][0])->toBe('application/json');
+    expect($response->getHeaders()['Content-Type'][0])->toBe('application/json');
 });

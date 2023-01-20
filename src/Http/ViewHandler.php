@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Conia\Chuck\Http;
 
 use Conia\Chuck\Registry;
-use Conia\Chuck\Response;
 use Conia\Chuck\Route;
+use Psr\Http\Message\ResponseInterface as PsrResponse;
 
 class ViewHandler
 {
@@ -17,7 +17,7 @@ class ViewHandler
     ) {
     }
 
-    public function __invoke(): Response
+    public function __invoke(): PsrResponse
     {
         return $this->view->respond(
             $this->route,

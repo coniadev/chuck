@@ -53,7 +53,7 @@ class View
     public function respond(
         Route $route,
         Registry $registry,
-    ): Response {
+    ): PsrResponse {
         /**
          * @psalm-suppress MixedAssignment
          *
@@ -61,16 +61,12 @@ class View
          */
         $result = $this->execute();
 
-        if ($result instanceof Response) {
-            return $result;
-        }
-
         if ($result instanceof ResponseWrapper) {
-            return new Response($result->psr(), $this->getFactory());
+            return $result->psr();
         }
 
         if ($result instanceof PsrResponse) {
-            return new Response($result, $this->getFactory());
+            return $result;
         }
 
         $renderAttributes = $this->attributes(Render::class);
@@ -78,7 +74,7 @@ class View
         if (count($renderAttributes) > 0) {
             assert($renderAttributes[0] instanceof Render);
 
-            return $renderAttributes[0]->response($registry, $result);
+            return $renderAttributes[0]->response($registry, $result)->psr();
         }
 
         $rendererConfig = $route->getRenderer();
@@ -125,14 +121,6 @@ class View
         return $this->attributes;
     }
 
-    protected function getFactory(): Factory
-    {
-        $factory = $this->registry->get(Factory::class);
-        assert($factory instanceof Factory);
-
-        return $factory;
-    }
-
     protected function newAttributeInstance(ReflectionAttribute $attribute): object
     {
         return (new Resolver($this->registry))
@@ -143,11 +131,11 @@ class View
         Registry $registry,
         RendererConfig $rendererConfig,
         mixed $result,
-    ): Response {
+    ): PsrResponse {
         $renderer = $registry->tag(Renderer::class)->get($rendererConfig->type);
         assert($renderer instanceof Renderer);
 
-        return $renderer->response($result, ...$rendererConfig->args);
+        return $renderer->response($result, ...$rendererConfig->args)->psr();
     }
 
     protected function getClosure(array|string $view): Closure

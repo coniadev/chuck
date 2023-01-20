@@ -18,6 +18,7 @@ use Conia\Chuck\Registry;
 use Conia\Chuck\Renderer\Render;
 use Conia\Chuck\Request;
 use Conia\Chuck\Response;
+use Conia\Chuck\ResponseWrapper;
 use ErrorException;
 use Psr\Log\LoggerInterface as PsrLogger;
 use Throwable;
@@ -38,11 +39,11 @@ class Handler implements Middleware
         restore_exception_handler();
     }
 
-    public function __invoke(Request $request, callable $next): Response
+    public function __invoke(Request $request, callable $next): ResponseWrapper
     {
         try {
             $response = $next($request);
-            assert($response instanceof Response);
+            assert($response instanceof ResponseWrapper);
 
             return $response;
         } catch (Throwable $e) {
@@ -69,7 +70,7 @@ class Handler implements Middleware
         (new Emitter())->emit($response->psr());
     }
 
-    public function handleException(Throwable $exception, ?Request $request): Response
+    public function handleException(Throwable $exception, ?Request $request): ResponseWrapper
     {
         if ($exception instanceof HttpError) {
             $code = $exception->getCode();
@@ -94,7 +95,7 @@ class Handler implements Middleware
         $rendererConfig = $this->registry->tag(self::class)->get($accepted);
         assert($rendererConfig instanceof ErrorRenderer);
         $render = new Render($rendererConfig->renderer, ...$rendererConfig->args);
-        $response = $render->response($this->registry, $error);
+        $response = new Response($render->response($this->registry, $error)->psr());
         $response->status($code);
 
         return $response;
