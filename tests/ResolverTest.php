@@ -13,6 +13,7 @@ use Conia\Chuck\Response;
 use Conia\Chuck\Tests\Fixtures\TestClass;
 use Conia\Chuck\Tests\Fixtures\TestClassCall;
 use Conia\Chuck\Tests\Fixtures\TestClassInject;
+use Conia\Chuck\Tests\Fixtures\TestClassRegistryArgs;
 use Conia\Chuck\Tests\Fixtures\TestClassResolver;
 use Conia\Chuck\Tests\Fixtures\TestClassResolverDefault;
 use Conia\Chuck\Tests\Fixtures\TestClassWithConstructor;
@@ -48,6 +49,28 @@ test('Autowiring with partial args and default values', function () {
     expect($tc->name)->toBe('default');
     expect($tc->number)->toBe(73);
     expect($tc->tc)->toBeInstanceOf(TestClass::class);
+});
+
+
+test('Autowiring with simple factory method', function () {
+    $resolver = new Resolver($this->registry());
+    $tc = $resolver->autowire(TestClassRegistryArgs::class, [], 'fromDefaults');
+
+    expect($tc->tc instanceof TestClass)->toBe(true);
+    expect($tc->config instanceof Config)->toBe(true);
+    expect($tc->config->app())->toBe('fromDefaults');
+    expect($tc->test)->toBe('fromDefaults');
+});
+
+
+test('Autowiring with factory method and args', function () {
+    $resolver = new Resolver($this->registry());
+    $tc = $resolver->autowire(TestClassRegistryArgs::class, ['test' => 'passed', 'app' => 'passed'], 'fromArgs');
+
+    expect($tc->tc instanceof TestClass)->toBe(true);
+    expect($tc->config instanceof Config)->toBe(true);
+    expect($tc->config->app())->toBe('passed');
+    expect($tc->test)->toBe('passed');
 });
 
 

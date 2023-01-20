@@ -164,6 +164,7 @@ class Registry implements PsrContainer
 
         if (is_string($value)) {
             if (class_exists($value)) {
+                $constructor = $entry->getConstructor();
                 $args = $entry->getArgs();
 
                 if (isset($args)) {
@@ -178,10 +179,16 @@ class Registry implements PsrContainer
                         );
                     }
 
-                    return $this->callAndReify($entry, $this->resolver->autowire($value, $args));
+                    return $this->callAndReify(
+                        $entry,
+                        $this->resolver->autowire($value, $args, $constructor)
+                    );
                 }
 
-                return $this->callAndReify($entry, $this->resolver->autowire($value));
+                return $this->callAndReify(
+                    $entry,
+                    $this->resolver->autowire($value, [], $constructor)
+                );
             }
 
             if (isset($this->entries[$value])) {

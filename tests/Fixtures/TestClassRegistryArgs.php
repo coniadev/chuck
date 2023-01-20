@@ -14,4 +14,14 @@ class TestClassRegistryArgs
         public readonly ?Config $config = null,
     ) {
     }
+
+    public static function fromDefaults(): static
+    {
+        return new self(new TestClass(), 'fromDefaults', new Config('fromDefaults'));
+    }
+
+    public static function fromArgs(TestClass $tc, string $test, string $app): static
+    {
+        return new self($tc, $test, new Config($app));
+    }
 }

@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Conia\Chuck\Config;
-use Conia\Chuck\Di\Entry;
 use Conia\Chuck\Di\Resolver;
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Exception\NotFoundException;
@@ -19,39 +18,6 @@ use Conia\Chuck\Tests\Fixtures\TestClassWithConstructor;
 use Conia\Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
-
-test('Entry methods', function () {
-    $entry = new Entry('key', stdClass::class);
-
-    expect($entry->definition())->toBe(stdClass::class);
-    expect($entry->get())->toBe(stdClass::class);
-    expect($entry->instance())->toBe(null);
-
-    $obj = new stdClass();
-    $entry->set($obj);
-
-    expect($entry->definition())->toBe(stdClass::class);
-    expect($entry->get())->toBe($obj);
-    expect($entry->instance())->toBe($obj);
-});
-
-
-test('Entry call method', function () {
-    $entry = new Entry('key', stdClass::class);
-    $entry->call('method', arg1: 13, arg2: 'arg2');
-    $entry->call('next');
-
-    $call1 = $entry->getCalls()[0];
-    $call2 = $entry->getCalls()[1];
-
-    expect($call1->method)->toBe('method');
-    expect($call1->args)->toBe([
-        'arg1' => 13,
-        'arg2' => 'arg2',
-    ]);
-    expect($call2->method)->toBe('next');
-    expect($call2->args)->toBe([]);
-});
 
 
 test('Add key without value', function () {
@@ -129,6 +95,33 @@ test('Chained instantiation', function () {
     expect($exception instanceof NotFoundException)->toBe(true);
     expect($exception->getMessage())->toBe('The message');
     expect($exception->getCode())->toBe(13);
+});
+
+
+test('Factory method instantiation', function () {
+    $registry = new Registry();
+    $registry->add(TestClassRegistryArgs::class)->constructor('fromDefaults');
+    $instance = $registry->get(TestClassRegistryArgs::class);
+
+    expect($instance->tc instanceof TestClass)->toBe(true);
+    expect($instance->config instanceof Config)->toBe(true);
+    expect($instance->config->app())->toBe('fromDefaults');
+    expect($instance->test)->toBe('fromDefaults');
+});
+
+
+test('Factory method instantiation with args', function () {
+    $registry = new Registry();
+    $registry
+        ->add(TestClassRegistryArgs::class)
+        ->constructor('fromArgs')
+        ->args(test: 'passed', app: 'passed');
+    $instance = $registry->get(TestClassRegistryArgs::class);
+
+    expect($instance->tc instanceof TestClass)->toBe(true);
+    expect($instance->config instanceof Config)->toBe(true);
+    expect($instance->config->app())->toBe('passed');
+    expect($instance->test)->toBe('passed');
 });
 
 
@@ -256,7 +249,7 @@ test('Rejecting class with non resolvable params', function () {
     $registry->add('unresolvable', TestClassRegistryArgs::class);
 
     $registry->get('unresolvable');
-})->throws(NotFoundException::class, 'Unresolvable id: string');
+})->throws(ContainerException::class, 'Unresolvable id: string');
 
 
 test('Resolve with args array', function () {

@@ -24,8 +24,11 @@ class Resolver
     }
 
     /** @psalm-param class-string $class */
-    public function autowire(string $class, array $predefinedArgs = []): object
-    {
+    public function autowire(
+        string $class,
+        array $predefinedArgs = [],
+        ?string $constructor = null
+    ): object {
         if (!$this->registry->autowire) {
             try {
                 $this->registry->new($class, ...$predefinedArgs);
@@ -37,10 +40,22 @@ class Resolver
         }
 
         $rc = new ReflectionClass($class);
-        $args = $this->resolveConstructorArgs($rc, $predefinedArgs);
 
         try {
-            return $this->resolveCallAttributes($rc->newInstance(...$args));
+            if ($constructor) {
+                // Factory method
+                $rm = $rc->getMethod($constructor);
+                $args = $this->resolveArgs($rm, $predefinedArgs);
+                $instance = $rm->invoke(null, ...$args);
+            } else {
+                // Regular constructor
+                $args = $this->resolveConstructorArgs($rc, $predefinedArgs);
+                $instance = $rc->newInstance(...$args);
+            }
+
+            assert(is_object($instance));
+
+            return $this->resolveCallAttributes($instance);
         } catch (Throwable $e) {
             throw new ContainerException(
                 'Autowiring unresolvable: ' . $class . ' Details: ' . $e->getMessage()
@@ -74,7 +89,7 @@ class Resolver
         if ($type instanceof ReflectionNamedType) {
             try {
                 return $this->registry->get(ltrim($type->getName(), '?'));
-            } catch (NotFoundException $e) {
+            } catch (NotFoundException | ContainerException  $e) {
                 if ($param->isDefaultValueAvailable()) {
                     return $param->getDefaultValue();
                 }
