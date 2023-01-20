@@ -11,6 +11,7 @@ use Conia\Chuck\Psr\Guzzle;
 use Conia\Chuck\Psr\Laminas;
 use Conia\Chuck\Psr\Nyholm;
 use Conia\Chuck\Request;
+use Conia\Chuck\Response;
 use Conia\Chuck\Route;
 use Conia\Chuck\Tests\Fixtures\TestClassInject;
 use Conia\Chuck\Tests\Fixtures\TestController;
@@ -38,6 +39,20 @@ class AppBench
     {
         $app = App::create();
         $app->route('/', 'Conia\Chuck\Tests\Fixtures\TestController::textView');
+        ob_start();
+        $app->run();
+        ob_end_clean();
+    }
+
+    /**
+     * @BeforeMethods({"initJsonRequest"})
+     */
+    public function benchJsonApp()
+    {
+        $app = App::create();
+        $app->route('/json', function (Response $response): Response {
+            return $response->json(['message' => 'Hello, World!']);
+        });
         ob_start();
         $app->run();
         ob_end_clean();
@@ -152,6 +167,14 @@ class AppBench
         $_SERVER['HTTP_HOST'] = 'www.example.com';
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/';
+        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
+    }
+
+    public function initJsonRequest()
+    {
+        $_SERVER['HTTP_HOST'] = 'www.example.com';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/json';
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
     }
 
