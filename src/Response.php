@@ -6,8 +6,8 @@ namespace Conia\Chuck;
 
 use Conia\Chuck\Exception\HttpNotFound;
 use Conia\Chuck\Exception\RuntimeException;
+use Conia\Chuck\Factory;
 use Conia\Chuck\Http\WrapsMessage;
-use Conia\Chuck\Psr\Factory;
 use finfo;
 use Psr\Http\Message\ResponseInterface as PsrResponse;
 use Psr\Http\Message\StreamInterface as PsrStream;

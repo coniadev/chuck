@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ContainerException;
+use Conia\Chuck\Factory;
 use Conia\Chuck\Http\View;
-use Conia\Chuck\Psr\Factory;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\Request;

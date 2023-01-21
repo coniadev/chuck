@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Conia\Chuck\Renderer;
 
 use Conia\Chuck\Error\Error;
-use Conia\Chuck\Psr\Factory;
+use Conia\Chuck\Factory;
 use Conia\Chuck\Response;
 
 class TextErrorRenderer implements Renderer

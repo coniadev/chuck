@@ -7,7 +7,7 @@ use Conia\Chuck\Di\Call;
 use Conia\Chuck\Di\Inject;
 use Conia\Chuck\Di\Resolver;
 use Conia\Chuck\Exception\ContainerException;
-use Conia\Chuck\Psr\Factory;
+use Conia\Chuck\Factory;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Response;
 use Conia\Chuck\Tests\Fixtures\TestClass;

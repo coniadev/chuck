@@ -6,7 +6,7 @@ namespace Conia\Chuck\Tests\Fixtures;
 
 use Conia\Chuck\Config;
 use Conia\Chuck\Di\Call;
-use Conia\Chuck\Psr\Factory;
+use Conia\Chuck\Factory;
 use Conia\Chuck\Registry;
 
 #[Call('method1'), Call('method2', arg2: 'arg2', arg1: 'arg1')]

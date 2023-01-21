@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Renderer;
 
-use Conia\Chuck\Psr\Factory;
+use Conia\Chuck\Factory;
 use Conia\Chuck\Response;
 
 class HtmlRenderer implements Renderer

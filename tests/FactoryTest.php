@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Conia\Chuck\App;
-use Conia\Chuck\Psr\Factory;
+use Conia\Chuck\Factory;
 use Conia\Chuck\Psr\Guzzle;
 use Conia\Chuck\Psr\Laminas;
 use Conia\Chuck\Psr\Nyholm;
