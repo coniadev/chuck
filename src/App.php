@@ -38,6 +38,11 @@ class App implements RouteAdder
         protected Middleware|PsrMiddleware|null $errorHandler = null,
     ) {
         self::initializeRegistry($registry, $config, $router);
+
+        if ($errorHandler) {
+            // The error handler should be the first middleware
+            $router->middleware($errorHandler);
+        }
     }
 
     public static function create(?Config $config = null, ?PsrContainer $container = null): self
@@ -49,8 +54,6 @@ class App implements RouteAdder
         $registry = new Registry($container);
         $router = new Router();
         $errorHandler = new Handler($config, $registry);
-        // The error handler should be the first middleware
-        $router->middleware($errorHandler);
 
         return new self($config, $router, $registry, $errorHandler);
     }

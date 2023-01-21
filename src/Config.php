@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Conia\Chuck;
 
-use Closure;
 use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\ValueError;
 use Throwable;
