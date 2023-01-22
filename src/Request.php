@@ -106,7 +106,14 @@ class Request
         return $this->psr->getAttributes();
     }
 
-    public function attribute(string $key, mixed $default = null): mixed
+    public function set(string $attribute, mixed $value): static
+    {
+        $this->psr = $this->psr->withAttribute($attribute, $value);
+
+        return $this;
+    }
+
+    public function get(string $key, mixed $default = null): mixed
     {
         $params = $this->psr->getAttributes();
         $error = 'Request attribute not found';

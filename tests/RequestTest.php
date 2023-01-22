@@ -205,27 +205,27 @@ test('Request::servers', function () {
 });
 
 
-test('Request::attribute default', function () {
+test('Request::get default', function () {
     $request = $this->request();
 
-    expect($request->attribute('doesnotexist', 'the default'))->toBe('the default');
+    expect($request->get('doesnotexist', 'the default'))->toBe('the default');
 });
 
 
-test('Request::attribute failing', function () {
+test('Request::get failing', function () {
     $request = $this->request();
 
-    expect($request->attribute('doesnotexist'))->toBe(null);
+    expect($request->get('doesnotexist'))->toBe(null);
 })->throws(OutOfBoundsException::class, 'Request attribute');
 
 
 test('Request attributes', function () {
     $request = $this->request();
-    $request->withAttribute('one', 1)->withAttribute('two', '2');
+    $request->withAttribute('one', 1)->set('two', '2');
 
     expect(count($request->attributes()))->toBe(2);
-    expect($request->attribute('one'))->toBe(1);
-    expect($request->attribute('two'))->toBe('2');
+    expect($request->get('one'))->toBe(1);
+    expect($request->get('two'))->toBe('2');
 });
 
 
