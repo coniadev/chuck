@@ -6,6 +6,7 @@ namespace Conia\Chuck\Exception;
 
 use Throwable;
 
+/** @psalm-api */
 class HttpUnauthorized extends HttpError
 {
     public function __construct(string $message = 'Unauthorized', int $code = 401, ?Throwable $previous = null)

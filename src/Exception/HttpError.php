@@ -6,6 +6,7 @@ namespace Conia\Chuck\Exception;
 
 use Exception;
 
+/** @psalm-api */
 abstract class HttpError extends Exception implements ChuckException
 {
     protected ?string $subTitle = null;

@@ -11,6 +11,7 @@ use Laminas\Diactoros\StreamFactory;
 use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
 use Throwable;
 
+/** @psalm-api */
 class Laminas extends AbstractFactory
 {
     public function __construct()

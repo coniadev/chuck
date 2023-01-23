@@ -10,6 +10,7 @@ use Conia\Chuck\Routing\AddsMiddleware;
 use Conia\Chuck\Routing\AddsRoutes;
 use Conia\Chuck\Routing\RouteAdder;
 
+/** @psalm-api */
 class Group implements RouteAdder
 {
     use AddsRoutes;

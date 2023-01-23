@@ -9,6 +9,7 @@ use Conia\Chuck\Registry;
 use Conia\Chuck\Renderer\Renderer;
 use Conia\Chuck\ResponseWrapper;
 
+/** @psalm-api */
 #[Attribute]
 class Render
 {

@@ -6,6 +6,7 @@ namespace Conia\Chuck\Routing;
 
 use Conia\Chuck\Route;
 
+/** @psalm-api */
 class Endpoint
 {
     use AddsMiddleware;

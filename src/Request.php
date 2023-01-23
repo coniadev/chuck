@@ -14,6 +14,7 @@ use Psr\Http\Message\UploadedFileInterface as PsrUploadedFile;
 use Psr\Http\Message\UriInterface as PsrUri;
 use Throwable;
 
+/** @psalm-api */
 class Request
 {
     use WrapsMessage;

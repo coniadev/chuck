@@ -8,6 +8,8 @@ use Closure;
 use Conia\Chuck\Exception\ContainerException;
 
 /**
+ * @psalm-api
+ *
  * @psalm-type Args array<string|mixed>|Closure(): array<string|mixed>
  */
 class Entry

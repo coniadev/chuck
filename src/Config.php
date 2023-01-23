@@ -8,6 +8,7 @@ use Conia\Chuck\Exception\OutOfBoundsException;
 use Conia\Chuck\Exception\ValueError;
 use Throwable;
 
+/** @psalm-api */
 class Config
 {
     /**

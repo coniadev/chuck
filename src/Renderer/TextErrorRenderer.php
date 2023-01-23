@@ -8,6 +8,7 @@ use Conia\Chuck\Error\Error;
 use Conia\Chuck\Factory;
 use Conia\Chuck\Response;
 
+/** @psalm-api */
 class TextErrorRenderer implements Renderer
 {
     public function __construct(protected Factory $factory)

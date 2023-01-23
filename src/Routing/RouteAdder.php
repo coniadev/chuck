@@ -8,6 +8,8 @@ use Conia\Chuck\Group;
 use Conia\Chuck\Route;
 
 /**
+ * @psalm-api
+ *
  * @psalm-import-type View from \Conia\Chuck\Route
  */
 interface RouteAdder

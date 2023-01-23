@@ -23,6 +23,7 @@ use ErrorException;
 use Psr\Log\LoggerInterface as PsrLogger;
 use Throwable;
 
+/** @psalm-api */
 class Handler implements Middleware
 {
     public const RENDERER = 'errorRenderer';

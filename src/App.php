@@ -27,6 +27,7 @@ use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
 use Psr\Http\Server\MiddlewareInterface as PsrMiddleware;
 use Psr\Log\LoggerInterface as PsrLogger;
 
+/** @psalm-api */
 class App implements RouteAdder
 {
     use AddsRoutes;
@@ -155,7 +156,7 @@ class App implements RouteAdder
         return $this->registry->add($key, $value);
     }
 
-    public function run(): PsrResponse
+    public function run(): PsrResponse|false
     {
         $factory = $this->registry->get(Factory::class);
         assert($factory instanceof Factory);
@@ -168,9 +169,7 @@ class App implements RouteAdder
 
         $response = $this->router->dispatch($request, $this->registry);
 
-        (new Emitter())->emit($response);
-
-        return $response;
+        return (new Emitter())->emit($response) ? $response : false;
     }
 
     public static function initializeRegistry(

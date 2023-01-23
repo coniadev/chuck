@@ -7,6 +7,7 @@ namespace Conia\Chuck\Renderer;
 use Conia\Chuck\Factory;
 use Conia\Chuck\Response;
 
+/** @psalm-api */
 class TextRenderer implements Renderer
 {
     public function __construct(protected Factory $factory)

@@ -24,6 +24,7 @@ use Psr\Http\Message\ResponseInterface as PsrResponse;
 use Psr\Http\Server\MiddlewareInterface as PsrMiddleware;
 use Throwable;
 
+/** @psalm-api */
 class Router implements RouteAdder
 {
     use AddsRoutes;

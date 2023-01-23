@@ -10,6 +10,7 @@ use GuzzleHttp\Psr7\ServerRequest;
 use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
 use Throwable;
 
+/** @psalm-api */
 class Guzzle extends AbstractFactory
 {
     public function __construct()

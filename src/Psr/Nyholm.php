@@ -10,6 +10,7 @@ use Nyholm\Psr7Server\ServerRequestCreator;
 use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
 use Throwable;
 
+/** @psalm-api */
 class Nyholm extends AbstractFactory
 {
     protected Psr17Factory $factory;

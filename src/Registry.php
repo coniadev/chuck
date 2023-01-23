@@ -11,6 +11,8 @@ use Conia\Chuck\Exception\NotFoundException;
 use Psr\Container\ContainerInterface as PsrContainer;
 
 /**
+ * @psalm-api
+ *
  * @psalm-type EntryArray = array<never, never>|array<string, Entry>
  */
 class Registry implements PsrContainer

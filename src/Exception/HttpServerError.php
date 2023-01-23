@@ -6,6 +6,7 @@ namespace Conia\Chuck\Exception;
 
 use Throwable;
 
+/** @psalm-api */
 class HttpServerError extends HttpError
 {
     public function __construct(

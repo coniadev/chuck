@@ -20,7 +20,7 @@ class Dispatcher
 
     public function __construct(
         protected readonly array $queue,
-        protected readonly Registry $registry
+        Registry $registry
     ) {
         $factory = $registry->get(Factory::class);
         assert($factory instanceof Factory);

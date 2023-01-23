@@ -10,6 +10,7 @@ use Psr\Log\LoggerInterface as PsrLogger;
 use Stringable;
 use Throwable;
 
+/** @psalm-api */
 class Logger implements PsrLogger
 {
     public const DEBUG = 100;

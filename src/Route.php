@@ -16,6 +16,8 @@ const RIGHT_BRACE = '§§§£§§§';
 
 
 /**
+ * @psalm-api
+ *
  * @psalm-type View = callable|list{string, string}|non-empty-string
  */
 class Route

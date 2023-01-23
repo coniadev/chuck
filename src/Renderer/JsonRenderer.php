@@ -8,6 +8,7 @@ use Conia\Chuck\Factory;
 use Conia\Chuck\Response;
 use Traversable;
 
+/** @psalm-api */
 class JsonRenderer implements Renderer
 {
     public function __construct(protected Factory $factory)

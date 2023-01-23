@@ -7,6 +7,7 @@ namespace Conia\Chuck\Di;
 use Attribute;
 use Conia\Chuck\Exception\RuntimeException;
 
+/** @psalm-api */
 #[Attribute(Attribute::IS_REPEATABLE | Attribute::TARGET_FUNCTION | Attribute::TARGET_METHOD)]
 class Inject
 {
