@@ -20,11 +20,21 @@ class Render
         $this->args = $args;
     }
 
+    public function render(Registry $registry, mixed $data): string
+    {
+        return $this->getRenderer($registry)->render($data, ...$this->args);
+    }
+
     public function response(Registry $registry, mixed $data): ResponseWrapper
+    {
+        return $this->getRenderer($registry)->response($data, ...$this->args);
+    }
+
+    protected function getRenderer(Registry $registry): Renderer
     {
         $renderer = $registry->tag(Renderer::class)->get($this->renderer);
         assert($renderer instanceof Renderer);
 
-        return $renderer->response($data, ...$this->args);
+        return $renderer;
     }
 }
