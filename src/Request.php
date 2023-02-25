@@ -97,6 +97,20 @@ class Request
         return $this->psr->getHeaderLine($name);
     }
 
+    public function headers(bool $firstOnly = false): array
+    {
+        $headers = $this->psr->getHeaders();
+
+        if ($firstOnly) {
+            return array_combine(
+                array_keys($headers),
+                array_map(fn (array $v): string => $v[0], $headers),
+            );
+        }
+
+        return $headers;
+    }
+
     public function accept(): array
     {
         return explode(',', $this->getHeaderLine('Accept'));

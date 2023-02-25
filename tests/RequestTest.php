@@ -10,7 +10,6 @@ use Psr\Http\Message\UploadedFileInterface as PsrUploadedFile;
 
 uses(TestCase::class);
 
-
 test('Helper methods', function () {
     $request = $this->request();
 
@@ -18,7 +17,6 @@ test('Helper methods', function () {
     expect($request->isMethod('GET'))->toBe(true);
     expect($request->isMethod('POST'))->toBe(false);
 });
-
 
 test('Uri helpers', function () {
     $request = $this->request();
@@ -36,7 +34,6 @@ test('Uri helpers', function () {
     expect($request->origin())->toBe('http://www.example.com');
 });
 
-
 test('Request::param', function () {
     $this->set('GET', ['chuck' => 'schuldiner', 'born' => '1967']);
     $request = $this->request();
@@ -45,7 +42,6 @@ test('Request::param', function () {
     expect($request->param('born'))->toBe('1967');
 });
 
-
 test('Request::header', function () {
     $request = $this->request();
 
@@ -53,6 +49,19 @@ test('Request::header', function () {
     expect($request->header('Does-Not-Exist'))->toBe('');
 });
 
+test('Request::headers', function () {
+    $request = $this->request();
+
+    expect($request->headers()['Host'][0])->toBe('www.example.com');
+    expect($request->headers()['Accept-Encoding'][0])->toBe('gzip, deflate, br');
+});
+
+test('Request::headers first entry only', function () {
+    $request = $this->request();
+
+    expect($request->headers(firstOnly: true)['Host'])->toBe('www.example.com');
+    expect($request->headers(firstOnly: true)['Accept-Encoding'])->toBe('gzip, deflate, br');
+});
 
 test('Request::accept', function () {
     $request = $this->request();
@@ -64,20 +73,17 @@ test('Request::accept', function () {
     ]);
 });
 
-
 test('Request::param default', function () {
     $request = $this->request();
 
     expect($request->param('doesnotexist', 'the default'))->toBe('the default');
 });
 
-
 test('Request::param failing', function () {
     $request = $this->request();
 
     expect($request->param('doesnotexist'))->toBe(null);
 })->throws(OutOfBoundsException::class, 'Query string');
-
 
 test('Request::params', function () {
     $this->set('GET', ['chuck' => 'schuldiner', 'born' => '1967']);
@@ -89,7 +95,6 @@ test('Request::params', function () {
     expect($params['chuck'])->toBe('schuldiner');
 });
 
-
 test('Request::field', function () {
     $this->setContentType('application/x-www-form-urlencoded');
     $this->setMethod('POST');
@@ -100,13 +105,11 @@ test('Request::field', function () {
     expect($request->field('born'))->toBe('1967');
 });
 
-
 test('Request::field default $_POST is null', function () {
     $request = $this->request();
 
     expect($request->field('doesnotexist', 'the default'))->toBe('the default');
 });
-
 
 test('Request::field default $_POST is array', function () {
     $this->setContentType('application/x-www-form-urlencoded');
@@ -117,7 +120,6 @@ test('Request::field default $_POST is array', function () {
     expect($request->field('doesnotexist', 'the default'))->toBe('the default');
 });
 
-
 test('Request::field failing', function () {
     $this->setContentType('application/x-www-form-urlencoded');
     $this->setMethod('POST');
@@ -125,7 +127,6 @@ test('Request::field failing', function () {
 
     $request->field('doesnotexist');
 })->throws(OutOfBoundsException::class, 'Form field');
-
 
 test('Request::form', function () {
     $this->setContentType('application/x-www-form-urlencoded');
@@ -139,7 +140,6 @@ test('Request::form', function () {
     ]);
 });
 
-
 test('Request::cookie', function () {
     $this->set('COOKIE', ['chuck' => 'schuldiner', 'born' => '1967']);
     $request = $this->request();
@@ -148,20 +148,17 @@ test('Request::cookie', function () {
     expect($request->cookie('born'))->toBe('1967');
 });
 
-
 test('Request::cookie default', function () {
     $request = $this->request();
 
     expect($request->cookie('doesnotexist', 'the default'))->toBe('the default');
 });
 
-
 test('Request::cookie failing', function () {
     $request = $this->request();
 
     $request->cookie('doesnotexist')->toBe(null);
 })->throws(OutOfBoundsException::class, 'Cookie');
-
 
 test('Request::cookies', function () {
     $this->set('COOKIE', ['chuck' => 'schuldiner', 'born' => '1967']);
@@ -173,7 +170,6 @@ test('Request::cookies', function () {
     expect($cookies['chuck'])->toBe('schuldiner');
 });
 
-
 test('Request::server', function () {
     $request = $this->request();
 
@@ -181,20 +177,17 @@ test('Request::server', function () {
     expect($request->server('SERVER_PROTOCOL'))->toBe('HTTP/1.1');
 });
 
-
 test('Request::server default', function () {
     $request = $this->request();
 
     expect($request->server('doesnotexist', 'the default'))->toBe('the default');
 });
 
-
 test('Request::server failing', function () {
     $request = $this->request();
 
     expect($request->server('doesnotexist'))->toBe(null);
 })->throws(OutOfBoundsException::class, 'Server');
-
 
 test('Request::servers', function () {
     $request = $this->request();
@@ -204,20 +197,17 @@ test('Request::servers', function () {
     expect($params['SERVER_PROTOCOL'])->toBe('HTTP/1.1');
 });
 
-
 test('Request::get default', function () {
     $request = $this->request();
 
     expect($request->get('doesnotexist', 'the default'))->toBe('the default');
 });
 
-
 test('Request::get failing', function () {
     $request = $this->request();
 
     expect($request->get('doesnotexist'))->toBe(null);
 })->throws(OutOfBoundsException::class, 'Request attribute');
-
 
 test('Request attributes', function () {
     $request = $this->request();
@@ -228,11 +218,9 @@ test('Request attributes', function () {
     expect($request->get('two'))->toBe('2');
 });
 
-
 test('Request::body', function () {
     expect((string)$this->request()->body())->toBe('');
 });
-
 
 test('Request::json', function () {
     $stream = Stream::create('[{"title": "Leprosy", "released": 1988}, {"title": "Human", "released": 1991}]');
@@ -244,13 +232,11 @@ test('Request::json', function () {
     ]);
 });
 
-
 test('Request::json empty', function () {
     $request = $this->request();
 
     expect($request->json())->toBe(null);
 });
-
 
 test('Get file instance', function () {
     $this->setupFile();
@@ -260,13 +246,11 @@ test('Get file instance', function () {
     expect($file)->toBeInstanceOf(PsrUploadedFile::class);
 });
 
-
 test('Fail calling file without key', function () {
     $this->setupFile();
     $request = $this->request();
     $request->file();
 })->throws(RuntimeException::class, 'No file key');
-
 
 test('Get nested file instance', function () {
     $this->setupFile();
@@ -275,7 +259,6 @@ test('Get nested file instance', function () {
 
     expect($file)->toBeInstanceOf(PsrUploadedFile::class);
 });
-
 
 test('Get all files', function () {
     $this->setupFiles(); // files array
@@ -287,7 +270,6 @@ test('Get all files', function () {
     expect(isset($files['nested']))->toBe(true);
 });
 
-
 test('Get files instances', function () {
     $this->setupFiles(); // files array
     $request = $this->request();
@@ -297,7 +279,6 @@ test('Get files instances', function () {
     expect($files[0])->toBeInstanceOf(PsrUploadedFile::class);
     expect($files[1])->toBeInstanceOf(PsrUploadedFile::class);
 });
-
 
 test('Get nested files instances', function () {
     $this->setupFiles(); // files array
@@ -309,7 +290,6 @@ test('Get nested files instances', function () {
     expect($files[1])->toBeInstanceOf(PsrUploadedFile::class);
 });
 
-
 test('Get nested files instances using an array', function () {
     $this->setupFiles(); // files array
     $request = $this->request();
@@ -320,7 +300,6 @@ test('Get nested files instances using an array', function () {
     expect($files[1])->toBeInstanceOf(PsrUploadedFile::class);
 });
 
-
 test('Get files instances with only one present', function () {
     $this->setupFile();
     $request = $this->request();
@@ -330,19 +309,16 @@ test('Get files instances with only one present', function () {
     expect($files[0])->toBeInstanceOf(PsrUploadedFile::class);
 });
 
-
 test('Access single file when mulitple are available', function () {
     $this->setupFiles();
     $request = $this->request();
     $request->file('myfile');
 })->throws(RuntimeException::class, 'Multiple files');
 
-
 test('File instance not available', function () {
     $request = $this->request();
     $request->file('does-not-exist');
 })->throws(OutOfBoundsException::class, "Invalid file key ['does-not-exist']");
-
 
 test('File instance not available (too much keys)', function () {
     $this->setupFile();
@@ -350,31 +326,26 @@ test('File instance not available (too much keys)', function () {
     $request->file('nested', 'myfile', 'toomuch');
 })->throws(OutOfBoundsException::class, "Invalid file key (too deep) ['nested']['myfile']['toomuch']");
 
-
 test('Access file using mulitple arrays', function () {
     $this->setupFiles();
     $request = $this->request();
     $request->files([], []);
 })->throws(RuntimeException::class, 'Either provide');
 
-
 test('Nested file instance not available', function () {
     $request = $this->request();
     $request->file('does-not-exist', 'really');
 })->throws(OutOfBoundsException::class, "Invalid file key ['does-not-exist']['really']");
-
 
 test('File instances are not available', function () {
     $request = $this->request();
     $request->files('does-not-exist');
 })->throws(OutOfBoundsException::class, "Invalid files key ['does-not-exist']");
 
-
 test('Nested file instances are not available', function () {
     $request = $this->request();
     $request->files('does-not-exist', 'really');
 })->throws(OutOfBoundsException::class, "Invalid files key ['does-not-exist']['really']");
-
 
 test('Getting and setting PSR-7 instance', function () {
     $psr = $this->psrRequest();
@@ -383,7 +354,6 @@ test('Getting and setting PSR-7 instance', function () {
 
     expect($request->psr())->toBe($psr);
 });
-
 
 test('PSR-7 message wrapper methods', function () {
     $request = $this->request()
@@ -410,7 +380,6 @@ test('PSR-7 message wrapper methods', function () {
     $request->withoutHeader('test-header');
     expect($request->hasHeader('test-header'))->toBe(false);
 });
-
 
 test('PSR-7 server request wrapper methods', function () {
     $request = $this->request();
