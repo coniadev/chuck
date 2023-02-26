@@ -141,7 +141,6 @@ class App implements RouteAdder
             ->add($contentType, ErrorRenderer::class)->args(renderer: $renderer, args: $args);
     }
 
-    /** @param callable(mixed ...$args):PsrLogger $callable */
     public function logger(callable $callback): void
     {
         $this->registry->add(PsrLogger::class, Closure::fromCallable($callback));
