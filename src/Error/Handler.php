@@ -94,7 +94,7 @@ class Handler implements Middleware
         $rendererConfig = $this->registry->tag(self::class)->get($accepted);
         assert($rendererConfig instanceof ErrorRenderer);
         $render = new Render($rendererConfig->renderer, ...$rendererConfig->args);
-        $response = new Response($render->response($this->registry, $error)->psr());
+        $response = new Response($render->response($this->registry, ['error' => $error])->psr());
         $response->status($code);
 
         return $response;

@@ -17,15 +17,18 @@ class TextErrorRenderer implements Renderer
 
     public function render(mixed $data, mixed ...$args): string
     {
-        assert($data instanceof Error);
+        assert(is_array($data));
+        assert(isset($data['error']));
+        assert($data['error'] instanceof Error);
+        $error = $data['error'];
 
-        $text = "Error: {$data->error}";
+        $text = "Error: {$error->error}";
 
-        if ($data->debug) {
-            $text .= "\n\nDescription: {$data->description}\n\n";
+        if ($error->debug) {
+            $text .= "\n\nDescription: {$error->description}\n\n";
             $text .= "-------------------------------------------------------\n\n";
             $text .= "Traceback:\n\n";
-            $text .= $data->traceback;
+            $text .= $error->traceback;
         }
 
         return $text;

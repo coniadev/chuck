@@ -17,9 +17,12 @@ class HtmlErrorRenderer implements Renderer
 
     public function render(mixed $data, mixed ...$args): string
     {
-        assert($data instanceof Error);
+        assert(is_array($data));
+        assert(isset($data['error']));
+        assert($data['error'] instanceof Error);
+        $error = $data['error'];
 
-        $error = htmlspecialchars($data->error);
+        $title = htmlspecialchars($error->error);
         $body = sprintf(
             '<!doctype html>' .
             '<html lang="en">' .
@@ -30,18 +33,18 @@ class HtmlErrorRenderer implements Renderer
             '</head>' .
             '<body>' .
             '<h1>%s</h1>',
-            $error,
-            $error
+            $title,
+            $title
         );
 
-        if ($data->debug) {
-            $description = htmlspecialchars($data->description);
+        if ($error->debug) {
+            $description = htmlspecialchars($error->description);
             $body .= "<h2>{$description}</h2>";
 
             $traceback = str_replace(
                 ['<', '>', '"'],
                 ['&lt;', '&gt', '&quot;'],
-                $data->traceback
+                $error->traceback
             );
             $traceback = implode('<br>#', explode('#', $traceback));
             $body .= preg_replace('/^<br>/', '', $traceback);

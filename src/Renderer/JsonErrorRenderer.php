@@ -17,13 +17,16 @@ class JsonErrorRenderer implements Renderer
 
     public function render(mixed $data, mixed ...$args): string
     {
-        assert($data instanceof Error);
+        assert(is_array($data));
+        assert(isset($data['error']));
+        assert($data['error'] instanceof Error);
+        $error = $data['error'];
 
-        $json = ['error' => $data->error];
+        $json = ['error' => $error->error];
 
-        if ($data->debug) {
-            $json['description'] = $data->description;
-            $json['traceback'] = $data->traceback;
+        if ($error->debug) {
+            $json['description'] = $error->description;
+            $json['traceback'] = $error->traceback;
         }
 
         return json_encode($json, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
