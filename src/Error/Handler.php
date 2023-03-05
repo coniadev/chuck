@@ -26,8 +26,6 @@ use Throwable;
 /** @psalm-api */
 class Handler implements Middleware
 {
-    public const RENDERER = 'errorRenderer';
-
     public function __construct(protected Config $config, protected Registry $registry)
     {
         set_error_handler([$this, 'handleError'], E_ALL);
