@@ -85,6 +85,7 @@ class Handler implements Middleware
             $title,
             $description,
             $exception->getTraceAsString(),
+            $code,
             $this->config->debug()
         );
 
