@@ -9,7 +9,7 @@ Chuck Framework
 
 Chuck is a lightweight and easily extendable PHP 8.1 web framework. 
 
-> :warning: **Note**: This framework is under active development, some of the listed features are still experimental and subject to change. Parts of the documentation are missing or wrong. 
+> **Warning**: This framework is under active development and some of the listed features are still experimental and subject to change. The information here might become outdated and misleading. 
 
 It features:
 
@@ -36,7 +36,7 @@ Supported PSRs:
 ### Quick Start using the `App::create` helper:
 
 ```php
-    use Conia\Chuck\{App, Config, Route, Request};
+    use Conia\Chuck\{App, Config, Request};
 
     $app = App::create(new Config('chuck'));
     $app->route('/', '\Namespace\Controller::index');
