@@ -80,7 +80,7 @@ class Router implements RouteAdder
         if ($name) {
             if (array_key_exists($name, $this->names)) {
                 throw new RuntimeException(
-                    'Duplicate route: ' . $name . '. If you want to use the same ' .
+                    'Duplicate route: ' . $name . '. If     ||    you want to use the same ' .
                         'url pattern with different methods, you have to create routes with names.'
                 );
             }
@@ -233,31 +233,35 @@ class Router implements RouteAdder
         $middlewareAttributes = $view->attributes(Middleware::class);
 
         return array_map(
+            /** @psalm-param array{string, ...}|Closure|Middleware|PsrMiddleware $middleware */
             function (
-                Middleware|PsrMiddleware|callable|string $middleware
+                array|Closure|Middleware|PsrMiddleware $middleware
             ) use ($registry): Middleware|PsrMiddleware {
                 if (
                     ($middleware instanceof Middleware)
                     || ($middleware instanceof PsrMiddleware)
+                    || ($middleware instanceof Closure)
                 ) {
                     return $middleware;
                 }
 
-                if (is_string($middleware) && class_exists($middleware)) {
-                    $object = (new Resolver($registry))->autowire($middleware);
+                if (class_exists($middleware[0])) {
+                    $object = (new Resolver($registry))->autowire(
+                        $middleware[0],
+                        array_slice($middleware, 1),
+                    );
                     assert($object instanceof Middleware || $object instanceof PsrMiddleware);
 
                     return $object;
                 }
 
-                if (is_callable($middleware)) {
-                    /** @psalm-var callable(Request, callable):Response $middleware */
-                    return new MiddlewareWrapper($middleware);
+                if (is_callable($middleware[0])) {
+                    return new MiddlewareWrapper($middleware[0]);
                 }
 
                 throw new RuntimeException('Invalid middleware: ' .
                     /** @scrutinizer ignore-type */
-                    print_r($middleware, true));
+                    print_r($middleware[0], true));
             },
             array_merge(
                 $this->middleware,

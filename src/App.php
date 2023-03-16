@@ -36,7 +36,7 @@ class App implements RouteAdder
         protected Config $config,
         protected Router $router,
         protected Registry $registry,
-        protected Middleware|PsrMiddleware|null $errorHandler = null,
+        protected ?string $errorHandler = null,
     ) {
         self::initializeRegistry($registry, $config, $router);
 
@@ -54,9 +54,8 @@ class App implements RouteAdder
 
         $registry = new Registry($container);
         $router = new Router();
-        $errorHandler = new Handler($config, $registry);
 
-        return new self($config, $router, $registry, $errorHandler);
+        return new self($config, $router, $registry, Handler::class);
     }
 
     public function router(): Router
@@ -109,15 +108,8 @@ class App implements RouteAdder
         $this->router->addStatic($prefix, $path, $name);
     }
 
-    /**
-     * @param Middleware|callable(
-     *     Request,
-     *     callable
-     * ):\Conia\Chuck\Response $middleware
-     *
-     * TODO: Why can't we import the custom psalm type MiddlewareCallable from Middleware
-     */
-    public function middleware(Middleware|callable ...$middleware): void
+    /** @psalm-param string|array{string, ...}|Closure|Middleware|PsrMiddleware ...$middleware */
+    public function middleware(string|array|Closure|Middleware|PsrMiddleware ...$middleware): void
     {
         $this->router->middleware(...$middleware);
     }

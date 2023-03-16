@@ -9,7 +9,6 @@ use Conia\Chuck\Exception\RuntimeException;
 use Conia\Chuck\Group;
 use Conia\Chuck\Renderer\Render;
 use Conia\Chuck\Renderer\Renderer;
-use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 use Conia\Chuck\Route;
 use Conia\Chuck\Router;
@@ -23,7 +22,6 @@ use Conia\Chuck\Tests\Setup\TestCase;
 use Psr\Http\Message\ResponseInterface as PsrResponse;
 
 uses(TestCase::class);
-
 
 test('Matching', function () {
     $router = new Router();
@@ -46,7 +44,6 @@ test('Matching', function () {
     $router->match($this->request(method: 'GET', url: '/does-not-exist'));
 })->throws(HttpNotFound::class);
 
-
 test('Matching with helpers', function () {
     $router = new Router();
     $index = $router->get('/', fn () => null, 'index');
@@ -60,7 +57,6 @@ test('Matching with helpers', function () {
     $router->match($this->request(method: 'GET', url: '/albums'));
 })->throws(HttpMethodNotAllowed::class);
 
-
 test('Generate route url', function () {
     $router = new Router();
     $albums = new Route('albums/{from}/{to}', fn () => null, 'albums');
@@ -72,12 +68,10 @@ test('Generate route url', function () {
     $this->disableHttps();
 });
 
-
 test('Fail to generate route url', function () {
     $router = new Router();
     $router->routeUrl('fantasy');
 })->throws(RuntimeException::class, 'Route not found');
-
 
 test('Static routes: unnamed', function () {
     $router = new Router();
@@ -101,7 +95,6 @@ test('Static routes: unnamed', function () {
     ))->toMatch('/https:\/\/chuck.local\/static\/does-not-exist.json$/');
 });
 
-
 test('Static routes: named', function () {
     $router = new Router();
     $router->addStatic('/static', C::root() . '/public/static', 'staticroute');
@@ -109,11 +102,9 @@ test('Static routes: named', function () {
     expect($router->staticUrl('staticroute', 'test.json'))->toBe('/static/test.json');
 });
 
-
 test('Static routes to nonexistent directory', function () {
     (new Router())->addStatic('/static', C::root() . '/fantasy/dir');
 })->throws(RuntimeException::class, 'does not exist');
-
 
 test('Static route duplicate named', function () {
     $router = new Router();
@@ -121,13 +112,11 @@ test('Static route duplicate named', function () {
     $router->addStatic('/anotherstatic', C::root() . '/public/static', 'static');
 })->throws(RuntimeException::class, 'Duplicate static route: static');
 
-
 test('Static route duplicate unnamed', function () {
     $router = new Router();
     $router->addStatic('/static', C::root() . '/public/static');
     $router->addStatic('/static', C::root() . '/public/static');
 })->throws(RuntimeException::class, 'Duplicate static route: /static');
-
 
 test('Dispatch closure', function () {
     $self = $this;
@@ -145,7 +134,6 @@ test('Dispatch closure', function () {
     expect((string)$response->getBody())->toBe('Chuck');
 });
 
-
 test('Dispatch class method returing an array with renderer', function () {
     $router = new Router();
     $route = Route::get('/text', [TestController::class, 'arrayView'])->render('json');
@@ -155,7 +143,6 @@ test('Dispatch class method returing an array with renderer', function () {
     expect($response)->toBeInstanceOf(PsrResponse::class);
     expect((string)$response->getBody())->toBe('{"success":true}');
 });
-
 
 test('Dispatch invokable class', function () {
     $router = new Router();
@@ -167,7 +154,6 @@ test('Dispatch invokable class', function () {
     expect((string)$response->getBody())->toBe('Schuldiner');
 });
 
-
 test('Dispatch controller with request constructor', function () {
     $router = new Router();
     $index = new Route('/', TestControllerWithRequest::class . '::requestOnly');
@@ -176,7 +162,6 @@ test('Dispatch controller with request constructor', function () {
     $response = $router->dispatch($this->request(method: 'GET', url: '/'), $this->registry());
     expect((string)$response->getBody())->toBe('Conia\Chuck\Request');
 });
-
 
 test('Dispatch closure with Render attribute', function () {
     $registry = $this->registry();
@@ -196,7 +181,6 @@ test('Dispatch closure with Render attribute', function () {
     expect($this->fullTrim((string)$response->getBody()))->toBe('render attribute');
 });
 
-
 test('Dispatch nonexistent controller view', function () {
     $router = new Router();
     $index = new Route('/', TestController::class . '::nonexistentView');
@@ -204,7 +188,6 @@ test('Dispatch nonexistent controller view', function () {
 
     $router->dispatch($this->request(method: 'GET', url: '/'), $this->registry());
 })->throws(RuntimeException::class, 'View method not found');
-
 
 test('Dispatch nonexistent controller', function () {
     $router = new Router();
@@ -214,7 +197,6 @@ test('Dispatch nonexistent controller', function () {
     $router->dispatch($this->request(method: 'GET', url: '/'), $this->registry());
 })->throws(RuntimeException::class, 'Controller not found');
 
-
 test('Dispatch wrong view return type', function () {
     $router = new Router();
     $index = new Route('/', TestControllerWithRequest::class . '::wrongReturnType');
@@ -222,14 +204,12 @@ test('Dispatch wrong view return type', function () {
     $router->dispatch($this->request(method: 'GET', url: '/'), $this->registry());
 })->throws(RuntimeException::class, 'Unable to determine a response handler');
 
-
 test('Dispatch missing route', function () {
     $router = new Router();
     $index = new Route('/', TestControllerWithRequest::class . '::wrongReturnType');
     $router->addRoute($index);
     $router->dispatch($this->request(method: 'GET', url: '/wrong'), $this->registry());
 })->throws(HttpNotFound::class);
-
 
 test('Dispatch view with route params', function () {
     $router = new Router();
@@ -242,7 +222,6 @@ test('Dispatch view with route params', function () {
         '{"string":"symbolic","float":7.13,"int":23,"request":"Conia\\\\Chuck\\\\Request"}'
     );
 });
-
 
 test('Dispatch view with default value params', function () {
     $index = (new Route('/{string}', TestController::class . '::routeDefaultValueParams'))->render('json');
@@ -272,7 +251,6 @@ test('Dispatch view with default value params', function () {
     );
 });
 
-
 test('Dispatch view with wrong route params', function () {
     $router = new Router();
     $index = (new Route('/{wrong}/{param}', TestControllerWithRequest::class . '::routeParams'))->render('json');
@@ -280,7 +258,6 @@ test('Dispatch view with wrong route params', function () {
 
     $router->dispatch($this->request(method: 'GET', url: '/symbolic/7.13-23'), $this->registry());
 })->throws(RuntimeException::class, 'cannot be resolved');
-
 
 test('Dispatch view with wrong type for int param', function () {
     $router = new Router();
@@ -290,7 +267,6 @@ test('Dispatch view with wrong type for int param', function () {
     $router->dispatch($this->request(method: 'GET', url: '/symbolic/7.13-wrong'), $this->registry());
 })->throws(RuntimeException::class, "Cannot cast 'int' to int");
 
-
 test('Dispatch view with wrong type for float param', function () {
     $router = new Router();
     $index = (new Route('/{string}/{float}-{int}', TestControllerWithRequest::class . '::routeParams'))->render('json');
@@ -298,7 +274,6 @@ test('Dispatch view with wrong type for float param', function () {
 
     $router->dispatch($this->request(method: 'GET', url: '/symbolic/wrong-13'), $this->registry());
 })->throws(RuntimeException::class, "Cannot cast 'float' to float");
-
 
 test('Dispatch view with unsupported param', function () {
     $router = new Router();
@@ -308,18 +283,15 @@ test('Dispatch view with unsupported param', function () {
     $router->dispatch($this->request(method: 'GET', url: '/symbolic'), $this->registry());
 })->throws(ContainerException::class, 'unresolvable: GdImage');
 
-
 test('Access uninitialized route', function () {
     (new Router())->getRoute();
 })->throws(RuntimeException::class, 'Route is not initialized');
-
 
 test('Duplicate route :: named', function () {
     $router = new Router();
     $router->addRoute(new Route('/', fn () => null, 'index'));
     $router->addRoute(new Route('albums', fn () => null, 'index'));
 })->throws(RuntimeException::class, 'Duplicate route: index');
-
 
 test('Dispatch view with route params including request', function () {
     $router = new Router();
@@ -338,18 +310,14 @@ test('Dispatch view with route params including request', function () {
     );
 });
 
-
 test('Middleware add', function () {
     $router = new Router();
 
-    $router->middleware(function (Request $request, callable $next): Response {
-        return $next($request);
-    });
-    $router->middleware(new TestMiddleware1());
+    $router->middleware('_testFunctionMiddleware');
+    $router->middleware(TestMiddleware1::class);
 
     expect(count($router->getMiddleware()))->toBe(2);
 });
-
 
 test('Fail after adding invalid middleware', function () {
     $router = new Router();
@@ -360,7 +328,6 @@ test('Fail after adding invalid middleware', function () {
     $router->dispatch($this->request(), $this->registry());
 })->throws(RuntimeException::class, 'Invalid middleware: this-is-no-middleware');
 
-
 test('GET matching', function () {
     $router = new Router();
     $route = Route::get('/', fn () => null);
@@ -368,7 +335,6 @@ test('GET matching', function () {
 
     expect($router->match($this->request(method: 'GET', url: '/')))->toBe($route);
 });
-
 
 test('HEAD matching', function () {
     $router = new Router();
@@ -378,7 +344,6 @@ test('HEAD matching', function () {
     expect($router->match($this->request(method: 'HEAD', url: '/')))->toBe($route);
 });
 
-
 test('PUT matching', function () {
     $router = new Router();
     $route = Route::put('/', fn () => null);
@@ -386,7 +351,6 @@ test('PUT matching', function () {
 
     expect($router->match($this->request(method: 'PUT', url: '/')))->toBe($route);
 });
-
 
 test('POST matching', function () {
     $router = new Router();
@@ -396,7 +360,6 @@ test('POST matching', function () {
     expect($router->match($this->request(method: 'POST', url: '/')))->toBe($route);
 });
 
-
 test('PATCH matching', function () {
     $router = new Router();
     $route = Route::patch('/', fn () => null);
@@ -404,7 +367,6 @@ test('PATCH matching', function () {
 
     expect($router->match($this->request(method: 'PATCH', url: '/')))->toBe($route);
 });
-
 
 test('DELETE matching', function () {
     $router = new Router();
@@ -414,7 +376,6 @@ test('DELETE matching', function () {
     expect($router->match($this->request(method: 'DELETE', url: '/')))->toBe($route);
 });
 
-
 test('OPTIONS matching', function () {
     $router = new Router();
     $route = Route::options('/', fn () => null);
@@ -423,7 +384,6 @@ test('OPTIONS matching', function () {
     expect($router->match($this->request(method: 'OPTIONS', url: '/')))->toBe($route);
 });
 
-
 test('Matching wrong method', function () {
     $router = new Router();
     $route = Route::get('/', fn () => null);
@@ -431,7 +391,6 @@ test('Matching wrong method', function () {
 
     expect($router->match($this->request(method: 'POST', url: '/')))->toBe($route);
 })->throws(HttpMethodNotAllowed::class);
-
 
 test('Multiple methods matching I', function () {
     $router = new Router();
@@ -443,7 +402,6 @@ test('Multiple methods matching I', function () {
     $router->match($this->request(method: 'PUT', url: '/'));
 })->throws(HttpMethodNotAllowed::class);
 
-
 test('Multiple methods matching II', function () {
     $router = new Router();
     $route = (new Route('/', fn () => null))->method('gEt', 'Put');
@@ -454,7 +412,6 @@ test('Multiple methods matching II', function () {
     $router->match($this->request(method: 'POST', url: '/'));
 })->throws(HttpMethodNotAllowed::class);
 
-
 test('Multiple methods matching III', function () {
     $router = new Router();
     $route = (new Route('/', fn () => null))->method('get')->method('head');
@@ -464,7 +421,6 @@ test('Multiple methods matching III', function () {
     expect($router->match($this->request(method: 'HEAD', url: '/')))->toBe($route);
     $router->match($this->request(method: 'POST', url: '/'));
 })->throws(HttpMethodNotAllowed::class);
-
 
 test('All methods matching', function () {
     $router = new Router();
@@ -480,7 +436,6 @@ test('All methods matching', function () {
     expect($router->match($this->request(method: 'OPTIONS', url: '/')))->toBe($route);
 });
 
-
 test('Same pattern multiple methods', function () {
     $router = new Router();
     $puthead = (new Route('/', fn () => null, 'puthead'))->method('HEAD', 'Put');
@@ -494,7 +449,6 @@ test('Same pattern multiple methods', function () {
     $router->match($this->request(method: 'POST', url: '/'));
 })->throws(HttpMethodNotAllowed::class);
 
-
 test('Add Endpoint', function () {
     $router = new Router();
     $router->endpoint('/endpoints', TestEndpoint::class, ['id', 'category'])->add();
@@ -504,7 +458,6 @@ test('Add Endpoint', function () {
     expect($route->view())->toBe([TestEndpoint::class, 'post']);
     expect($route->args())->toBe([]);
 });
-
 
 test('Add routes with callback', function () {
     $router = new Router();

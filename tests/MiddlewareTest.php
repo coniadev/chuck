@@ -15,11 +15,10 @@ require __DIR__ . '/Setup/globalSymbols.php';
 
 uses(TestCase::class);
 
-
 test('Middleware flow', function () {
     $app = App::create($this->config());
     $route = new Route('/', 'Conia\Chuck\Tests\Fixtures\TestController::middlewareView');
-    $route->middleware(new TestMiddlewareObject(' last'));
+    $route->middleware([TestMiddlewareObject::class, ' last']);
     $app->addRoute($route);
     $app->middleware('_testFunctionMiddleware');
 
@@ -31,11 +30,10 @@ test('Middleware flow', function () {
     expect($output)->toBe('first view last');
 });
 
-
 test('Middleware flow with attribute', function () {
     $app = App::create($this->config());
     $route = new Route('/', 'Conia\Chuck\Tests\Fixtures\TestController::attributedMiddlewareView');
-    $route->middleware(new TestMiddlewareObject(' last'));
+    $route->middleware([TestMiddlewareObject::class, ' last']);
     $app->addRoute($route);
     $app->middleware('_testFunctionMiddleware');
 
@@ -47,11 +45,10 @@ test('Middleware flow with attribute', function () {
     expect($output)->toBe('first attribute-string last');
 });
 
-
 test('Early response', function () {
     $app = App::create($this->config());
     $app->route('/', 'Conia\Chuck\Tests\Fixtures\TestController::middlewareView');
-    $app->middleware(new TestMiddlewareEarlyResponse('immediate response', $this->factory()));
+    $app->middleware([TestMiddlewareEarlyResponse::class, 'immediate response']);
     $app->middleware(new TestMiddlewareObject(' second'));
 
     ob_start();
@@ -62,12 +59,11 @@ test('Early response', function () {
     expect($output)->toBe('immediate response');
 });
 
-
 test('Middleware flow with attribute and PSR-15 middleware', function () {
     $app = App::create($this->config());
     $route = new Route('/', 'Conia\Chuck\Tests\Fixtures\TestController::attributedMiddlewareView');
     $route->middleware(new TestMiddlewareObject(' last'));
-    $route->middleware(new TestPsrMiddlewareObject(' PSR'));
+    $route->middleware([TestPsrMiddlewareObject::class, ' PSR']);
     $app->addRoute($route);
     $app->middleware('_testFunctionMiddleware');
 
@@ -78,7 +74,6 @@ test('Middleware flow with attribute and PSR-15 middleware', function () {
 
     expect($output)->toBe('first attribute-string PSR last');
 });
-
 
 test('Middleware autowiring', function () {
     $app = App::create($this->config());

@@ -37,7 +37,6 @@ test('Matching :: named', function () {
     expect($router->routeUrl('albums:name', name: 'symbolic'))->toBe('/albums/symbolic');
 });
 
-
 test('Matching :: unnamed', function () {
     $router = new Router();
     $index = new Route('/', fn () => null);
@@ -57,7 +56,6 @@ test('Matching :: unnamed', function () {
     expect($router->match($this->request(method: 'GET', url: '/albums/home'))->name())->toBe('');
     expect($router->match($this->request(method: 'GET', url: '/albums'))->name())->toBe('');
 });
-
 
 test('Matching :: with helper methods', function () {
     $router = new Router();
@@ -94,7 +92,6 @@ test('Matching :: with helper methods', function () {
     // raises not allowed
     $router->match($this->request(method: 'GET', url: '/helper/delete'));
 })->throws(HttpMethodNotAllowed::class);
-
 
 test('Renderer', function () {
     $router = new Router();
@@ -152,7 +149,6 @@ test('Endpoint in group', function () {
     expect($route->args())->toBe(['id' => '666']);
 });
 
-
 test('Nested groups', function () {
     $router = new Router();
 
@@ -179,10 +175,9 @@ test('Nested groups', function () {
     expect($route->pattern())->toBe('/media/music/albums/songs/times/{id}');
     expect($route->args())->toBe(['id' => '666']);
     expect($route->getMiddleware())->toBe([
-        'media-middleware', 'albums-middleware', 'songs-middleware', 'times-middleware',
+        ['media-middleware'], ['albums-middleware'], ['songs-middleware'], ['times-middleware'],
     ]);
 });
-
 
 test('Controller prefixing error using closure', function () {
     $router = new Router();
@@ -196,7 +191,6 @@ test('Controller prefixing error using closure', function () {
     $group->create($router);
 })->throws(ValueError::class, 'Cannot add controller');
 
-
 test('Controller prefixing error using endpoint', function () {
     $router = new Router();
 
@@ -206,7 +200,6 @@ test('Controller prefixing error using endpoint', function () {
     $group->create($router);
 })->throws(ValueError::class, 'Cannot add controller');
 
-
 test('Middleware', function () {
     $router = new Router();
 
@@ -214,23 +207,22 @@ test('Middleware', function () {
         $ctrl = TestController::class;
 
         $group->addRoute(Route::get('', "{$ctrl}::albumList"));
-        $group->addRoute(Route::get('/home', "{$ctrl}::albumHome")->middleware(new TestMiddleware3()));
+        $group->addRoute(Route::get('/home', "{$ctrl}::albumHome")->middleware(TestMiddleware3::class));
         $group->addRoute(Route::get('/{name}', "{$ctrl}::albumName"));
-    }))->middleware(new TestMiddleware2());
+    }))->middleware(TestMiddleware2::class);
     $group->create($router);
 
     $route = $router->match($this->request(method: 'GET', url: '/albums/human'));
     $middleware = $route->getMiddleware();
     expect(count($middleware))->toBe(1);
-    expect($middleware[0])->toBeInstanceOf(TestMiddleware2::class);
+    expect($middleware[0][0])->toBe(TestMiddleware2::class);
 
     $route = $router->match($this->request(method: 'GET', url: '/albums/home'));
     $middleware = $route->getMiddleware();
     expect(count($middleware))->toBe(2);
-    expect($middleware[0])->toBeInstanceOf(TestMiddleware2::class);
-    expect($middleware[1])->toBeInstanceOf(TestMiddleware3::class);
+    expect($middleware[0][0])->toBe(TestMiddleware2::class);
+    expect($middleware[1][0])->toBe(TestMiddleware3::class);
 });
-
 
 test('Fail without calling create before', function () {
     $group = new Group('/albums', function (Group $group) {

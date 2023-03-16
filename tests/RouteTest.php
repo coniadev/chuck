@@ -18,7 +18,6 @@ test('Index matching', function () {
     expect($route->match('/rick'))->toBe(null);
 });
 
-
 test('Simple matching', function () {
     $route = new Route('/chuck', fn () => null);
 
@@ -32,7 +31,6 @@ test('Simple matching', function () {
     expect($route->match('/chuck'))->toBe(null);
 });
 
-
 test('Parameter matching', function () {
     $route = new Route('/album/{name}', fn () => null);
 
@@ -44,7 +42,6 @@ test('Parameter matching', function () {
     expect($route->match('/contributed/1983/1991'))->toBe($route);
     expect($route->args())->toBe(['from' => '1983', 'to' => '1991']);
 });
-
 
 test('Parameter matching regex', function () {
     $route = new Route('/contributed/{from:\d+}/{to:\d\d\d}', fn () => null);
@@ -79,13 +76,11 @@ test('Parameter matching regex', function () {
     expect($route->args())->toBe(['format' => '.xml']);
 });
 
-
 test('Parameter matching brace error I', function () {
     // Invalid escaped left braces
     $route = new Route('/contributed/{from:\{\d+}', fn () => null);
     $route->match('/');
 })->throws(ValueError::class);
-
 
 test('Parameter matching brace error II', function () {
     // Invalid escaped right braces
@@ -93,13 +88,11 @@ test('Parameter matching brace error II', function () {
     $route->match('/');
 })->throws(ValueError::class);
 
-
 test('Parameter matching brace error III', function () {
     // Invalid unbalanced braces
     $route = new Route('/contributed/{from:\d+{1,2}{}', fn () => null);
     $route->match('/');
 })->throws(ValueError::class);
-
 
 test('Url construction :: regular parameters', function () {
     $route = new Route('/contributed/{from:\d+}/{to:\d\d\d}', fn () => null);
@@ -119,7 +112,6 @@ test('Url construction :: regular parameters', function () {
     expect($route->url(from: 1983, to: 1991))->toBe('/contributed/1983/1991');
 });
 
-
 test('Url construction :: no parameters', function () {
     $route = new Route('/albums', fn () => null);
 
@@ -127,20 +119,17 @@ test('Url construction :: no parameters', function () {
     expect($route->url(test: 1))->toBe('/albums');
 });
 
-
 test('Url construction :: invalid call', function () {
     $route = new Route('/albums', fn () => null);
 
     $route->url(1, 2);
 })->throws(InvalidArgumentException::class);
 
-
 test('Url construction :: invalid parameters', function () {
     $route = new Route('/contributed/{from:\d+}/{to:\d\d\d}', fn () => null);
 
     $route->url(from: 1983, to: []);
 })->throws(InvalidArgumentException::class);
-
 
 test('Route prefix', function () {
     $route = Route::get('/albums', fn () => 'chuck')->prefix(pattern: 'api');
@@ -155,13 +144,11 @@ test('Route prefix', function () {
     expect($route->name())->toBe('api::albums');
 });
 
-
 test('Route attributes', function () {
     $route = (new Route('/', 'chuck'))->attrs(option: true);
 
     expect($route->getAttrs())->toBe(['option' => true]);
 });
-
 
 test('Get view :: closure', function () {
     $route = new Route('/', fn () => 'chuck');
@@ -169,13 +156,11 @@ test('Get view :: closure', function () {
     expect($route->view()())->toBe('chuck');
 });
 
-
 test('Get view :: string', function () {
     $route = new Route('/', 'chuck');
 
     expect($route->view())->toBe('chuck');
 });
-
 
 test('Get view :: array', function () {
     $route = new Route('/', [Conia\Chuck\Tests\Fixtures\TestController::class, 'textView']);
@@ -183,13 +168,11 @@ test('Get view :: array', function () {
     expect($route->view())->toBe(['Conia\Chuck\Tests\Fixtures\TestController', 'textView']);
 });
 
-
 test('Route name unnamed', function () {
     $route = Route::get('/albums', fn () => 'chuck');
 
     expect($route->name())->toBe('');
 });
-
 
 test('Route name named', function () {
     $route = Route::get('/albums', fn () => 'chuck', 'albumroute');
@@ -199,10 +182,10 @@ test('Route name named', function () {
 
 test('Route middleware', function () {
     $route = Route::get('/', fn () => 'chuck');
-    $route->middleware(new TestMiddleware1());
-    $route->middleware(new TestMiddleware2());
+    $route->middleware(TestMiddleware1::class);
+    $route->middleware(TestMiddleware2::class);
     $middleware = $route->getMiddleware();
 
-    expect($middleware[0])->toBeInstanceOf(TestMiddleware1::class);
-    expect($middleware[1])->toBeInstanceOf(TestMiddleware2::class);
+    expect($middleware[0][0])->toBe(TestMiddleware1::class);
+    expect($middleware[1][0])->toBe(TestMiddleware2::class);
 });
