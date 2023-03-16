@@ -21,14 +21,12 @@ use Conia\Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
 
-
 test('Simple autowiring', function () {
     $resolver = new Resolver($this->registry());
 
     expect($resolver->autowire(TestClassWithConstructor::class))
         ->toBeInstanceOf(TestClassWithConstructor::class);
 });
-
 
 test('Autowiring with partial args', function () {
     $resolver = new Resolver($this->registry());
@@ -40,7 +38,6 @@ test('Autowiring with partial args', function () {
     expect($tc->tc)->toBeInstanceOf(TestClass::class);
 });
 
-
 test('Autowiring with partial args and default values', function () {
     $resolver = new Resolver($this->registry());
     $tc = $resolver->autowire(TestClassResolverDefault::class, ['number' => 73]);
@@ -51,6 +48,15 @@ test('Autowiring with partial args and default values', function () {
     expect($tc->tc)->toBeInstanceOf(TestClass::class);
 });
 
+test('Autowiring with partial unnamed args and default values', function () {
+    $resolver = new Resolver($this->registry());
+    $tc = $resolver->autowire(TestClassResolverDefault::class, [73]);
+
+    expect($tc)->toBeInstanceOf(TestClassResolverDefault::class);
+    expect($tc->name)->toBe('default');
+    expect($tc->number)->toBe(73);
+    expect($tc->tc)->toBeInstanceOf(TestClass::class);
+});
 
 test('Autowiring with simple factory method', function () {
     $resolver = new Resolver($this->registry());
@@ -62,7 +68,6 @@ test('Autowiring with simple factory method', function () {
     expect($tc->test)->toBe('fromDefaults');
 });
 
-
 test('Autowiring with factory method and args', function () {
     $resolver = new Resolver($this->registry());
     $tc = $resolver->autowire(TestClassRegistryArgs::class, ['test' => 'passed', 'app' => 'passed'], 'fromArgs');
@@ -73,14 +78,12 @@ test('Autowiring with factory method and args', function () {
     expect($tc->test)->toBe('passed');
 });
 
-
 test('Get constructor args', function () {
     $resolver = new Resolver($this->registry());
     $args = $resolver->resolveConstructorArgs(TestClassWithConstructor::class);
 
     expect($args[0])->toBeInstanceOf(TestClass::class);
 });
-
 
 test('Get closure args', function () {
     $resolver = new Resolver($this->registry());
@@ -91,7 +94,6 @@ test('Get closure args', function () {
     expect($args[1])->toBe(13);
 });
 
-
 test('Get callable object args', function () {
     $resolver = new Resolver($this->registry());
     $tc = $resolver->autowire(TestClass::class);
@@ -100,7 +102,6 @@ test('Get callable object args', function () {
     expect($args[0])->toBe('default');
     expect($args[1])->toBe(13);
 });
-
 
 test('Call attributes', function () {
     $resolver = new Resolver($this->registry());
@@ -113,17 +114,14 @@ test('Call attributes', function () {
     expect($attr->arg2)->toBe('arg2');
 });
 
-
 test('Call attribute does not allow unnamed args', function () {
     new Call('method', 'arg');
 })->throws(RuntimeException::class, 'Arguments for Call');
-
 
 test('Fail when autowire is turned off', function () {
     $resolver = new Resolver($this->registry(autowire: false));
     $resolver->autowire(Response::class);
 })->throws(ContainerException::class, 'Autowiring is turned off');
-
 
 test('Inject attribute on closure', function () {
     $registry = $this->registry();
@@ -145,7 +143,6 @@ test('Inject attribute on closure', function () {
     expect($result[2])->toBeInstanceOf(Factory::class);
 });
 
-
 test('Inject attribute on constructor', function () {
     $registry = $this->registry();
     $resolver = new Resolver($registry);
@@ -161,11 +158,9 @@ test('Inject attribute on constructor', function () {
     expect((string)$obj->tc)->toBe('Stringable extended');
 });
 
-
 test('Inject attribute does not allow unnamed args', function () {
     new Inject('arg');
 })->throws(RuntimeException::class, 'Arguments for Inject');
-
 
 test('Inject and Call combined', function () {
     $registry = $this->registry();

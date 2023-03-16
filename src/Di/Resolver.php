@@ -159,9 +159,17 @@ class Resolver
         $args = [];
 
         if ($rf) {
-            foreach ($rf->getParameters() as $param) {
-                $name = $param->getName();
+            $parameters = $rf->getParameters();
+            $countPredefined = count($predefinedArgs);
 
+            if (array_is_list($predefinedArgs) && $countPredefined > 0) {
+                // predefined args are not named, use them as they are
+                $args = $predefinedArgs;
+                $parameters = array_slice($parameters, $countPredefined);
+            }
+
+            foreach ($parameters as $param) {
+                $name = $param->getName();
                 if (isset($predefinedArgs[$name])) {
                     /** @psalm-var list<mixed> */
                     $args[] = $predefinedArgs[$name];
