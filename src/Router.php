@@ -233,7 +233,7 @@ class Router implements RouteAdder
         $middlewareAttributes = $view->attributes(Middleware::class);
 
         return array_map(
-            /** @psalm-param array{string, ...}|Closure|Middleware|PsrMiddleware $middleware */
+            /** @psalm-param list{non-falsy-string, ...}|Closure|Middleware|PsrMiddleware $middleware */
             function (
                 array|Closure|Middleware|PsrMiddleware $middleware
             ) use ($registry): Middleware|PsrMiddleware {

@@ -10,10 +10,10 @@ use Psr\Http\Server\MiddlewareInterface as PsrMiddleware;
 
 trait AddsMiddleware
 {
-    /** @var list<array{string, ...}|Closure|Middleware|PsrMiddleware> */
+    /** @var list<list{non-falsy-string, ...}|Closure|Middleware|PsrMiddleware> */
     protected array $middleware = [];
 
-    /** @psalm-param string|array{string, ...}|Closure|Middleware|PsrMiddleware ...$middleware */
+    /** @psalm-param non-falsy-string|list{non-falsy-string, ...}|Closure|Middleware|PsrMiddleware ...$middleware */
     public function middleware(string|array|Closure|Middleware|PsrMiddleware ...$middleware): static
     {
         $this->middleware = array_merge($this->middleware, array_map(function ($mw) {
@@ -27,13 +27,13 @@ trait AddsMiddleware
         return $this;
     }
 
-    /** @psalm-return list<array{string, ...}|Closure|Middleware|PsrMiddleware> */
+    /** @psalm-return list<list{non-falsy-string, ...}|Closure|Middleware|PsrMiddleware> */
     public function getMiddleware(): array
     {
         return $this->middleware;
     }
 
-    /** @psalm-param list<array{string, ...}|Closure|Middleware|PsrMiddleware> $middleware */
+    /** @psalm-param list<list{non-falsy-string, ...}|Closure|Middleware|PsrMiddleware> $middleware */
     public function replaceMiddleware(array $middleware): static
     {
         $this->middleware = $middleware;

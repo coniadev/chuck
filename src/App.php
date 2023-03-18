@@ -32,15 +32,16 @@ class App implements RouteAdder
 {
     use AddsRoutes;
 
+    /** @psalm-param non-falsy-string|list{non-falsy-string, ...}|Closure|Middleware|PsrMiddleware|null $errorHandler */
     public function __construct(
         protected Config $config,
         protected Router $router,
         protected Registry $registry,
-        protected ?string $errorHandler = null,
+        protected string|array|Closure|Middleware|PsrMiddleware|null $errorHandler = null,
     ) {
         self::initializeRegistry($registry, $config, $router);
 
-        if ($errorHandler) {
+        if (!is_null($errorHandler)) {
             // The error handler should be the first middleware
             $router->middleware($errorHandler);
         }
@@ -108,7 +109,7 @@ class App implements RouteAdder
         $this->router->addStatic($prefix, $path, $name);
     }
 
-    /** @psalm-param string|array{string, ...}|Closure|Middleware|PsrMiddleware ...$middleware */
+    /** @psalm-param non-falsy-string|list{non-falsy-string, ...}|Closure|Middleware|PsrMiddleware ...$middleware */
     public function middleware(string|array|Closure|Middleware|PsrMiddleware ...$middleware): void
     {
         $this->router->middleware(...$middleware);
