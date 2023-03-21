@@ -35,17 +35,17 @@ class Config
 
     public function get(string $key, mixed $default = null): mixed
     {
-        try {
+        if (isset($this->settings[$key])) {
             return $this->settings[$key];
-        } catch (Throwable) {
-            if (func_num_args() > 1) {
-                return $default;
-            }
-
-            throw new OutOfBoundsException(
-                "The configuration key '{$key}' does not exist"
-            );
         }
+
+        if (func_num_args() > 1) {
+            return $default;
+        }
+
+        throw new OutOfBoundsException(
+            "The configuration key '{$key}' does not exist"
+        );
     }
 
     public function app(): string
