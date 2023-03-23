@@ -33,7 +33,7 @@ test('Helper methods', function () {
 test('Create with third party container', function () {
     $container = new League\Container\Container();
     $container->add('external', new stdClass());
-    $app = App::create(null, $container);
+    $app = App::create($container);
 
     expect($app->registry()->get('external') instanceof stdClass)->toBe(true);
 });

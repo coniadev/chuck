@@ -22,16 +22,7 @@ class TextErrorRenderer implements Renderer
         assert($data['error'] instanceof Error);
         $error = $data['error'];
 
-        $text = "Error: {$error->error}";
-
-        if ($error->debug) {
-            $text .= "\n\nDescription: {$error->description}\n\n";
-            $text .= "-------------------------------------------------------\n\n";
-            $text .= "Traceback:\n\n";
-            $text .= $error->traceback;
-        }
-
-        return $text;
+        return "Error: {$error->error}";
     }
 
     public function response(mixed $data, mixed ...$args): Response

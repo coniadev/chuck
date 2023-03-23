@@ -24,11 +24,6 @@ class JsonErrorRenderer implements Renderer
 
         $json = ['error' => $error->error];
 
-        if ($error->debug) {
-            $json['description'] = $error->description;
-            $json['traceback'] = $error->traceback;
-        }
-
         return json_encode($json, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
     }
 

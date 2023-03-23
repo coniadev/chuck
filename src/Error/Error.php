@@ -12,7 +12,6 @@ class Error
         public readonly string $description,
         public readonly string $traceback,
         public readonly int $code,
-        public readonly bool $debug,
     ) {
     }
 }

@@ -23,7 +23,8 @@ class HtmlErrorRenderer implements Renderer
         $error = $data['error'];
 
         $title = htmlspecialchars($error->error);
-        $body = sprintf(
+
+        return sprintf(
             '<!doctype html>' .
             '<html lang="en">' .
             '<head>' .
@@ -31,28 +32,10 @@ class HtmlErrorRenderer implements Renderer
             '<meta name="viewport" content="width=device-width, initial-scale=1">' .
             '<title>%s</title>' .
             '</head>' .
-            '<body>' .
-            '<h1>%s</h1>',
+            '<body><h1>%s</h1></body></html>',
             $title,
             $title
         );
-
-        if ($error->debug) {
-            $description = htmlspecialchars($error->description);
-            $body .= "<h2>{$description}</h2>";
-
-            $traceback = str_replace(
-                ['<', '>', '"'],
-                ['&lt;', '&gt', '&quot;'],
-                $error->traceback
-            );
-            $traceback = implode('<br>#', explode('#', $traceback));
-            $body .= preg_replace('/^<br>/', '', $traceback);
-        }
-
-        $body .= '</body></html>';
-
-        return $body;
     }
 
     public function response(mixed $data, mixed ...$args): Response

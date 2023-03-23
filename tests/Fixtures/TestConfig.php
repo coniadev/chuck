@@ -10,7 +10,7 @@ class TestConfig
      * @param array<never, never>|array<string, mixed> -- Stores additional user defined settings
      */
     public function __construct(
-        public readonly string $app,
+        public readonly string $app = 'chuck',
         public readonly bool $debug = false,
         public readonly string $env = '',
     ) {

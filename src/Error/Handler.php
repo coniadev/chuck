@@ -25,7 +25,7 @@ use Throwable;
 /** @psalm-api */
 class Handler implements Middleware
 {
-    public function __construct(protected bool $debug, protected Registry $registry)
+    public function __construct(protected Registry $registry)
     {
         set_error_handler([$this, 'handleError'], E_ALL);
         set_exception_handler([$this, 'emitException']);
@@ -85,7 +85,6 @@ class Handler implements Middleware
             $description,
             $exception->getTraceAsString(),
             $code,
-            $this->debug
         );
 
         $this->log($exception);
