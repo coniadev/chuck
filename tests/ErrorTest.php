@@ -31,6 +31,38 @@ afterEach(function () {
     restore_exception_handler();
 });
 
+test('HTTP Errors', function () {
+    $exception = HttpBadRequest::withPayload('400 payload');
+    expect($exception->getTitle())->toBe('400 Bad Request');
+    expect($exception->getCode())->toBe(400);
+    expect($exception->getPayload())->toBe('400 payload');
+
+    $exception = HttpUnauthorized::withPayload('401 payload');
+    expect($exception->getTitle())->toBe('401 Unauthorized');
+    expect($exception->getCode())->toBe(401);
+    expect($exception->getPayload())->toBe('401 payload');
+
+    $exception = HttpForbidden::withPayload('403 payload');
+    expect($exception->getTitle())->toBe('403 Forbidden');
+    expect($exception->getCode())->toBe(403);
+    expect($exception->getPayload())->toBe('403 payload');
+
+    $exception = HttpNotFound::withPayload('404 payload');
+    expect($exception->getTitle())->toBe('404 Not Found');
+    expect($exception->getCode())->toBe(404);
+    expect($exception->getPayload())->toBe('404 payload');
+
+    $exception = HttpMethodNotAllowed::withPayload('405 payload');
+    expect($exception->getTitle())->toBe('405 Method Not Allowed');
+    expect($exception->getCode())->toBe(405);
+    expect($exception->getPayload())->toBe('405 payload');
+
+    $exception = HttpServerError::withPayload('500 payload');
+    expect($exception->getTitle())->toBe('500 Internal Server Error');
+    expect($exception->getCode())->toBe(500);
+    expect($exception->getPayload())->toBe('500 payload');
+});
+
 test('Error handler I', function () {
     $err = new Handler($this->registry());
 
@@ -43,49 +75,49 @@ test('Error handler II', function () {
     expect($err->handleError(E_WARNING, 'Chuck Test'))->toBe(false);
 })->throws(ErrorException::class, 'Chuck Test');
 
-test('Handle HTTP Exceptions', function () {
+test('HTTP error responses', function () {
     $err = new Handler($this->registry());
 
-    $response = $err->handleException(new HttpBadRequest(), $this->request());
-    expect((string)$response->getBody())->toContain('<h1>400 Bad Request</h1>');
+    $response = $err->getResponse($err->getError(new HttpBadRequest()), $this->request());
+    expect((string)$response->psr()->getBody())->toContain('<h1>400 Bad Request</h1>');
 
-    $response = $err->handleException(new HttpUnauthorized(), $this->request());
-    expect((string)$response->getBody())->toContain('<h1>401 Unauthorized</h1>');
+    $response = $err->getResponse($err->getError(new HttpUnauthorized()), $this->request());
+    expect((string)$response->psr()->getBody())->toContain('<h1>401 Unauthorized</h1>');
 
-    $response = $err->handleException(new HttpForbidden(), $this->request());
-    expect((string)$response->getBody())->toContain('<h1>403 Forbidden</h1>');
+    $response = $err->getResponse($err->getError(new HttpForbidden()), $this->request());
+    expect((string)$response->psr()->getBody())->toContain('<h1>403 Forbidden</h1>');
 
-    $response = $err->handleException(new HttpNotFound(), $this->request());
-    expect((string)$response->getBody())->toContain('<h1>404 Not Found</h1>');
+    $response = $err->getResponse($err->getError(new HttpNotFound()), $this->request());
+    expect((string)$response->psr()->getBody())->toContain('<h1>404 Not Found</h1>');
 
-    $response = $err->handleException(new HttpMethodNotAllowed(), $this->request());
-    expect((string)$response->getBody())->toContain('<h1>405 Method Not Allowed</h1>');
+    $response = $err->getResponse($err->getError(new HttpMethodNotAllowed()), $this->request());
+    expect((string)$response->psr()->getBody())->toContain('<h1>405 Method Not Allowed</h1>');
 
-    $response = $err->handleException(new HttpServerError(), $this->request());
-    expect((string)$response->getBody())->toContain('<h1>500 Internal Server Error</h1>');
+    $response = $err->getResponse($err->getError(new HttpServerError()), $this->request());
+    expect((string)$response->psr()->getBody())->toContain('<h1>500 Internal Server Error</h1>');
 });
 
-test('Handle Exception and render text/plain', function () {
+test('Response with text/plain', function () {
     $_SERVER['HTTP_ACCEPT'] = 'text/plain';
     $err = new Handler($this->registry());
 
-    $response = $err->handleException(new HttpBadRequest(), $this->request());
-    expect((string)$response->getBody())->toBe('Error: 400 Bad Request');
+    $response = $err->getResponse($err->getError(new HttpBadRequest()), $this->request());
+    expect((string)$response->psr()->getBody())->toBe('Error: 400 Bad Request');
 });
 
-test('Handle Exception and render application/json', function () {
+test('Response with application/json', function () {
     $_SERVER['HTTP_ACCEPT'] = 'application/json';
     $err = new Handler($this->registry());
 
-    $response = $err->handleException(new HttpBadRequest(), $this->request());
-    expect((string)$response->getBody())->toBe('{"error":"400 Bad Request"}');
+    $response = $err->getResponse($err->getError(new HttpBadRequest()), $this->request());
+    expect((string)$response->psr()->getBody())->toBe('{"error":"400 Bad Request"}');
 });
 
-test('Handle PHP Exceptions', function () {
+test('Response with PHP Exceptions', function () {
     $err = new Handler($this->registry());
-    $response = $err->handleException(new DivisionByZeroError('Division by zero'), $this->request());
+    $response = $err->getResponse($err->getError(new DivisionByZeroError('Division by zero')), $this->request());
 
-    expect((string)$response->getBody())->toContain('<h1>500 Internal Server Error</h1>');
+    expect((string)$response->psr()->getBody())->toContain('<h1>500 Internal Server Error</h1>');
 });
 
 test('Handled by middleware', function () {

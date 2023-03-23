@@ -45,7 +45,7 @@ class Handler implements Middleware
 
             return $response;
         } catch (Throwable $e) {
-            return $this->handleException($e, $request);
+            return $this->getResponse($this->getError($e), $request);
         }
     }
 
@@ -64,23 +64,34 @@ class Handler implements Middleware
 
     public function emitException(Throwable $exception): void
     {
-        $response = $this->handleException($exception, null);
+        $this->log($exception);
+        $response = $this->getResponse($this->getError($exception), null);
         (new Emitter())->emit($response->psr());
     }
 
-    public function handleException(Throwable $exception, ?Request $request): ResponseWrapper
+    public function getResponse(Error $error, ?Request $request): Response
+    {
+        $accepted = $request ? $this->getAcceptedContentType($request) : 'text/html';
+        $rendererConfig = $this->registry->tag(self::class)->get($accepted);
+        assert($rendererConfig instanceof ErrorRenderer);
+        $render = new Render($rendererConfig->renderer, ...$rendererConfig->args);
+        $response = new Response($render->response($this->registry, ['error' => $error])->psr());
+        $response->status($error->code);
+
+        return $response;
+    }
+
+    public function getError(Throwable $exception): Error
     {
         if ($exception instanceof HttpError) {
-            $code = $exception->getCode();
             $error = new Error(
                 htmlspecialchars($exception->getTitle()),
                 $exception->getMessage(),
                 $exception->getTraceAsString(),
-                $code,
-                $exception->payload(),
+                $exception->getCode(),
+                $exception->getPayload(),
             );
         } else {
-            $code = 500;
             $error = new Error(
                 '500 Internal Server Error',
                 $exception->getMessage(),
@@ -90,16 +101,7 @@ class Handler implements Middleware
             );
         }
 
-        $this->log($exception);
-
-        $accepted = $request ? $this->getAcceptedContentType($request) : 'text/html';
-        $rendererConfig = $this->registry->tag(self::class)->get($accepted);
-        assert($rendererConfig instanceof ErrorRenderer);
-        $render = new Render($rendererConfig->renderer, ...$rendererConfig->args);
-        $response = new Response($render->response($this->registry, ['error' => $error])->psr());
-        $response->status($code);
-
-        return $response;
+        return $error;
     }
 
     public function log(Throwable $exception): void
