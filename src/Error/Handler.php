@@ -72,20 +72,23 @@ class Handler implements Middleware
     {
         if ($exception instanceof HttpError) {
             $code = $exception->getCode();
-            $title = htmlspecialchars($exception->getTitle());
-            $description = 'HTTP Error';
+            $error = new Error(
+                htmlspecialchars($exception->getTitle()),
+                $exception->getMessage(),
+                $exception->getTraceAsString(),
+                $code,
+                $exception->payload(),
+            );
         } else {
             $code = 500;
-            $title = '500 Internal Server Error';
-            $description = $exception->getMessage();
+            $error = new Error(
+                '500 Internal Server Error',
+                $exception->getMessage(),
+                $exception->getTraceAsString(),
+                500,
+                null,
+            );
         }
-
-        $error = new Error(
-            $title,
-            $description,
-            $exception->getTraceAsString(),
-            $code,
-        );
 
         $this->log($exception);
 
