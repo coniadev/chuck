@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Conia\Chuck\App;
-use Conia\Chuck\Config;
 use Conia\Chuck\Error\ErrorRenderer;
 use Conia\Chuck\Error\Handler;
 use Conia\Chuck\Factory;
@@ -21,32 +20,15 @@ use Psr\Log\LoggerInterface as PsrLogger;
 
 uses(TestCase::class);
 
-
 test('Create helper', function () {
     expect(App::create())->toBeInstanceOf(App::class);
 });
-
 
 test('Helper methods', function () {
     $app = App::create();
 
     expect($app->router())->toBeInstanceOf(Router::class);
-    expect($app->config())->toBeInstanceOf(Config::class);
 });
-
-
-test('Config init', function () {
-    $app = App::create();
-
-    expect($app->config())->toBeInstanceOf(Config::class);
-    expect($app->config()->app())->toBe('chuck');
-
-    $app = App::create(new Config('test'));
-
-    expect($app->config())->toBeInstanceOf(Config::class);
-    expect($app->config()->app())->toBe('test');
-});
-
 
 test('Create with third party container', function () {
     $container = new League\Container\Container();
@@ -55,7 +37,6 @@ test('Create with third party container', function () {
 
     expect($app->registry()->get('external') instanceof stdClass)->toBe(true);
 });
-
 
 test('Middleware helper', function () {
     $app = App::create();
@@ -68,7 +49,6 @@ test('Middleware helper', function () {
     expect(count($app->router()->getMiddleware()))->toBe(2);
 });
 
-
 test('Static route helper', function () {
     $app = App::create();
     $app->staticRoute('/static', C::root() . '/public/static', 'static');
@@ -78,9 +58,8 @@ test('Static route helper', function () {
     expect($app->router()->staticUrl('/unnamedstatic', 'test.json'))->toBe('/unnamedstatic/test.json');
 });
 
-
 test('App run', function () {
-    $app = new App(new Config('chuck'), new Router(), $this->registry());
+    $app = new App(new Router(), $this->registry());
     $app->route('/', 'Conia\Chuck\Tests\Fixtures\TestController::textView');
     ob_start();
     $app->run();
@@ -89,10 +68,9 @@ test('App run', function () {
 
     expect($output)->toBe('text');
 });
-
 
 test('App run with autowiring turned off', function () {
-    $app = new App(new Config('chuck'), new Router(), $this->registry(autowire: false));
+    $app = new App(new Router(), $this->registry(autowire: false));
     $app->route('/', 'Conia\Chuck\Tests\Fixtures\TestController::textView');
     ob_start();
     $app->run();
@@ -102,15 +80,13 @@ test('App run with autowiring turned off', function () {
     expect($output)->toBe('text');
 });
 
-
 test('App::register helper', function () {
-    $app = new App(new Config('chuck'), new Router(), $this->registry());
+    $app = new App(new Router(), $this->registry());
     $app->register('Chuck', 'Schuldiner')->asIs();
     $registry = $app->registry();
 
     expect($registry->get('Chuck'))->toBe('Schuldiner');
 });
-
 
 test('App::addRoute/::addGroup helper', function () {
     $app = App::create();
@@ -126,14 +102,12 @@ test('App::addRoute/::addGroup helper', function () {
     expect($app->router()->routeUrl('albums:name', ['name' => 'symbolic']))->toBe('/albums/symbolic');
 });
 
-
 test('App::route helper', function () {
     $app = App::create();
     $app->route('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
 });
-
 
 test('App::routes helper', function () {
     $app = App::create();
@@ -144,14 +118,12 @@ test('App::routes helper', function () {
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
 });
 
-
 test('App::get helper', function () {
     $app = App::create();
     $app->get('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
 });
-
 
 test('App::post helper', function () {
     $app = App::create();
@@ -160,14 +132,12 @@ test('App::post helper', function () {
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
 });
 
-
 test('App::put helper', function () {
     $app = App::create();
     $app->put('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
 });
-
 
 test('App::patch helper', function () {
     $app = App::create();
@@ -176,14 +146,12 @@ test('App::patch helper', function () {
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
 });
 
-
 test('App::delete helper', function () {
     $app = App::create();
     $app->delete('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
 });
-
 
 test('App::head helper', function () {
     $app = App::create();
@@ -192,14 +160,12 @@ test('App::head helper', function () {
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
 });
 
-
 test('App::options helper', function () {
     $app = App::create();
     $app->options('/albums', 'Chuck\Tests\Fixtures\TestController::textView', 'albums');
 
     expect($app->router()->routeUrl('albums'))->toBe('/albums');
 });
-
 
 test('App::group helper', function () {
     $app = App::create();
@@ -211,7 +177,6 @@ test('App::group helper', function () {
     expect($app->router()->routeUrl('albums:name', ['name' => 'symbolic']))->toBe('/albums/symbolic');
 });
 
-
 test('Add renderer', function () {
     $app = App::create();
     $app->renderer('test', TestRenderer::class);
@@ -219,7 +184,6 @@ test('Add renderer', function () {
 
     expect($registry->tag(Renderer::class)->get('test'))->toBeInstanceOf(TestRenderer::class);
 });
-
 
 test('Add error renderer', function () {
     $app = App::create();
@@ -231,7 +195,6 @@ test('Add error renderer', function () {
     expect($config->renderer)->toBe('testError');
     expect($config->args['arg'])->toBe(1);
 });
-
 
 test('Add logger', function () {
     $app = $this->app();
@@ -250,7 +213,6 @@ test('Add logger', function () {
     expect($logger === $logger2)->toBe(true);
 });
 
-
 test('Registry initialized', function () {
     $app = $this->app();
     $registry = $app->registry();
@@ -259,8 +221,6 @@ test('Registry initialized', function () {
     expect($value instanceof Response)->toBe(true);
     $value = $registry->get(Response::class);
     expect($value instanceof Response)->toBe(true);
-    $value = $registry->get(Config::class);
-    expect($value instanceof Config)->toBe(true);
     $value = $registry->get(Factory::class);
     expect($value instanceof Factory)->toBe(true);
     expect($registry->tag(Renderer::class)->get('text'))

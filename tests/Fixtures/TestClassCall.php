@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Tests\Fixtures;
 
-use Conia\Chuck\Config;
 use Conia\Chuck\Di\Call;
 use Conia\Chuck\Factory;
 use Conia\Chuck\Registry;
@@ -13,12 +12,12 @@ use Conia\Chuck\Registry;
 class TestClassCall
 {
     public ?Registry $registry = null;
-    public ?Config $config = null;
+    public ?TestConfig $config = null;
     public ?Factory $factory = null;
     public string $arg1 = '';
     public string $arg2 = '';
 
-    public function method1(Registry $registry, Config $config): void
+    public function method1(Registry $registry, TestConfig $config): void
     {
         $this->registry = $registry;
         $this->config = $config;

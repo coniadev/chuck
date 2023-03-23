@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Tests\Fixtures;
 
-use Conia\Chuck\Config;
 use Conia\Chuck\Di\Call;
 use Conia\Chuck\Di\Inject;
 use Conia\Chuck\Factory;
@@ -20,7 +19,7 @@ class TestMiddlewareBench implements Middleware
     public string $calledArg1 = '';
     public int $calledArg2 = 0;
 
-    public function __construct(protected Registry $registry, protected Config $config)
+    public function __construct(protected Registry $registry, protected TestConfig $config)
     {
     }
 

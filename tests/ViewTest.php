@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ContainerException;
 use Conia\Chuck\Factory;
 use Conia\Chuck\Http\View;
@@ -33,7 +32,6 @@ test('Closure', function () {
     expect($view->attributes()[0])->toBeInstanceOf(TestAttribute::class);
 });
 
-
 test('Function', function () {
     $route = new Route('/{name}', '_testViewWithAttribute');
     $route->match('/symbolic');
@@ -42,7 +40,6 @@ test('Function', function () {
     expect($view->execute())->toBe('symbolic');
     expect($view->attributes()[0])->toBeInstanceOf(TestAttribute::class);
 });
-
 
 test('Controller String', function () {
     $route = new Route('/', '\Conia\Chuck\Tests\Fixtures\TestController::textView');
@@ -53,7 +50,6 @@ test('Controller String', function () {
     expect($view->attributes()[0])->toBeInstanceOf(TestAttribute::class);
 });
 
-
 test('Controller [class, method]', function () {
     $route = new Route('/', [TestController::class, 'textView']);
     $route->match('/');
@@ -62,7 +58,6 @@ test('Controller [class, method]', function () {
     expect($view->execute())->toBe('text');
     expect($view->attributes()[0])->toBeInstanceOf(TestAttribute::class);
 });
-
 
 test('Controller [object, method]', function () {
     $controller = new TestController();
@@ -74,7 +69,6 @@ test('Controller [object, method]', function () {
     expect($view->attributes()[0])->toBeInstanceOf(TestAttribute::class);
 });
 
-
 test('Attribute filtering :: Callable view', function () {
     $route = new Route('/', #[TestAttribute, TestAttributeExt, TestAttributeDiff] fn () => 'chuck');
     $view = new View($route->view(), $route->args(), $this->registry());
@@ -84,7 +78,6 @@ test('Attribute filtering :: Callable view', function () {
     expect(count($view->attributes(TestAttributeExt::class)))->toBe(1);
     expect(count($view->attributes(TestAttributeDiff::class)))->toBe(1);
 });
-
 
 test('Attribute filtering :: Controller view', function () {
     $route = new Route('/', [TestController::class, 'arrayView']);
@@ -96,7 +89,6 @@ test('Attribute filtering :: Controller view', function () {
     expect(count($view->attributes(TestAttributeDiff::class)))->toBe(1);
 });
 
-
 test('Attribute with Call attribute', function () {
     $route = new Route('/', #[TestAttributeViewAttr] fn () => '');
     $route->match('/');
@@ -105,11 +97,9 @@ test('Attribute with Call attribute', function () {
     $attr = $view->attributes()[0];
 
     expect($attr->registry)->toBeInstanceOf(Registry::class);
-    expect($attr->config)->toBeInstanceOf(Config::class);
     expect($attr->request)->toBeInstanceOf(Request::class);
     expect($attr->after)->toBe('Called after');
 });
-
 
 test('Untyped closure parameter', function () {
     $route = new Route('/', #[TestAttribute] fn ($param) => 'chuck');
@@ -117,7 +107,6 @@ test('Untyped closure parameter', function () {
     $view = new View($route->view(), $route->args(), $this->registry());
     $view->execute();
 })->throws(ContainerException::class, 'Autowired entities');
-
 
 test('Reflect function', function () {
     $rf = View::getReflectionFunction(function () {
@@ -136,7 +125,6 @@ test('Reflect function', function () {
     expect($rf)->toBeInstanceOf(ReflectionFunction::class);
 });
 
-
 test('View response Response', function () {
     $route = new Route('/', function (Registry $registry): Response {
         $factory = $registry->get(Factory::class);
@@ -154,7 +142,6 @@ test('View response Response', function () {
     expect($response->getHeaders()['Content-Type'][0])->toBe('text/plain');
 });
 
-
 test('View response PSR Response', function () {
     $route = new Route('/', function (Registry $registry) {
         $factory = $registry->get(Factory::class);
@@ -170,7 +157,6 @@ test('View response PSR Response', function () {
     expect((string)$response->getBody())->toBe('Chuck PSR Response');
     expect($response->getHeaders()['Content-Type'][0])->toBe('text/plain');
 });
-
 
 test('View response ResponseWrapper', function () {
     $route = new Route('/', function (Registry $registry) {
@@ -188,7 +174,6 @@ test('View response ResponseWrapper', function () {
     expect($response->getHeaders()['Content-Type'][0])->toBe('text/plain');
 });
 
-
 test('View response renderer', function () {
     $route = (new Route('/', fn () => ['name' => 'Chuck']))->render('json');
     $route->match('/');
@@ -198,7 +183,6 @@ test('View response renderer', function () {
     expect((string)$response->getBody())->toBe('{"name":"Chuck"}');
     expect($response->getHeaders()['Content-Type'][0])->toBe('application/json');
 });
-
 
 test('View response renderer with args and options', function () {
     $registry = $this->registry();
@@ -216,7 +200,6 @@ test('View response renderer with args and options', function () {
         ->toBe('{"name":"Chuck","arg1":"Arg","arg2":73,"option1":13,"option2":"Option"}');
     expect($response->getHeaders()['Content-Type'][0])->toBe('application/json');
 });
-
 
 test('View response renderer with options closure', function () {
     $registry = $this->registry();

@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Conia\Chuck\App;
-use Conia\Chuck\Config;
 use Conia\Chuck\Error\Handler;
 use Conia\Chuck\Exception\HttpBadRequest;
 use Conia\Chuck\Exception\HttpForbidden;
@@ -15,7 +14,6 @@ use Conia\Chuck\Tests\Setup\TestCase;
 
 uses(TestCase::class);
 
-
 beforeEach(function () {
     // capture output of error_log calls in a temporary file
     // to prevent it printed to the console.
@@ -25,7 +23,6 @@ beforeEach(function () {
     ini_set('error_log', $this->logfile);
 });
 
-
 afterEach(function () {
     // Restore default error_log and handlers
     is_file($this->logfile) && unlink($this->logfile);
@@ -34,23 +31,20 @@ afterEach(function () {
     restore_exception_handler();
 });
 
-
 test('Error handler I', function () {
-    $err = new Handler($this->config(), $this->registry());
+    $err = new Handler(false, $this->registry());
 
     expect($err->handleError(0, 'Chuck Test'))->toBe(false);
 });
 
-
 test('Error handler II', function () {
-    $err = new Handler($this->config(), $this->registry());
+    $err = new Handler(false, $this->registry());
 
     expect($err->handleError(E_WARNING, 'Chuck Test'))->toBe(false);
 })->throws(ErrorException::class, 'Chuck Test');
 
-
 test('Handle HTTP Exceptions', function () {
-    $err = new Handler($this->config(debug: true), $this->registry());
+    $err = new Handler(true, $this->registry());
 
     $response = $err->handleException(new HttpBadRequest(), $this->request());
     expect((string)$response->getBody())->toContain('<h1>400 Bad Request</h1><h2>HTTP Error</h2>');
@@ -77,62 +71,55 @@ test('Handle HTTP Exceptions', function () {
     expect((string)$response->getBody())->toContain('<br>#1');
 });
 
-
 test('Handle Exception and render text/plain', function () {
     $_SERVER['HTTP_ACCEPT'] = 'text/plain';
-    $err = new Handler($this->config(), $this->registry());
+    $err = new Handler(false, $this->registry());
 
     $response = $err->handleException(new HttpBadRequest(), $this->request());
     expect((string)$response->getBody())->toBe('Error: 400 Bad Request');
 });
 
-
 test('Handle Exception and render text/plain (debug: true)', function () {
     $_SERVER['HTTP_ACCEPT'] = 'text/plain';
-    $err = new Handler($this->config(debug: true), $this->registry());
+    $err = new Handler(true, $this->registry());
 
     $response = $err->handleException(new HttpBadRequest(), $this->request());
     expect((string)$response->getBody())->toStartWith("Error: 400 Bad Request\n\nDescription: HTTP Error");
     expect((string)$response->getBody())->toContain('#1');
 });
 
-
 test('Handle Exception and render application/json', function () {
     $_SERVER['HTTP_ACCEPT'] = 'application/json';
-    $err = new Handler($this->config(), $this->registry());
+    $err = new Handler(false, $this->registry());
 
     $response = $err->handleException(new HttpBadRequest(), $this->request());
     expect((string)$response->getBody())->toBe('{"error":"400 Bad Request"}');
 });
 
-
 test('Handle Exception and render application/json (debug: true)', function () {
     $_SERVER['HTTP_ACCEPT'] = 'application/json';
-    $err = new Handler($this->config(debug: true), $this->registry());
+    $err = new Handler(true, $this->registry());
 
     $response = $err->handleException(new HttpBadRequest(), $this->request());
     expect((string)$response->getBody())->toStartWith('{"error":"400 Bad Request","description":"HTTP Error"');
     expect((string)$response->getBody())->toContain('#1');
 });
 
-
 test('Handle PHP Exceptions', function () {
-    $err = new Handler($this->config(), $this->registry());
+    $err = new Handler(false, $this->registry());
     $response = $err->handleException(new DivisionByZeroError('Division by zero'), $this->request());
 
     expect((string)$response->getBody())->toContain('<h1>500 Internal Server Error</h1>');
     expect((string)$response->getBody())->not()->toContain('<h2>');
 });
 
-
 test('Debug mode traceback', function () {
-    $err = new Handler($this->config(debug: true), $this->registry());
+    $err = new Handler(true, $this->registry());
 
     $response = $err->handleException(new HttpBadRequest(), null);
     expect((string)$response->getBody())->toContain('<h1>400 Bad Request</h1><h2>HTTP Error</h2>');
     expect((string)$response->getBody())->toContain('#1');
 });
-
 
 test('Handled by middleware', function () {
     $app = App::create();
@@ -147,9 +134,8 @@ test('Handled by middleware', function () {
     expect((string)$response->getBody())->not()->toContain('#1');
 });
 
-
 test('Handled by middleware (debug: true)', function () {
-    $app = App::create(new Config('chuck', debug: true));
+    $app = App::create();
     $app->route('/', fn () => '');
     ob_start();
     $response = $app->run();
@@ -158,9 +144,8 @@ test('Handled by middleware (debug: true)', function () {
     expect((string)$response->getBody())->toContain('<h1>500 Internal Server Error</h1><h2>Unable to');
 });
 
-
 test('Emit PHP Exceptions', function () {
-    $err = new Handler($this->config(), $this->registry());
+    $err = new Handler(false, $this->registry());
 
     ob_start();
     $err->emitException(new DivisionByZeroError('Division by zero'));
@@ -173,9 +158,8 @@ test('Emit PHP Exceptions', function () {
     expect($output)->not()->toContain('#1');
 });
 
-
 test('Emit PHP Exceptions (debug: true)', function () {
-    $err = new Handler($this->config(debug: true), $this->registry());
+    $err = new Handler(true, $this->registry());
 
     ob_start();
     $err->emitException(new DivisionByZeroError('Division by zero'));

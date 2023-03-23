@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Tests\Fixtures;
 
-use Conia\Chuck\Config;
 use Conia\Chuck\Di\Call;
 use Conia\Chuck\Di\Inject;
 use Conia\Chuck\Registry;
@@ -13,7 +12,7 @@ use Conia\Chuck\Registry;
 class TestClassInject
 {
     public ?Registry $registry = null;
-    public ?Config $config = null;
+    public ?TestConfig $config = null;
     public ?TestClass $tc = null;
     public string $arg1 = '';
     public int $arg2 = 0;
@@ -24,7 +23,7 @@ class TestClassInject
     public function __construct(
         string $arg1,
         Registry $registry,
-        Config $config,
+        TestConfig $config,
         int $arg2,
         TestClass $tc,
     ) {

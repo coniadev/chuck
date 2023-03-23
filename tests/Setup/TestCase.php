@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Conia\Chuck\Tests\Setup;
 
 use Conia\Chuck\App;
-use Conia\Chuck\Config;
 use Conia\Chuck\Exception\ValueError;
 use Conia\Chuck\Factory;
 use Conia\Chuck\Logger;
 use Conia\Chuck\Registry;
 use Conia\Chuck\Request;
 use Conia\Chuck\Router;
+use Conia\Chuck\Tests\Fixtures\TestConfig;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Psr\Http\Message\ResponseInterface as PsrResponse;
@@ -137,29 +137,23 @@ class TestCase extends BaseTestCase
         unset($_SERVER['HTTPS'], $_SERVER['REQUEST_SCHEME'], $_SERVER['HTTP_X_FORWARDED_PROTO']);
     }
 
-    public function config(bool $debug = false): Config
+    public function app(): App
     {
-        return new Config('chuck', debug: $debug);
-    }
-
-    public function app(Config $config = null): App
-    {
-        return App::create($config ?? $this->config());
+        return App::create();
     }
 
     public function registry(
         ?Request $request = null,
-        ?Config $config = null,
         bool $autowire = true,
     ): Registry {
         $registry = new Registry(autowire: $autowire);
-        $config = $config ?: $this->config();
 
-        App::initializeRegistry($registry, $config, new Router());
+        App::initializeRegistry($registry, new Router());
 
         $request = $request ?: $this->request();
         $registry->add(Request::class, $request);
         $registry->add($request::class, $request);
+        $registry->add(TestConfig::class, new TestConfig('chuck'));
 
         $registry->add(PsrLogger::class, function (): PsrLogger {
             return new Logger();

@@ -16,7 +16,7 @@ require __DIR__ . '/Setup/globalSymbols.php';
 uses(TestCase::class);
 
 test('Middleware flow', function () {
-    $app = App::create($this->config());
+    $app = App::create();
     $route = new Route('/', 'Conia\Chuck\Tests\Fixtures\TestController::middlewareView');
     $route->middleware([TestMiddlewareObject::class, ' last']);
     $app->addRoute($route);
@@ -31,7 +31,7 @@ test('Middleware flow', function () {
 });
 
 test('Middleware flow with attribute', function () {
-    $app = App::create($this->config());
+    $app = App::create();
     $route = new Route('/', 'Conia\Chuck\Tests\Fixtures\TestController::attributedMiddlewareView');
     $route->middleware([TestMiddlewareObject::class, ' last']);
     $app->addRoute($route);
@@ -46,7 +46,7 @@ test('Middleware flow with attribute', function () {
 });
 
 test('Early response', function () {
-    $app = App::create($this->config());
+    $app = App::create();
     $app->route('/', 'Conia\Chuck\Tests\Fixtures\TestController::middlewareView');
     $app->middleware([TestMiddlewareEarlyResponse::class, 'immediate response']);
     $app->middleware(new TestMiddlewareObject(' second'));
@@ -60,7 +60,7 @@ test('Early response', function () {
 });
 
 test('Middleware flow with attribute and PSR-15 middleware', function () {
-    $app = App::create($this->config());
+    $app = App::create();
     $route = new Route('/', 'Conia\Chuck\Tests\Fixtures\TestController::attributedMiddlewareView');
     $route->middleware(new TestMiddlewareObject(' last'));
     $route->middleware([TestPsrMiddlewareObject::class, ' PSR']);
@@ -76,7 +76,7 @@ test('Middleware flow with attribute and PSR-15 middleware', function () {
 });
 
 test('Middleware autowiring', function () {
-    $app = App::create($this->config());
+    $app = App::create();
     $route = new Route('/', #[Render('text')] fn () => '');
     $route->middleware(TestMiddlewareAutowire::class);
     $app->addRoute($route);

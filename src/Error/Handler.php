@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Conia\Chuck\Error;
 
-use Conia\Chuck\Config;
 use Conia\Chuck\Exception\HttpBadRequest;
 use Conia\Chuck\Exception\HttpError;
 use Conia\Chuck\Exception\HttpForbidden;
@@ -26,7 +25,7 @@ use Throwable;
 /** @psalm-api */
 class Handler implements Middleware
 {
-    public function __construct(protected Config $config, protected Registry $registry)
+    public function __construct(protected bool $debug, protected Registry $registry)
     {
         set_error_handler([$this, 'handleError'], E_ALL);
         set_exception_handler([$this, 'emitException']);
@@ -86,7 +85,7 @@ class Handler implements Middleware
             $description,
             $exception->getTraceAsString(),
             $code,
-            $this->config->debug()
+            $this->debug
         );
 
         $this->log($exception);

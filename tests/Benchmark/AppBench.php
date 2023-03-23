@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Conia\Chuck\Tests\Benchmark;
 
 use Conia\Chuck\App;
-use Conia\Chuck\Config;
 use Conia\Chuck\Group;
 use Conia\Chuck\Psr\Guzzle;
 use Conia\Chuck\Psr\Laminas;
@@ -14,6 +13,7 @@ use Conia\Chuck\Request;
 use Conia\Chuck\Response;
 use Conia\Chuck\Route;
 use Conia\Chuck\Tests\Fixtures\TestClassInject;
+use Conia\Chuck\Tests\Fixtures\TestConfig;
 use Conia\Chuck\Tests\Fixtures\TestController;
 use Conia\Chuck\Tests\Fixtures\TestMiddlewareBench;
 
@@ -29,7 +29,7 @@ class AppBench
      */
     public function benchAppInit()
     {
-        App::create(new Config('chuck'));
+        App::create();
     }
 
     /**
@@ -64,7 +64,7 @@ class AppBench
     public function benchRealworldApp()
     {
         $app = App::create();
-        $app->register('injected', new Config('injected'));
+        $app->register('injected', new TestConfig('injected'));
 
         // Change order to see the differences
         $app->register(Factory::class, Guzzle::class);
@@ -155,7 +155,6 @@ class AppBench
                 ]
             )->render('json');
         })->render('json')->middleware(TestMiddlewareBench::class);
-
 
         ob_start();
         $app->run();

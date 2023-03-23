@@ -34,12 +34,11 @@ class App implements RouteAdder
 
     /** @psalm-param non-falsy-string|list{non-falsy-string, ...}|Closure|Middleware|PsrMiddleware|null $errorHandler */
     public function __construct(
-        protected Config $config,
         protected Router $router,
         protected Registry $registry,
         protected string|array|Closure|Middleware|PsrMiddleware|null $errorHandler = null,
     ) {
-        self::initializeRegistry($registry, $config, $router);
+        self::initializeRegistry($registry, $router);
 
         if (!is_null($errorHandler)) {
             // The error handler should be the first middleware
@@ -47,26 +46,17 @@ class App implements RouteAdder
         }
     }
 
-    public static function create(?Config $config = null, ?PsrContainer $container = null): self
+    public static function create(?PsrContainer $container = null): self
     {
-        if (!$config) {
-            $config = new Config('chuck', debug: false);
-        }
-
         $registry = new Registry($container);
         $router = new Router();
 
-        return new self($config, $router, $registry, Handler::class);
+        return new self($router, $registry, Handler::class);
     }
 
     public function router(): Router
     {
         return $this->router;
-    }
-
-    public function config(): Config
-    {
-        return $this->config;
     }
 
     public function registry(): Registry
@@ -166,11 +156,8 @@ class App implements RouteAdder
 
     public static function initializeRegistry(
         Registry $registry,
-        Config $config,
         Router $router,
     ): void {
-        $registry->add(Config::class, $config);
-        $registry->add($config::class, $config);
         $registry->add(Router::class, $router);
         $registry->add($router::class, $router);
 
