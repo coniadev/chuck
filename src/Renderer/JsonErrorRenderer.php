@@ -20,8 +20,8 @@ class JsonErrorRenderer implements Renderer
         assert(is_array($data));
         assert(isset($data['error']));
         assert($data['error'] instanceof Error);
-        $error = $data['error'];
 
+        $error = $data['error'];
         $json = [
             'error' => $error->error,
             'description' => $error->description,
