@@ -22,7 +22,13 @@ class JsonErrorRenderer implements Renderer
         assert($data['error'] instanceof Error);
         $error = $data['error'];
 
-        $json = ['error' => $error->error];
+        $json = [
+            'error' => $error->error,
+            'description' => $error->description,
+            'traceback' => $error->traceback,
+            'code' => $error->code,
+            'payload' => $error->payload,
+        ];
 
         return json_encode($json, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
     }

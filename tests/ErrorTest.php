@@ -110,7 +110,13 @@ test('Response with application/json', function () {
     $err = new Handler($this->registry());
 
     $response = $err->getResponse($err->getError(new HttpBadRequest()), $this->request());
-    expect((string)$response->psr()->getBody())->toBe('{"error":"400 Bad Request"}');
+    $error = json_decode((string)$response->psr()->getBody());
+
+    expect($error->error)->toBe('400 Bad Request');
+    expect($error->description)->toBe('Bad Request');
+    expect($error->traceback)->toContain('#0');
+    expect($error->code)->toBe(400);
+    expect($error->payload)->toBe(null);
 });
 
 test('Response with PHP Exceptions', function () {
