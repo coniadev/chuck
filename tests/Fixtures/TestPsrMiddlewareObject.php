@@ -20,7 +20,10 @@ class TestPsrMiddlewareObject implements PsrMiddleware
         PsrRequestHandler $next
     ): PsrResponse {
         $response = $next->handle($request);
-        $response->getBody()->write($this->text);
+        $body = $response->getBody();
+        $content = (string)$body . $this->text;
+        $body->seek(0);
+        $body->write($content);
 
         return $response;
     }
