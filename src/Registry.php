@@ -52,8 +52,6 @@ class Registry implements PsrContainer
     {
         $keys = array_keys($this->entries);
 
-        error_log('hinna');
-
         if ($includeRegistry) {
             return $keys;
         }
