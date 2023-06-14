@@ -359,6 +359,16 @@ test('Is not reified', function () {
     expect($obj1 === $obj2)->toBe(false);
 });
 
+test('Fetch entries list', function () {
+    $registry = new Registry();
+    $registry->add('class', stdClass::class)->reify(false);
+
+    expect($registry->entries())->toBe(['class']);
+    expect($registry->entries(includeRegistry: true))->toBe(
+        ['Psr\Container\ContainerInterface', 'Conia\Chuck\Registry', 'class']
+    );
+});
+
 test('Add and receive tagged entries', function () {
     $registry = new Registry();
     $registry->tag('tag')->add('class', stdClass::class);

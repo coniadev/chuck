@@ -48,9 +48,19 @@ class Registry implements PsrContainer
     }
 
     /** @psalm-return list<string> */
-    public function entries(): array
+    public function entries(bool $includeRegistry = false): array
     {
-        return array_keys($this->entries);
+        $keys = array_keys($this->entries);
+
+        error_log('hinna');
+
+        if ($includeRegistry) {
+            return $keys;
+        }
+
+        return array_values(array_filter($keys, function ($item) {
+            return $item !== PsrContainer::class && !is_subclass_of($item, PsrContainer::class);
+        }));
     }
 
     public function entry(string $id): Entry
