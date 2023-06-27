@@ -434,4 +434,4 @@ test('Getting non existent tagged entry fails', function () {
     $registry = new Registry();
 
     $registry->tag('tag')->get('NonExistent');
-})->throws(NotFoundException::class, 'Unresolvable tagged id: tag::NonExistent');
+})->throws(NotFoundException::class, 'Unresolvable id: NonExistent');

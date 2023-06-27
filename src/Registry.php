@@ -78,7 +78,9 @@ class Registry implements PsrContainer
             return $this->container->get($id);
         }
 
-        if ($this->parent && $this->parent->has($id)) {
+        // We are in a tag. Unregistered entries should always
+        // be registered on the root.
+        if ($this->parent) {
             return $this->parent->get($id);
         }
 
@@ -87,11 +89,7 @@ class Registry implements PsrContainer
             return $this->resolver->autowire($id);
         }
 
-        $message = empty($this->tag) ?
-            'Unresolvable id: ' . $id :
-            'Unresolvable tagged id: ' . $this->tag . '::' . $id;
-
-        throw new NotFoundException($message);
+        throw new NotFoundException('Unresolvable id: ' . $id);
     }
 
     /**
