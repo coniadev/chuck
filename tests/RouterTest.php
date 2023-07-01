@@ -46,12 +46,16 @@ test('Matching', function () {
 
 test('Simple matching url encoded', function () {
     $router = new Router();
-    $route = new Route('/chuck schuldiner', fn () => null, 'encoded');
+    $route = new Route('/album name/...slug', fn () => null, 'encoded');
     $router->addRoute($route);
 
     expect(
-        $router->match($this->request(method: 'GET', url: '/chuck%20schuldiner'))->name()
+        $router->match($this->request(
+            method: 'GET',
+            url: '/album%20name/scream%20bloody%20gore'
+        ))->name()
     )->toBe('encoded');
+    expect($route->args()['slug'])->toBe('scream bloody gore');
 });
 
 test('Matching with helpers', function () {
