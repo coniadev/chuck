@@ -163,7 +163,7 @@ class Router implements RouteAdder
 
     public function match(Request $request): Route
     {
-        $url = $request->uri()->getPath();
+        $url = rawurldecode($request->uri()->getPath());
         $requestMethod = $request->method();
 
         foreach ([$requestMethod, self::ALL] as $method) {

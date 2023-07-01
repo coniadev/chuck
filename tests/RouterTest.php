@@ -44,6 +44,16 @@ test('Matching', function () {
     $router->match($this->request(method: 'GET', url: '/does-not-exist'));
 })->throws(HttpNotFound::class);
 
+test('Simple matching url encoded', function () {
+    $router = new Router();
+    $route = new Route('/chuck schuldiner', fn () => null, 'encoded');
+    $router->addRoute($route);
+
+    expect(
+        $router->match($this->request(method: 'GET', url: '/chuck%20schuldiner'))->name()
+    )->toBe('encoded');
+});
+
 test('Matching with helpers', function () {
     $router = new Router();
     $index = $router->get('/', fn () => null, 'index');

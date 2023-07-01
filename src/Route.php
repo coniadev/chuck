@@ -14,7 +14,6 @@ use Stringable;
 const LEFT_BRACE = '§§§€§§§';
 const RIGHT_BRACE = '§§§£§§§';
 
-
 /**
  * @psalm-api
  *
@@ -28,6 +27,7 @@ class Route
 
     /** @psalm-var null|list<string> */
     protected ?array $methods = null;
+
     protected ?RendererConfig $renderer = null;
     protected array $attributes = [];
 
