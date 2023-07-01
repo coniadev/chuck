@@ -226,9 +226,6 @@ class Request
     }
 
     /**
-     * Returns always a list of uploaded files, even if there is
-     * only one file.
-     *
      * Psalm does not support multi file uploads yet and complains
      * about type issues. We need to suppres some of the errors.
      *
@@ -236,11 +233,9 @@ class Request
      *
      * @psalm-param list<non-empty-string>|string ...$keys
      *
-     * @return PsrUploadedFile
-     *
      * @throws OutOfBoundsException RuntimeException
      */
-    public function file(array|string ...$keys): PsrUploadedFile|array
+    public function file(array|string ...$keys): PsrUploadedFile
     {
         $keys = $this->validateKeys($keys);
 
