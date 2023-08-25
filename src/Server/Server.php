@@ -26,12 +26,43 @@ class Server extends Command
 
         $opts = new Opts();
         $port = $opts->get('-p', $opts->get('--port', $port));
+        $filter = $opts->get('-f', $opts->get('--filter', ''));
+        $quiet = $opts->has('-q');
 
-        exec(
+        $descriptors = [
+            0 => ['pipe', 'r'],
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w'],
+        ];
+        $process = proc_open(
             "DOCUMENT_ROOT={$docroot} php -S localhost:{$port} " .
-                "    -t {$docroot}" . DIRECTORY_SEPARATOR . ' ' .
-                __DIR__ . DIRECTORY_SEPARATOR . 'CliRouter.php'
+                ($quiet ? '-q ' : '') .
+                "    -t {$docroot}" . DIRECTORY_SEPARATOR . ' ' . __DIR__ . DIRECTORY_SEPARATOR . 'CliRouter.php ',
+            $descriptors,
+            $pipes
         );
+
+        if (is_resource($process)) {
+            while (!feof($pipes[1])) {
+                $output = fgets($pipes[2], 1024);
+                if (strlen($output) === 0) {
+                    break;
+                }
+
+                if (!str_contains($output, '127.0.0.1')) {
+                    $pos = strpos($output, ']');
+                    list($usec, $sec) = explode(' ', microtime());
+                    $usec = str_replace('0.', '.', $usec);
+
+                    if (!$filter || !preg_match($filter, substr($output, strpos($output, '/')))) {
+                        echo '[' . date('H:i:s', (int)$sec) . substr($usec, 0, 3) . '] ' . substr($output, $pos + 2);
+                    }
+                }
+            }
+
+            fclose($pipes[1]);
+            proc_close($process);
+        }
 
         return 0;
     }

@@ -6,20 +6,23 @@ declare(strict_types=1);
 
 function logit(string $msg): void
 {
-    $hostPort = '[' .
-        ($_SERVER['REMOTE_ADDR'] ?? '<no-addr>') .
-        ']:' .
-        ($_SERVER['REMOTE_PORT'] ?? '<no-port>');
-
     $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])
         && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') ? '[XHR]' : '';
     $method = isset($_SERVER['REQUEST_METHOD']) ?
         strtoupper($_SERVER['REQUEST_METHOD']) : '';
+    $statusCode = http_response_code();
+    $color = match (true) {
+        $statusCode >= 200 && $statusCode < 300 => '32',
+        $statusCode >= 300 && $statusCode < 400 => '34',
+        $statusCode >= 400 && $statusCode < 500 => '35',
+        $statusCode >= 500 => '36',
+        default => '37',
+    };
 
     error_log(
         sprintf(
-            "%s \033[1;33m%s%s:\033[0m \033[1;32m%s\033[0m",
-            $hostPort,
+            "\033[1;{$color}m(%s)\033[0m: \033[1;33m%s%s \033[0m\033[1;{$color}m%s\033[0m",
+            (string)$statusCode,
             $method,
             $isAjax,
             urldecode($msg)
@@ -27,37 +30,37 @@ function logit(string $msg): void
     );
 }
 
-
 if (PHP_SAPI !== 'cli') {
     $uri = $_SERVER['REQUEST_URI'] ?? '';
     $publicDir = getenv('DOCUMENT_ROOT');
     $url = urldecode(parse_url($uri, PHP_URL_PATH));
 
-    // patch SCRIPT_NAME and pass the request to index.php
-    logit($uri);
+    try {
+        if ($publicDir) {
+            // serve existing files as-is
+            if (is_file($publicDir . $url)) {
+                return false;
+            }
 
-    // serve existing files as-is
-    if ($publicDir) {
-        if (is_file($publicDir . $url)) {
-            return false;
-        }
+            if (is_file($publicDir . rtrim($url, '/') . '/index.html')) {
+                return false;
+            }
 
-        if (is_file($publicDir . rtrim($url, '/') . '/index.html')) {
-            return false;
-        }
+            if ($url === '/server-php-info') {
+                echo phpinfo();
 
-        if ($url === '/server-php-info') {
-            echo phpinfo();
+                return true;
+            }
+
+            $_SERVER['SCRIPT_NAME'] = 'index.php';
+
+            /** @psalm-suppress UnresolvableInclude */
+            require_once $publicDir . '/index.php';
 
             return true;
         }
-
-        $_SERVER['SCRIPT_NAME'] = 'index.php';
-
-        /** @psalm-suppress UnresolvableInclude */
-        require_once $publicDir . '/index.php';
-
-        return true;
+    } finally {
+        logit($uri);
     }
 
     return false;
