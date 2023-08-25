@@ -235,7 +235,16 @@ class Route
 
     public function match(string $url): ?Route
     {
-        if (preg_match($this->compiledPattern(), $url, $matches)) {
+        $pattern = $this->compiledPattern();
+        assert(strlen($pattern) > 0);
+
+        /**
+         * The previous assert does not satisfy psalm regarding
+         * `preg_match` pattern must be a non-empty-string.
+         *
+         * @psalm-suppress ArgumentTypeCoercion
+         */
+        if (preg_match($pattern, $url, $matches)) {
             // Remove integer indexes from array
             $matches = array_filter(
                 $matches,
