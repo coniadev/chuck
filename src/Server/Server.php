@@ -45,16 +45,17 @@ class Server extends Command
         if (is_resource($process)) {
             while (!feof($pipes[1])) {
                 $output = fgets($pipes[2], 1024);
+
                 if (strlen($output) === 0) {
                     break;
                 }
 
                 if (!str_contains($output, '127.0.0.1')) {
-                    $pos = strpos($output, ']');
+                    $pos = (int)strpos($output, ']');
                     list($usec, $sec) = explode(' ', microtime());
                     $usec = str_replace('0.', '.', $usec);
 
-                    if (!$filter || !preg_match($filter, substr($output, strpos($output, '/')))) {
+                    if (!$filter || !preg_match($filter, substr($output, (int)strpos($output, '/')))) {
                         echo '[' . date('H:i:s', (int)$sec) . substr($usec, 0, 3) . '] ' . substr($output, $pos + 2);
                     }
                 }
