@@ -6,6 +6,7 @@ namespace Conia\Chuck\Server;
 
 use Conia\Cli\Command;
 use Conia\Cli\Opts;
+use Throwable;
 
 /** @psalm-api */
 class Server extends Command
@@ -24,6 +25,18 @@ class Server extends Command
         $docroot = $this->docroot;
         $port = (string)$this->port;
 
+        try {
+            $sizeStr = trim(exec('stty size'));
+            if ($sizeStr) {
+                $size = explode(' ', $sizeStr);
+                $columns = $size[1];
+            } else {
+                $columns = '80';
+            }
+        } catch (Throwable) {
+            $columns = '80';
+        }
+
         $opts = new Opts();
         $port = $opts->get('-p', $opts->get('--port', $port));
         $filter = $opts->get('-f', $opts->get('--filter', ''));
@@ -35,7 +48,9 @@ class Server extends Command
             2 => ['pipe', 'w'],
         ];
         $process = proc_open(
-            "DOCUMENT_ROOT={$docroot} php -S localhost:{$port} " .
+            "CONIA_DOCUMENT_ROOT={$docroot} " .
+                "CONIA_TERMINAL_COLUMNS={$columns} " .
+                "php -S localhost:{$port} " .
                 ($quiet ? '-q ' : '') .
                 "    -t {$docroot}" . DIRECTORY_SEPARATOR . ' ' . __DIR__ . DIRECTORY_SEPARATOR . 'CliRouter.php ',
             $descriptors,
@@ -52,11 +67,9 @@ class Server extends Command
 
                 if (!str_contains($output, '127.0.0.1')) {
                     $pos = (int)strpos($output, ']');
-                    list($usec, $sec) = explode(' ', microtime());
-                    $usec = str_replace('0.', '.', $usec);
 
                     if (!$filter || !preg_match($filter, substr($output, (int)strpos($output, '/')))) {
-                        echo '[' . date('H:i:s', (int)$sec) . substr($usec, 0, 3) . '] ' . substr($output, $pos + 2);
+                        echo substr($output, $pos + 2);
                     }
                 }
             }
