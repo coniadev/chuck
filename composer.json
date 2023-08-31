@@ -13,6 +13,7 @@
     "prefer-stable": true,
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^1",
+        "filp/whoops": "^2.15",
         "guzzlehttp/psr7": "^2",
         "laminas/laminas-diactoros": "^2",
         "league/container": "^4",
@@ -38,7 +39,10 @@
     "autoload": {
         "psr-4": {
             "Conia\\Chuck\\": "src"
-        }
+        },
+        "files": [
+            "src/Server/functions.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

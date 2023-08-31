@@ -48,6 +48,7 @@ class Server extends Command
             2 => ['pipe', 'w'],
         ];
         $process = proc_open(
+            'CONIA_CLI_SERVER=1 ' .
             "CONIA_DOCUMENT_ROOT={$docroot} " .
                 "CONIA_TERMINAL_COLUMNS={$columns} " .
                 "php -S localhost:{$port} " .
@@ -65,7 +66,7 @@ class Server extends Command
                     break;
                 }
 
-                if (!str_contains($output, '127.0.0.1')) {
+                if (!str_contains($output, '127.0.0.1:')) {
                     $pos = (int)strpos($output, ']');
 
                     if (!$filter || !preg_match($filter, substr($output, (int)strpos($output, '/')))) {

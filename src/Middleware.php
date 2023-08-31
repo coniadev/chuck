@@ -9,6 +9,7 @@ use Conia\Chuck\ResponseWrapper;
 
 interface Middleware
 {
+    /** @param callable(Request): ResponseWrapper $next */
     public function __invoke(
         Request $request,
         callable $next

@@ -8,7 +8,6 @@ use Conia\Chuck\Exception\HttpBadRequest;
 use Conia\Chuck\Exception\HttpForbidden;
 use Conia\Chuck\Exception\HttpMethodNotAllowed;
 use Conia\Chuck\Exception\HttpNotFound;
-use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Exception\HttpUnauthorized;
 use Conia\Chuck\Tests\Setup\TestCase;
 
@@ -56,11 +55,6 @@ test('HTTP Errors', function () {
     expect($exception->getTitle())->toBe('405 Method Not Allowed');
     expect($exception->getCode())->toBe(405);
     expect($exception->getPayload())->toBe('405 payload');
-
-    $exception = HttpServerError::withPayload('500 payload');
-    expect($exception->getTitle())->toBe('500 Internal Server Error');
-    expect($exception->getCode())->toBe(500);
-    expect($exception->getPayload())->toBe('500 payload');
 });
 
 test('Error handler I', function () {
@@ -78,22 +72,22 @@ test('Error handler II', function () {
 test('HTTP error responses', function () {
     $err = new Handler($this->registry());
 
-    $response = $err->getResponse($err->getError(new HttpBadRequest()), $this->request());
+    $response = $err->getResponse(new HttpBadRequest(), $this->request());
     expect((string)$response->psr()->getBody())->toContain('<h1>400 Bad Request</h1>');
 
-    $response = $err->getResponse($err->getError(new HttpUnauthorized()), $this->request());
+    $response = $err->getResponse(new HttpUnauthorized(), $this->request());
     expect((string)$response->psr()->getBody())->toContain('<h1>401 Unauthorized</h1>');
 
-    $response = $err->getResponse($err->getError(new HttpForbidden()), $this->request());
+    $response = $err->getResponse(new HttpForbidden(), $this->request());
     expect((string)$response->psr()->getBody())->toContain('<h1>403 Forbidden</h1>');
 
-    $response = $err->getResponse($err->getError(new HttpNotFound()), $this->request());
+    $response = $err->getResponse(new HttpNotFound(), $this->request());
     expect((string)$response->psr()->getBody())->toContain('<h1>404 Not Found</h1>');
 
-    $response = $err->getResponse($err->getError(new HttpMethodNotAllowed()), $this->request());
+    $response = $err->getResponse(new HttpMethodNotAllowed(), $this->request());
     expect((string)$response->psr()->getBody())->toContain('<h1>405 Method Not Allowed</h1>');
 
-    $response = $err->getResponse($err->getError(new HttpServerError()), $this->request());
+    $response = $err->getResponse(new Exception(), $this->request());
     expect((string)$response->psr()->getBody())->toContain('<h1>500 Internal Server Error</h1>');
 });
 
@@ -101,7 +95,7 @@ test('Response with text/plain', function () {
     $_SERVER['HTTP_ACCEPT'] = 'text/plain';
     $err = new Handler($this->registry());
 
-    $response = $err->getResponse($err->getError(new HttpBadRequest()), $this->request());
+    $response = $err->getResponse(new HttpBadRequest(), $this->request());
     expect((string)$response->psr()->getBody())->toBe('Error: 400 Bad Request');
 });
 
@@ -109,7 +103,7 @@ test('Response with application/json', function () {
     $_SERVER['HTTP_ACCEPT'] = 'application/json';
     $err = new Handler($this->registry());
 
-    $response = $err->getResponse($err->getError(new HttpBadRequest()), $this->request());
+    $response = $err->getResponse(new HttpBadRequest(), $this->request());
     $error = json_decode((string)$response->psr()->getBody());
 
     expect($error->error)->toBe('400 Bad Request');
@@ -121,7 +115,7 @@ test('Response with application/json', function () {
 
 test('Response with PHP Exceptions', function () {
     $err = new Handler($this->registry());
-    $response = $err->getResponse($err->getError(new DivisionByZeroError('Division by zero')), $this->request());
+    $response = $err->getResponse(new DivisionByZeroError('Division by zero'), $this->request());
 
     expect((string)$response->psr()->getBody())->toContain('<h1>500 Internal Server Error</h1>');
 });

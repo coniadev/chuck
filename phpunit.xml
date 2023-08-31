@@ -14,6 +14,7 @@
             <exclude>
                 <file>src/Server/Server.php</file>
                 <file>src/Server/CliRouter.php</file>
+                <file>src/Server/functions.php</file>
             </exclude>
         </whitelist>
     </filter>

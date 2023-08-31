@@ -32,11 +32,10 @@ class App implements RouteAdder
 {
     use AddsRoutes;
 
-    /** @psalm-param non-falsy-string|list{non-falsy-string, ...}|Closure|Middleware|PsrMiddleware|null $errorHandler */
     public function __construct(
         protected Router $router,
         protected Registry $registry,
-        protected string|array|Closure|Middleware|PsrMiddleware|null $errorHandler = null,
+        protected Middleware|PsrMiddleware|null $errorHandler = null,
     ) {
         self::initializeRegistry($registry, $router);
 
@@ -51,7 +50,7 @@ class App implements RouteAdder
         $registry = new Registry($container);
         $router = new Router();
 
-        return new self($router, $registry, Handler::class);
+        return new self($router, $registry, new Handler($registry));
     }
 
     public function router(): Router

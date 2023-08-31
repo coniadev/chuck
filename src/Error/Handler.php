@@ -9,7 +9,6 @@ use Conia\Chuck\Exception\HttpError;
 use Conia\Chuck\Exception\HttpForbidden;
 use Conia\Chuck\Exception\HttpMethodNotAllowed;
 use Conia\Chuck\Exception\HttpNotFound;
-use Conia\Chuck\Exception\HttpServerError;
 use Conia\Chuck\Exception\HttpUnauthorized;
 use Conia\Chuck\Http\Emitter;
 use Conia\Chuck\Middleware;
@@ -37,15 +36,13 @@ class Handler implements Middleware
         restore_exception_handler();
     }
 
+    /** @param callable(Request): ResponseWrapper $next*/
     public function __invoke(Request $request, callable $next): ResponseWrapper
     {
         try {
-            $response = $next($request);
-            assert($response instanceof ResponseWrapper);
-
-            return $response;
+            return $next($request);
         } catch (Throwable $e) {
-            return $this->getResponse($this->getError($e), $request);
+            return $this->getResponse($e, $request);
         }
     }
 
@@ -64,13 +61,27 @@ class Handler implements Middleware
 
     public function emitException(Throwable $exception): void
     {
+        $start = microtime(true);
         $this->log($exception);
-        $response = $this->getResponse($this->getError($exception), null);
+        $response = $this->getResponse($exception, null);
+
+        // @codeCoverageIgnoreStart
+        if (PHP_SAPI == 'cli-server' && getenv('CONIA_CLI_SERVER')) {
+            serverEcho(
+                $response->getStatusCode(),
+                $_SERVER['REQUEST_URI'] ?? '<no uri available>',
+                microtime(true) - $start,
+                fromHandler: true
+            );
+        }
+        // @codeCoverageIgnoreEnd
+
         (new Emitter())->emit($response->psr());
     }
 
-    public function getResponse(Error $error, ?Request $request): Response
+    public function getResponse(Throwable $exception, ?Request $request): Response
     {
+        $error = $this->getError($exception);
         $accepted = $request ? $this->getAcceptedContentType($request) : 'text/html';
         $rendererConfig = $this->registry->tag(self::class)->get($accepted);
         assert($rendererConfig instanceof ErrorRenderer);
@@ -122,7 +133,6 @@ class Handler implements Middleware
             HttpForbidden::class => 'notice',
             HttpUnauthorized::class => 'notice',
             HttpBadRequest::class => 'warning',
-            HttpServerError::class => 'error',
             default => 'error',
         };
     }
