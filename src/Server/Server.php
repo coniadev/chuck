@@ -38,6 +38,7 @@ class Server extends Command
         }
 
         $opts = new Opts();
+        $host = $opts->get('-h', $opts->get('--host', 'localhost'));
         $port = $opts->get('-p', $opts->get('--port', $port));
         $filter = $opts->get('-f', $opts->get('--filter', ''));
         $quiet = $opts->has('-q');
@@ -51,7 +52,7 @@ class Server extends Command
             'CONIA_CLI_SERVER=1 ' .
             "CONIA_DOCUMENT_ROOT={$docroot} " .
                 "CONIA_TERMINAL_COLUMNS={$columns} " .
-                "php -S localhost:{$port} " .
+                "php -S {$host}:{$port} " .
                 ($quiet ? '-q ' : '') .
                 "    -t {$docroot}" . DIRECTORY_SEPARATOR . ' ' . __DIR__ . DIRECTORY_SEPARATOR . 'CliRouter.php ',
             $descriptors,
