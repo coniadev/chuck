@@ -67,7 +67,7 @@ class Server extends Command
                     break;
                 }
 
-                if (!str_contains($output, '127.0.0.1:')) {
+                if (!preg_match('/^\[.*?\] \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}/', $output)) {
                     $pos = (int)strpos($output, ']');
 
                     if (!$filter || !preg_match($filter, substr($output, (int)strpos($output, '/')))) {
