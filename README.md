@@ -7,6 +7,10 @@ Chuck Framework
 [![Psalm level](https://shepherd.dev/github/coniadev/chuck/level.svg?)](https://conia.dev/chuck)
 [![Quality Score](https://img.shields.io/scrutinizer/g/coniadev/chuck.svg)](https://scrutinizer-ci.com/g/coniadev/chuck)
 
+
+> [!CAUTION]
+> This project has been archived. You may want to check out https://github.com/coniadev/core instead.
+
 Chuck is a lightweight and easily extendable PHP 8.1 web framework. 
 
 > **Warning**: This framework is under active development and some of the listed features are still experimental and subject to change. The information here might become outdated and misleading. 
